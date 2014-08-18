@@ -61,7 +61,6 @@ public interface StreamClient extends Closeable {
    *
    * @param stream Name of the stream
    * @return An instance of {@link StreamWriter} that is ready for writing events to the stream
-   * @throws NotFoundException If the stream does not exists
    */
   StreamWriter createWriter(String stream);
 

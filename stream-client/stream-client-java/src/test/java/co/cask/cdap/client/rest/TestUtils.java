@@ -25,10 +25,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.ws.rs.core.HttpHeaders;
 
-/**
- * @author Alina Makogon amakogon@cybervisiontech.com
- *         Date: 8/18/14
- */
 public final class TestUtils {
   public static final String SUCCESS_STREAM_NAME = "success";
   public static final String NOT_FOUND_STREAM_NAME = "notFound";

@@ -36,8 +36,7 @@ import java.io.IOException;
 import javax.ws.rs.core.MediaType;
 
 /**
- * @author Alina Makogon amakogon@cybervisiontech.com
- *         Date: 8/14/14
+ * Stream client implementation used REST Api for stream management
  */
 public class RestStreamClient implements StreamClient {
   private static final Logger LOG = LoggerFactory.getLogger(RestStreamClient.class);
@@ -135,6 +134,9 @@ public class RestStreamClient implements StreamClient {
     restClient.close();
   }
 
+  /**
+   * Class Builder for create RestStreamClient instance
+   */
   public static class Builder {
     //mandatory
     private final int port;

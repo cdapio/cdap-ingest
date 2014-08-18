@@ -25,10 +25,6 @@ import org.apache.http.protocol.HttpRequestHandler;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * @author Alina Makogon amakogon@cybervisiontech.com
- *         Date: 8/18/14
- */
 public class RestTest {
   public static final long STREAM_TTL = 86400;
   public static final String AUTH_TOKEN = "er4545556tfgbdsa9ddvgfgd9";

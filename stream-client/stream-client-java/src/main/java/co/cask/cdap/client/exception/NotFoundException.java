@@ -17,8 +17,7 @@
 package co.cask.cdap.client.exception;
 
 /**
- * @author Alina Makogon amakogon@cybervisiontech.com
- *         Date: 8/14/14
+ * Thrown when an element is not found
  */
 public class NotFoundException extends Exception {
 

@@ -31,10 +31,6 @@ import java.io.IOException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 
-/**
- * @author Alina Makogon amakogon@cybervisiontech.com
- *         Date: 8/18/14
- */
 public class StreamInfoHttpRequestHandler implements HttpRequestHandler {
 
   @Override

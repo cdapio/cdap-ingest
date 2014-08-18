@@ -28,13 +28,11 @@ import org.apache.http.protocol.HttpRequestHandler;
 import java.io.IOException;
 import javax.ws.rs.HttpMethod;
 
-/**
- * @author Alina Makogon amakogon@cybervisiontech.com
- *         Date: 8/18/14
- */
 public class StreamHttpRequestHandler implements HttpRequestHandler {
   @Override
-  public void handle(HttpRequest httpRequest, HttpResponse response, HttpContext httpContext) throws HttpException, IOException {
+  public void handle(HttpRequest httpRequest, HttpResponse response, HttpContext httpContext)
+    throws HttpException, IOException {
+
     RequestLine requestLine = httpRequest.getRequestLine();
     String method = requestLine.getMethod();
     int statusCode;

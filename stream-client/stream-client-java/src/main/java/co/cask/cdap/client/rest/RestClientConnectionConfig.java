@@ -16,6 +16,9 @@
 
 package co.cask.cdap.client.rest;
 
+/**
+ * Container for REST client configuration properties
+ */
 public class RestClientConnectionConfig {
 
   private final String host;

@@ -46,8 +46,7 @@ import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 
 /**
- * @author Alina Makogon amakogon@cybervisiontech.com
- *         Date: 8/15/14
+ * Provides way to execute http requests with Apache HttpClient {@link org.apache.http.client.HttpClient}
  */
 public class RestClient {
 
@@ -61,7 +60,6 @@ public class RestClient {
   private static final String PROTOCOL_POSTFIX = "://";
   private static final String COLON = ":";
 
-
   private final RestClientConnectionConfig config;
   private final String baseUrl;
   private final CloseableHttpClient httpClient;
@@ -73,6 +71,14 @@ public class RestClient {
     this.httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
   }
 
+  /**
+   * Method for execute HttpRequest with authorized headers, if need.
+   *
+   * @param request {@link HttpRequestBase} initiated http request with entity, headers, request uri and all another
+   *                                       required properties for successfully request
+   * @return {@link CloseableHttpResponse} as a result of http request execution.
+   * @throws IOException in case of a problem or the connection was aborted
+   */
   public CloseableHttpResponse execute(HttpRequestBase request) throws IOException {
     if (StringUtils.isNotEmpty(config.getAuthToken())) {
       request.setHeader(HttpHeaders.AUTHORIZATION, AUTHENTICATION_HEADER_PREFIX_BEARER + config.getAuthToken());
@@ -84,6 +90,11 @@ public class RestClient {
     return httpClient.execute(request);
   }
 
+  /**
+   * Utility method for analysis http response status code and throw appropriate Java API Exception
+   *
+   * @param response {@link HttpResponse} http response
+   */
   public static void responseCodeAnalysis(HttpResponse response) {
     int code = response.getStatusLine().getStatusCode();
     switch (code) {
@@ -110,6 +121,13 @@ public class RestClient {
     }
   }
 
+  /**
+   * Utility method for convert {@link org.apache.http.HttpEntity} http entity content to JsonObject
+   *
+   * @param httpEntity {@link org.apache.http.HttpEntity}
+   * @return {@link JsonObject} generated from input content stream
+   * @throws IOException in case if entity content is not available
+   */
   public static JsonObject getEntityAsJsonObject(HttpEntity httpEntity) throws IOException {
     JsonObject result;
     if (httpEntity != null && httpEntity.getContent() != null) {
@@ -137,12 +155,21 @@ public class RestClient {
     return result;
   }
 
+  /**
+   * Method for releasing unused resources
+   *
+   * @throws IOException if an I/O error occurs
+   */
   public void close() throws IOException {
     if (httpClient != null) {
       httpClient.close();
     }
   }
 
+  /**
+   *
+   * @return the base URL of Rest Service API
+   */
   public String getBaseUrl() {
     return baseUrl;
   }

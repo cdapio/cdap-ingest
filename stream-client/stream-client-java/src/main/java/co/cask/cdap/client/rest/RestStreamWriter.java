@@ -38,8 +38,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 /**
- * @author Alina Makogon amakogon@cybervisiontech.com
- *         Date: 8/14/14
+ * Stream writer implementation used REST Api for write streams to processing server
  */
 public class RestStreamWriter implements StreamWriter {
   private static final Logger LOG = LoggerFactory.getLogger(RestStreamWriter.class);
