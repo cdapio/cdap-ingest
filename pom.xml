@@ -185,6 +185,7 @@
                   <exclude>**/*.avsc</exclude>
                   <!-- Excludes examples by default, include it in the examples profile -->
                   <exclude>examples/**</exclude>
+                  <exclude>**/testlogs/**</exclude>
                 </excludes>
               </configuration>
             </execution>

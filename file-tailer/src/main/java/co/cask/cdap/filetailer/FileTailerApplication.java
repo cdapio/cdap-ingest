@@ -41,7 +41,7 @@ public class FileTailerApplication {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerApplication.class);
 
-  public static void main(String[] args) throws ConfigurationLoaderException {
+  public static void main(String[] args) {
     LOG.info("Application started");
 
     String configurationPath;
@@ -62,53 +62,32 @@ public class FileTailerApplication {
       return;
     }
 
-    FileTailerStateProcessor stateProcessor;
     try {
-      stateProcessor = new FileTailerStateProcessorImpl(loader.getStateDir(), loader.getStateFile());
+        FileTailerQueue queue = new FileTailerQueue(loader.getQueueSize());
+        FileTailerStateProcessor
+                stateProcessor = new FileTailerStateProcessorImpl(loader.getStateDir(), loader.getStateFile());
+        List<StreamClient> clients = loader.getStreamClients();
+        String streamName = loader.getStreamName();
+        List<StreamWriter> writers = new ArrayList<StreamWriter>(clients.size());
+        for (StreamClient client : clients) {
+            try {
+                client.create(streamName);
+                writers.add(client.createWriter(streamName));
+            } catch (IOException e) {
+                LOG.error("Can not create/get client stream by name {}: {}", streamName, e.getMessage());
+                return;
+            }
+        }
+
+        FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE, stateProcessor);
+        LogTailer tailer = new LogTailer(loader, queue, stateProcessor);
+
+        sink.start();
+        tailer.start();
     } catch (ConfigurationLoaderException e) {
       LOG.error("Can not get property: {}", e.getMessage());
       return;
     }
-
-    FileTailerQueue queue = new FileTailerQueue(100);
-
-    List<StreamClient> clients;
-    try {
-      clients = loader.getStreamClients();
-    } catch (ConfigurationLoaderException e) {
-      LOG.error("Can not get Stream Clients list: {}", e.getMessage());
-      return;
-    }
-
-    String streamName;
-    try {
-      streamName = loader.getStreamName();
-    } catch (ConfigurationLoaderException e) {
-      LOG.error("Can not get stream name: {}", e.getMessage());
-      return;
-    }
-
-    List<StreamWriter> writers = new ArrayList<StreamWriter>(clients.size());
-    for (StreamClient client : clients) {
-      try {
-        client.create(streamName);
-        writers.add(client.createWriter(streamName));
-      } catch (IOException e) {
-        LOG.error("Can not create/get client stream by name {}: {}", streamName, e.getMessage());
-        return;
-      }
-    }
-
-    FileTailerSink sink =
-        new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE, stateProcessor);
-
-    sink.start();
-
-
-      LogTailer tailer = new LogTailer(loader, queue, stateProcessor);
-
-      tailer.start();
-
   }
 
 }

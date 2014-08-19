@@ -241,6 +241,7 @@ public class LogTailer implements Runnable {
         }
       }
     }
+    reader.seek(rePos);
     return sb;
   }
 
