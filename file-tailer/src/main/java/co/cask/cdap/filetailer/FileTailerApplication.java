@@ -28,6 +28,7 @@ import co.cask.cdap.filetailer.sink.SinkStrategy;
 import co.cask.cdap.filetailer.state.FileTailerState;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
+import co.cask.cdap.filetailer.tailer.LogTailer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,7 @@ public class FileTailerApplication {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerApplication.class);
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws ConfigurationLoaderException {
     LOG.info("Application started");
 
     String configurationPath =
@@ -99,14 +100,10 @@ public class FileTailerApplication {
 
     sink.start();
 
-    for (int i = 0; i < 10; i++) {
-      FileTailerState state = new FileTailerState("test.log", i, (i), System.currentTimeMillis());
-      try {
-        queue.put(new FileTailerEvent(state, String.valueOf(i), Charset.defaultCharset()));
-      } catch (InterruptedException e) {
-        LOG.warn("Failed to submit event");
-      }
-    }
+
+      LogTailer tailer = new LogTailer(loader, queue, stateProcessor);
+
+      tailer.start();
 
   }
 

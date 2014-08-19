@@ -18,9 +18,6 @@ package co.cask.cdap.filetailer.tailer;
 
 import java.io.IOException;
 
-/**
- * Created by yura on 15.08.14.
- */
 public class LogDirNotFoundException extends IOException {
   public LogDirNotFoundException(String massage) {
     super(massage);

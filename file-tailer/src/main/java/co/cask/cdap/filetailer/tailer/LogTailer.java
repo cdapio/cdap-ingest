@@ -15,16 +15,13 @@
  */
 
 package co.cask.cdap.filetailer.tailer;
-
-/**
- * Created by yura on 15.08.14.
- */
-
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.state.FileTailerState;
+import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
+import co.cask.cdap.filetailer.state.exception.FileTailerStateProcessorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,120 +37,148 @@ import java.util.TreeMap;
 
 public class LogTailer implements Runnable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LogTailer.class);
-  private static final String RAF_MODE = "r";
-  private static long sleepInterval;
-  private static String logDirectory;
-  private static String logFileName;
-  private static final int DEFAULT_BUFSIZE = 4096;
-  private final FileTailerQueue queue;
-  private static byte entrySeparator = '\n';
-  private static ConfigurationLoader confLoader;
+  private  final Logger LOG = LoggerFactory.getLogger(LogTailer.class);
+  private  final String RAF_MODE = "r";
+  private  long sleepInterval;
+  private  String logDirectory;
+  private  String logFileName;
+  private  final int DEFAULT_BUFSIZE = 4096;
+  private  FileTailerQueue queue;
+  private  byte entrySeparator = '\n';
+  private  ConfigurationLoader confLoader;
+  private  FileTailerStateProcessor fileTailerStateProcessor;
   private Thread worker;
   /**
    * Buffer on top of RandomAccessFile.
    */
   private final byte inbuf[];
 
-  public LogTailer(ConfigurationLoader loader, FileTailerQueue queue) {
+  public LogTailer(ConfigurationLoader loader, FileTailerQueue queue, FileTailerStateProcessor fileTailerStateProcessor) throws  ConfigurationLoaderException {
     this.queue = queue;
     this.inbuf = new byte[DEFAULT_BUFSIZE];
-    confLoader = loader;
+    this.confLoader = loader;
+    this.fileTailerStateProcessor=fileTailerStateProcessor;
+    this.sleepInterval = confLoader.getSleepInterval();
+    this.logDirectory = confLoader.getWorkDir();
+    this.logFileName = confLoader.getFileName();
+    this.entrySeparator = confLoader.getRecordSeparator();
 
-
-  }
-
-  private void loadConfig() throws ConfigurationLoaderException {
-    sleepInterval = confLoader.getSleepInterval();
-    logDirectory = confLoader.getWorkDir();
-    logFileName = confLoader.getFileName();
-
-
-    //this.entrySeparator = confLoader.loadRecordSeparator();
 
   }
 
 
   public void run() {
     try {
-      this.loadConfig();
-    } catch (ConfigurationLoaderException e) {
-      LOG.error("Error during confiiguration loading");
-      return;
-    }
-    while (!Thread.currentThread().isInterrupted()) {
-      try {
         checkLogDir(logDirectory);
       } catch (LogDirNotFoundException e) {
         LOG.error("Incorrect path to log directory");
-        break;
+       return;
       }
-      checkIfRestoreFileExist();
+      FileTailerState fileTailerState  = getSaveStateFromFile();
+      if (fileTailerState == null) {
+          LOG.info("Fail state do not found. Start reading all directory");
+          runWithOutRestore();
+      } else {
+          runFromSaveState(fileTailerState);
+
+    }
+
+  }
+ private FileTailerState getSaveStateFromFile() {
+     FileTailerState fileTailerState ;
+     try {
+         fileTailerState = fileTailerStateProcessor.loadState();
+     } catch (FileTailerStateProcessorException e) {
+         LOG.info("Fail state do not exist. Start reading all directory");
+         return null;
+     }
+
+     return fileTailerState;
+
+ }
+
+  private void runFromSaveState(FileTailerState fileTailerState) {
+      long position =fileTailerState.getPosition();
+      long lastModifytime = fileTailerState.getLastModifyTime();
+      int hash = fileTailerState.getHash();
+      File currentLogFile =  getCurrentLogFile(logDirectory,lastModifytime);
+      if (currentLogFile == null) {
+          return;
+      }
       try {
-        runWithOutRestore();
-      } catch (InterruptedException e) {
-        break;
-      }
-
-    }
-
-  }
-
-  private void runWithOutRestore() throws InterruptedException {
-    RandomAccessFile reader = null;
-    File logFile = null;
-    try {
-      while (logFile == null) {
-
-        logFile = getCurrentLogFile(logDirectory, (long) 0);
-        if (logFile == null) {
-          Thread.sleep(sleepInterval);
+        boolean res =  checkLine(currentLogFile,position,hash);
+        if (!res ) {
+            return;
         }
+        else {
+            startReadingFromFile(currentLogFile,position);
+        }
+      } catch (IOException e) {
+          return;
 
       }
-      LOG.debug("File {} is reading", logFile);
+ }
 
-      reader = new RandomAccessFile(logFile, RAF_MODE);
-      int lineHash = 0;
-      long modifyTime = logFile.lastModified();
-      while (true) {
+    private void startReadingFromFile(File currentLogFile, long position) {
+        RandomAccessFile reader ;
+        try {
+            reader = new RandomAccessFile(currentLogFile, RAF_MODE);
+            reader.seek(position);
+        } catch (IOException e) {
+            return;
+        }
+        int lineHash ;
+            long modifyTime = currentLogFile.lastModified();
+          try {
+            while (!Thread.currentThread().isInterrupted()) {
+                    String line = readLine(reader, entrySeparator).toString();
+                    if (line.length() > 0) {
+                        lineHash = line.hashCode();
+                        LOG.debug("From log file {} readed entry: {}", currentLogFile, line);
+                        position = reader.getFilePointer() - line.length();
+                        modifyTime = currentLogFile.lastModified();
+                        //TODO: Get charset from properties;
+                        queue.put(new FileTailerEvent(new FileTailerState(currentLogFile.toString(), position, lineHash, modifyTime), line, Charset.defaultCharset()));
+                    } else {
+                        File newLog = getCurrentLogFile(logDirectory, modifyTime);
+                        if (newLog == null) {
+                            Thread.sleep(sleepInterval);
+                        } else {
+                            LOG.debug("File {} is reading", newLog);
+                                   newLog = getCurrentLogFile(logDirectory, modifyTime);
+                                currentLogFile = newLog;
+                                closeQuietly(reader);
+                                reader = new RandomAccessFile(currentLogFile, RAF_MODE);
 
-        String line = readLine(reader, entrySeparator).toString();
-        long position = 0;
-        if (line.length() > 0) {
-          lineHash = line.hashCode();
-          LOG.debug("From log file {} readed entry: {}", logFile, line);
-          position = reader.getFilePointer() - line.length();
-          modifyTime = logFile.lastModified();
-          //TODO: Get charset from properties;
-          queue.put(new FileTailerEvent(new FileTailerState(logFile.toString(), position, lineHash, modifyTime),
-                                        line, Charset.defaultCharset()));
-        } else {
-          File newLog = getCurrentLogFile(logDirectory, modifyTime);
-          if (newLog == null) {
-            Thread.sleep(sleepInterval);
-          } else {
-            LOG.debug("File {} is reading", newLog);
-
-            if (!checkLine(newLog, position, lineHash)) {
-              newLog = getCurrentLogFile(logDirectory, modifyTime);
-              logFile = newLog;
-              closeQuietly(reader);
-              reader = new RandomAccessFile(logFile, RAF_MODE);
-            } else {
-              LOG.debug("Rotation detected");
-
+                        }
+                    }
+                }
+            }catch(IOException e){
+                 LOG.error("Tailer daemon stopped due to IO exception during reading file");
+            }catch(InterruptedException e){
+              LOG.info("Tailer daemon was interrupted");
             }
-
-
-          }
-        }
-      }
-    } catch (IOException e) {
-      throw new InterruptedException();
+                finally {
+                    closeQuietly(reader);
+                }
 
     }
-  }
+
+    private void runWithOutRestore() {
+        File logFile = null;
+            while (logFile == null && !Thread.currentThread().isInterrupted()) {
+                logFile = getCurrentLogFile(logDirectory, (long) 0);
+                if (logFile == null) {
+                    try {
+                        Thread.sleep(sleepInterval);
+                    } catch (InterruptedException e) {
+                        LOG.info("Tailer daemon was interrupted");
+                        break;
+                    }
+                }
+        }
+        startReadingFromFile(logFile, 0);
+    }
 
   private boolean checkLine(File newFile, long position, int hash) throws IOException {
     RandomAccessFile reader = new RandomAccessFile(newFile, RAF_MODE);
@@ -168,20 +193,15 @@ public class LogTailer implements Runnable {
 
   }
 
-  private void checkIfRestoreFileExist() {
-  }
 
-  /**
-   * Allows the tailer to complete its current loop and return.
-   */
   private File getCurrentLogFile(String logDir, Long currentTime) {
     File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName));
     if (dirFiles.length == 0) {
       return null;
     }
     TreeMap<Long, File> logFilesTimesMap = new TreeMap<Long, File>();
-    for (int i = 0; i < dirFiles.length; i++) {
-      logFilesTimesMap.put(dirFiles[i].lastModified(), dirFiles[i]);
+    for (File f:dirFiles) {
+      logFilesTimesMap.put(f.lastModified(), f);
     }
     if (currentTime == 0) {
       return logFilesTimesMap.firstEntry().getValue();
@@ -202,19 +222,10 @@ public class LogTailer implements Runnable {
   }
 
 
-  /**
-   * Read new lines.
-   *
-   * @param reader The file to read
-   * @return The new position after the lines have been read
-   * @throws java.io.IOException if an I/O error occurs.
-   */
   private StringBuilder readLine(RandomAccessFile reader, byte separator) throws IOException {
     StringBuilder sb = new StringBuilder();
 
-    long pos = reader.getFilePointer();
-    long rePos = pos; // position to re-read
-
+    long rePos = reader.getFilePointer();
     int num;
     while (((num = reader.read(inbuf)) != -1)) {
       for (int i = 0; i < num; i++) {
@@ -229,8 +240,6 @@ public class LogTailer implements Runnable {
         }
       }
     }
-    reader.seek(rePos);
-
     return sb;
   }
 
@@ -239,6 +248,7 @@ public class LogTailer implements Runnable {
       try {
         reader.close();
       } catch (IOException e) {
+          LOG.warn("Exception during clousing");
 
       }
     }
