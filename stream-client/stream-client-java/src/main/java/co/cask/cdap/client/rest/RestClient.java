@@ -40,11 +40,11 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotAcceptableException;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.NotSupportedException;
-import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 
 /**
@@ -77,7 +77,7 @@ public class RestClient {
    * Method for execute HttpRequest with authorized headers, if need.
    *
    * @param request {@link HttpRequestBase} initiated http request with entity, headers, request uri and all another
-   *                                       required properties for successfully request
+   *                required properties for successfully request
    * @return {@link CloseableHttpResponse} as a result of http request execution.
    * @throws IOException in case of a problem or the connection was aborted
    */
@@ -105,18 +105,17 @@ public class RestClient {
         break;
       case HttpStatus.SC_NOT_FOUND:
         throw new NotFoundException();
+      case HttpStatus.SC_CONFLICT:
       case HttpStatus.SC_BAD_REQUEST:
         throw new BadRequestException();
       case HttpStatus.SC_UNAUTHORIZED:
         throw new NotAuthorizedException(response);
       case HttpStatus.SC_FORBIDDEN:
         throw new ForbiddenException();
-      case HttpStatus.SC_NOT_ACCEPTABLE:
-      case HttpStatus.SC_CONFLICT:
-        throw new NotAcceptableException();
+      case HttpStatus.SC_METHOD_NOT_ALLOWED:
+        throw new NotAllowedException(response.getStatusLine().getReasonPhrase());
       case HttpStatus.SC_INTERNAL_SERVER_ERROR:
-        throw new ServerErrorException("Internal server exception during operation process.",
-                                       HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        throw new InternalServerErrorException("Internal server exception during operation process.");
       case HttpStatus.SC_NOT_IMPLEMENTED:
       default:
         throw new NotSupportedException("Operation is not supported");
@@ -132,8 +131,26 @@ public class RestClient {
    */
   public static JsonObject getEntityAsJsonObject(HttpEntity httpEntity) throws IOException {
     JsonObject result;
+    String content = getEntityAsString(httpEntity);
+    if (StringUtils.isNotEmpty(content)) {
+      JsonElement root = new JsonParser().parse(content);
+      result = root.getAsJsonObject();
+    } else {
+      throw new IOException("Failed to write entity content.");
+    }
+    return result;
+  }
+
+  /**
+   * Utility method for convert {@link org.apache.http.HttpEntity} http entity content to String
+   *
+   * @param httpEntity {@link org.apache.http.HttpEntity}
+   * @return {@link String} generated from input content stream
+   * @throws IOException in case if entity content is not available
+   */
+  public static String getEntityAsString(HttpEntity httpEntity) throws IOException {
+    String content = null;
     if (httpEntity != null && httpEntity.getContent() != null) {
-      String content = null;
       Charset charset;
       ContentType contentType = ContentType.getOrDefault(httpEntity);
       if (contentType != null && contentType.getCharset() != null) {
@@ -147,16 +164,10 @@ public class RestClient {
       } finally {
         reader.close();
       }
-      if (StringUtils.isNotEmpty(content)) {
-        JsonElement root = new JsonParser().parse(content);
-        result = root.getAsJsonObject();
-      } else {
-        throw new IOException("Failed to write entity content.");
-      }
     } else {
       throw new IOException("Empty HttpEntity is received.");
     }
-    return result;
+    return content;
   }
 
   /**
@@ -171,7 +182,6 @@ public class RestClient {
   }
 
   /**
-   *
    * @return the base URL of Rest Service API
    */
   public String getBaseUrl() {

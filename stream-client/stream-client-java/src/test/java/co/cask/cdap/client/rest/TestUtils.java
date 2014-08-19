@@ -31,7 +31,7 @@ public final class TestUtils {
   public static final String BAD_REQUEST_STREAM_NAME = "badRequest";
   public static final String AUTH_STREAM_NAME = "auth";
   public static final String FORBIDDEN_STREAM_NAME = "forbidden";
-  public static final String NOT_ACCEPTABLE_STREAM_NAME = "notAcceptable";
+  public static final String NOT_ALLOWED_STREAM_NAME = "notAllowed";
   public static final String CONFLICT_STREAM_NAME = "conflict";
 
   private TestUtils() {
@@ -62,8 +62,8 @@ public final class TestUtils {
       code = HttpStatus.SC_BAD_REQUEST;
     } else if (FORBIDDEN_STREAM_NAME.equals(streamName)) {
       code = HttpStatus.SC_FORBIDDEN;
-    } else if (NOT_ACCEPTABLE_STREAM_NAME.equals(streamName)) {
-      code = HttpStatus.SC_NOT_ACCEPTABLE;
+    } else if (NOT_ALLOWED_STREAM_NAME.equals(streamName)) {
+      code = HttpStatus.SC_METHOD_NOT_ALLOWED;
     } else if (CONFLICT_STREAM_NAME.equals(streamName)) {
       code = HttpStatus.SC_CONFLICT;
     } else {

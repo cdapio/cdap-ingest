@@ -16,12 +16,17 @@
 
 package co.cask.cdap.client.rest.handlers;
 
+import co.cask.cdap.client.rest.RestClient;
+import co.cask.cdap.client.rest.RestTest;
 import co.cask.cdap.client.rest.TestUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.RequestLine;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
@@ -38,11 +43,25 @@ public class StreamHttpRequestHandler implements HttpRequestHandler {
     int statusCode;
     String uri = requestLine.getUri();
     String streamName = TestUtils.getStreamNameFromUri(uri + "/");
-    if (HttpMethod.PUT.equals(method)) {
+    if (HttpMethod.PUT.equals(method) || HttpMethod.POST.equals(method)) {
       if (TestUtils.AUTH_STREAM_NAME.equals(streamName)) {
         statusCode = TestUtils.authorize(httpRequest);
       } else {
         statusCode = TestUtils.getStatusCodeByStreamName(streamName);
+      }
+
+      if (HttpMethod.POST.equals(method) && HttpStatus.SC_OK == statusCode) {
+        //check request content
+        BasicHttpEntityEnclosingRequest request = (BasicHttpEntityEnclosingRequest) httpRequest;
+        HttpEntity requestEntity = request.getEntity();
+        if (requestEntity != null) {
+          String content = RestClient.getEntityAsString(requestEntity);
+          if (StringUtils.isEmpty(content) || !RestTest.EXPECTED_WRITER_CONTENT.equals(content)) {
+            statusCode = HttpStatus.SC_BAD_REQUEST;
+          }
+        } else {
+          statusCode = HttpStatus.SC_BAD_REQUEST;
+        }
       }
     } else {
       statusCode = HttpStatus.SC_NOT_IMPLEMENTED;

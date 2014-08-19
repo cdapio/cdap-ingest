@@ -28,6 +28,7 @@ import org.junit.Before;
 public class RestTest {
   public static final long STREAM_TTL = 86400;
   public static final String AUTH_TOKEN = "er4545556tfgbdsa9ddvgfgd9";
+  public static final String EXPECTED_WRITER_CONTENT = "Hello World!";
 
   private LocalTestServer localTestServer;
 
