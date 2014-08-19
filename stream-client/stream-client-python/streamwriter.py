@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from os import path
-from threading import Thread
+from threading import Thread, Lock
 from types import FunctionType
 import locale
 import mimetypes
@@ -15,13 +15,15 @@ class StreamPromise(ConnectionErrorChecker):
     __serviceResponse = None
     __onOkHandler = None
     __onErrorHandler = None
-    __handlersRaised = False
+    __handlersLock = None
 
     def __init__(self, serviceConnector, uri, data):
         if not isinstance(serviceConnector, ServiceConnector):
             raise TypeError('"serviceConnector" parameter should be of type ServiceConnector')
 
         self.__serviceConnector = serviceConnector
+
+        self.__handlersLock = Lock()
 
         self.__workerThread = Thread(target=self.__workerTarget, args=(uri, data))
         self.__handlerThread = Thread(target=self.__responseCheckTarget)
@@ -83,6 +85,7 @@ class StreamPromise(ConnectionErrorChecker):
     def __responseCheckTarget(self):
         self.__workerThread.join()
 
+        self.__handlersLock.acquire()
         if self.__serviceResponse and self.__onOkHandler and self.__onErrorHandler:
             try:
                 self.__onOkHandler(
@@ -92,17 +95,20 @@ class StreamPromise(ConnectionErrorChecker):
                 self.__onErrorHandler(self.__serviceResponse)
             finally:
                 self.__onOkHandler = self.__onErrorHandler = None
+        self.__handlersLock.release()
 
     def onResponse(self, ok, error=None):
         if not isinstance(ok, FunctionType) or (not None == error and not isinstance(error, FunctionType)):
             raise TypeError('parameters should be functions')
 
+        self.__handlersLock.acquire()
         self.__onOkHandler = ok
         if None == error:
             self.__onErrorHandler = ok
         else:
             self.__onErrorHandler = error
 
+        self.__handlersLock.release()
         self.__responseCheckTarget()
 
 class StreamWriter:
