@@ -32,7 +32,8 @@ public class ConfigurationLoaderImplTest {
   private static final Logger LOG = LoggerFactory.getLogger(ConfigurationLoaderImplTest.class);
 
   @Test
-  public void initTest() throws ConfigurationLoaderException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
+  public void initTest() throws ConfigurationLoaderException, NoSuchFieldException,
+                                              IllegalAccessException, URISyntaxException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
 
     String path = getClass().getClassLoader().getResource("test.properties").getFile();

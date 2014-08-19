@@ -29,7 +29,8 @@ public class FileTailerStateProcessorImplTest {
 
   @Test
   public void saveLoadStateTest() throws FileTailerStateProcessorException {
-    FileTailerStateProcessor stateProcessor = new FileTailerStateProcessorImpl(System.getProperty("user.home") + "/ft_state_dir", "ft.state");
+    FileTailerStateProcessor stateProcessor =
+        new FileTailerStateProcessorImpl(System.getProperty("user.home") + "/ft_state_dir", "ft.state");
 
     FileTailerState state = new FileTailerState("name", 101, "hash".hashCode(), 102);
 

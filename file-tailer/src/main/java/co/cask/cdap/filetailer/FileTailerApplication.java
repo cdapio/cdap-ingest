@@ -43,16 +43,19 @@ public class FileTailerApplication {
   public static void main(String[] args) throws ConfigurationLoaderException {
     LOG.info("Application started");
 
-    String configurationPath = FileTailerApplication.class.getClassLoader().getResource("config.properties").getFile();
+    String configurationPath =
+        FileTailerApplication.class.getClassLoader().getResource("config.properties").getFile();
 
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     loader.load(configurationPath);
 
-    FileTailerStateProcessor stateProcessor = new FileTailerStateProcessorImpl(loader.getStateDir(), loader.getStateFile());
+    FileTailerStateProcessor stateProcessor =
+        new FileTailerStateProcessorImpl(loader.getStateDir(), loader.getStateFile());
 
     FileTailerQueue queue = new FileTailerQueue(100);
 
-    FileTailerSink sink = new FileTailerSink(queue, new ArrayList<StreamWriter>(), SinkStrategy.LOADBALANCE, stateProcessor);
+    FileTailerSink sink =
+        new FileTailerSink(queue, new ArrayList<StreamWriter>(), SinkStrategy.LOADBALANCE, stateProcessor);
 
     sink.start();
 

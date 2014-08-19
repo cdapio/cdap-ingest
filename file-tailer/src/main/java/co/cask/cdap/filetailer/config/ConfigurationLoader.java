@@ -98,7 +98,8 @@ public interface ConfigurationLoader {
   String getRotationPattern() throws ConfigurationLoaderException;
 
   /**
-   * Returns the path of directory, intended like storage for File Tailer state and metrics (loaded from configuration file)
+   * Returns the path of directory, intended like storage for File Tailer state and metrics
+   * (loaded from configuration file)
    *
    * @return the File Tailer home (to save state and metrics) directory path
    * @throws ConfigurationLoaderException if error occurred
@@ -116,7 +117,8 @@ public interface ConfigurationLoader {
   String getStateFile() throws ConfigurationLoaderException;
 
   /**
-   * Returns the failure retry limit (limit for the number of attempts to read record, if error occurred) (loaded from configuration file)
+   * Returns the failure retry limit (limit for the number of attempts to read record, if error occurred)
+   * (loaded from configuration file)
    *
    * @return the failure retry limit
    * @throws ConfigurationLoaderException if error occurred

@@ -126,7 +126,8 @@ public class LogTailer implements Runnable {
           position = reader.getFilePointer() - line.length();
           modifyTime = logFile.lastModified();
           //TODO: Get charset from properties;
-          queue.put(new FileTailerEvent(new FileTailerState(logFile.toString(), position, lineHash, modifyTime), line, Charset.defaultCharset()));
+          queue.put(new FileTailerEvent(new FileTailerState(logFile.toString(), position, lineHash, modifyTime),
+                                        line, Charset.defaultCharset()));
         } else {
           File newLog = getCurrentLogFile(logDirectory, modifyTime);
           if (newLog == null) {

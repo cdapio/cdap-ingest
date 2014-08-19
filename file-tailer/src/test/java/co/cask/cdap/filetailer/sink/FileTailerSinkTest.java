@@ -50,12 +50,13 @@ public class FileTailerSinkTest {
     FileTailerQueue queue = new FileTailerQueue(DEFAULT_QUEUE_SIZE);
 
     StreamWriter writerMock = getDummyStreamWriter();
-    FileTailerSink sink = new FileTailerSink(queue, Collections.singletonList(writerMock), SinkStrategy.LOADBALANCE, stateProcessor);
+    FileTailerSink sink = new FileTailerSink(queue, Collections.singletonList(writerMock),
+                                             SinkStrategy.LOADBALANCE, stateProcessor);
 
     sink.start();
 
     for (int i = 0; i < TEST_EVENTS_SIZE; i++) {
-      queue.put(new FileTailerEvent(new FileTailerState("file", 0l, 42, 0l), "test", Charset.defaultCharset()));
+      queue.put(new FileTailerEvent(new FileTailerState("file", 0L, 42, 0L), "test", Charset.defaultCharset()));
     }
 
     Mockito.verify(writerMock, Mockito.timeout(10000).times(TEST_EVENTS_SIZE)).write("test", Charset.defaultCharset());
@@ -70,15 +71,17 @@ public class FileTailerSinkTest {
     FileTailerQueue queue = new FileTailerQueue(DEFAULT_QUEUE_SIZE);
 
     StreamWriter writerMock = getDummyStreamWriter();
-    FileTailerSink sink = new FileTailerSink(queue, Collections.singletonList(writerMock), SinkStrategy.LOADBALANCE, stateProcessor, CUSTOM_PACK_SIZE);
+    FileTailerSink sink = new FileTailerSink(queue, Collections.singletonList(writerMock),
+                                             SinkStrategy.LOADBALANCE, stateProcessor, CUSTOM_PACK_SIZE);
     try {
       sink.start();
 
       for (int i = 0; i < TEST_EVENTS_SIZE; i++) {
-        queue.put(new FileTailerEvent(new FileTailerState("file", 0l, 42, 0l), "test", Charset.defaultCharset()));
+        queue.put(new FileTailerEvent(new FileTailerState("file", 0L, 42, 0L), "test", Charset.defaultCharset()));
       }
 
-      Mockito.verify(writerMock, Mockito.timeout(10000).times(TEST_EVENTS_SIZE)).write("test", Charset.defaultCharset());
+      Mockito.verify(writerMock,
+                     Mockito.timeout(10000).times(TEST_EVENTS_SIZE)).write("test", Charset.defaultCharset());
     } finally {
       sink.stop();
     }
@@ -99,12 +102,13 @@ public class FileTailerSinkTest {
 
     boolean success = false;
 
-    FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE, stateProcessor, CUSTOM_PACK_SIZE);
+    FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE,
+                                             stateProcessor, CUSTOM_PACK_SIZE);
     try {
       sink.start();
 
       for (int i = 0; i < TEST_EVENTS_SIZE; i++) {
-        queue.put(new FileTailerEvent(new FileTailerState("file", 0l, 42, 0l), "test", Charset.defaultCharset()));
+        queue.put(new FileTailerEvent(new FileTailerState("file", 0L, 42, 0L), "test", Charset.defaultCharset()));
       }
 
       int attempts = 10;
