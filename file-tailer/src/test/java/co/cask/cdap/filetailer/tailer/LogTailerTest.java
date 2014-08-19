@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,6 +46,30 @@ public class LogTailerTest {
     FileTailerQueue queue = new FileTailerQueue(10);
 
 //    LogTailer tailer = new LogTailer(loader, );
+  }
+
+  @Test
+  public void logWriter() {
+    org.apache.log4j.Logger logger = initLogger("test");
+    WriterAppender appender = initAppender("/home/ytalashko/Logs_test/app.log");
+
+    for (int i = 1; i <= 15; i++) {
+      saveEvents(Arrays.asList("log number " + i, "ending " + (100 + i)), logger, appender);
+
+      try {
+        Thread.sleep(12000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+      saveEvents(Arrays.asList("log number double" + i, "ending " + (1000 + i)), logger, appender);
+
+      try {
+        Thread.sleep(17000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   private WriterAppender initAppender(String path) {

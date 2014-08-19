@@ -236,7 +236,6 @@ public class LogTailer implements Runnable {
           sb.append((char) ch);
           rePos++;
         } else {
-          sb.append((char) ch);
           rePos++;
           break;
         }
