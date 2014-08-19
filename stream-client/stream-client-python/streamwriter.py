@@ -71,17 +71,21 @@ class StreamPromise(ConnectionErrorChecker):
             if 'mimetype' in dataDict and not None == dataDict['mimetype']:
                 filemime = dataDict['mimetype']
 
+            file = open(dataDict['file'])
+
             fields = {
                 'file': (
                     filename,
-                    open(dataDict['file']).read(),
+                    file.read(),
                     filemime
                 )
             }
 
+            file.close()
+
             self.__serviceResponse = self.__serviceConnector.send(
                 uri, fields, headersToSend )
-
+ 
     def __responseCheckTarget(self):
         self.__workerThread.join()
 
