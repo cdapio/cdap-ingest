@@ -21,7 +21,7 @@ class NoFoundException(Exception):
 
 class ConnectionErrorChecker:
     __HTTP_OK = 200
-    
+
     def checkResponseErrors(self, httpResponse):
         if not self.__HTTP_OK == httpResponse.status:
             raise NoFoundException(httpResponse.status, httpResponse.reason)
@@ -40,9 +40,9 @@ class ServiceConnector:
     def __init__(self, config = Config()):
         if not isinstance(config, Config):
             raise TypeError('parameter should be of type Config')
-            
+
         self.__connectionConfig = config
-        
+
         if self.__connectionConfig.getSSL():
             self.__connectionPool = HTTPSConnectionPool(
                 self.__connectionConfig.getHost(),
@@ -60,21 +60,21 @@ class ServiceConnector:
 
     def __del__(self):
         self.__connectionPool.close()
-    
+
     def setAuthorizationToken(self, token):
         self.__defaultHeaders['Authorization'] = 'Bearer ' + token
 
     def request(self, method, uri, body = None, headers = None):
         headersToSend = self.__defaultHeaders
-        
+
         if not None == headers:
             headersToSend.update(headers)
-        
+
         return self.__connectionPool.urlopen(method, uri, body, headersToSend, release_conn = True)
 
     def send(self, uri, fields = None, headers = None):
         headersToSend = self.__defaultHeaders
-        
+
         if not None == headers:
             headersToSend.update(headers)
 
