@@ -54,7 +54,7 @@ public class LogTailer implements Runnable {
   private final byte inbuf[];
 
   public LogTailer(ConfigurationLoader loader, FileTailerQueue queue,
-                   FileTailerStateProcessor fileTailerStateProcessor) throws  ConfigurationLoaderException {
+                   FileTailerStateProcessor fileTailerStateProcessor) {
     this.queue = queue;
     this.inbuf = new byte[DEFAULT_BUFSIZE];
     this.confLoader = loader;

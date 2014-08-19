@@ -39,118 +39,92 @@ public interface ConfigurationLoader {
    * Returns the List of stream clients (loaded from configuration file)
    *
    * @return the List of stream clients
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  List<StreamClient> getStreamClients() throws ConfigurationLoaderException;
+  List<StreamClient> getStreamClients();
 
   /**
    * Returns the name of target stream (loaded from configuration file)
    *
    * @return the target stream name
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  String getStreamName() throws ConfigurationLoaderException;
+  String getStreamName();
 
   /**
    * Returns the charset name (loaded from configuration file)
    *
    * @return the charset name
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  String getCharsetName() throws ConfigurationLoaderException;
+  String getCharsetName();
 
   /**
    * Returns the sink strategy (loaded from configuration file)
    *
    * @return the sink strategy (failover or load_balance)
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  String getSinkStrategy() throws ConfigurationLoaderException;
+  String getSinkStrategy();
 
   /**
    * Returns the path to work directory (directory with logs) for File Tailer (loaded from configuration file)
    *
    * @return the work directory path
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  String getWorkDir() throws ConfigurationLoaderException;
+  String getWorkDir();
 
   /**
    * Returns the name of work file (loaded from configuration file)
    *
    * @return the work file name
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  String getFileName() throws ConfigurationLoaderException;
+  String getFileName();
 
   /**
    * Returns the pattern of rotates files (loaded from configuration file)
    *
    * @return the rotated files pattern
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  String getRotationPattern() throws ConfigurationLoaderException;
+  String getRotationPattern();
 
   /**
    * Returns the path of directory, intended like storage for File Tailer state and metrics
    * (loaded from configuration file)
    *
    * @return the File Tailer home (to save state and metrics) directory path
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  String getStateDir() throws ConfigurationLoaderException;
+  String getStateDir();
 
   /**
    * Returns the name of state file (loaded from configuration file)
    *
    * @return the state file name
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  String getStateFile() throws ConfigurationLoaderException;
+  String getStateFile();
 
   /**
    * Returns the failure retry limit (limit for the number of attempts to read record, if error occurred)
    * (loaded from configuration file)
    *
    * @return the failure retry limit
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  int getFailureRetryLimit() throws ConfigurationLoaderException;
+  int getFailureRetryLimit();
 
   /**
    * Returns the separator between every record (loaded from configuration file)
    *
    * @return the separator between records
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  byte getRecordSeparator() throws ConfigurationLoaderException;
+  byte getRecordSeparator();
 
   /**
    * Returns the interval for File Tailer to wait, after read all data of new file (loaded from configuration file)
    *
    * @return the sleep interval for File Tailer
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  long getSleepInterval() throws ConfigurationLoaderException;
+  long getSleepInterval();
 
   /**
    * Returns the size of queue, intended for store events before push them to server (loaded from configuration file)
    *
    * @return the queue size of temporary events queue
-   * @throws ConfigurationLoaderException if error occurred
-   *                                      (for example, ConfigurationLoader not initialized)
    */
-  int getQueueSize() throws ConfigurationLoaderException;
+  int getQueueSize();
 }

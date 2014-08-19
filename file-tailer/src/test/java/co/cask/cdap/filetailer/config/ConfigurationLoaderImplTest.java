@@ -18,6 +18,7 @@ package co.cask.cdap.filetailer.config;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
+import co.cask.cdap.filetailer.config.exception.ConfigurationResolvException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -118,8 +119,8 @@ public class ConfigurationLoaderImplTest {
     Assert.assertEquals(100, queueSize);
   }
 
-  @Test(expected = ConfigurationLoaderException.class)
-  public void loadPropertiesFailureTest() throws ConfigurationLoaderException {
+  @Test(expected = ConfigurationResolvException.class)
+  public void loadPropertiesFailureTest() {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
 
     loader.getFileName();

@@ -19,6 +19,7 @@ package co.cask.cdap.filetailer.config;
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
+import co.cask.cdap.filetailer.config.exception.ConfigurationResolvException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,7 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
   }
 
   @Override
-  public List<StreamClient> getStreamClients() throws ConfigurationLoaderException {
+  public List<StreamClient> getStreamClients() {
     List<StreamClient> streamClients = new ArrayList<StreamClient>();
     int clientCounter = 1;
     String clientHost;
@@ -84,90 +85,90 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
       clientCounter++;
     }
     if (streamClients.isEmpty()) {
-      throw new ConfigurationLoaderException("Not found any stream client in configuration file");
+      throw new ConfigurationResolvException("Not found any stream client in configuration file");
     }
     return streamClients;
   }
 
   @Override
-  public String getStreamName() throws ConfigurationLoaderException {
+  public String getStreamName() {
     return getRequiredProperty("stream_name");
   }
 
   @Override
-  public String getCharsetName() throws ConfigurationLoaderException {
+  public String getCharsetName() {
     return getRequiredProperty("charset_name");
   }
 
   @Override
-  public String getSinkStrategy() throws ConfigurationLoaderException {
+  public String getSinkStrategy() {
     return getRequiredProperty("sink_strategy");
   }
 
   @Override
-  public String getWorkDir() throws ConfigurationLoaderException {
+  public String getWorkDir() {
     return getRequiredProperty("work_dir");
   }
 
   @Override
-  public String getFileName() throws ConfigurationLoaderException {
+  public String getFileName() {
     return getRequiredProperty("file_name");
   }
 
   @Override
-  public String getRotationPattern() throws ConfigurationLoaderException {
+  public String getRotationPattern() {
     return getRequiredProperty("rotated_file_pattern");
   }
 
   @Override
-  public String getStateDir() throws ConfigurationLoaderException {
+  public String getStateDir() {
     return getRequiredProperty("state_dir");
   }
 
   @Override
-  public String getStateFile() throws ConfigurationLoaderException {
+  public String getStateFile() {
     return getRequiredProperty("state_file");
   }
 
   @Override
-  public int getFailureRetryLimit() throws ConfigurationLoaderException {
+  public int getFailureRetryLimit() {
     return Integer.parseInt(getRequiredProperty("failure_retry_limit"));
   }
 
   @Override
-  public byte getRecordSeparator() throws ConfigurationLoaderException {
+  public byte getRecordSeparator() {
     return getRequiredProperty("record_separator").getBytes()[0];
   }
 
   @Override
-  public long getSleepInterval() throws ConfigurationLoaderException {
+  public long getSleepInterval() {
     return Long.parseLong(getRequiredProperty("sleep_interval"));
   }
 
   @Override
-  public int getQueueSize() throws ConfigurationLoaderException {
+  public int getQueueSize() {
     return Integer.parseInt(getRequiredProperty("queue_size"));
   }
 
-  private String getProperty(String key) throws ConfigurationLoaderException {
+  private String getProperty(String key) {
     LOG.debug("Start returning property by key: {}", key);
     if (properties == null) {
       LOG.error("Properties file not loaded");
-      throw new ConfigurationLoaderException("Properties file not loaded");
+      throw new ConfigurationResolvException("Properties file not loaded");
     }
     return properties.getProperty(key);
   }
 
-  private String getRequiredProperty(String key) throws ConfigurationLoaderException {
+  private String getRequiredProperty(String key) {
     LOG.debug("Start returning required property by key: {}", key);
     if (properties == null) {
       LOG.error("Properties file not loaded");
-      throw new ConfigurationLoaderException("Properties file not loaded");
+      throw new ConfigurationResolvException("Properties file not loaded");
     }
     String property = properties.getProperty(key);
     if (property == null) {
       LOG.error("Property not found");
-      throw new ConfigurationLoaderException("Property not found");
+      throw new ConfigurationResolvException("Property not found");
     }
     return property;
   }

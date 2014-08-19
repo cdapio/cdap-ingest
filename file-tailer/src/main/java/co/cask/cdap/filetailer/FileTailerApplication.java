@@ -62,32 +62,27 @@ public class FileTailerApplication {
       return;
     }
 
-    try {
-        FileTailerQueue queue = new FileTailerQueue(loader.getQueueSize());
-        FileTailerStateProcessor
-                stateProcessor = new FileTailerStateProcessorImpl(loader.getStateDir(), loader.getStateFile());
-        List<StreamClient> clients = loader.getStreamClients();
-        String streamName = loader.getStreamName();
-        List<StreamWriter> writers = new ArrayList<StreamWriter>(clients.size());
-        for (StreamClient client : clients) {
-            try {
-                client.create(streamName);
-                writers.add(client.createWriter(streamName));
-            } catch (IOException e) {
-                LOG.error("Can not create/get client stream by name {}: {}", streamName, e.getMessage());
-                return;
-            }
+    FileTailerQueue queue = new FileTailerQueue(loader.getQueueSize());
+    FileTailerStateProcessor
+            stateProcessor = new FileTailerStateProcessorImpl(loader.getStateDir(), loader.getStateFile());
+    List<StreamClient> clients = loader.getStreamClients();
+    String streamName = loader.getStreamName();
+    List<StreamWriter> writers = new ArrayList<StreamWriter>(clients.size());
+    for (StreamClient client : clients) {
+        try {
+            client.create(streamName);
+            writers.add(client.createWriter(streamName));
+        } catch (IOException e) {
+            LOG.error("Can not create/get client stream by name {}: {}", streamName, e.getMessage());
+            return;
         }
-
-        FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE, stateProcessor);
-        LogTailer tailer = new LogTailer(loader, queue, stateProcessor);
-
-        sink.start();
-        tailer.start();
-    } catch (ConfigurationLoaderException e) {
-      LOG.error("Can not get property: {}", e.getMessage());
-      return;
     }
+
+    FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE, stateProcessor);
+    LogTailer tailer = new LogTailer(loader, queue, stateProcessor);
+
+    sink.start();
+    tailer.start();
   }
 
 }
