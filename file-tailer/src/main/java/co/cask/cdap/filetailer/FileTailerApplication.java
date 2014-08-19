@@ -46,8 +46,12 @@ public class FileTailerApplication {
   public static void main(String[] args) {
     LOG.info("Application started");
 
-    String configurationPath =
-        FileTailerApplication.class.getClassLoader().getResource("config.properties").getFile();
+    String configurationPath;
+    if (args.length == 0) {
+      configurationPath = FileTailerApplication.class.getClassLoader().getResource("config.properties").getFile();
+    } else {
+      configurationPath = args[0];
+    }
 
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     try {
