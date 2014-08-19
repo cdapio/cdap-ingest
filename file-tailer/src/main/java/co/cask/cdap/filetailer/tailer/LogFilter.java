@@ -19,10 +19,12 @@ package co.cask.cdap.filetailer.tailer;
 import java.io.File;
 import java.io.FilenameFilter;
 
-
+/**
+ * LogFilter class
+ */
 public class LogFilter implements FilenameFilter {
-  public LogFilter(String Logfile) {
-    baseLogfile = Logfile;
+  public LogFilter(String logfile) {
+    baseLogfile = logfile;
   }
 
   static String baseLogfile;

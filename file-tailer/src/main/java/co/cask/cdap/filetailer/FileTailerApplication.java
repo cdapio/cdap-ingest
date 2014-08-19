@@ -21,11 +21,9 @@ import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
-import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.sink.SinkStrategy;
-import co.cask.cdap.filetailer.state.FileTailerState;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
@@ -33,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,8 +47,11 @@ public class FileTailerApplication {
     String configurationPath;
     if (args.length == 0) {
       configurationPath = FileTailerApplication.class.getClassLoader().getResource("config.properties").getFile();
-    } else {
+    } else if (args.length == 1) {
       configurationPath = args[0];
+    } else {
+      LOG.error("Too many arguments: {}", args.length);
+      return;
     }
 
     ConfigurationLoader loader = new ConfigurationLoaderImpl();

@@ -37,27 +37,28 @@ import java.util.TreeMap;
 
 public class LogTailer implements Runnable {
 
-  private  final Logger LOG = LoggerFactory.getLogger(LogTailer.class);
-  private  final String RAF_MODE = "r";
-  private  long sleepInterval;
-  private  String logDirectory;
-  private  String logFileName;
-  private  final int DEFAULT_BUFSIZE = 4096;
-  private  FileTailerQueue queue;
-  private  byte entrySeparator = '\n';
-  private  ConfigurationLoader confLoader;
-  private  FileTailerStateProcessor fileTailerStateProcessor;
+  private static final Logger LOG = LoggerFactory.getLogger(LogTailer.class);
+  private static final String RAF_MODE = "r";
+  private long sleepInterval;
+  private String logDirectory;
+  private String logFileName;
+  private static final int DEFAULT_BUFSIZE = 4096;
+  private FileTailerQueue queue;
+  private byte entrySeparator = '\n';
+  private ConfigurationLoader confLoader;
+  private FileTailerStateProcessor fileTailerStateProcessor;
   private Thread worker;
   /**
    * Buffer on top of RandomAccessFile.
    */
   private final byte inbuf[];
 
-  public LogTailer(ConfigurationLoader loader, FileTailerQueue queue, FileTailerStateProcessor fileTailerStateProcessor) throws  ConfigurationLoaderException {
+  public LogTailer(ConfigurationLoader loader, FileTailerQueue queue,
+                   FileTailerStateProcessor fileTailerStateProcessor) throws  ConfigurationLoaderException {
     this.queue = queue;
     this.inbuf = new byte[DEFAULT_BUFSIZE];
     this.confLoader = loader;
-    this.fileTailerStateProcessor=fileTailerStateProcessor;
+    this.fileTailerStateProcessor = fileTailerStateProcessor;
     this.sleepInterval = confLoader.getSleepInterval();
     this.logDirectory = confLoader.getWorkDir();
     this.logFileName = confLoader.getFileName();
@@ -80,12 +81,11 @@ public class LogTailer implements Runnable {
           runWithOutRestore();
       } else {
           runFromSaveState(fileTailerState);
-
     }
 
   }
  private FileTailerState getSaveStateFromFile() {
-     FileTailerState fileTailerState ;
+     FileTailerState fileTailerState;
      try {
          fileTailerState = fileTailerStateProcessor.loadState();
      } catch (FileTailerStateProcessorException e) {
@@ -98,36 +98,34 @@ public class LogTailer implements Runnable {
  }
 
   private void runFromSaveState(FileTailerState fileTailerState) {
-      long position =fileTailerState.getPosition();
+      long position = fileTailerState.getPosition();
       long lastModifytime = fileTailerState.getLastModifyTime();
       int hash = fileTailerState.getHash();
-      File currentLogFile =  getCurrentLogFile(logDirectory,lastModifytime);
+      File currentLogFile = getCurrentLogFile(logDirectory, lastModifytime);
       if (currentLogFile == null) {
           return;
       }
       try {
-        boolean res =  checkLine(currentLogFile,position,hash);
-        if (!res ) {
+        boolean res = checkLine(currentLogFile, position, hash);
+        if (!res) {
             return;
-        }
-        else {
-            startReadingFromFile(currentLogFile,position);
+        } else {
+            startReadingFromFile(currentLogFile, position);
         }
       } catch (IOException e) {
           return;
-
       }
  }
 
     private void startReadingFromFile(File currentLogFile, long position) {
-        RandomAccessFile reader ;
+        RandomAccessFile reader;
         try {
             reader = new RandomAccessFile(currentLogFile, RAF_MODE);
             reader.seek(position);
         } catch (IOException e) {
             return;
         }
-        int lineHash ;
+        int lineHash;
             long modifyTime = currentLogFile.lastModified();
           try {
             while (!Thread.currentThread().isInterrupted()) {
@@ -138,7 +136,12 @@ public class LogTailer implements Runnable {
                         position = reader.getFilePointer() - line.length();
                         modifyTime = currentLogFile.lastModified();
                         //TODO: Get charset from properties;
-                        queue.put(new FileTailerEvent(new FileTailerState(currentLogFile.toString(), position, lineHash, modifyTime), line, Charset.defaultCharset()));
+                        queue.put(new FileTailerEvent(new FileTailerState(currentLogFile.toString(),
+                                                                          position,
+                                                                          lineHash,
+                                                                          modifyTime),
+                                                                          line,
+                                                                          Charset.defaultCharset()));
                     } else {
                         File newLog = getCurrentLogFile(logDirectory, modifyTime);
                         if (newLog == null) {
@@ -153,14 +156,13 @@ public class LogTailer implements Runnable {
                         }
                     }
                 }
-            }catch(IOException e){
+            } catch (IOException e) {
                  LOG.error("Tailer daemon stopped due to IO exception during reading file");
-            }catch(InterruptedException e){
+            } catch (InterruptedException e) {
               LOG.info("Tailer daemon was interrupted");
+            } finally {
+              closeQuietly(reader);
             }
-                finally {
-                    closeQuietly(reader);
-                }
 
     }
 
