@@ -16,6 +16,7 @@
 
 package co.cask.cdap.client.rest;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAcceptableException;
@@ -133,14 +134,14 @@ public class RestClient {
     JsonObject result;
     if (httpEntity != null && httpEntity.getContent() != null) {
       String content = null;
-      String charsetName;
+      Charset charset;
       ContentType contentType = ContentType.getOrDefault(httpEntity);
       if (contentType != null && contentType.getCharset() != null) {
-        charsetName = contentType.getCharset().name();
+        charset = contentType.getCharset();
       } else {
-        charsetName = StandardCharsets.UTF_8.name();
+        charset = Charsets.UTF_8;
       }
-      Reader reader = new InputStreamReader(httpEntity.getContent(), charsetName);
+      Reader reader = new InputStreamReader(httpEntity.getContent(), charset);
       try {
         content = CharStreams.toString(reader);
       } finally {
