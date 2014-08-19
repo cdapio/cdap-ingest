@@ -27,15 +27,16 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAcceptableException;
@@ -131,17 +132,19 @@ public class RestClient {
   public static JsonObject getEntityAsJsonObject(HttpEntity httpEntity) throws IOException {
     JsonObject result;
     if (httpEntity != null && httpEntity.getContent() != null) {
-      InputStream entityInputStream = httpEntity.getContent();
       String content = null;
-      Reader reader = null;
+      String charsetName;
+      ContentType contentType = ContentType.getOrDefault(httpEntity);
+      if (contentType != null && contentType.getCharset() != null) {
+        charsetName = contentType.getCharset().name();
+      } else {
+        charsetName = StandardCharsets.UTF_8.name();
+      }
+      Reader reader = new InputStreamReader(httpEntity.getContent(), charsetName);
       try {
-        reader = new InputStreamReader(entityInputStream);
         content = CharStreams.toString(reader);
       } finally {
-        entityInputStream.close();
-        if (reader != null) {
-          reader.close();
-        }
+        reader.close();
       }
       if (StringUtils.isNotEmpty(content)) {
         JsonElement root = new JsonParser().parse(content);

@@ -29,7 +29,8 @@ public class RestTest {
   public static final long STREAM_TTL = 86400;
   public static final String AUTH_TOKEN = "er4545556tfgbdsa9ddvgfgd9";
 
-  protected LocalTestServer localTestServer;
+  private LocalTestServer localTestServer;
+
   protected String testServerHost;
   protected int testServerPort;
 
@@ -41,7 +42,6 @@ public class RestTest {
   @Before
   public void setUp() throws Exception {
     localTestServer = new LocalTestServer(null, null);
-//    localTestServer.register("*/streams/*", streamsHandler);
     localTestServer.register("*/config", configHandler);
     localTestServer.register("*/truncate", truncateHandler);
     localTestServer.register("*/info", infoHandler);
