@@ -16,13 +16,15 @@
 
 package co.cask.cdap.filetailer.config;
 
+import co.cask.cdap.client.StreamClient;
+import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -49,72 +51,115 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
   }
 
   @Override
-  public List<String> getHostPortPairs() throws ConfigurationLoaderException {
-    return Arrays.asList(getProperty("rest_api_hosts").split(";"));
+  public List<StreamClient> getStreamClients() throws ConfigurationLoaderException {
+    List<StreamClient> streamClients = new ArrayList<StreamClient>();
+    int clientCounter = 1;
+    String clientHost;
+    String clientPort;
+    while ((clientHost = getProperty("client" + clientCounter + ".host")) != null &&
+           (clientPort = getProperty("client" + clientCounter + ".port")) != null) {
+      RestStreamClient.Builder builder = new RestStreamClient.Builder(clientHost, Integer.parseInt(clientPort));
+      String ssl = getProperty("client" + clientCounter + ".ssl");
+      if (ssl != null) {
+        builder.ssl(Boolean.valueOf(ssl));
+      }
+      String authToken = getProperty("client" + clientCounter + ".authToken");
+      if (authToken != null) {
+        builder.authToken(authToken);
+      }
+      String apiKey = getProperty("client" + clientCounter + ".apiKey");
+      if (apiKey != null) {
+        builder.apiKey(apiKey);
+      }
+      String writerPoolSize = getProperty("client" + clientCounter + ".writerPoolSize");
+      if (writerPoolSize != null) {
+        builder.writerPoolSize(Integer.parseInt(writerPoolSize));
+      }
+      String version = getProperty("client" + clientCounter + ".version");
+      if (version != null) {
+        builder.version(version);
+      }
+      streamClients.add(builder.build());
+
+      clientCounter++;
+    }
+    if (streamClients.isEmpty()) {
+      throw new ConfigurationLoaderException("Not found any stream client in configuration file");
+    }
+    return streamClients;
   }
 
   @Override
   public String getStreamName() throws ConfigurationLoaderException {
-    return getProperty("stream_name");
+    return getRequiredProperty("stream_name");
   }
 
   @Override
   public String getCharsetName() throws ConfigurationLoaderException {
-    return getProperty("charset_name");
+    return getRequiredProperty("charset_name");
   }
 
   @Override
   public String getSinkStrategy() throws ConfigurationLoaderException {
-    return getProperty("sink_strategy");
+    return getRequiredProperty("sink_strategy");
   }
 
   @Override
   public String getWorkDir() throws ConfigurationLoaderException {
-    return getProperty("work_dir");
+    return getRequiredProperty("work_dir");
   }
 
   @Override
   public String getFileName() throws ConfigurationLoaderException {
-    return getProperty("file_name");
+    return getRequiredProperty("file_name");
   }
 
   @Override
   public String getRotationPattern() throws ConfigurationLoaderException {
-    return getProperty("rotated_file_pattern");
+    return getRequiredProperty("rotated_file_pattern");
   }
 
   @Override
   public String getStateDir() throws ConfigurationLoaderException {
-    return getProperty("state_dir");
+    return getRequiredProperty("state_dir");
   }
 
   @Override
   public String getStateFile() throws ConfigurationLoaderException {
-    return getProperty("state_file");
+    return getRequiredProperty("state_file");
   }
 
   @Override
   public int getFailureRetryLimit() throws ConfigurationLoaderException {
-    return Integer.parseInt(getProperty("failure_retry_limit"));
+    return Integer.parseInt(getRequiredProperty("failure_retry_limit"));
   }
 
   @Override
   public byte getRecordSeparator() throws ConfigurationLoaderException {
-    return getProperty("record_separator").getBytes()[0];
+    return getRequiredProperty("record_separator").getBytes()[0];
   }
 
   @Override
   public long getSleepInterval() throws ConfigurationLoaderException {
-    return Long.parseLong(getProperty("sleep_interval"));
+    return Long.parseLong(getRequiredProperty("sleep_interval"));
   }
 
   @Override
   public int getQueueSize() throws ConfigurationLoaderException {
-    return Integer.parseInt(getProperty("queue_size"));
+    return Integer.parseInt(getRequiredProperty("queue_size"));
   }
 
   private String getProperty(String key) throws ConfigurationLoaderException {
     LOG.debug("Start returning property by key: {}", key);
+    if (properties == null) {
+      LOG.error("Properties file not loaded");
+      throw new ConfigurationLoaderException("Properties file not loaded");
+    }
+    return properties.getProperty(key);
+  }
+
+  private String getRequiredProperty(String key) throws ConfigurationLoaderException {
+    LOG.debug("Start returning required property by key: {}", key);
     if (properties == null) {
       LOG.error("Properties file not loaded");
       throw new ConfigurationLoaderException("Properties file not loaded");

@@ -16,6 +16,7 @@
 
 package co.cask.cdap.filetailer.config;
 
+import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 
 import java.util.List;
@@ -35,13 +36,13 @@ public interface ConfigurationLoader {
   void load(String path) throws ConfigurationLoaderException;
 
   /**
-   * Returns the List of pairs (host:port) (loaded from configuration file)
+   * Returns the List of stream clients (loaded from configuration file)
    *
-   * @return the List of pairs (host:port)
+   * @return the List of stream clients
    * @throws ConfigurationLoaderException if error occurred
    *                                      (for example, ConfigurationLoader not initialized)
    */
-  List<String> getHostPortPairs() throws ConfigurationLoaderException;
+  List<StreamClient> getStreamClients() throws ConfigurationLoaderException;
 
   /**
    * Returns the name of target stream (loaded from configuration file)

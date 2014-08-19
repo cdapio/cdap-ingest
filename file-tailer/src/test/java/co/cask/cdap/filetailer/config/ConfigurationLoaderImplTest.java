@@ -16,6 +16,7 @@
 
 package co.cask.cdap.filetailer.config;
 
+import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class ConfigurationLoaderImplTest {
     field.setAccessible(true);
     Properties properties = (Properties) field.get(loader);
 
-    Assert.assertEquals(13, properties.size());
+    Assert.assertEquals(24, properties.size());
   }
 
   @Test(expected = ConfigurationLoaderException.class)
@@ -64,12 +65,9 @@ public class ConfigurationLoaderImplTest {
 
     loader.load(path);
 
-    List<String> hostPortPairs = loader.getHostPortPairs();
+    List<StreamClient> streamClients = loader.getStreamClients();
 
-    Assert.assertEquals(3, hostPortPairs.size());
-    Assert.assertEquals("localhost:9889", hostPortPairs.get(0));
-    Assert.assertEquals("localhost2:9889", hostPortPairs.get(1));
-    Assert.assertEquals("localhost3:9889", hostPortPairs.get(2));
+    Assert.assertEquals(2, streamClients.size());
 
     String streamName = loader.getStreamName();
 
@@ -124,6 +122,6 @@ public class ConfigurationLoaderImplTest {
   public void loadPropertiesFailureTest() throws ConfigurationLoaderException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
 
-    loader.getHostPortPairs();
+    loader.getFileName();
   }
 }
