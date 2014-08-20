@@ -22,8 +22,6 @@ import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -104,6 +102,14 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     private String key;
 
+    private static final String DEFAULT_RECORD_SEPARATOR = "\n";
+
+    private static final String DEFAULT_SLEEP_INTERVAL = "3000";
+
+    private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
+
+    private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
+
     public SourceConfigurationImpl(String key) {
       this.key = "flows." + key + ".source.";
     }
@@ -130,28 +136,44 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public byte getRecordSeparator() {
-      return getProperty(this.key + "record_separator").getBytes()[0];
+      String recordSeparator = getProperty(this.key + "record_separator");
+      return (recordSeparator != null ? recordSeparator : DEFAULT_RECORD_SEPARATOR).getBytes()[0];
     }
 
     @Override
     public long getSleepInterval() {
-      return Long.parseLong(getProperty(this.key + "sleep_interval"));
+      String sleepInterval = getProperty(this.key + "sleep_interval");
+      return Long.parseLong(sleepInterval != null ? sleepInterval : DEFAULT_SLEEP_INTERVAL);
     }
 
     @Override
     public int getFailureRetryLimit() {
-      return Integer.parseInt(getProperty(this.key + "failure_retry_limit"));
+      String failureRetryLimit = getProperty(this.key + "failure_retry_limit");
+      return Integer.parseInt(failureRetryLimit != null ? failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
     }
 
     @Override
     public long getFailureSleepInterval() {
-      return Long.parseLong(getProperty(this.key + "failure_sleep_interval"));
+      String failureSleepInterval = getProperty(this.key + "failure_sleep_interval");
+      return Long.parseLong(failureSleepInterval != null ? failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
     }
   }
 
   private class SinkConfigurationImpl implements SinkConfiguration {
 
     private String key;
+
+    private static final String DEFAULT_SSL = "false";
+
+    private static final String DEFAULT_WRITER_POOL_SIZE = "10";
+
+    private static final String DEFAULT_VERSION = "v2";
+
+    private static final String DEFAULT_PACK_SIZE = "1";
+
+    private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
+
+    private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
 
     public SinkConfigurationImpl(String key) {
       this.key = "flows." + key + ".sink.";
@@ -168,43 +190,45 @@ public class FlowConfigurationImpl implements FlowConfiguration {
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
 
       RestStreamClient.Builder builder = new RestStreamClient.Builder(host, port);
+
       String ssl = getProperty(this.key + "ssl");
-      if (ssl != null) {
-        builder.ssl(Boolean.valueOf(ssl));
-      }
+      builder.ssl(Boolean.valueOf(ssl != null ? ssl : DEFAULT_SSL));
+
       String authToken = getProperty(this.key + "authToken");
       if (authToken != null) {
         builder.authToken(authToken);
       }
+
       String apiKey = getProperty(this.key + "apiKey");
       if (apiKey != null) {
         builder.apiKey(apiKey);
       }
+
       String writerPoolSize = getProperty(this.key + "writerPoolSize");
-      if (writerPoolSize != null) {
-        builder.writerPoolSize(Integer.parseInt(writerPoolSize));
-      }
+      builder.writerPoolSize(Integer.parseInt(writerPoolSize != null ? writerPoolSize : DEFAULT_WRITER_POOL_SIZE));
+
       String version = getProperty(this.key + "version");
-      if (version != null) {
-        builder.version(version);
-      }
+      builder.version(version != null ? version : DEFAULT_VERSION);
 
       return builder.build();
     }
 
     @Override
     public int getPackSize() {
-      return Integer.parseInt(getProperty(this.key + "packSize"));
+      String packSize = getProperty(this.key + "packSize");
+      return Integer.parseInt(packSize != null ? packSize : DEFAULT_PACK_SIZE);
     }
 
     @Override
     public int getFailureRetryLimit() {
-      return Integer.parseInt(getProperty(this.key + "failure_retry_limit"));
+      String failureRetryLimit = getProperty(this.key + "failure_retry_limit");
+      return Integer.parseInt(failureRetryLimit != null ? failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
     }
 
     @Override
     public long getFailureSleepInterval() {
-      return Long.parseLong(getProperty(this.key + "failure_sleep_interval"));
+      String failureSleepInterval = getProperty(this.key + "failure_sleep_interval");
+      return Long.parseLong(failureSleepInterval != null ? failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
     }
   }
 }
