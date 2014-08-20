@@ -18,7 +18,7 @@ package co.cask.cdap.filetailer.config;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
-import co.cask.cdap.filetailer.config.exception.ConfigurationResolvException;
+import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class ConfigurationLoaderImplTest {
   private static final Logger LOG = LoggerFactory.getLogger(ConfigurationLoaderImplTest.class);
 
   @Test
-  public void initTest() throws ConfigurationLoaderException, NoSuchFieldException,
+  public void initTest() throws ConfigurationLoadingException, NoSuchFieldException,
                                               IllegalAccessException, URISyntaxException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
 
@@ -49,8 +49,8 @@ public class ConfigurationLoaderImplTest {
     Assert.assertEquals(24, properties.size());
   }
 
-  @Test(expected = ConfigurationLoaderException.class)
-  public void initFailureTest() throws ConfigurationLoaderException {
+  @Test(expected = ConfigurationLoadingException.class)
+  public void initFailureTest() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
 
     String fakePath = "fake path";
@@ -59,7 +59,7 @@ public class ConfigurationLoaderImplTest {
   }
 
   @Test
-  public void loadPropertiesTest() throws ConfigurationLoaderException {
+  public void loadPropertiesTest() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
 
     String path = getClass().getClassLoader().getResource("test.properties").getFile();
@@ -119,7 +119,7 @@ public class ConfigurationLoaderImplTest {
     Assert.assertEquals(100, queueSize);
   }
 
-  @Test(expected = ConfigurationResolvException.class)
+  @Test(expected = ConfigurationLoaderException.class)
   public void loadPropertiesFailureTest() {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
 

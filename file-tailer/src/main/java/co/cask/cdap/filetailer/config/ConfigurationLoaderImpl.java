@@ -19,7 +19,7 @@ package co.cask.cdap.filetailer.config;
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
-import co.cask.cdap.filetailer.config.exception.ConfigurationResolvException;
+import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
   private Properties properties;
 
   @Override
-  public void load(String path) throws ConfigurationLoaderException {
+  public void load(String path) throws ConfigurationLoadingException {
     LOG.debug("Start initializing loader with file: {}", path);
     properties = new Properties();
     try {
@@ -47,7 +47,7 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
       LOG.debug("Loader successfully initialized with file: {}", path);
     } catch (IOException e) {
       LOG.error("Can not load properties: {}", e.getMessage());
-      throw new ConfigurationLoaderException(e.getMessage());
+      throw new ConfigurationLoadingException(e.getMessage());
     }
   }
 
@@ -85,7 +85,7 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
       clientCounter++;
     }
     if (streamClients.isEmpty()) {
-      throw new ConfigurationResolvException("Not found any stream client in configuration file");
+      throw new ConfigurationLoaderException("Not found any stream client in configuration file");
     }
     return streamClients;
   }
@@ -154,21 +154,16 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
     LOG.debug("Start returning property by key: {}", key);
     if (properties == null) {
       LOG.error("Properties file not loaded");
-      throw new ConfigurationResolvException("Properties file not loaded");
+      throw new ConfigurationLoaderException("Properties file not loaded");
     }
     return properties.getProperty(key);
   }
 
   private String getRequiredProperty(String key) {
-    LOG.debug("Start returning required property by key: {}", key);
-    if (properties == null) {
-      LOG.error("Properties file not loaded");
-      throw new ConfigurationResolvException("Properties file not loaded");
-    }
-    String property = properties.getProperty(key);
+    String property = getProperty(key);
     if (property == null) {
       LOG.error("Property not found");
-      throw new ConfigurationResolvException("Property not found");
+      throw new ConfigurationLoaderException("Property not found");
     }
     return property;
   }

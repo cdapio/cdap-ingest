@@ -17,7 +17,7 @@
 package co.cask.cdap.filetailer.config;
 
 import co.cask.cdap.client.StreamClient;
-import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
+import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 
 import java.util.List;
 
@@ -30,10 +30,10 @@ public interface ConfigurationLoader {
    * Initialize configuration loader with properties from configuration file.
    *
    * @param path the path to configuration file
-   * @throws ConfigurationLoaderException if error occurred
+   * @throws co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException if error occurred
    *                                      (for example, file not exists)
    */
-  void load(String path) throws ConfigurationLoaderException;
+  void load(String path) throws ConfigurationLoadingException;
 
   /**
    * Returns the List of stream clients (loaded from configuration file)

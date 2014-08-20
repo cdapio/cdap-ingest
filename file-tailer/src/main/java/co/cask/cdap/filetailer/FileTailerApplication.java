@@ -20,7 +20,7 @@ import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
-import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
+import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.sink.SinkStrategy;
@@ -57,7 +57,7 @@ public class FileTailerApplication {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     try {
       loader.load(configurationPath);
-    } catch (ConfigurationLoaderException e) {
+    } catch (ConfigurationLoadingException e) {
       LOG.error("Can not load configurations form file {}: {}", configurationPath, e.getMessage());
       return;
     }

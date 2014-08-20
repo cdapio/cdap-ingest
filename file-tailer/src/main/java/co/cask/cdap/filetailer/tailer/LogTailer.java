@@ -16,7 +16,6 @@
 
 package co.cask.cdap.filetailer.tailer;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
-import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.state.FileTailerState;
