@@ -33,6 +33,9 @@ public final class TestUtils {
   public static final String FORBIDDEN_STREAM_NAME = "forbidden";
   public static final String NOT_ALLOWED_STREAM_NAME = "notAllowed";
   public static final String CONFLICT_STREAM_NAME = "conflict";
+  public static final String WRITER_TEST_STREAM_NAME_POSTFIX = "WriterTest";
+  public static final String FILE_STREAM_NAME = "file";
+  public static final String WITH_CUSTOM_HEADER_STREAM_NAME = "withHeader";
 
   private TestUtils() {
   }

@@ -27,6 +27,9 @@ import java.io.IOException;
 public interface StreamClient extends Closeable {
   /**
    * Creates a stream with the given name.
+   *
+   * @param stream String value of the Stream id
+   * @throws IOException in case of a problem or the connection was aborted
    */
   void create(String stream) throws IOException;
 
@@ -35,7 +38,8 @@ public interface StreamClient extends Closeable {
    *
    * @param stream Name of the stream
    * @param ttl    TTL in seconds
-   * @throws co.cask.cdap.client.exception.NotFoundException If the stream does not exists
+   * @throws NotFoundException If the stream does not exists
+   * @throws IOException in case of a problem or the connection was aborted
    */
   void setTTL(String stream, long ttl) throws NotFoundException, IOException;
 
@@ -45,6 +49,7 @@ public interface StreamClient extends Closeable {
    * @param stream Name of the stream
    * @return Current TTL of the stream in seconds
    * @throws NotFoundException If the stream does not exists
+   * @throws IOException in case of a problem or the connection was aborted
    */
   long getTTL(String stream) throws NotFoundException, IOException;
 
@@ -53,6 +58,7 @@ public interface StreamClient extends Closeable {
    *
    * @param stream Name of the stream
    * @throws NotFoundException If the stream does not exists
+   * @throws IOException in case of a problem or the connection was aborted
    */
   void truncate(String stream) throws NotFoundException, IOException;
 
@@ -61,8 +67,10 @@ public interface StreamClient extends Closeable {
    *
    * @param stream Name of the stream
    * @return An instance of {@link StreamWriter} that is ready for writing events to the stream
+   * @throws NotFoundException If the stream does not exists
+   * @throws IOException in case of a problem or the connection was aborted
    */
-  StreamWriter createWriter(String stream);
+  StreamWriter createWriter(String stream) throws NotFoundException, IOException;
 
   /**
    * Closes a {@link org.apache.http.impl.client.CloseableHttpClient} instance for releasing all unused resource

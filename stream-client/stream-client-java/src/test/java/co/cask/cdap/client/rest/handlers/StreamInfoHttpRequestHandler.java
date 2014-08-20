@@ -47,6 +47,8 @@ public class StreamInfoHttpRequestHandler implements HttpRequestHandler {
       String streamName = TestUtils.getStreamNameFromUri(uri);
       if (TestUtils.AUTH_STREAM_NAME.equals(streamName)) {
         statusCode = TestUtils.authorize(httpRequest);
+      } else if (streamName.contains(TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX)) {
+        statusCode = HttpStatus.SC_OK;
       } else {
         statusCode = TestUtils.getStatusCodeByStreamName(streamName);
       }

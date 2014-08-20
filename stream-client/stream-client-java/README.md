@@ -1,22 +1,22 @@
 stream-client-java
 ==================
 
-Stream Client Java API for managing streams via external custom java applications.
+The Stream Client Java API is for managing Streams via external custom Java applications.
 
-## supported actions
+## Supported Actions
 
- - create Stream with specified <stream-id>;
- - update TTL for Stream by specified <stream-id>;
- - get current Stream TTL by specified <stream-id>;
- - truncate Stream by specified <stream-id> (this means the deletion of all events that were written to the Stream);
- - write event to the Stream by specified <stream-id>;
- - send File to the Stream by specified <stream-id>.
+ - create a Stream with a specified <stream-id>;
+ - update TTL for an exiting Stream with a specified <stream-id>;
+ - retrieve the current Stream TTL for a specified <stream-id>;
+ - truncate an existing Stream (the deletion of all events that were written to the Stream);
+ - write an event to an existing Stream; 
+ - send a File to an existing Stream.
 
 
 
-## usage
+## Usage
 
- For the start to use Stream Client Java API, you need to include maven dependency to your project pom file:
+ To use the Stream Client Java API, include this Maven dependency in your project's ```pom.xml``` file:
  
  <dependency>
   <groupId>co.cask.cdap</groupId>
@@ -24,22 +24,22 @@ Stream Client Java API for managing streams via external custom java application
   <version>1.0-SNAPSHOT</version>
  </dependency>
  
-## example
+## Example
    
- Create StreamClient instance with mandatory fields 'host' and 'port' of Getaway server. 
- Optional configurations could be set as default:
+ Create a StreamClient instance, specifying the fields 'host' and 'port' of the gateway server. 
+ Optional configurations that can be set (and their default values):
   
   - ssl: false (use HTTP protocol) 
-  - writer pool size: '10' (max thread pool size for write events to the Stream)
-  - version : 'v2' (Getaway server version, used as a part of base uri [http://localhost:10000/v2/...])  
-  - authToken: null (Need to be specify for authenticate client requests). 
-  - apiKey: null (Need to be specify for authenticate client requests using SSL)
+  - writerPoolSize: '10' (max thread pool size for write events to the Stream)
+  - version : 'v2' (Gateway server version, used as a part of the base URI [http(s)://localhost:10000/v2/...]) 
+  - authToken: null (Need to specify to authenticate client requests) 
+  - apiKey:  null (Need to specify to authenticate client requests using SSL)
  
  ```
    StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000).build();
  ```
       
- or also could be specified as the builder parameters:
+ or specified using the builder parameters:
  
  ```
    StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000)
@@ -51,7 +51,7 @@ Stream Client Java API for managing streams via external custom java application
          .build();
  ```
  
- Create new Stream with new *stream-id*
+ Create a new Stream with the *stream-id* "newStreamName":
  
  ```
    streamClient.create("newStreamName");
@@ -63,25 +63,25 @@ Stream Client Java API for managing streams via external custom java application
   - If the Stream already exists, no error is returned, and the existing Stream remains in place.
      
  
- Update TTL for Stream by *stream-id*, TTL is long value
+ Update TTL for the Stream *stream-id*; TTL is a long value:
  
  ```
    streamClient.setTTL("streamName", newTTL);
  ```
  
- Get current TTL value by *stream-id*
+ Get the current TTL value for the Stream *stream-id*:
  
  ```  
    long ttl = streamClient.getTTL("streamName");  
  ```
  
- Create StreamWriter instance for writing events to the Stream
+ Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
  
  ```
-   StreamWriter streamWriter = streamClient.createWriter(streamName);
+   StreamWriter streamWriter = streamClient.createWriter("streamName");
  ```
      
- For write new event to the stream, you could use on of existing 5 methods from the StreamWriter interface:
+ To write new events to the Stream, you can use any of these five methods in the ```StreamWriter``` interface:
  
  ``` 
    ListenableFuture<Void> write(String str, Charset charset);
@@ -91,46 +91,37 @@ Stream Client Java API for managing streams via external custom java application
    ListenableFuture<Void> send(File file, MediaType type);
  ```
  
- for example:
+ Example:
  
  ```
    streamWriter.write("New log event", Charsets.UTF_8).get();
  ```
    
- For truncate Stream by *stream-id*, use
+ To truncate the Stream *streamName*, use:
  
  ```
    streamClient.truncate("streamName");
  ```
    
- When you already does not need to use created clients, release all unused resources by calling methods
- 
+ When you are finished, release all resources by calling these two methods:
+  
  ```  
    streamWriter.close();
    streamClient.close();  
  ```
 
-## additional notes
+## Additional Notes
  
- All methods from the StreamClient and StreamWriter throw Exceptions using response code analysis from 
- the Getaway server. This exceptions help to recognizes is the request processed successfully or not.
+ All methods from the ```StreamClient``` and ```StreamWriter``` throw exceptions using response code analysis from the 
+ gateway server. These exceptions help determine if the request was processed successfully or not.
+ 
+ In the case of a **200 OK** response, no exception will be thrown; other cases will throw these exceptions:
   
- So, in the case of **200 OK** no exception will be thrown;
- In other cases will be thrown following exceptions:
-  
-  - **400 Bad Request** 
-    trigger *javax.ws.rs.BadRequestException;*   
-  - **401 Unauthorized** 
-    trigger *javax.ws.rs.NotAuthorizedException;*
-  - **403 Forbidden** 
-    trigger *javax.ws.rs.ForbiddenException;*
-  - **404 Not Found** 
-    trigger *co.cask.cdap.client.exception.NotFoundException/javax.ws.rs.NotFoundException;*
-  - **405 Method Not Allowed** 
-    trigger *javax.ws.rs.NotAcceptableException;*
-  - **409 Conflict** 
-    trigger *javax.ws.rs.NotAcceptableException;*
-  - **500 Internal Server Error** 
-    trigger *javax.ws.rs.ServerErrorException;*
-  - **501 Not Implemented** 
-    trigger *javax.ws.rs.NotSupportedException*.
+  - **400 Bad Request**: *javax.ws.rs.BadRequestException;*   
+  - **401 Unauthorized**: *javax.ws.rs.NotAuthorizedException;*
+  - **403 Forbidden**: *javax.ws.rs.ForbiddenException;*
+  - **404 Not Found**: *co.cask.cdap.client.exception.NotFoundException/javax.ws.rs.NotFoundException;*
+  - **405 Method Not Allowed**: *javax.ws.rs.NotAcceptableException;*
+  - **409 Conflict**: *javax.ws.rs.NotAcceptableException;*
+  - **500 Internal Server Error**: *javax.ws.rs.ServerErrorException;*
+  - **501 Not Implemented**: *javax.ws.rs.NotSupportedException*.

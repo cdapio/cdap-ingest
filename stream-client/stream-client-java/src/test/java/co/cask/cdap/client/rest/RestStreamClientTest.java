@@ -295,8 +295,20 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test
-  public void testCreateWriter() {
+  public void testCreateWriter() throws NotFoundException, IOException {
     StreamWriter streamWriter = streamClient.createWriter(TestUtils.SUCCESS_STREAM_NAME);
+    assertNotNull(streamWriter);
+    assertEquals(RestStreamWriter.class, streamWriter.getClass());
+    RestStreamWriter restStreamWriter = (RestStreamWriter) streamWriter;
+    assertEquals(TestUtils.SUCCESS_STREAM_NAME, restStreamWriter.getStreamName());
+    String expectedBaseUri = "http://" + testServerHost + ":" + testServerPort + "/"
+      + RestStreamClient.DEFAULT_VERSION + "/";
+    assertEquals(expectedBaseUri, restStreamWriter.getRestClient().getBaseUrl());
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void testNotExistStreamCreateWriter() throws NotFoundException, IOException {
+    StreamWriter streamWriter = streamClient.createWriter(TestUtils.NOT_FOUND_STREAM_NAME);
     assertNotNull(streamWriter);
     assertEquals(RestStreamWriter.class, streamWriter.getClass());
     RestStreamWriter restStreamWriter = (RestStreamWriter) streamWriter;

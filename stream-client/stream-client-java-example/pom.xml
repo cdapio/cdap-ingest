@@ -22,18 +22,20 @@
 
   <parent>
     <groupId>co.cask.cdap</groupId>
-    <artifactId>cdap-injest</artifactId>
+    <artifactId>stream-client</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>stream-client</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <artifactId>stream-client-java-example</artifactId>
   <packaging>pom</packaging>
-  <name>Stream Client API</name>
+  <name>Example of using the Stream Client Java API</name>
 
-  <modules>
-    <module>stream-client-java</module>
-    <module>stream-client-java-example</module>
-  </modules>
+  <dependencies>
+    <dependency>
+      <groupId>co.cask.cdap</groupId>
+      <artifactId>stream-client-java</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
 
 </project>
