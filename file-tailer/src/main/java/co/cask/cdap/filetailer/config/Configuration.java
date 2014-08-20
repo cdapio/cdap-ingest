@@ -16,20 +16,17 @@
 
 package co.cask.cdap.filetailer.config;
 
-import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
+import java.util.List;
 
 /**
- * ConfigurationLoader is designed for loading properties from specified file.
+ * Configuration s design for getting all properties from configuration file
  */
-public interface ConfigurationLoader {
+public interface Configuration {
 
   /**
-   * Initialize configuration loader with properties from configuration file.
+   * Returns configurations of each flow
    *
-   * @param path the path to configuration file
-   * @return configuration loaded from file with specified path
-   * @throws co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException if error occurred
-   *                                      (for example, file not exists)
+   * @return configurations of each flow
    */
-  Configuration load(String path) throws ConfigurationLoadingException;
+  List<FlowConfiguration> getFlowsConfiguration();
 }

@@ -16,8 +16,6 @@
 
 package co.cask.cdap.filetailer.config;
 
-import co.cask.cdap.client.StreamClient;
-import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Properties;
 
 public class ConfigurationLoaderImplTest {
@@ -40,13 +37,13 @@ public class ConfigurationLoaderImplTest {
 
     String path = getClass().getClassLoader().getResource("test.properties").getFile();
 
-    loader.load(path);
+    Configuration configuration = loader.load(path);
 
-    Field field = loader.getClass().getDeclaredField("properties");
+    Field field = configuration.getClass().getDeclaredField("properties");
     field.setAccessible(true);
-    Properties properties = (Properties) field.get(loader);
+    Properties properties = (Properties) field.get(configuration);
 
-    Assert.assertEquals(24, properties.size());
+    Assert.assertEquals(25, properties.size());
   }
 
   @Test(expected = ConfigurationLoadingException.class)
@@ -56,73 +53,5 @@ public class ConfigurationLoaderImplTest {
     String fakePath = "fake path";
 
     loader.load(fakePath);
-  }
-
-  @Test
-  public void loadPropertiesTest() throws ConfigurationLoadingException {
-    ConfigurationLoader loader = new ConfigurationLoaderImpl();
-
-    String path = getClass().getClassLoader().getResource("test.properties").getFile();
-
-    loader.load(path);
-
-    List<StreamClient> streamClients = loader.getStreamClients();
-
-    Assert.assertEquals(2, streamClients.size());
-
-    String streamName = loader.getStreamName();
-
-    Assert.assertEquals("name", streamName);
-
-    String charsetName = loader.getCharsetName();
-
-    Assert.assertEquals("UTF-8", charsetName);
-
-    String sinkStrategy = loader.getSinkStrategy();
-
-    Assert.assertEquals("failover", sinkStrategy);
-
-    String workDir = loader.getWorkDir();
-
-    Assert.assertEquals("/home/user/log/", workDir);
-
-    String fileName = loader.getFileName();
-
-    Assert.assertEquals("app.log", fileName);
-
-    String rotationPattern = loader.getRotationPattern();
-
-    Assert.assertEquals("yyyy-MM-dd-HH-mm", rotationPattern);
-
-    String stateDir = loader.getStateDir();
-
-    Assert.assertEquals("/home/user/file_tailer_tmp", stateDir);
-
-    String stateFile = loader.getStateFile();
-
-    Assert.assertEquals("file_tailer.state", stateFile);
-
-    int failureRetryLimit = loader.getFailureRetryLimit();
-
-    Assert.assertEquals(5, failureRetryLimit);
-
-    byte recordSeparator = loader.getRecordSeparator();
-
-    Assert.assertEquals("\n".getBytes()[0], recordSeparator);
-
-    long sleepInterval = loader.getSleepInterval();
-
-    Assert.assertEquals(3000, sleepInterval);
-
-    int queueSize = loader.getQueueSize();
-
-    Assert.assertEquals(100, queueSize);
-  }
-
-  @Test(expected = ConfigurationLoaderException.class)
-  public void loadPropertiesFailureTest() {
-    ConfigurationLoader loader = new ConfigurationLoaderImpl();
-
-    loader.getFileName();
   }
 }
