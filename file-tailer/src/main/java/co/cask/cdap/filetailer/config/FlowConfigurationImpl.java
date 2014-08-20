@@ -16,10 +16,14 @@
 
 package co.cask.cdap.filetailer.config;
 
+import co.cask.cdap.client.StreamClient;
+import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -106,42 +110,42 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public String getWorkDir() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "work_dir");
     }
 
     @Override
     public String getFileName() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "work_dir");
     }
 
     @Override
     public String getRotationPattern() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "work_dir");
     }
 
     @Override
     public String getCharsetName() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "work_dir");
     }
 
     @Override
     public byte getRecordSeparator() {
-      return FlowConfigurationImpl.this.getProperty(this.key + "record_separator").getBytes()[0];
+      return getProperty(this.key + "record_separator").getBytes()[0];
     }
 
     @Override
     public long getSleepInterval() {
-      return Long.parseLong(FlowConfigurationImpl.this.getProperty(this.key + "sleep_interval"));
+      return Long.parseLong(getProperty(this.key + "sleep_interval"));
     }
 
     @Override
     public int getFailureRetryLimit() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getProperty(this.key + "failure_retry_limit"));
+      return Integer.parseInt(getProperty(this.key + "failure_retry_limit"));
     }
 
     @Override
     public long getFailureSleepInterval() {
-      return Long.parseLong(FlowConfigurationImpl.this.getProperty(this.key + "failure_sleep_interval"));
+      return Long.parseLong(getProperty(this.key + "failure_sleep_interval"));
     }
   }
 
@@ -155,57 +159,52 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public String getStreamName() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "stream_name");
+      return getRequiredProperty(this.key + "stream_name");
     }
 
     @Override
-    public String getHost() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "host");
-    }
+    public StreamClient getStreamClients() {
+      String host = getRequiredProperty(this.key + "host");
+      int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
 
-    @Override
-    public int getPort() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getRequiredProperty(this.key + "port"));
-    }
+      RestStreamClient.Builder builder = new RestStreamClient.Builder(host, port);
+      String ssl = getProperty(this.key + "ssl");
+      if (ssl != null) {
+        builder.ssl(Boolean.valueOf(ssl));
+      }
+      String authToken = getProperty(this.key + "authToken");
+      if (authToken != null) {
+        builder.authToken(authToken);
+      }
+      String apiKey = getProperty(this.key + "apiKey");
+      if (apiKey != null) {
+        builder.apiKey(apiKey);
+      }
+      String writerPoolSize = getProperty(this.key + "writerPoolSize");
+      if (writerPoolSize != null) {
+        builder.writerPoolSize(Integer.parseInt(writerPoolSize));
+      }
+      String version = getProperty(this.key + "version");
+      if (version != null) {
+        builder.version(version);
+      }
 
-    @Override
-    public boolean getSSL() {
-      return Boolean.valueOf(FlowConfigurationImpl.this.getProperty(this.key + "ssl"));
-    }
-
-    @Override
-    public String getAuthToken() {
-      return FlowConfigurationImpl.this.getProperty(this.key + "authToken");
-    }
-
-    @Override
-    public String getApiKey() {
-      return FlowConfigurationImpl.this.getProperty(this.key + "apiKey");
-    }
-
-    @Override
-    public int getWriterPoolSize() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getProperty(this.key + "writerPoolSize"));
-    }
-
-    @Override
-    public String getVersion() {
-      return FlowConfigurationImpl.this.getProperty(this.key + "version");
+      return builder.build();
     }
 
     @Override
     public int getPackSize() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getProperty(this.key + "packSize"));
+      return Integer.parseInt(getProperty(this.key + "packSize"));
     }
 
     @Override
     public int getFailureRetryLimit() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getProperty(this.key + "failure_retry_limit"));
+      return Integer.parseInt(getProperty(this.key + "failure_retry_limit"));
     }
 
     @Override
     public long getFailureSleepInterval() {
-      return Long.parseLong(FlowConfigurationImpl.this.getProperty(this.key + "failure_sleep_interval"));
+      return Long.parseLong(getProperty(this.key + "failure_sleep_interval"));
     }
   }
 }

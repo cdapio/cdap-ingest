@@ -21,10 +21,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.nio.file.Files;
 
-/**
- * Created by root on 8/18/14.
- */
 public class FileTailerStateProcessorImplTest {
 
   @Test
@@ -46,5 +44,7 @@ public class FileTailerStateProcessorImplTest {
     Assert.assertEquals(state.getPosition(), loadedState.getPosition());
     Assert.assertEquals(state.getHash(), loadedState.getHash());
     Assert.assertEquals(state.getLastModifyTime(), loadedState.getLastModifyTime());
+
+    new File(System.getProperty("user.home") + "/ft_state_dir").delete();
   }
 }
