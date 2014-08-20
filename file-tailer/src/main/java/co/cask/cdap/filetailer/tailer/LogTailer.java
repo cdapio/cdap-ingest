@@ -15,7 +15,7 @@
  */
 
 package co.cask.cdap.filetailer.tailer;
-import co.cask.cdap.filetailer.config.ConfigurationLoader;
+import co.cask.cdap.filetailer.config.FlowConfiguration;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.state.FileTailerState;
@@ -44,7 +44,7 @@ public class LogTailer implements Runnable {
   private static final int DEFAULT_BUFSIZE = 4096;
   private FileTailerQueue queue;
   private byte entrySeparator = '\n';
-  private ConfigurationLoader confLoader;
+  private FlowConfiguration flowConfiguration;
   private FileTailerStateProcessor fileTailerStateProcessor;
   private Thread worker;
   /**
@@ -52,16 +52,16 @@ public class LogTailer implements Runnable {
    */
   private final byte inbuf[];
 
-  public LogTailer(ConfigurationLoader loader, FileTailerQueue queue,
+  public LogTailer(FlowConfiguration flowConfiguration, FileTailerQueue queue,
                    FileTailerStateProcessor fileTailerStateProcessor) {
     this.queue = queue;
     this.inbuf = new byte[DEFAULT_BUFSIZE];
-    this.confLoader = loader;
+    this.flowConfiguration = flowConfiguration;
     this.fileTailerStateProcessor = fileTailerStateProcessor;
-    this.sleepInterval = confLoader.getSleepInterval();
-    this.logDirectory = confLoader.getWorkDir();
-    this.logFileName = confLoader.getFileName();
-    this.entrySeparator = confLoader.getRecordSeparator();
+    this.sleepInterval = flowConfiguration.getSourceConfiguration().getSleepInterval();
+    this.logDirectory = flowConfiguration.getSourceConfiguration().getWorkDir();
+    this.logFileName = flowConfiguration.getSourceConfiguration().getFileName();
+    this.entrySeparator = flowConfiguration.getSourceConfiguration().getRecordSeparator();
 
 
   }
