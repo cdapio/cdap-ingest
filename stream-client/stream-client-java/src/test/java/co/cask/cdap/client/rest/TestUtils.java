@@ -57,7 +57,7 @@ public final class TestUtils {
     int code;
     if (StringUtils.isEmpty(streamName)) {
       code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-    } else if (SUCCESS_STREAM_NAME.equals(streamName)) {
+    } else if (SUCCESS_STREAM_NAME.equals(streamName) || TestUtils.FILE_STREAM_NAME.equals(streamName)) {
       code = HttpStatus.SC_OK;
     } else if (NOT_FOUND_STREAM_NAME.equals(streamName)) {
       code = HttpStatus.SC_NOT_FOUND;

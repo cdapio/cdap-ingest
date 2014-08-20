@@ -27,7 +27,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.FileEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,11 +89,10 @@ public class RestStreamWriter implements StreamWriter {
   @Override
   public ListenableFuture<Void> send(File file, MediaType type) {
 
-    HttpEntity httpEntity = MultipartEntityBuilder.create()
-      .addBinaryBody("file", file, ContentType.create(type.toString()), file.getName())
-      .build();
+    FileEntity entity = new FileEntity(file, type != null ? ContentType.create(type.toString()) : null);
+    entity.setChunked(true);
 
-    return write(httpEntity, null);
+    return write(entity, null);
   }
 
   private ListenableFuture<Void> write(HttpEntity entity, Map<String, String> headers) {
