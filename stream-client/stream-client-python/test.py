@@ -49,11 +49,17 @@ class TestStreamClient(unittest.TestCase):
             self.sc.getTTL(self.validStream)
         )
 
-    def test_create_writer(self):
+    def test_create_writer_successful(self):
         self.assertIsInstance(
             self.sc.createWriter(self.validStream),
             StreamWriter
         )
+
+    def test_create_writer_invalid_stream(self):
+        self.assertRaises(
+            NoFoundException,
+            self.sc.createWriter,
+            self.invalidStream )
 
     def test_stream_writer_successful_sending(self):
         sw = self.sc.createWriter(self.validStream)
@@ -66,17 +72,6 @@ class TestStreamClient(unittest.TestCase):
 
         self.assertEqual(self.exit_code, 200)
 
-    def test_stream_writer_invalid_stream_sending(self):
-        sw = self.sc.createWriter(self.invalidStream)
-
-        def onResponse(response):
-            self.exit_code = response.status
-
-        q = sw.send(self.validFile)
-        q.onResponse(onResponse)
-
-        self.assertNotEqual(self.exit_code, 200)
-
     def test_stream_writer_successful_writing(self):
         sw = self.sc.createWriter(self.validStream)
 
@@ -87,17 +82,6 @@ class TestStreamClient(unittest.TestCase):
         q.onResponse(onResponse)
 
         self.assertEqual(self.exit_code, 200)
-
-    def test_stream_writer_invalid_stream_writing(self):
-        sw = self.sc.createWriter(self.invalidStream)
-
-        def onResponse(response):
-            self.exit_code = response.status
-
-        q = sw.write(self.messageToWrite)
-        q.onResponse(onResponse)
-
-        self.assertNotEqual(self.exit_code, 200)
 
 if '__main__' == __name__:
     unittest.main()

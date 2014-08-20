@@ -62,6 +62,11 @@ class StreamClient(ConnectionErrorChecker):
         )
 
     def createWriter(self, stream):
+        """
+        A bit ugly, but typewriting safe method to check if stream exists
+        """
+        self.getTTL(stream)
+
         uri = self.__prepareUri('stream', data=stream)
 
         return StreamWriter(
