@@ -47,7 +47,7 @@ class Config:
 
     def setAPIKey(self, apiKey):
         self.__apiKey = apiKey
-        
+
     def readFromFile(filename):
         newConfig = Config()
         configParser = ConfigParser()

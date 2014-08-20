@@ -9,6 +9,9 @@ import mimetypes
 from serviceconnector import *
 
 class StreamPromise(ConnectionErrorChecker):
+    """
+    Type to simulate ListenableFuture functionality of Guava framework.
+    """
     __workerThread = None
     __handlerThread = None
     __serviceConnector = None
@@ -18,6 +21,14 @@ class StreamPromise(ConnectionErrorChecker):
     __handlersLock = None
 
     def __init__(self, serviceConnector, uri, data):
+        """
+        Object constructor
+
+        Keyword arguments:
+        serviceConnector -- reference to connection pool to communicate with gatewway
+        uri -- REST URL part to perform request.  Example: '/v2/strems/myStream'
+        data -- data to proceed by worker thread.  Please read '__workerTarget' documentation.
+        """
         if not isinstance(serviceConnector, ServiceConnector):
             raise TypeError('"serviceConnector" parameter should be of type ServiceConnector')
 
@@ -31,6 +42,24 @@ class StreamPromise(ConnectionErrorChecker):
         self.__handlerThread.start()
 
     def __workerTarget(self, uri, dataDict):
+        """
+        Represents logic for performing requests and repsonses handling.
+        This method should be invoked in separate thread to reduce main thread locks.
+
+        uri -- REST URL part to perform request.  Example: '/v2/strems/myStream'
+        dataDict -- parameters that should be passed to REST server:
+        {
+            'message': '',         Data to transmit to REST server.
+                                 Could be of type None if file field is presented.
+            'charset': '',         Message field content charset. Could be of type None.
+                                 Default value: 'utf-8'
+            'file': '',            Path to a file which should be trasmited to REST server.
+                                 Could be of type None if message field is presented.
+            'mimetype': '',        Mimetype of a file which should be transmited.
+                                 If is omitted, application would try to determine mimetype itself.
+            'headers': dict      Additional HTTP headers.
+        }
+        """
         dataToSend = None
         headersToSend = None
 
@@ -47,7 +76,7 @@ class StreamPromise(ConnectionErrorChecker):
             raise TypeError('"headers" field should be of type dict')
 
         """
-        " In case if message is of bytes type it would not be rewriten by next if block
+        In case if message is of type 'bytes' it would not be rewriten by next if block
         """
         if 'message' in dataDict:
             dataToSend = dataDict['message']
@@ -85,8 +114,11 @@ class StreamPromise(ConnectionErrorChecker):
 
             self.__serviceResponse = self.__serviceConnector.send(
                 uri, fields, headersToSend )
- 
+
     def __responseCheckTarget(self):
+        """
+        Checks for status of HTTP response from Gateway server and fires handlers according to status code.
+        """
         self.__workerThread.join()
 
         self.__handlersLock.acquire()
@@ -102,6 +134,22 @@ class StreamPromise(ConnectionErrorChecker):
         self.__handlersLock.release()
 
     def onResponse(self, ok, error=None):
+        """
+        Sets up handlers for successful and error responses.
+
+        Keyword arguments:
+        ok -- Handler to be called in case of successful response.
+        error -- Handler to be calles in case of failed response.
+                 Could be of type None.  In that case would be the _same_
+                 as for a successful case.
+
+        Handlers should be a function daclared with next signature:
+
+        def coolErrorHandler( httpResponseObject):
+            ...
+            fooling around with response
+            ...
+        """
         if not isinstance(ok, FunctionType) or (not None == error and not isinstance(error, FunctionType)):
             raise TypeError('parameters should be functions')
 
@@ -120,6 +168,14 @@ class StreamWriter:
     __serviceUri = None
 
     def __init__(self, serviceConnector, uri):
+        """
+        Object constructor
+
+        Keyword arguments:
+        serviceConnector -- reference to connection pool to communicate with gatewway
+        uri -- REST URL part to perform request.  Example: '/v2/strems/myStream'
+        data -- data to proceed by worker thread.  Please read '__workerTarget' documentation.
+        """
         if not isinstance(serviceConnector, ServiceConnector):
             raise TypeError('parameter should be of type ServiceConnector')
 
@@ -127,6 +183,17 @@ class StreamWriter:
         self.__serviceUri = uri
 
     def write(self, message, charset=None, headers=None):
+        """
+        Ingest a stream event with a string as body.
+
+        Keyword arguments:
+        message -- Data to transmit to REST server.  Could be of type None if file field is presented.
+        charset -- Message field content charset. Could be of type None.  Default value: 'utf-8'
+        headers -- Additional HTTP headers. Should be of type 'dict'
+
+        Returns:
+        StreamPromise instance for further handling
+        """
         dataForPromise = {
             'message': message,
             'charset': charset,
@@ -136,6 +203,16 @@ class StreamWriter:
         return StreamPromise(self.__serviceConnector, self.__serviceUri, dataForPromise)
 
     def send(self, file, mimetype=None):
+        """
+        Sends the content of a file as multiple stream events.
+
+        Keyword arguments:
+        file -- path to file to be sent to Gateway
+        mimetype -- mimetype of a file. If is not defined would performed a try to detect mimetype automaticaly.
+
+        Returns:
+        StreamPromise instance for further handling
+        """
         dataForPromise = {
             'file': file,
             'mimetype': mimetype
