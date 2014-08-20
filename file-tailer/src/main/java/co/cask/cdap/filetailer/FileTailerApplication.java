@@ -58,7 +58,7 @@ public class FileTailerApplication {
     try {
       loader.load(configurationPath);
     } catch (ConfigurationLoadingException e) {
-      LOG.error("Can not load configurations form file {}: {}", configurationPath, e.getMessage());
+      LOG.error("Can not load configurations from file {}: {}", configurationPath, e.getMessage());
       return;
     }
 

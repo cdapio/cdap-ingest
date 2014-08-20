@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
@@ -41,6 +42,7 @@ public class LogTailer implements Runnable {
   private long sleepInterval;
   private String logDirectory;
   private String logFileName;
+  private int failureRetryLimit =10;
   private static final int DEFAULT_BUFSIZE = 4096;
   private FileTailerQueue queue;
   private byte entrySeparator = '\n';
@@ -62,8 +64,6 @@ public class LogTailer implements Runnable {
     this.logDirectory = confLoader.getWorkDir();
     this.logFileName = confLoader.getFileName();
     this.entrySeparator = confLoader.getRecordSeparator();
-
-
   }
 
 
@@ -71,7 +71,7 @@ public class LogTailer implements Runnable {
     try {
         checkLogDir(logDirectory);
       } catch (LogDirNotFoundException e) {
-        LOG.error("Incorrect path to log directory");
+        LOG.error("Incorrect path to log directory. Directory: {} not exist", logDirectory);
        return;
       }
       FileTailerState fileTailerState  = getSaveStateFromFile();
@@ -100,7 +100,7 @@ public class LogTailer implements Runnable {
       long position = fileTailerState.getPosition();
       long lastModifytime = fileTailerState.getLastModifyTime();
       int hash = fileTailerState.getHash();
-      File currentLogFile = getCurrentLogFile(logDirectory, lastModifytime);
+      File currentLogFile = getCurrentLogFile(logDirectory, lastModifytime,true);
       if (currentLogFile == null) {
           return;
       }
@@ -128,11 +128,11 @@ public class LogTailer implements Runnable {
             long modifyTime = currentLogFile.lastModified();
           try {
             while (!Thread.currentThread().isInterrupted()) {
-                    String line = readLine(reader, entrySeparator).toString();
+                    String line = tryReadLine(reader, entrySeparator).toString();
                     if (line.length() > 0) {
                         lineHash = line.hashCode();
                         LOG.debug("From log file {} readed entry: {}", currentLogFile, line);
-                        position = reader.getFilePointer() - line.length();
+                        position = reader.getFilePointer() - line.length()-1;
                         modifyTime = currentLogFile.lastModified();
                         //TODO: Get charset from properties;
                         queue.put(new FileTailerEvent(new FileTailerState(currentLogFile.toString(),
@@ -142,16 +142,15 @@ public class LogTailer implements Runnable {
                                                                           line,
                                                                           Charset.defaultCharset()));
                     } else {
-                        File newLog = getCurrentLogFile(logDirectory, modifyTime);
+                        File newLog = getCurrentLogFile(logDirectory, modifyTime, false);
                         if (newLog == null) {
                             Thread.sleep(sleepInterval);
                         } else {
                             LOG.debug("File {} is reading", newLog);
-                                   newLog = getCurrentLogFile(logDirectory, modifyTime);
+                                   newLog = getCurrentLogFile(logDirectory, modifyTime, false);
                                 currentLogFile = newLog;
                                 closeQuietly(reader);
                                 reader = new RandomAccessFile(currentLogFile, RAF_MODE);
-
                         }
                     }
                 }
@@ -168,7 +167,7 @@ public class LogTailer implements Runnable {
     private void runWithOutRestore() {
         File logFile = null;
             while (logFile == null && !Thread.currentThread().isInterrupted()) {
-                logFile = getCurrentLogFile(logDirectory, (long) 0);
+                logFile = getCurrentLogFile(logDirectory, (long) 0, false);
                 if (logFile == null) {
                     try {
                         Thread.sleep(sleepInterval);
@@ -184,7 +183,7 @@ public class LogTailer implements Runnable {
   private boolean checkLine(File newFile, long position, int hash) throws IOException {
     RandomAccessFile reader = new RandomAccessFile(newFile, RAF_MODE);
     reader.seek(position);
-    String line = readLine(reader, entrySeparator).toString();
+    String line = tryReadLine(reader, entrySeparator).toString();
     closeQuietly(reader);
     if (line.length() > 0 && line.hashCode() == hash) {
       return true;
@@ -195,24 +194,28 @@ public class LogTailer implements Runnable {
   }
 
 
-  private File getCurrentLogFile(String logDir, Long currentTime) {
-    File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName));
-    if (dirFiles.length == 0) {
-      return null;
-    }
-    TreeMap<Long, File> logFilesTimesMap = new TreeMap<Long, File>();
-    for (File f:dirFiles) {
-      logFilesTimesMap.put(f.lastModified(), f);
-    }
-    if (currentTime == 0) {
-      return logFilesTimesMap.firstEntry().getValue();
-    }
-    Long key = logFilesTimesMap.higherKey(currentTime);
-    if (key == null) {
-      return null;
-    } else {
-      return logFilesTimesMap.get(key);
-    }
+  private File getCurrentLogFile(String logDir, Long currentTime,boolean fromSaveState ) {
+      File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName));
+      if (dirFiles.length == 0) {
+          return null;
+      }
+      TreeMap<Long, File> logFilesTimesMap = new TreeMap<Long, File>();
+      for (File f : dirFiles) {
+          logFilesTimesMap.put(f.lastModified(), f);
+      }
+      if (currentTime == 0) {
+          return logFilesTimesMap.firstEntry().getValue();
+      }
+      if ( fromSaveState && logFilesTimesMap.containsKey(currentTime)) {
+          return logFilesTimesMap.get(currentTime);
+      } else {
+          Long key = logFilesTimesMap.higherKey(currentTime);
+          if (key == null) {
+              return null;
+          } else {
+              return logFilesTimesMap.get(key);
+          }
+      }
   }
 
   private void checkLogDir(String dir) throws LogDirNotFoundException {
@@ -222,24 +225,52 @@ public class LogTailer implements Runnable {
     }
   }
 
-
-  private StringBuilder readLine(RandomAccessFile reader, byte separator) throws IOException {
-    StringBuilder sb = new StringBuilder();
-
-    long rePos = reader.getFilePointer();
-    int num;
-    while (((num = reader.read(inbuf)) != -1)) {
-      for (int i = 0; i < num; i++) {
-        byte ch = inbuf[i];
-        if (ch != separator) {
-          sb.append((char) ch);
-          rePos++;
-        } else {
-          rePos++;
-          break;
+    private void trySeek(RandomAccessFile reader, long position) throws IOException {
+        int retryNumber=0;
+        while (retryNumber < failureRetryLimit) {
+            try {
+                reader.seek(position);
+                break;
+            } catch (IOException e) {
+                retryNumber++;
+            }
+        if (retryNumber >= failureRetryLimit) {
+            LOG.error("fail to seek file after {} attempts", retryNumber);
+            throw new IOException();
         }
-      }
+        }
     }
+  private StringBuilder tryReadLine(RandomAccessFile reader, byte separator) throws IOException {
+    int retryNumber=0;
+    long rePos =0;
+    StringBuilder sb = new StringBuilder();
+    while (retryNumber < failureRetryLimit) {
+        try {
+            rePos = reader.getFilePointer();
+            boolean end = false;
+            int num;
+            while (((num = reader.read(inbuf)) != -1)&& !end) {
+                for (int i = 0; i < num; i++) {
+                    byte ch = inbuf[i];
+                    if (ch != separator) {
+                        sb.append((char) ch);
+                        rePos++;
+                    } else {
+                        rePos++;
+                        end = true;
+                        break;
+                    }
+                }
+            }
+             break;
+        } catch (IOException e) {
+            retryNumber++;
+        }
+    }
+    if (retryNumber >= failureRetryLimit) {
+          LOG.error("fail to read line  after {} attempts", retryNumber);
+          throw new IOException();
+      }
     reader.seek(rePos);
     return sb;
   }
@@ -249,7 +280,7 @@ public class LogTailer implements Runnable {
       try {
         reader.close();
       } catch (IOException e) {
-          LOG.warn("Exception during clousing");
+          LOG.warn("Exception during closing");
 
       }
     }
