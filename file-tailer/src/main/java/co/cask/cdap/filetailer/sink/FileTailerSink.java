@@ -17,6 +17,7 @@
 package co.cask.cdap.filetailer.sink;
 
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
@@ -33,14 +34,13 @@ import java.util.Random;
 /**
  * Created by dev on 15.08.14.
  */
-public class FileTailerSink implements Runnable {
+public class FileTailerSink extends AbstractWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerSink.class);
 
   private static final int DEFAULT_PACK_SIZE = 1;
   private static final int LISTENER_THREAD_COUNT = 3;
   private static final int MAX_RETRY_COUNT = 3;
-
   private final FileTailerQueue queue;
   private final SinkStrategy strategy;
   private final List<StreamWriter> writers;
@@ -50,6 +50,7 @@ public class FileTailerSink implements Runnable {
   private final FileTailerStateProcessor stateProcessor;
 
   private Thread worker;
+
 
   public FileTailerSink(FileTailerQueue queue, List<StreamWriter> writers, SinkStrategy strategy,
                         FileTailerStateProcessor stateProcessor) {

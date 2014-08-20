@@ -16,23 +16,8 @@
 
 package co.cask.cdap.filetailer;
 
-import co.cask.cdap.client.StreamClient;
-import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.filetailer.config.ConfigurationLoader;
-import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
-import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
-import co.cask.cdap.filetailer.queue.FileTailerQueue;
-import co.cask.cdap.filetailer.sink.FileTailerSink;
-import co.cask.cdap.filetailer.sink.SinkStrategy;
-import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
-import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
-import co.cask.cdap.filetailer.tailer.LogTailer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Main class
