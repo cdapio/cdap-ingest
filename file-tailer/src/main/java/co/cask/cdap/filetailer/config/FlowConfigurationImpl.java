@@ -22,6 +22,8 @@ import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
