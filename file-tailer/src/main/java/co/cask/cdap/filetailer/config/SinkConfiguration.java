@@ -16,6 +16,8 @@
 
 package co.cask.cdap.filetailer.config;
 
+import co.cask.cdap.client.StreamClient;
+
 /**
  * SinkConfiguration is design for getting sink properties of the some flow
  */
@@ -29,53 +31,11 @@ public interface SinkConfiguration {
   String getStreamName();
 
   /**
-   * Returns the host of sink (loaded from configuration file)
+   * Returns the Stream client (loaded from configuration file)
    *
-   * @return the host of sink
+   * @return the Stream client
    */
-  String getHost();
-
-  /**
-   * Returns the port of sink (loaded from configuration file)
-   *
-   * @return the port of sink
-   */
-  int getPort();
-
-  /**
-   * Returns the ssl mode(on or off) of stream writer (loaded from configuration file)
-   *
-   * @return the ssl mode(on or off) of stream writer
-   */
-  boolean getSSL();
-
-  /**
-   * Returns the authorized token of stream writer (loaded from configuration file)
-   *
-   * @return the authorized token of stream writer
-   */
-  String getAuthToken();
-
-  /**
-   * Returns the api key of stream writer (loaded from configuration file)
-   *
-   * @return the api key of stream writer
-   */
-  String getApiKey();
-
-  /**
-   * Returns the pool size of stream writer (loaded from configuration file)
-   *
-   * @return the pool size of stream writer
-   */
-  int getWriterPoolSize();
-
-  /**
-   * Returns the version of stream writer (loaded from configuration file)
-   *
-   * @return the version of stream writer
-   */
-  String getVersion();
+  StreamClient getStreamClient();
 
   /**
    * Returns the size of events pack, which sends to server (loaded from configuration file)

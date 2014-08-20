@@ -16,38 +16,38 @@
 
 package co.cask.cdap.filetailer.config;
 
+import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.net.URISyntaxException;
-import java.util.Properties;
+import java.util.List;
 
-public class ConfigurationLoaderImplTest {
+public class ConfigurationImplTest {
 
   @Test
-  public void loadTest() throws ConfigurationLoadingException, NoSuchFieldException,
-                                              IllegalAccessException, URISyntaxException {
+  public void getFlowsConfigurationTest() throws ConfigurationLoadingException {
+
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
 
-    String path = getClass().getClassLoader().getResource("test.properties").getFile();
+    String path = getClass().getClassLoader().getResource("test2.properties").getFile();
 
     Configuration configuration = loader.load(path);
 
-    Field field = configuration.getClass().getDeclaredField("properties");
-    field.setAccessible(true);
-    Properties properties = (Properties) field.get(configuration);
+    List<FlowConfiguration> flowsConfiguration = configuration.getFlowsConfiguration();
 
-    Assert.assertEquals(25, properties.size());
+    Assert.assertEquals(3, flowsConfiguration.size());
   }
 
-  @Test(expected = ConfigurationLoadingException.class)
-  public void loadFailureTest() throws ConfigurationLoadingException {
+  @Test(expected = ConfigurationLoaderException.class)
+  public void getFlowsConfigurationFailureTest() throws ConfigurationLoadingException {
+
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
 
-    String fakePath = "fake path";
+    String path = getClass().getClassLoader().getResource("test3.properties").getFile();
 
-    loader.load(fakePath);
+    Configuration configuration = loader.load(path);
+
+    configuration.getFlowsConfiguration();
   }
 }

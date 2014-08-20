@@ -16,6 +16,8 @@
 
 package co.cask.cdap.filetailer.config;
 
+import co.cask.cdap.client.StreamClient;
+import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,48 +102,60 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     private String key;
 
+    private static final String DEFAULT_RECORD_SEPARATOR = "\n";
+
+    private static final String DEFAULT_SLEEP_INTERVAL = "3000";
+
+    private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
+
+    private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
+
     public SourceConfigurationImpl(String key) {
       this.key = "flows." + key + ".source.";
     }
 
     @Override
     public String getWorkDir() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "work_dir");
     }
 
     @Override
     public String getFileName() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "work_dir");
     }
 
     @Override
     public String getRotationPattern() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "work_dir");
     }
 
     @Override
     public String getCharsetName() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "work_dir");
     }
 
     @Override
     public byte getRecordSeparator() {
-      return FlowConfigurationImpl.this.getProperty(this.key + "record_separator").getBytes()[0];
+      String recordSeparator = getProperty(this.key + "record_separator");
+      return (recordSeparator != null ? recordSeparator : DEFAULT_RECORD_SEPARATOR).getBytes()[0];
     }
 
     @Override
     public long getSleepInterval() {
-      return Long.parseLong(FlowConfigurationImpl.this.getProperty(this.key + "sleep_interval"));
+      String sleepInterval = getProperty(this.key + "sleep_interval");
+      return Long.parseLong(sleepInterval != null ? sleepInterval : DEFAULT_SLEEP_INTERVAL);
     }
 
     @Override
     public int getFailureRetryLimit() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getProperty(this.key + "failure_retry_limit"));
+      String failureRetryLimit = getProperty(this.key + "failure_retry_limit");
+      return Integer.parseInt(failureRetryLimit != null ? failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
     }
 
     @Override
     public long getFailureSleepInterval() {
-      return Long.parseLong(FlowConfigurationImpl.this.getProperty(this.key + "failure_sleep_interval"));
+      String failureSleepInterval = getProperty(this.key + "failure_sleep_interval");
+      return Long.parseLong(failureSleepInterval != null ? failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
     }
   }
 
@@ -149,63 +163,72 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     private String key;
 
+    private static final String DEFAULT_SSL = "false";
+
+    private static final String DEFAULT_WRITER_POOL_SIZE = "10";
+
+    private static final String DEFAULT_VERSION = "v2";
+
+    private static final String DEFAULT_PACK_SIZE = "1";
+
+    private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
+
+    private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
+
     public SinkConfigurationImpl(String key) {
       this.key = "flows." + key + ".sink.";
     }
 
     @Override
     public String getStreamName() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "stream_name");
+      return getRequiredProperty(this.key + "stream_name");
     }
 
     @Override
-    public String getHost() {
-      return FlowConfigurationImpl.this.getRequiredProperty(this.key + "host");
-    }
+    public StreamClient getStreamClient() {
+      String host = getRequiredProperty(this.key + "host");
+      int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
 
-    @Override
-    public int getPort() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getRequiredProperty(this.key + "port"));
-    }
+      RestStreamClient.Builder builder = new RestStreamClient.Builder(host, port);
 
-    @Override
-    public boolean getSSL() {
-      return Boolean.valueOf(FlowConfigurationImpl.this.getProperty(this.key + "ssl"));
-    }
+      String ssl = getProperty(this.key + "ssl");
+      builder.ssl(Boolean.valueOf(ssl != null ? ssl : DEFAULT_SSL));
 
-    @Override
-    public String getAuthToken() {
-      return FlowConfigurationImpl.this.getProperty(this.key + "authToken");
-    }
+      String authToken = getProperty(this.key + "authToken");
+      if (authToken != null) {
+        builder.authToken(authToken);
+      }
 
-    @Override
-    public String getApiKey() {
-      return FlowConfigurationImpl.this.getProperty(this.key + "apiKey");
-    }
+      String apiKey = getProperty(this.key + "apiKey");
+      if (apiKey != null) {
+        builder.apiKey(apiKey);
+      }
 
-    @Override
-    public int getWriterPoolSize() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getProperty(this.key + "writerPoolSize"));
-    }
+      String writerPoolSize = getProperty(this.key + "writerPoolSize");
+      builder.writerPoolSize(Integer.parseInt(writerPoolSize != null ? writerPoolSize : DEFAULT_WRITER_POOL_SIZE));
 
-    @Override
-    public String getVersion() {
-      return FlowConfigurationImpl.this.getProperty(this.key + "version");
+      String version = getProperty(this.key + "version");
+      builder.version(version != null ? version : DEFAULT_VERSION);
+
+      return builder.build();
     }
 
     @Override
     public int getPackSize() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getProperty(this.key + "packSize"));
+      String packSize = getProperty(this.key + "packSize");
+      return Integer.parseInt(packSize != null ? packSize : DEFAULT_PACK_SIZE);
     }
 
     @Override
     public int getFailureRetryLimit() {
-      return Integer.parseInt(FlowConfigurationImpl.this.getProperty(this.key + "failure_retry_limit"));
+      String failureRetryLimit = getProperty(this.key + "failure_retry_limit");
+      return Integer.parseInt(failureRetryLimit != null ? failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
     }
 
     @Override
     public long getFailureSleepInterval() {
-      return Long.parseLong(FlowConfigurationImpl.this.getProperty(this.key + "failure_sleep_interval"));
+      String failureSleepInterval = getProperty(this.key + "failure_sleep_interval");
+      return Long.parseLong(failureSleepInterval != null ? failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
     }
   }
 }
