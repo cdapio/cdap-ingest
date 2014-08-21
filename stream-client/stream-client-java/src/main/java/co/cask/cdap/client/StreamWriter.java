@@ -27,14 +27,14 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
- * Provides ability for ingesting events to a stream in different ways.
+ * Provides ability for ingesting events to the Stream in different ways.
  */
 public interface StreamWriter extends Closeable {
   /**
-   * Ingest a stream event with a string as body.
+   * Ingest the Stream event with a string as body.
    *
    * @param str     The string body
-   * @param charset Charset to encode the string as stream event payload
+   * @param charset Charset to encode the string as the Stream event payload
    * @return A future that will be completed when the ingestion is completed. The future will fail if the ingestion
    * failed. Cancelling the returning future has no effect.
    */
@@ -44,17 +44,17 @@ public interface StreamWriter extends Closeable {
    * Ingest a stream event with a set of headers and a string as body.
    *
    * @param str     The string body
-   * @param headers Set of headers for the stream event
-   * @param charset Charset to encode the string as stream event payload
+   * @param headers Set of headers for the Stream event
+   * @param charset Charset to encode the string as the Stream event payload
    * @return A future that will be completed when the ingestion is completed. The future will fail if the ingestion
    * failed. Cancelling the returning future has no effect.
    */
   ListenableFuture<Void> write(String str, Charset charset, Map<String, String> headers);
 
   /**
-   * Ingest a stream event with content in a {@link ByteBuffer} as body.
+   * Ingest the Stream event with content in a {@link ByteBuffer} as body.
    *
-   * @param buffer Contains the content for the stream event body. All remaining bytes of the {@link ByteBuffer}
+   * @param buffer Contains the content for the Stream event body. All remaining bytes of the {@link ByteBuffer}
    *               should be used as the body. After this method returns and on the completion of the resulting
    *               {@link ListenableFuture}, the buffer content as well as properties should be unchanged.
    * @return A future that will be completed when the ingestion is completed. The future will fail if the ingestion
@@ -63,19 +63,19 @@ public interface StreamWriter extends Closeable {
   ListenableFuture<Void> write(ByteBuffer buffer);
 
   /**
-   * Ingest a stream event with a set of headers and use content in a {@link ByteBuffer} as body.
+   * Ingest the Stream event with a set of headers and use content in a {@link ByteBuffer} as body.
    *
-   * @param buffer  Contains the content for the stream event body. All remaining bytes of the {@link ByteBuffer}
+   * @param buffer  Contains the content for the Stream event body. All remaining bytes of the {@link ByteBuffer}
    *                should be used as the body. After this method returns and on the completion of the resulting
    *                {@link ListenableFuture}, the buffer content as well as properties should be unchanged.
-   * @param headers Set of headers for the stream event
+   * @param headers Set of headers for the Stream event
    * @return A future that will be completed when the ingestion is completed. The future will fail if the ingestion
    * failed. Cancelling the returning future has no effect.
    */
   ListenableFuture<Void> write(ByteBuffer buffer, Map<String, String> headers);
 
   /**
-   * Sends the content of a {@link File} as multiple stream events.
+   * Sends the content of a {@link File} as multiple Stream events.
    *
    * @param file The file to send
    * @param type Contains information about the file type.

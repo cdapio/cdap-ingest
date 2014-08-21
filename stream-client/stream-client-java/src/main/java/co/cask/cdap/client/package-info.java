@@ -15,6 +15,6 @@
  */
 
 /**
- * This package contains internal classes for StreamClient API.
+ * This package contains internal classes for the StreamClient API.
  */
 package co.cask.cdap.client;

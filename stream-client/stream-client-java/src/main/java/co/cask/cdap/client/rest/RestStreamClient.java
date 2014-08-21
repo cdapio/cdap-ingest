@@ -74,7 +74,7 @@ public class RestStreamClient implements StreamClient {
       int responseCode = httpResponse.getStatusLine().getStatusCode();
       LOG.debug("Set TTL Response Code : {}", responseCode);
       if (responseCode == HttpStatus.SC_NOT_FOUND) {
-        throw new NotFoundException("Stream doesn't found", stream);
+        throw new NotFoundException("Stream", stream);
       } else {
         RestClient.responseCodeAnalysis(httpResponse);
       }
@@ -92,7 +92,7 @@ public class RestStreamClient implements StreamClient {
       int responseCode = httpResponse.getStatusLine().getStatusCode();
       LOG.debug("Get TTL Response Code : {}", responseCode);
       if (responseCode == HttpStatus.SC_NOT_FOUND) {
-        throw new NotFoundException("Stream doesn't found", stream);
+        throw new NotFoundException("Stream", stream);
       } else {
         RestClient.responseCodeAnalysis(httpResponse);
       }
@@ -112,7 +112,7 @@ public class RestStreamClient implements StreamClient {
       int responseCode = httpResponse.getStatusLine().getStatusCode();
       LOG.debug("Truncate stream Response Code : {}", responseCode);
       if (responseCode == HttpStatus.SC_NOT_FOUND) {
-        throw new NotFoundException("Stream doesn't found", stream);
+        throw new NotFoundException("Stream", stream);
       } else {
         RestClient.responseCodeAnalysis(httpResponse);
       }
