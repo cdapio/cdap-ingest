@@ -40,7 +40,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 /**
- * Stream writer implementation used REST Api for write streams to processing server
+ * Stream writer implementation used REST Api for write Streams to processing server
  */
 public class RestStreamWriter implements StreamWriter {
   private static final Logger LOG = LoggerFactory.getLogger(RestStreamWriter.class);
@@ -88,7 +88,7 @@ public class RestStreamWriter implements StreamWriter {
 
   @Override
   public ListenableFuture<Void> send(File file, MediaType type) {
-
+    //TODO: There will be a new HTTP API in 2.5 to support extracting events from the file based on the content type.
     FileEntity entity = new FileEntity(file, type != null ? ContentType.create(type.toString()) : null);
     entity.setChunked(true);
 

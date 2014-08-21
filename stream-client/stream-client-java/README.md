@@ -51,7 +51,7 @@ The Stream Client Java API is for managing Streams via external custom Java appl
          .build();
  ```
  
- Create a new Stream with the *stream-id* "newStreamName":
+ Create a new Stream with the *stream id* "newStreamName":
  
  ```
    streamClient.create("newStreamName");
@@ -63,19 +63,19 @@ The Stream Client Java API is for managing Streams via external custom Java appl
   - If the Stream already exists, no error is returned, and the existing Stream remains in place.
      
  
- Update TTL for the Stream *stream-id*; TTL is a long value:
+ Update TTL for the Stream *streamName*; TTL is a long value:
  
  ```
    streamClient.setTTL("streamName", newTTL);
  ```
  
- Get the current TTL value for the Stream *stream-id*:
+ Get the current TTL value for the Stream *streamName*:
  
  ```  
    long ttl = streamClient.getTTL("streamName");  
  ```
  
- Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
+ Create a ```StreamWriter``` instance for writing events to the Stream *streamName*:
  
  ```
    StreamWriter streamWriter = streamClient.createWriter("streamName");
