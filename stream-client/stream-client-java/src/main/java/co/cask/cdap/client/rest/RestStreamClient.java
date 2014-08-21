@@ -122,7 +122,10 @@ public class RestStreamClient implements StreamClient {
   }
 
   @Override
-  public StreamWriter createWriter(String stream) {
+  public StreamWriter createWriter(String stream) throws NotFoundException, IOException {
+    //get the Stream TTL for check does the requested Stream exist
+    long ttl = getTTL(stream);
+    LOG.debug("The Stream with id {} exists. Got the current Stream TTL value {} successfully.", stream, ttl);
     PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
     connectionManager.setMaxTotal(writerPoolSize);
     connectionManager.setDefaultMaxPerRoute(writerPoolSize);

@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * As Example of usage StreamClient API
+ * An example of using the StreamClient API.
  */
 public class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
@@ -37,8 +37,9 @@ public class Main {
 
     final String streamName = "test";
 
-    // Create StreamClient Instance with mandatory fields 'host' and 'port'. Optional configurations will be set as
-    // default: protocol : 'http', writer pool size: '10', version : 'v2'.
+    // Create StreamClient instance with mandatory fields 'host' and 'port'.
+    // Optional configurations will be set as:
+    // defaults: protocol : 'http', writerPoolSize: '10', version : 'v2'.
     StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000)
       .build();
 
@@ -57,13 +58,13 @@ public class Main {
 
       // Get current Stream TTL value by id <streamName> after updating for compare
       currentTTL = streamClient.getTTL(streamName);
-      LOG.info("Is TTL was updated successfully? {}", currentTTL == newTTL ? "YES" : "NO");
+      LOG.info("Was TTL updated successfully? {}", currentTTL == newTTL ? "YES" : "NO");
 
       // Create StreamWriter Instance
       StreamWriter streamWriter = streamClient.createWriter(streamName);
 
-      String log = "95.211.139.1 - - [09/Apr/2012:08:40:43 -0400] \"GET /NoteBook/ HTTP/1.0\" 201 809 \"-\" " +
-        "\"OpenAcoon v4.10.5 (www.openacoon.de)\"";
+      String log = "192.0.2.0 - - [09/Apr/2012:08:40:43 -0400] \"GET /NoteBook/ HTTP/1.0\" 201 809 \"-\" " +
+        "\"Example v0.0.0 (www.example.org)\"";
 
       // Upload stream event to server
       ListenableFuture<Void> future = streamWriter.write(log, null);

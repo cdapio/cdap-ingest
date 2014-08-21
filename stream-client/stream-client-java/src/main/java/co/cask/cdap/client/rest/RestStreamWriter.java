@@ -26,6 +26,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +64,7 @@ public class RestStreamWriter implements StreamWriter {
   public ListenableFuture<Void> write(String str, Charset charset, Map<String, String> headers) throws
     IllegalArgumentException {
     if (StringUtils.isNotEmpty(str)) {
-      return write(charset != null ? str.getBytes(charset) : str.getBytes(), headers);
+      return write(new ByteArrayEntity(charset != null ? str.getBytes(charset) : str.getBytes()), headers);
     } else {
       throw new IllegalArgumentException("Input string parameter is empty.");
     }
@@ -78,13 +80,23 @@ public class RestStreamWriter implements StreamWriter {
     if (buffer != null) {
       byte[] bytes = new byte[buffer.remaining()];
       buffer.get(bytes);
-      return write(bytes, headers);
+      return write(new ByteArrayEntity(bytes), headers);
     } else {
       throw new IllegalArgumentException("ByteBuffer parameter is empty.");
     }
   }
 
-  private ListenableFuture<Void> write(byte[] entity, Map<String, String> headers) {
+  @Override
+  public ListenableFuture<Void> send(File file, MediaType type) {
+
+    HttpEntity httpEntity = MultipartEntityBuilder.create()
+      .addBinaryBody("file", file, ContentType.create(type.toString()), file.getName())
+      .build();
+
+    return write(httpEntity, null);
+  }
+
+  private ListenableFuture<Void> write(HttpEntity entity, Map<String, String> headers) {
     final HttpPost postRequest = new HttpPost(restClient.getBaseUrl() + String.format("streams/%s", streamName));
 
     if (headers != null) {
@@ -93,8 +105,7 @@ public class RestStreamWriter implements StreamWriter {
       }
     }
 
-    HttpEntity content = new ByteArrayEntity(entity);
-    postRequest.setEntity(content);
+    postRequest.setEntity(entity);
 
     return pool.submit(new Callable<Void>() {
       @Override
@@ -109,11 +120,6 @@ public class RestStreamWriter implements StreamWriter {
         return null;
       }
     });
-  }
-
-  @Override
-  public ListenableFuture<Void> send(File file, MediaType type) {
-    return null;
   }
 
   public void close() throws IOException {

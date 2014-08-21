@@ -28,6 +28,9 @@ import org.junit.Before;
 public class RestTest {
   public static final long STREAM_TTL = 86400;
   public static final String AUTH_TOKEN = "er4545556tfgbdsa9ddvgfgd9";
+  public static final String EXPECTED_WRITER_CONTENT = "Hello World!";
+  public static final String TEST_HEADER_NAME = "X-Continuuity-Test";
+  public static final String TEST_HEADER_VALUE = "Test";
 
   private LocalTestServer localTestServer;
 
