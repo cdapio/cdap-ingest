@@ -16,8 +16,11 @@
 
 package co.cask.cdap.filetailer;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Main class
@@ -29,45 +32,24 @@ public class FileTailerApplication {
   public static void main(String[] args) {
     LOG.info("Application started");
 
-//    String configurationPath;
-//    if (args.length == 0) {
-//      configurationPath = FileTailerApplication.class.getClassLoader().getResource("config.properties").getFile();
-//    } else if (args.length == 1) {
-//      configurationPath = args[0];
-//    } else {
-//      LOG.error("Too many arguments: {}", args.length);
-//      return;
-//    }
-//
-//    ConfigurationLoader loader = new ConfigurationLoaderImpl();
-//    try {
-//      loader.load(configurationPath);
-//    } catch (ConfigurationLoadingException e) {
-//      LOG.error("Can not load configurations form file {}: {}", configurationPath, e.getMessage());
-//      return;
-//    }
-//
-//    FileTailerQueue queue = new FileTailerQueue(loader.getQueueSize());
-//    FileTailerStateProcessor
-//            stateProcessor = new FileTailerStateProcessorImpl(loader.getStateDir(), loader.getStateFile());
-//    List<StreamClient> clients = loader.getStreamClients();
-//    String streamName = loader.getStreamName();
-//    List<StreamWriter> writers = new ArrayList<StreamWriter>(clients.size());
-//    for (StreamClient client : clients) {
-//        try {
-//            client.create(streamName);
-//            writers.add(client.createWriter(streamName));
-//        } catch (IOException e) {
-//            LOG.error("Can not create/get client stream by name {}: {}", streamName, e.getMessage());
-//            return;
-//        }
-//    }
-//
-//    FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE, stateProcessor);
-//    LogTailer tailer = new LogTailer(loader, queue, stateProcessor);
-//
-//    sink.start();
-//    tailer.start();
+    String configurationPath;
+    if (args.length == 0) {
+      configurationPath = FileTailerApplication.class.getClassLoader().getResource("config.properties").getFile();
+    } else if (args.length == 1) {
+      configurationPath = args[0];
+    } else {
+      LOG.error("Too many arguments: {}", args.length);
+      return;
+    }
+      FlowsManager manager = new FlowsManager(configurationPath);
+      try {
+          manager.setupFlows();
+      } catch (IOException e) {
+          LOG.error("Error during setuping flows: {}", e.getMessage());
+          return;
+      }
+     LOG.info("Staring flows");
+     manager.startFlows();
   }
 
 }

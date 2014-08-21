@@ -43,7 +43,7 @@ public class FileTailerSink extends AbstractWorker {
   private static final int MAX_RETRY_COUNT = 3;
   private final FileTailerQueue queue;
   private final SinkStrategy strategy;
-  private final List<StreamWriter> writers;
+  private final StreamWriter writer;
   private final int packSize;
   private final Random random;
 
@@ -52,43 +52,24 @@ public class FileTailerSink extends AbstractWorker {
   private Thread worker;
 
 
-  public FileTailerSink(FileTailerQueue queue, List<StreamWriter> writers, SinkStrategy strategy,
+  public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
                         FileTailerStateProcessor stateProcessor) {
-    this(queue, writers, strategy, stateProcessor, DEFAULT_PACK_SIZE);
+    this(queue, writer, strategy, stateProcessor, DEFAULT_PACK_SIZE);
   }
 
-  public FileTailerSink(FileTailerQueue queue, List<StreamWriter> writers, SinkStrategy strategy,
+  public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
                         FileTailerStateProcessor stateProcessor, int packSize) {
-    if (writers == null || writers.size() == 0) {
-      throw new IllegalArgumentException("Writers can't be empty!");
+    if (writer == null) {
+      throw new IllegalArgumentException("Writer can't be empty!");
     }
     this.stateProcessor = stateProcessor;
     this.queue = queue;
-    this.writers = writers;
+    this.writer = writer;
     this.strategy = strategy;
     this.packSize = packSize;
     this.random = new Random();
   }
 
-  public void start() {
-    if (worker == null) {
-      worker = new Thread(this);
-      worker.start();
-    } else {
-      LOG.warn("Sink is already started!");
-      throw new IllegalStateException("Sink is already started!");
-    }
-  }
-
-  public void stop() {
-    if (worker != null) {
-      worker.interrupt();
-    } else {
-      LOG.warn("Sink is not started!");
-      throw new IllegalStateException("Sink is not started!");
-
-    }
-  }
 
   @Override
   public void run() {
@@ -146,17 +127,11 @@ public class FileTailerSink extends AbstractWorker {
   }
 
   private void uploadEvent(UploadLatch latch, FileTailerEvent event, int retryCount) throws IOException {
-    StreamWriter writer = getNextWriter();
     LOG.debug("Uploading event {} with writer {}. Attempt {} out of {} ", event, writer, retryCount, MAX_RETRY_COUNT);
     ListenableFuture<Void> resultFuture = writer.write(event.getEventData(), event.getCharset());
     Futures.addCallback(resultFuture, new WriteCallback(event, latch, MAX_RETRY_COUNT, retryCount));
   }
 
-  private StreamWriter getNextWriter() {
-    //TODO: Improve to work based on strategy
-    int index = random.nextInt(writers.size());
-    return writers.get(index);
-  }
 
   class WriteCallback implements FutureCallback<Void> {
     private final FileTailerEvent event;

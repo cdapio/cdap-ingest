@@ -29,9 +29,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -50,10 +47,10 @@ public class FileTailerSinkTest {
     FileTailerQueue queue = new FileTailerQueue(DEFAULT_QUEUE_SIZE);
 
     StreamWriter writerMock = getDummyStreamWriter();
-    FileTailerSink sink = new FileTailerSink(queue, Collections.singletonList(writerMock),
+    FileTailerSink sink = new FileTailerSink(queue, writerMock,
                                              SinkStrategy.LOADBALANCE, stateProcessor);
 
-    sink.start();
+    sink.startWorker();
 
     for (int i = 0; i < TEST_EVENTS_SIZE; i++) {
       queue.put(new FileTailerEvent(new FileTailerState("file", 0L, 42, 0L), "test", Charset.defaultCharset()));
@@ -61,7 +58,7 @@ public class FileTailerSinkTest {
 
     Mockito.verify(writerMock, Mockito.timeout(10000).times(TEST_EVENTS_SIZE)).write("test", Charset.defaultCharset());
 
-    sink.stop();
+    sink.stopWorker();
   }
 
   @Test
@@ -71,10 +68,10 @@ public class FileTailerSinkTest {
     FileTailerQueue queue = new FileTailerQueue(DEFAULT_QUEUE_SIZE);
 
     StreamWriter writerMock = getDummyStreamWriter();
-    FileTailerSink sink = new FileTailerSink(queue, Collections.singletonList(writerMock),
+    FileTailerSink sink = new FileTailerSink(queue, writerMock,
                                              SinkStrategy.LOADBALANCE, stateProcessor, CUSTOM_PACK_SIZE);
     try {
-      sink.start();
+      sink.startWorker();
 
       for (int i = 0; i < TEST_EVENTS_SIZE; i++) {
         queue.put(new FileTailerEvent(new FileTailerState("file", 0L, 42, 0L), "test", Charset.defaultCharset()));
@@ -83,7 +80,7 @@ public class FileTailerSinkTest {
       Mockito.verify(writerMock,
                      Mockito.timeout(10000).times(TEST_EVENTS_SIZE)).write("test", Charset.defaultCharset());
     } finally {
-      sink.stop();
+      sink.stopWorker();
     }
   }
 
@@ -95,17 +92,15 @@ public class FileTailerSinkTest {
 
     final AtomicInteger count = new AtomicInteger(0);
 
-    List<StreamWriter> writers = new ArrayList<StreamWriter>();
-    writers.add(getDummyConcurrentWriter(count));
-    writers.add(getDummyConcurrentWriter(count));
-    writers.add(getDummyConcurrentWriter(count));
+    StreamWriter writers = getDummyConcurrentWriter(count);
+
 
     boolean success = false;
 
     FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE,
                                              stateProcessor, CUSTOM_PACK_SIZE);
     try {
-      sink.start();
+      sink.startWorker();
 
       for (int i = 0; i < TEST_EVENTS_SIZE; i++) {
         queue.put(new FileTailerEvent(new FileTailerState("file", 0L, 42, 0L), "test", Charset.defaultCharset()));
@@ -122,7 +117,7 @@ public class FileTailerSinkTest {
       }
 
     } finally {
-      sink.stop();
+      sink.stopWorker();
     }
 
     org.junit.Assert.assertTrue(success);

@@ -121,7 +121,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public String getFileName() {
-      return getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "file_name");
     }
 
     @Override
