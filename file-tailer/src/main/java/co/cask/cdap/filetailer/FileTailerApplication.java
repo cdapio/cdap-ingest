@@ -45,11 +45,12 @@ public class FileTailerApplication {
       try {
           manager.setupFlows();
       } catch (IOException e) {
-          LOG.error("Error during setuping flows: {}", e.getMessage());
+          LOG.error("Error during flows: {} setup", e.getMessage());
           return;
       }
      LOG.info("Staring flows");
      manager.startFlows();
+     Runtime.getRuntime().addShutdownHook(new Thread(new FlowShutdownGracefully(manager)));
   }
 
 }
