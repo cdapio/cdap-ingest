@@ -51,6 +51,13 @@ public interface FlowConfiguration {
   String getStatisticsFile();
 
   /**
+   * Returns the sleep interval for writing statistics (loaded from configuration file)
+   *
+   * @return the sleep interval for writing statistics
+   */
+  long getStatisticsSleepInterval();
+
+  /**
    * Returns the size of queue, intended for store events before push them to server (loaded from configuration file)
    *
    * @return the queue size of temporary events queue

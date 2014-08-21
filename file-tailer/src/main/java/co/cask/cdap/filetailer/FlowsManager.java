@@ -23,6 +23,7 @@ import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
 import co.cask.cdap.filetailer.config.FlowConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
+import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.sink.SinkStrategy;
@@ -54,10 +55,15 @@ public class FlowsManager {
         StreamWriter writer = getStreamWriterForFlow(flowConf);
         FileTailerStateProcessor stateProcessor =
           new FileTailerStateProcessorImpl(flowConf.getStateDir(), flowConf.getStateFile());
-        new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE, stateProcessor);
-        flowfList.add(new Flow(new LogTailer(flowConf, queue, stateProcessor),
+        FileTailerMetricsProcessor metricsProcessor =
+          new FileTailerMetricsProcessor(flowConf.getStateDir(), flowConf.getStatisticsFile(),
+                                             flowConf.getStatisticsSleepInterval(), flowConf.getFlowName(),
+                                             flowConf.getSourceConfiguration().getFileName());
+        flowfList.add(new Flow(new LogTailer(flowConf, queue, stateProcessor, metricsProcessor),
                                new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
-                                                  stateProcessor, flowConf.getSinkConfiguration().getPackSize())));
+                                                  stateProcessor, metricsProcessor,
+                                                  flowConf.getSinkConfiguration().getPackSize()),
+                               metricsProcessor));
       }
     } catch (ConfigurationLoadingException e) {
       throw new ConfigurationLoadingException("Error during loading configuration from file: "

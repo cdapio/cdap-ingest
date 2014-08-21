@@ -19,6 +19,7 @@ package co.cask.cdap.filetailer.sink;
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
+import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import com.google.common.util.concurrent.FutureCallback;
@@ -48,21 +49,22 @@ public class FileTailerSink extends AbstractWorker {
   private final Random random;
 
   private final FileTailerStateProcessor stateProcessor;
-
-  private Thread worker;
+  private final FileTailerMetricsProcessor metricsProcessor;
 
 
   public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
-                        FileTailerStateProcessor stateProcessor) {
-    this(queue, writer, strategy, stateProcessor, DEFAULT_PACK_SIZE);
+                        FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
+    this(queue, writer, strategy, stateProcessor, metricsProcessor, DEFAULT_PACK_SIZE);
   }
 
   public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
-                        FileTailerStateProcessor stateProcessor, int packSize) {
+                        FileTailerStateProcessor stateProcessor,
+                        FileTailerMetricsProcessor metricsProcessor, int packSize) {
     if (writer == null) {
       throw new IllegalArgumentException("Writer can't be empty!");
     }
     this.stateProcessor = stateProcessor;
+    this.metricsProcessor = metricsProcessor;
     this.queue = queue;
     this.writer = writer;
     this.strategy = strategy;
@@ -128,8 +130,9 @@ public class FileTailerSink extends AbstractWorker {
 
   private void uploadEvent(UploadLatch latch, FileTailerEvent event, int retryCount) throws IOException {
     LOG.debug("Uploading event {} with writer {}. Attempt {} out of {} ", event, writer, retryCount, MAX_RETRY_COUNT);
+    long sendStartTime = System.currentTimeMillis();
     ListenableFuture<Void> resultFuture = writer.write(event.getEventData(), event.getCharset());
-    Futures.addCallback(resultFuture, new WriteCallback(event, latch, MAX_RETRY_COUNT, retryCount));
+    Futures.addCallback(resultFuture, new WriteCallback(event, latch, MAX_RETRY_COUNT, retryCount, sendStartTime));
   }
 
 
@@ -138,21 +141,24 @@ public class FileTailerSink extends AbstractWorker {
     private final UploadLatch latch;
     private final int maxRetryCount;
     private final int retryCount;
+    private final long sendStartTime;
 
-    WriteCallback(FileTailerEvent event, UploadLatch latch, int maxRetryCount) {
-      this(event, latch, maxRetryCount, 1);
+    WriteCallback(FileTailerEvent event, UploadLatch latch, int maxRetryCount, long sendStartTime) {
+      this(event, latch, maxRetryCount, 1, sendStartTime);
     }
 
-    WriteCallback(FileTailerEvent event, UploadLatch latch, int maxRetryCount, int retryCount) {
+    WriteCallback(FileTailerEvent event, UploadLatch latch, int maxRetryCount, int retryCount, long sendStartTime) {
       this.event = event;
       this.latch = latch;
       this.maxRetryCount = maxRetryCount;
       this.retryCount = retryCount;
+      this.sendStartTime = sendStartTime;
     }
 
     @Override
     public void onSuccess(Void aVoid) {
       LOG.debug("Event {} successfully uploaded", event);
+      metricsProcessor.onIngestEventMetric((int) (System.currentTimeMillis() - sendStartTime));
       latch.reportSuccess();
     }
 

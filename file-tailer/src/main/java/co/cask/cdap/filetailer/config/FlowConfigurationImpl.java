@@ -38,6 +38,8 @@ public class FlowConfigurationImpl implements FlowConfiguration {
   private SourceConfiguration sourceConfiguration;
   private SinkConfiguration sinkConfiguration;
 
+  private static final String DEFAULT_STATISTICS_SLEEP_INTERVAL = "60000";
+
   public FlowConfigurationImpl(Properties properties, String key) {
     this.properties = properties;
     this.key = "flows." + key + ".";
@@ -63,6 +65,13 @@ public class FlowConfigurationImpl implements FlowConfiguration {
   @Override
   public String getStatisticsFile() {
     return getRequiredProperty(this.key + "statistics_file");
+  }
+
+  @Override
+  public long getStatisticsSleepInterval() {
+    String statisticsSleepInterval = getProperty(this.key + "statistics_sleep_interval");
+    return Long.parseLong(statisticsSleepInterval != null ?
+                            statisticsSleepInterval : DEFAULT_STATISTICS_SLEEP_INTERVAL);
   }
 
   @Override

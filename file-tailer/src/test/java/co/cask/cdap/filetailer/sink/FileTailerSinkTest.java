@@ -18,6 +18,7 @@ package co.cask.cdap.filetailer.sink;
 
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
+import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.state.FileTailerState;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
@@ -43,12 +44,13 @@ public class FileTailerSinkTest {
   @Test
   public void basicTestWithDefaultPackSize() throws Exception {
     FileTailerStateProcessor stateProcessor = Mockito.mock(FileTailerStateProcessor.class);
+    FileTailerMetricsProcessor metricsProcessor = Mockito.mock(FileTailerMetricsProcessor.class);
 
     FileTailerQueue queue = new FileTailerQueue(DEFAULT_QUEUE_SIZE);
 
     StreamWriter writerMock = getDummyStreamWriter();
     FileTailerSink sink = new FileTailerSink(queue, writerMock,
-                                             SinkStrategy.LOADBALANCE, stateProcessor);
+                                             SinkStrategy.LOADBALANCE, stateProcessor, metricsProcessor);
 
     sink.startWorker();
 
@@ -64,12 +66,14 @@ public class FileTailerSinkTest {
   @Test
   public void basicTestWithCustomPackSize() throws Exception {
     FileTailerStateProcessor stateProcessor = Mockito.mock(FileTailerStateProcessor.class);
+    FileTailerMetricsProcessor metricsProcessor = Mockito.mock(FileTailerMetricsProcessor.class);
 
     FileTailerQueue queue = new FileTailerQueue(DEFAULT_QUEUE_SIZE);
 
     StreamWriter writerMock = getDummyStreamWriter();
     FileTailerSink sink = new FileTailerSink(queue, writerMock,
-                                             SinkStrategy.LOADBALANCE, stateProcessor, CUSTOM_PACK_SIZE);
+                                             SinkStrategy.LOADBALANCE, stateProcessor, metricsProcessor,
+                                             CUSTOM_PACK_SIZE);
     try {
       sink.startWorker();
 
@@ -87,6 +91,7 @@ public class FileTailerSinkTest {
   @Test
   public void basicTestWithCustomPackSizeMultipleWriters() throws Exception {
     FileTailerStateProcessor stateProcessor = Mockito.mock(FileTailerStateProcessor.class);
+    FileTailerMetricsProcessor metricsProcessor = Mockito.mock(FileTailerMetricsProcessor.class);
 
     FileTailerQueue queue = new FileTailerQueue(DEFAULT_QUEUE_SIZE);
 
@@ -98,7 +103,7 @@ public class FileTailerSinkTest {
     boolean success = false;
 
     FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE,
-                                             stateProcessor, CUSTOM_PACK_SIZE);
+                                             stateProcessor, metricsProcessor, CUSTOM_PACK_SIZE);
     try {
       sink.startWorker();
 
