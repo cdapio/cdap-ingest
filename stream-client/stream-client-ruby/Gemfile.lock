@@ -1,0 +1,9 @@
+GEM
+  specs:
+    promise.rb (0.6.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  promise.rb
