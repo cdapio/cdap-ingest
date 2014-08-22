@@ -15,122 +15,96 @@ As soon as a new record is being appended to the end of a file that the daemon i
 ## Usage
 
  In order to install File Tailer one should execute following command:
- - on debian/ubuntu systems:
-    $> sudo apt-get install file-tailer.deb
+ 
+ - on Debian/Ubuntu systems:
+ 
+ ```
+    sudo apt-get install file-tailer.deb
+ ```
+ 
  - on RHEL/CentOS systems:
-    $> sudo rpm -ivh --force file-tailer.rpm
+ 
+ ```
+    sudo rpm -ivh --force file-tailer.rpm
+ ```
+ 
 
  Once installed, 
  To configure the daemon, edit following file:
-    /etc/file-tailer/conf/
-    
+ 
+ ```
+    /etc/file-tailer/conf/file-tailer.properties
+ ```
+ 
+ At least following parameters should be specified:
+ TODO: Add list of mandatory properties
+ 
+ Please note that target file should be accessible for file-tailer user.
+ In order to check this, one can use following command:
+ 
+ ``` 
+ sudo -u file-tailer more path_to_target_file
+ ```
     
  Once configured, 
  To start the daemon, execute following command:
-    $> sudo service file-tailer start
  
+ ```
+    sudo service file-tailer start
+ ```
+ 
+ To stop the daemon, execute following command:
+ 
+ ```
+    sudo service file-tailer stop
+ ``` 
  
  File Tailer stores logs in /var/log/file-tailer folder.
+ File Tailer stores pid, states and statistics in /var/run/file-tailer folder.
  
   
 ## Example Configuration
-   
- Create a StreamClient instance, specifying the fields 'host' and 'port' of the gateway server. 
- Optional configurations that can be set (and their default values):
-  
-  - ssl: false (use HTTP protocol) 
-  - writerPoolSize: '10' (max thread pool size for write events to the Stream)
-  - version : 'v2' (Gateway server version, used as a part of the base URI [http(s)://localhost:10000/v2/...]) 
-  - authToken: null (Need to specify to authenticate client requests) 
-  - apiKey:  null (Need to specify to authenticate client requests using SSL)
+ 
+ Following configuration file will force file-tailer application to monitor two applications.
+ Logs for each application will be sent to separate streams.
  
  ```
-   StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000).build();
- ```
-      
- or specified using the builder parameters:
  
- ```
-   StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000)
-         .apiKey("apiKey")
-         .authToken("token")
-         .ssl(false)
-         .version("v2")
-         .writerPoolSize(10)
-         .build();
- ```
- 
- Create a new Stream with the *stream id* "newStreamName":
- 
- ```
-   streamClient.create("newStreamName");
- ```
-      
- Notes:
- 
-  - The <stream-id> should only contain ASCII letters, digits and hyphens.
-  - If the Stream already exists, no error is returned, and the existing Stream remains in place.
+     # Comma-separated list of flows to be configured
+     flows=app1Flow,app2Flow
+     # General Flow properties
      
- 
- Update TTL for the Stream *streamName*; TTL is a long value:
- 
- ```
-   streamClient.setTTL("streamName", newTTL);
- ```
- 
- Get the current TTL value for the Stream *streamName*:
- 
- ```  
-   long ttl = streamClient.getTTL("streamName");  
- ```
- 
- Create a ```StreamWriter``` instance for writing events to the Stream *streamName*:
- 
- ```
-   StreamWriter streamWriter = streamClient.createWriter("streamName");
- ```
+     # Flow source properties
+     # Working directory (where to monitor files)
+     flows.app1Flow.source.work_dir=/var/log/app1
+     # Name of log file
+     flows.app1Flow.source.file_name=app1.log
      
- To write new events to the Stream, you can use any of these five methods in the ```StreamWriter``` interface:
- 
- ``` 
-   ListenableFuture<Void> write(String str, Charset charset);
-   ListenableFuture<Void> write(String str, Charset charset, Map<String, String> headers);
-   ListenableFuture<Void> write(ByteBuffer buffer);
-   ListenableFuture<Void> write(ByteBuffer buffer, Map<String, String> headers);
-   ListenableFuture<Void> send(File file, MediaType type);
+     # Flow sink properties
+     # Name of the stream
+     flows.app1Flow.sink.stream_name=app1Stream
+     # Host name that is used by stream client
+     flows.app1Flow.sink.host=reactor_host
+     # Host port that is used by stream client
+     flows.app1Flow.sink.port=10000
+     
+     # Flow source properties
+     # Working directory (where to monitor files)
+     flows.app2Flow.source.work_dir=/var/log/app2
+     # Name of log file
+     flows.app2Flow.source.file_name=app2.log
+      
+     # Flow sink properties
+     # Name of the stream
+     flows.app2Flow.sink.stream_name=app1Stream
+     # Host name that is used by stream client
+     flows.app2Flow.sink.host=reactor_host
+     # Host port that is used by stream client
+     flows.app2Flow.sink.port=10000
+
  ```
  
- Example:
- 
- ```
-   streamWriter.write("New log event", Charsets.UTF_8).get();
- ```
-   
- To truncate the Stream *streamName*, use:
- 
- ```
-   streamClient.truncate("streamName");
- ```
-   
- When you are finished, release all resources by calling these two methods:
-  
- ```  
-   streamWriter.close();
-   streamClient.close();  
- ```
 
 ## Additional Notes
  
- All methods from the ```StreamClient``` and ```StreamWriter``` throw exceptions using response code analysis from the 
- gateway server. These exceptions help determine if the request was processed successfully or not.
- 
- In the case of a **200 OK** response, no exception will be thrown; other cases will throw these exceptions:
-  
-  - **400 Bad Request**: *javax.ws.rs.BadRequestException;*   
-  - **401 Unauthorized**: *javax.ws.rs.NotAuthorizedException;*
-  - **403 Forbidden**: *javax.ws.rs.ForbiddenException;*
-  - **404 Not Found**: *co.cask.cdap.client.exception.NotFoundException/javax.ws.rs.NotFoundException;*
-  - **405 Method Not Allowed**: *javax.ws.rs.NotAcceptableException;*
-  - **409 Conflict**: *javax.ws.rs.NotAcceptableException;*
-  - **500 Internal Server Error**: *javax.ws.rs.ServerErrorException;*
-  - **501 Not Implemented**: *javax.ws.rs.NotSupportedException*.
+ TODO: Add description of all configuration parameters here 
