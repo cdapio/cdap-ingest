@@ -30,10 +30,12 @@ import java.util.Properties;
 public class FlowConfigurationImpl implements FlowConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(FlowConfigurationImpl.class);
+  public static final String DEFAULT_QUEUE_SIZE = "1000";
 
   private Properties properties;
 
   private String key;
+  private String keyPath;
 
   private SourceConfiguration sourceConfiguration;
   private SinkConfiguration sinkConfiguration;
@@ -42,41 +44,42 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
   public FlowConfigurationImpl(Properties properties, String key) {
     this.properties = properties;
-    this.key = "flows." + key + ".";
+    this.key = key;
+    this.keyPath = "flows." + key + ".";
     sourceConfiguration = new SourceConfigurationImpl(key);
     sinkConfiguration = new SinkConfigurationImpl(key);
   }
 
   @Override
   public String getFlowName() {
-    return getRequiredProperty(this.key + "name");
+    return getProperty(this.keyPath + "name", key);
   }
 
   @Override
   public String getStateDir() {
-    return getRequiredProperty("state_dir") + "/" + key.substring(0, key.length() - 1).replace('.', '/');
+    return getRequiredProperty("state_dir") + "/" + keyPath.substring(0, keyPath.length() - 1).replace('.', '/');
   }
 
   @Override
   public String getStateFile() {
-    return getRequiredProperty(this.key + "state_file");
+    return getProperty(this.keyPath + "state_file", "state");
   }
 
   @Override
   public String getStatisticsFile() {
-    return getRequiredProperty(this.key + "statistics_file");
+    return getProperty(this.keyPath + "statistics_file", "stats");
   }
 
   @Override
   public long getStatisticsSleepInterval() {
-    String statisticsSleepInterval = getProperty(this.key + "statistics_sleep_interval");
+    String statisticsSleepInterval = getProperty(this.keyPath + "statistics_sleep_interval");
     return Long.parseLong(statisticsSleepInterval != null && !statisticsSleepInterval.equals("") ?
                             statisticsSleepInterval : DEFAULT_STATISTICS_SLEEP_INTERVAL);
   }
 
   @Override
   public int getQueueSize() {
-    return Integer.parseInt(getRequiredProperty(this.key + "queue_size"));
+    return Integer.parseInt(getProperty(this.keyPath + "queue_size", DEFAULT_QUEUE_SIZE));
   }
 
   @Override
@@ -89,8 +92,13 @@ public class FlowConfigurationImpl implements FlowConfiguration {
     return sinkConfiguration;
   }
 
+  private String getProperty(String key, String defaultValue) {
+      String value = getProperty(key);
+      return value != null && !value.equals("") ? value : defaultValue;
+  }
+
   private String getProperty(String key) {
-    LOG.debug("Start returning property by key: {}", key);
+    LOG.debug("Start returning property by keyPath: {}", key);
     if (properties == null) {
       LOG.error("Properties file not loaded");
       throw new ConfigurationLoaderException("Properties file not loaded");
