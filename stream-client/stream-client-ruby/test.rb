@@ -2,8 +2,15 @@
 
 require './lib/stream_client'
 
-rest = StreamClient::Rest
+puts 'create stream'
+StreamClient.create 'dima'
 
-response = rest.request 'post', 'streams/dima/consumer-id'
+puts 'set ttl'
+StreamClient.set_ttl 'dima', 256
 
-puts response.body if response.is_a?(Net::HTTPSuccess)
+puts 'get ttl'
+ttl = StreamClient.get_ttl 'dima'
+puts "ttl: #{ttl}"
+
+puts 'truncate'
+StreamClient.truncate 'dima'

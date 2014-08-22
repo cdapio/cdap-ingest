@@ -1,5 +1,6 @@
 require 'yaml'
 require 'net/http'
+require 'json'
 require 'promise'
 
 module StreamClient
@@ -27,17 +28,22 @@ module StreamClient
     end
 
     def self.base_url
-      "#{protocol}://#{config['gateway']}:#{@port}/#{@api_version}"
+      "#{protocol}://#{config['gateway']}:#{@port}/#{@api_version}/streams"
     end
 
-    def self.request type, url
+    def self.request type, url, params = nil
       type.capitalize!
       uri = URI "#{base_url}/#{url}"
-      Net::HTTP.start(uri.hostname, uri.port, use_ssl: ssl?) do |http|
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: ssl?) do |http|
         request = instance_eval("Net::HTTP::#{type}").new uri
         request['X-Continuuity-ApiKey'] = config['X-Continuuity-ApiKey'] if ssl?
+        request.body = params.to_json if params
         http.request request
       end
+      is_json = response['content-type'] == 'application/json'
+      response.body = JSON.parse(response.body) if is_json
+      puts "Status code: #{response.code}"
+      response
     end
 
   end

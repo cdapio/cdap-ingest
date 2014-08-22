@@ -8,7 +8,7 @@ module StreamClient
   ###
     # Creates a stream with the given name.
   def self.create(stream)
-
+    Rest.request 'put', stream
   end
 
   ###
@@ -18,7 +18,7 @@ module StreamClient
     # @param ttl TTL in seconds
     # @throws NotFoundException If the stream does not exists
   def self.set_ttl(stream, ttl)
-
+    Rest.request 'put', "#{stream}/config", ttl: ttl
   end
 
   ###
@@ -28,7 +28,8 @@ module StreamClient
     # @return Current TTL of the stream in seconds
     # @throws NotFoundException If the stream does not exists
   def self.get_ttl(stream)
-
+    response = Rest.request 'get', "#{stream}/info"
+    response.body['ttl']
   end
 
   ###
@@ -37,7 +38,7 @@ module StreamClient
     # @param stream Name of the stream
     # @throws NotFoundException If the stream does not exists
   def self.truncate(stream)
-
+    Rest.request 'post', "#{stream}/truncate"
   end
 
   ###
