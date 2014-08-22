@@ -95,5 +95,6 @@ public interface StreamWriter extends Closeable {
    *
    * @throws IOException if an I/O error occurs during close process
    */
+  @Override
   void close() throws IOException;
 }
