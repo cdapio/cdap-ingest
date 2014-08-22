@@ -31,7 +31,6 @@
 
   <properties>
     <script.app.mainclass>co.cask.cdap.filetailer.FileTailerApplication</script.app.mainclass>
-    <script.app.conf>file-tailer.properties</script.app.conf>
     <script.app.user>file-tailer</script.app.user>
     <script.app.name>file-tailer</script.app.name>
     <script.app.desc>File Tailer</script.app.desc>
@@ -177,6 +176,7 @@
         </executions>
         <configuration>
           <name>${project.artifactId}</name>
+          <classifier></classifier>
           <copyright>Cask</copyright>
           <distribution>development</distribution>
           <group>Applications/File Tailer</group>
