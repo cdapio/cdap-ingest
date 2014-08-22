@@ -18,7 +18,6 @@ package co.cask.cdap.client.rest;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
@@ -58,18 +59,18 @@ public class RestClient {
   private static final String HTTPS_PROTOCOL = "https";
   private static final String CONTINUUITY_API_KEY_HEADER_NAME = "X-Continuuity-ApiKey";
   private static final String AUTHENTICATION_HEADER_PREFIX_BEARER = "Bearer ";
-  private static final String FORWARD_SLASH = "/";
-  private static final String PROTOCOL_POSTFIX = "://";
-  private static final String COLON = ":";
 
   private final RestClientConnectionConfig config;
-  private final String baseUrl;
+  private final URI baseUrl;
   private final CloseableHttpClient httpClient;
+  private final String version;
 
-  public RestClient(RestClientConnectionConfig config, HttpClientConnectionManager connectionManager) {
+  public RestClient(RestClientConnectionConfig config, HttpClientConnectionManager connectionManager)
+    throws URISyntaxException {
     this.config = config;
-    this.baseUrl = config.isSsl() ? HTTPS_PROTOCOL : HTTP_PROTOCOL + PROTOCOL_POSTFIX + config.getHost() +
-      COLON + config.getPort() + FORWARD_SLASH + config.getVersion() + FORWARD_SLASH;
+    this.baseUrl = new URI(String.format("%s://%s:%d", config.isSSL() ? HTTPS_PROTOCOL : HTTP_PROTOCOL,
+                                         config.getHost(), config.getPort()));
+    this.version = config.getVersion();
     this.httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
   }
 
@@ -85,8 +86,8 @@ public class RestClient {
     if (StringUtils.isNotEmpty(config.getAuthToken())) {
       request.setHeader(HttpHeaders.AUTHORIZATION, AUTHENTICATION_HEADER_PREFIX_BEARER + config.getAuthToken());
     }
-    if (StringUtils.isNotEmpty(config.getApiKey())) {
-      request.setHeader(CONTINUUITY_API_KEY_HEADER_NAME, config.getApiKey());
+    if (StringUtils.isNotEmpty(config.getAPIKey())) {
+      request.setHeader(CONTINUUITY_API_KEY_HEADER_NAME, config.getAPIKey());
     }
     LOG.debug("Execute Http Request: {}", request);
     return httpClient.execute(request);
@@ -130,16 +131,12 @@ public class RestClient {
    * @return {@link JsonObject} generated from input content stream
    * @throws IOException if entity content is not available
    */
-  public static JsonObject getEntityAsJsonObject(HttpEntity httpEntity) throws IOException {
-    JsonObject result;
-    String content = getEntityAsString(httpEntity);
-    if (StringUtils.isNotEmpty(content)) {
-      JsonElement root = new JsonParser().parse(content);
-      result = root.getAsJsonObject();
-    } else {
+  public static JsonObject toJsonObject(HttpEntity httpEntity) throws IOException {
+    String content = toString(httpEntity);
+    if (StringUtils.isEmpty(content)) {
       throw new IOException("Failed to write entity content.");
     }
-    return result;
+    return new JsonParser().parse(content).getAsJsonObject();
   }
 
   /**
@@ -149,25 +146,21 @@ public class RestClient {
    * @return {@link String} generated from input content stream
    * @throws IOException if HTTP entity is not available
    */
-  public static String getEntityAsString(HttpEntity httpEntity) throws IOException {
-    String content = null;
+  public static String toString(HttpEntity httpEntity) throws IOException {
     if (httpEntity == null || httpEntity.getContent() == null) {
       throw new IOException("Empty HttpEntity is received.");
     }
-    Charset charset;
-    ContentType contentType = ContentType.getOrDefault(httpEntity);
+    Charset charset = Charsets.UTF_8;
+    ContentType contentType = ContentType.get(httpEntity);
     if (contentType != null && contentType.getCharset() != null) {
       charset = contentType.getCharset();
-    } else {
-      charset = Charsets.UTF_8;
     }
     Reader reader = new InputStreamReader(httpEntity.getContent(), charset);
     try {
-      content = CharStreams.toString(reader);
+      return CharStreams.toString(reader);
     } finally {
       reader.close();
     }
-    return content;
   }
 
   /**
@@ -176,15 +169,20 @@ public class RestClient {
    * @throws IOException if an I/O error occurs
    */
   public void close() throws IOException {
-    if (httpClient != null) {
-      httpClient.close();
-    }
+    httpClient.close();
   }
 
   /**
    * @return the base URL of Rest Service API
    */
-  public String getBaseUrl() {
+  public URI getBaseURL() {
     return baseUrl;
+  }
+
+  /**
+   * @return the version of getaway server
+   */
+  public String getVersion() {
+    return version;
   }
 }

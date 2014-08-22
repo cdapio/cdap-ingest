@@ -38,27 +38,28 @@
     <gson.version>2.2.4</gson.version>
     <rs-api.version>2.0</rs-api.version>
     <jersey.version>2.4.1</jersey.version>
-    <slf4j.version>1.7.6</slf4j.version>
+    <logback.version>1.0.9</logback.version>
     <mockito.version>1.9.5</mockito.version>
     <junit.version>4.11</junit.version>
+    <log4j.over.slf4j.version>1.7.7</log4j.over.slf4j.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
@@ -113,6 +114,11 @@
         <groupId>org.glassfish.jersey.core</groupId>
         <artifactId>jersey-common</artifactId>
         <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>${log4j.over.slf4j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -218,7 +224,7 @@
         </plugin>
       </plugins>
     </pluginManagement>
-    
+
     <plugins>
       <plugin>
         <groupId>org.apache.rat</groupId>
