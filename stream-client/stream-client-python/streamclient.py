@@ -72,7 +72,7 @@ class StreamClient(ConnectionErrorChecker):
             self.__serviceConnector.request('GET', uri)
         )
 
-        ttl = json.loads(response.data.decode('utf-8'))['ttl']
+        ttl = response.json()['ttl']
 
         return ttl
 

@@ -71,7 +71,7 @@ class TestStreamClient(unittest.TestCase):
         sw = self.sc.createWriter(self.validStream)
 
         def onResponse(response):
-            self.exit_code = response.status
+            self.exit_code = response.status_code
 
         q = sw.send(self.validFile)
         q.onResponse(onResponse)
@@ -82,7 +82,7 @@ class TestStreamClient(unittest.TestCase):
         sw = self.sc.createWriter(self.validStream)
 
         def onResponse(response):
-            self.exit_code = response.status
+            self.exit_code = response.status_code
 
         q = sw.write(self.messageToWrite)
         q.onResponse(onResponse)
@@ -90,4 +90,4 @@ class TestStreamClient(unittest.TestCase):
         self.assertEqual(self.exit_code, 200)
 
 if '__main__' == __name__:
-    unittest.main()
+    unittest.main(warnings='ignore')

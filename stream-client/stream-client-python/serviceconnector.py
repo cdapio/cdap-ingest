@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
+import requests
 from config import Config
 
 class NoFoundException(Exception):
@@ -23,14 +23,13 @@ class ConnectionErrorChecker:
     __HTTP_OK = 200
 
     def checkResponseErrors(self, httpResponse):
-        if not self.__HTTP_OK == httpResponse.status:
-            raise NoFoundException(httpResponse.status, httpResponse.reason)
+        if not self.__HTTP_OK == httpResponse.status_code:
+            raise NoFoundException(httpResponse.status_code, httpResponse.reason)
 
         return httpResponse
 
 class ServiceConnector:
-    __MAX_CONNECTION_TO_SAVE = 10
-    __connectionPool = None
+    __base_url = ''
     __connectionConfig = None
     __defaultHeaders = {
         'Authorization': 'Bearer ',
@@ -44,38 +43,44 @@ class ServiceConnector:
         self.__connectionConfig = config
 
         if self.__connectionConfig.getSSL():
-            self.__connectionPool = HTTPSConnectionPool(
-                self.__connectionConfig.getHost(),
-                self.__connectionConfig.getPort(),
-                maxsize = self.__MAX_CONNECTION_TO_SAVE,
-                block = False )
+            self.__base_url = 'https://'
         else:
-            self.__connectionPool = HTTPConnectionPool(
-                self.__connectionConfig.getHost(),
-                self.__connectionConfig.getPort(),
-                maxsize = self.__MAX_CONNECTION_TO_SAVE,
-                block = False )
+            self.__base_url = 'http://'
+
+        self.__base_url += '{0}:{1}'.format(
+            self.__connectionConfig.getHost(),
+            self.__connectionConfig.getPort()
+        )
 
         self.__defaultHeaders['X-Continuuity-ApiKey'] = self.__connectionConfig.getAPIKey()
-
-    def __del__(self):
-        self.__connectionPool.close()
 
     def setAuthorizationToken(self, token):
         self.__defaultHeaders['Authorization'] = 'Bearer ' + token
 
     def request(self, method, uri, body = None, headers = None):
         headersToSend = self.__defaultHeaders
+        url = '{0}{1}'.format(self.__base_url, uri)
 
         if not None == headers:
             headersToSend.update(headers)
 
-        return self.__connectionPool.urlopen(method, uri, body, headersToSend, release_conn = True)
+        return requests.request(
+            method,
+            url,
+            data = body,
+            headers = headersToSend
+        )
 
     def send(self, uri, fields = None, headers = None):
         headersToSend = self.__defaultHeaders
+        url = '{0}{1}'.format(self.__base_url, uri)
 
         if not None == headers:
             headersToSend.update(headers)
 
-        return self.__connectionPool.request_encode_body('POST', uri, fields, headersToSend)
+        return requests.request(
+            'POST',
+            url,
+            files = fields,
+            headers = headersToSend
+        )
