@@ -20,16 +20,17 @@ import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.client.exception.NotFoundException;
 import org.apache.commons.lang.StringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotAcceptableException;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotSupportedException;
-import javax.ws.rs.ServerErrorException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -89,17 +90,17 @@ public class RestStreamClientTest extends RestTest {
     streamClient.getTTL(TestUtils.FORBIDDEN_STREAM_NAME);
   }
 
-  @Test(expected = NotAcceptableException.class)
+  @Test(expected = NotAllowedException.class)
   public void testNotAcceptableGetTTL() throws IOException, NotFoundException {
-    streamClient.getTTL(TestUtils.NOT_ACCEPTABLE_STREAM_NAME);
+    streamClient.getTTL(TestUtils.NOT_ALLOWED_STREAM_NAME);
   }
 
-  @Test(expected = NotAcceptableException.class)
+  @Test(expected = BadRequestException.class)
   public void testConflictGetTTL() throws IOException, NotFoundException {
     streamClient.getTTL(TestUtils.CONFLICT_STREAM_NAME);
   }
 
-  @Test(expected = ServerErrorException.class)
+  @Test(expected = InternalServerErrorException.class)
   public void testServerErrorGetTTL() throws IOException, NotFoundException {
     streamClient.getTTL(StringUtils.EMPTY);
   }
@@ -152,17 +153,17 @@ public class RestStreamClientTest extends RestTest {
     streamClient.setTTL(TestUtils.FORBIDDEN_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = NotAcceptableException.class)
+  @Test(expected = NotAllowedException.class)
   public void testNotAcceptableSetTTL() throws IOException, NotFoundException {
-    streamClient.setTTL(TestUtils.NOT_ACCEPTABLE_STREAM_NAME, STREAM_TTL);
+    streamClient.setTTL(TestUtils.NOT_ALLOWED_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = NotAcceptableException.class)
+  @Test(expected = BadRequestException.class)
   public void testConflictSetTTL() throws IOException, NotFoundException {
     streamClient.setTTL(TestUtils.CONFLICT_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = ServerErrorException.class)
+  @Test(expected = InternalServerErrorException.class)
   public void testServerErrorSetTTL() throws IOException, NotFoundException {
     streamClient.setTTL(StringUtils.EMPTY, STREAM_TTL);
   }
@@ -215,17 +216,17 @@ public class RestStreamClientTest extends RestTest {
     streamClient.truncate(TestUtils.FORBIDDEN_STREAM_NAME);
   }
 
-  @Test(expected = NotAcceptableException.class)
+  @Test(expected = NotAllowedException.class)
   public void testNotAcceptableTruncate() throws IOException, NotFoundException {
-    streamClient.truncate(TestUtils.NOT_ACCEPTABLE_STREAM_NAME);
+    streamClient.truncate(TestUtils.NOT_ALLOWED_STREAM_NAME);
   }
 
-  @Test(expected = NotAcceptableException.class)
+  @Test(expected = BadRequestException.class)
   public void testConflictTruncate() throws IOException, NotFoundException {
     streamClient.truncate(TestUtils.CONFLICT_STREAM_NAME);
   }
 
-  @Test(expected = ServerErrorException.class)
+  @Test(expected = InternalServerErrorException.class)
   public void testServerErrorTruncate() throws IOException, NotFoundException {
     streamClient.truncate(StringUtils.EMPTY);
   }
@@ -273,17 +274,17 @@ public class RestStreamClientTest extends RestTest {
     streamClient.create(TestUtils.FORBIDDEN_STREAM_NAME);
   }
 
-  @Test(expected = NotAcceptableException.class)
+  @Test(expected = NotAllowedException.class)
   public void testNotAcceptableCreate() throws IOException {
-    streamClient.create(TestUtils.NOT_ACCEPTABLE_STREAM_NAME);
+    streamClient.create(TestUtils.NOT_ALLOWED_STREAM_NAME);
   }
 
-  @Test(expected = NotAcceptableException.class)
+  @Test(expected = BadRequestException.class)
   public void testConflictCreate() throws IOException {
     streamClient.create(TestUtils.CONFLICT_STREAM_NAME);
   }
 
-  @Test(expected = ServerErrorException.class)
+  @Test(expected = InternalServerErrorException.class)
   public void testServerErrorCreate() throws IOException {
     streamClient.create(StringUtils.EMPTY);
   }
@@ -294,7 +295,7 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test
-  public void testCreateWriter() {
+  public void testCreateWriter() throws NotFoundException, IOException {
     StreamWriter streamWriter = streamClient.createWriter(TestUtils.SUCCESS_STREAM_NAME);
     assertNotNull(streamWriter);
     assertEquals(RestStreamWriter.class, streamWriter.getClass());
@@ -303,5 +304,23 @@ public class RestStreamClientTest extends RestTest {
     String expectedBaseUri = "http://" + testServerHost + ":" + testServerPort + "/"
       + RestStreamClient.DEFAULT_VERSION + "/";
     assertEquals(expectedBaseUri, restStreamWriter.getRestClient().getBaseUrl());
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void testNotExistStreamCreateWriter() throws NotFoundException, IOException {
+    StreamWriter streamWriter = streamClient.createWriter(TestUtils.NOT_FOUND_STREAM_NAME);
+    assertNotNull(streamWriter);
+    assertEquals(RestStreamWriter.class, streamWriter.getClass());
+    RestStreamWriter restStreamWriter = (RestStreamWriter) streamWriter;
+    assertEquals(TestUtils.SUCCESS_STREAM_NAME, restStreamWriter.getStreamName());
+    String expectedBaseUri = "http://" + testServerHost + ":" + testServerPort + "/"
+      + RestStreamClient.DEFAULT_VERSION + "/";
+    assertEquals(expectedBaseUri, restStreamWriter.getRestClient().getBaseUrl());
+  }
+
+  @After
+  public void shutDown() throws Exception {
+    streamClient.close();
+    super.shutDown();
   }
 }
