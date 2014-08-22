@@ -78,8 +78,7 @@ class ServiceConnector:
         if not None == headers:
             headersToSend.update(headers)
 
-        return requests.request(
-            'POST',
+        return requests.post(
             url,
             files = fields,
             headers = headersToSend
