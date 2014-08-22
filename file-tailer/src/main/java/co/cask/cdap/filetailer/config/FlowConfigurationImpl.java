@@ -54,7 +54,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
   @Override
   public String getStateDir() {
-    return getRequiredProperty(this.key + "state_dir");
+    return getRequiredProperty("state_dir") + "/" + key.substring(0, key.length() - 1).replace('.', '/');
   }
 
   @Override
@@ -70,7 +70,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
   @Override
   public long getStatisticsSleepInterval() {
     String statisticsSleepInterval = getProperty(this.key + "statistics_sleep_interval");
-    return Long.parseLong(statisticsSleepInterval != null ?
+    return Long.parseLong(statisticsSleepInterval != null && !statisticsSleepInterval.equals("") ?
                             statisticsSleepInterval : DEFAULT_STATISTICS_SLEEP_INTERVAL);
   }
 
@@ -100,7 +100,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
-    if (property == null) {
+    if (property == null || property.equals("")) {
       LOG.error("Property not found");
       throw new ConfigurationLoaderException("Property not found");
     }
@@ -146,25 +146,29 @@ public class FlowConfigurationImpl implements FlowConfiguration {
     @Override
     public byte getRecordSeparator() {
       String recordSeparator = getProperty(this.key + "record_separator");
-      return (recordSeparator != null ? recordSeparator : DEFAULT_RECORD_SEPARATOR).getBytes()[0];
+      return (recordSeparator != null && !recordSeparator.equals("") ?
+        recordSeparator : DEFAULT_RECORD_SEPARATOR).getBytes()[0];
     }
 
     @Override
     public long getSleepInterval() {
       String sleepInterval = getProperty(this.key + "sleep_interval");
-      return Long.parseLong(sleepInterval != null ? sleepInterval : DEFAULT_SLEEP_INTERVAL);
+      return Long.parseLong(sleepInterval != null && !sleepInterval.equals("") ?
+                              sleepInterval : DEFAULT_SLEEP_INTERVAL);
     }
 
     @Override
     public int getFailureRetryLimit() {
       String failureRetryLimit = getProperty(this.key + "failure_retry_limit");
-      return Integer.parseInt(failureRetryLimit != null ? failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
+      return Integer.parseInt(failureRetryLimit != null && !failureRetryLimit.equals("") ?
+                                failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
     }
 
     @Override
     public long getFailureSleepInterval() {
       String failureSleepInterval = getProperty(this.key + "failure_sleep_interval");
-      return Long.parseLong(failureSleepInterval != null ? failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
+      return Long.parseLong(failureSleepInterval != null && !failureSleepInterval.equals("") ?
+                              failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
     }
   }
 
@@ -201,23 +205,26 @@ public class FlowConfigurationImpl implements FlowConfiguration {
       RestStreamClient.Builder builder = new RestStreamClient.Builder(host, port);
 
       String ssl = getProperty(this.key + "ssl");
-      builder.ssl(Boolean.valueOf(ssl != null ? ssl : DEFAULT_SSL));
+      builder.ssl(Boolean.valueOf(ssl != null && !ssl.equals("") ?
+                                    ssl : DEFAULT_SSL));
 
       String authToken = getProperty(this.key + "authToken");
-      if (authToken != null) {
+      if (authToken != null && !authToken.equals("")) {
         builder.authToken(authToken);
       }
 
       String apiKey = getProperty(this.key + "apiKey");
-      if (apiKey != null) {
+      if (apiKey != null && !apiKey.equals("")) {
         builder.apiKey(apiKey);
       }
 
       String writerPoolSize = getProperty(this.key + "writerPoolSize");
-      builder.writerPoolSize(Integer.parseInt(writerPoolSize != null ? writerPoolSize : DEFAULT_WRITER_POOL_SIZE));
+      builder.writerPoolSize(Integer.parseInt(writerPoolSize != null && !writerPoolSize.equals("") ?
+                                                writerPoolSize : DEFAULT_WRITER_POOL_SIZE));
 
       String version = getProperty(this.key + "version");
-      builder.version(version != null ? version : DEFAULT_VERSION);
+      builder.version(version != null && !version.equals("") ?
+                        version : DEFAULT_VERSION);
 
       return builder.build();
     }
@@ -225,19 +232,22 @@ public class FlowConfigurationImpl implements FlowConfiguration {
     @Override
     public int getPackSize() {
       String packSize = getProperty(this.key + "packSize");
-      return Integer.parseInt(packSize != null ? packSize : DEFAULT_PACK_SIZE);
+      return Integer.parseInt(packSize != null && !packSize.equals("") ?
+                                packSize : DEFAULT_PACK_SIZE);
     }
 
     @Override
     public int getFailureRetryLimit() {
       String failureRetryLimit = getProperty(this.key + "failure_retry_limit");
-      return Integer.parseInt(failureRetryLimit != null ? failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
+      return Integer.parseInt(failureRetryLimit != null && !failureRetryLimit.equals("") ?
+                                failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
     }
 
     @Override
     public long getFailureSleepInterval() {
       String failureSleepInterval = getProperty(this.key + "failure_sleep_interval");
-      return Long.parseLong(failureSleepInterval != null ? failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
+      return Long.parseLong(failureSleepInterval != null && !failureSleepInterval.equals("") ?
+                              failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
     }
   }
 }

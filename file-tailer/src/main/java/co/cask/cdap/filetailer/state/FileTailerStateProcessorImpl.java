@@ -45,7 +45,7 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
 
   @Override
   public void saveState(FileTailerState state) throws FileTailerStateProcessorException {
-    createDir(stateDirPath);
+    createDirs(stateDirPath);
     LOG.debug("Start saving File Tailer state ..");
     try {
       FileOutputStream fileOut = new FileOutputStream(stateDirPath + "/" + stateFileName);
@@ -85,11 +85,11 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
     return state;
   }
 
-  private void createDir(String path) throws FileTailerStateProcessorException {
+  private void createDirs(String path) throws FileTailerStateProcessorException {
     LOG.debug("Starting create directory with path: {}", path);
     File directory = new File(path);
     if (!directory.exists()) {
-      boolean result = directory.mkdir();
+      boolean result = directory.mkdirs();
       LOG.debug("Creating directory result: {}", result);
       if (!result) {
         throw new FileTailerStateProcessorException("Can not create File Tailer state directory");

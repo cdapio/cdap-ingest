@@ -18,14 +18,15 @@ package co.cask.cdap.filetailer.metrics;
 
 import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.metrics.exception.FileTailerMetricsProcessorException;
+import org.apache.log4j.DailyRollingFileAppender;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.WriterAppender;
+import org.apache.log4j.spi.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -71,16 +72,17 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
 
   @Override
   public void run() {
-    PrintWriter writer = null;
+    WriterAppender appender = null;
     try {
-      createDir(stateDirPath);
+      createDirs(stateDirPath);
       createFile(stateDirPath + "/" + metricsFileName);
-      writer = new PrintWriter(new FileOutputStream(new File(stateDirPath + "/" + metricsFileName), true));
-      writeMetricsHeader(writer);
+      org.apache.log4j.Logger logger = initLogger("metricsLogger");
+      appender = initAppender(stateDirPath + "/" + metricsFileName);
+      writeMetricsHeader(logger, appender);
       while (!Thread.currentThread().isInterrupted()) {
         Thread.sleep(metricsSleepInterval);
         String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
-        writeMetrics(writer, currentDate, flowName, fileName,
+        writeMetrics(logger, appender, currentDate, flowName, fileName,
                      totalEventsReadPerFile.get(), totalEventsIngestedPerFile.get(),
                      minEventSizePerFile.get(),
                      calculateAverage(totalEventSizePerFile.get(), eventsPerFile.get()),
@@ -89,16 +91,11 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
                      maxWriteLatencyPerStream.get());
         resetMetrics();
       }
-    } catch (FileNotFoundException e) {
-      LOG.error("File {} does not exists", stateDirPath + "/" + metricsFileName);
-      throw new FileTailerMetricsProcessorException("File " + stateDirPath + "/" + metricsFileName
-                                                      + " does not exists: " + e.getMessage());
     } catch (InterruptedException e) {
-      LOG.error("InterruptedException occurred");
-      throw new FileTailerMetricsProcessorException("InterruptedException occurred: " + e.getMessage());
+      LOG.debug("Metric Processor was interrupted");
     } finally {
-      if (writer != null) {
-        writer.close();
+      if (appender != null) {
+        appender.close();
       }
     }
   }
@@ -169,7 +166,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     LOG.debug("All metrics reset successfully");
   }
 
-  private void writeMetricsHeader(PrintWriter writer) {
+  private void writeMetricsHeader(org.apache.log4j.Logger logger, WriterAppender appender) {
     LOG.debug("Start writing header to file ..");
     String header = new StringBuilder("Current Date").append(",")
       .append("Flow Name").append(",")
@@ -181,12 +178,13 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       .append("Max Event Size Per File").append(",")
       .append("Min Write Latency Per Stream").append(",")
       .append("Average Write Latency Per Stream").append(",")
-      .append("Max Write Latency Per Stream").append("\n\n").toString();
-    writer.write(header);
+      .append("Max Write Latency Per Stream").append("\n").toString();
+    appender.doAppend(new LoggingEvent(null, logger, null, header, null));
     LOG.debug("Successfully write header");
   }
 
-  private void writeMetrics(PrintWriter writer, String currentDate, String flowName, String fileName,
+  private void writeMetrics(org.apache.log4j.Logger logger, WriterAppender appender,
+                            String currentDate, String flowName, String fileName,
                             int totalEventsReadPerFile, int totalEventsIngestedPerFile,
                             int minEventSizePerFile, double averageEventSizePerFile,
                             int maxEventSizePerFile, int minWriteLatencyPerStream,
@@ -202,9 +200,24 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       .append(maxEventSizePerFile).append(",")
       .append(minWriteLatencyPerStream).append(",")
       .append(averageWriteLatencyPerStream).append(",")
-      .append(maxWriteLatencyPerStream).append("\n").toString();
-    writer.write(metric);
-    LOG.debug("Successfully write metric with date: ", currentDate);
+      .append(maxWriteLatencyPerStream).toString();
+    appender.doAppend(new LoggingEvent(null, logger, null, metric, null));
+    LOG.debug("Successfully write metric with date: {}", currentDate);
+  }
+
+  private WriterAppender initAppender(String path) {
+    LOG.debug("Starting initialize rolling file appender");
+    DailyRollingFileAppender fileAppender = new DailyRollingFileAppender();
+    fileAppender.setFile(path);
+    fileAppender.setDatePattern("'.'yyyy-MM-dd-HH-mm");
+    fileAppender.setAppend(true);
+    fileAppender.setLayout(new PatternLayout("%m%n"));
+    fileAppender.activateOptions();
+    return fileAppender;
+  }
+
+  private org.apache.log4j.Logger initLogger(String name) {
+    return org.apache.log4j.Logger.getLogger(name);
   }
 
   private void createFile(String path) {
@@ -226,11 +239,11 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     }
   }
 
-  private void createDir(String path) {
+  private void createDirs(String path) {
     LOG.debug("Starting create directory with path: {}", path);
     File directory = new File(path);
     if (!directory.exists()) {
-      boolean result = directory.mkdir();
+      boolean result = directory.mkdirs();
       LOG.debug("Creating directory result: {}", result);
       if (!result) {
         throw new FileTailerMetricsProcessorException("Can not create File Tailer state directory");

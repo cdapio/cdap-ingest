@@ -16,5 +16,48 @@
 
 package co.cask.cdap.filetailer.config;
 
+import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
+import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
+
 public class FlowConfigurationImplTest {
+
+  @Test
+  public void basicTest() throws ConfigurationLoadingException {
+
+    ConfigurationLoader loader = new ConfigurationLoaderImpl();
+
+    String path = getClass().getClassLoader().getResource("test.properties").getFile();
+
+    Configuration configuration = loader.load(path);
+
+    List<FlowConfiguration> flowsConfiguration = configuration.getFlowsConfiguration();
+
+    FlowConfiguration flowConfiguration = flowsConfiguration.get(0);
+
+    Assert.assertEquals("logEventStream", flowConfiguration.getSinkConfiguration().getStreamName());
+
+    Assert.assertEquals("log_file", flowConfiguration.getSourceConfiguration().getFileName());
+
+    Assert.assertEquals(60000, flowConfiguration.getSourceConfiguration().getFailureSleepInterval());
+  }
+
+  @Test(expected = ConfigurationLoaderException.class)
+  public void failureTest() throws ConfigurationLoadingException {
+
+    ConfigurationLoader loader = new ConfigurationLoaderImpl();
+
+    String path = getClass().getClassLoader().getResource("test.properties").getFile();
+
+    Configuration configuration = loader.load(path);
+
+    List<FlowConfiguration> flowsConfiguration = configuration.getFlowsConfiguration();
+
+    FlowConfiguration flowConfiguration = flowsConfiguration.get(0);
+
+    flowConfiguration.getStateFile();
+  }
 }
