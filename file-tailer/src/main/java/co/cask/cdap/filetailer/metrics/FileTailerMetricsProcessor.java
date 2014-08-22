@@ -71,10 +71,11 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
 
   @Override
   public void run() {
+    PrintWriter writer = null;
     try {
       createDir(stateDirPath);
       createFile(stateDirPath + "/" + metricsFileName);
-      PrintWriter writer = new PrintWriter(new FileOutputStream(new File(stateDirPath + "/" + metricsFileName), true));
+      writer = new PrintWriter(new FileOutputStream(new File(stateDirPath + "/" + metricsFileName), true));
       writeMetricsHeader(writer);
       while (!Thread.currentThread().isInterrupted()) {
         Thread.sleep(metricsSleepInterval);
@@ -95,6 +96,10 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     } catch (InterruptedException e) {
       LOG.error("InterruptedException occurred");
       throw new FileTailerMetricsProcessorException("InterruptedException occurred: " + e.getMessage());
+    } finally {
+      if (writer != null) {
+        writer.close();
+      }
     }
   }
 
@@ -104,7 +109,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
 
     totalEventSizePerFile.set(totalEventSizePerFile.get() + eventSize);
     eventsPerFile.incrementAndGet();
-    if (minEventSizePerFile.get() > eventSize) {
+    if (minEventSizePerFile.get() > eventSize || minEventSizePerFile.get() == 0) {
       minEventSizePerFile.set(eventSize);
     }
     if (maxEventSizePerFile.get() < eventSize) {
@@ -118,7 +123,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
 
     totalWriteLatencyPerStream.set(totalWriteLatencyPerStream.get() + latency);
     writesPerStream.incrementAndGet();
-    if (minWriteLatencyPerStream.get() > latency) {
+    if (minWriteLatencyPerStream.get() > latency || minWriteLatencyPerStream.get() == 0) {
       minWriteLatencyPerStream.set(latency);
     }
     if (maxWriteLatencyPerStream.get() < latency) {
@@ -165,7 +170,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   }
 
   private void writeMetricsHeader(PrintWriter writer) {
-    LOG.debug("Start writing headerto file ..");
+    LOG.debug("Start writing header to file ..");
     String header = new StringBuilder("Current Date").append(",")
       .append("Flow Name").append(",")
       .append("File Name").append(",")

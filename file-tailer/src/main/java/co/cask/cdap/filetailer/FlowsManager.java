@@ -18,6 +18,7 @@ package co.cask.cdap.filetailer;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.client.exception.NotFoundException;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
@@ -85,6 +86,8 @@ public class FlowsManager {
       StreamWriter writer = client.createWriter(streamName);
       return writer;
     } catch (IOException e) {
+      throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
+    } catch (NotFoundException e) {
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }

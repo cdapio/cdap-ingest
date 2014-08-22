@@ -38,7 +38,7 @@ public class Flow {
     }
 
     public void start() {
-        metricsProcessor.stopWorker();
+        metricsProcessor.startWorker();
         logTailer.startWorker();
         sink.startWorker();
     }
