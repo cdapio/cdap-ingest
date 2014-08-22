@@ -55,9 +55,9 @@ public class FlowsManager {
         FileTailerQueue queue = new FileTailerQueue(flowConf.getQueueSize());
         StreamWriter writer = getStreamWriterForFlow(flowConf);
         FileTailerStateProcessor stateProcessor =
-          new FileTailerStateProcessorImpl(flowConf.getStateDir(), flowConf.getStateFile());
+          new FileTailerStateProcessorImpl(flowConf.getDaemonDir(), flowConf.getStateFile());
         FileTailerMetricsProcessor metricsProcessor =
-          new FileTailerMetricsProcessor(flowConf.getStateDir(), flowConf.getStatisticsFile(),
+          new FileTailerMetricsProcessor(flowConf.getDaemonDir(), flowConf.getStatisticsFile(),
                                              flowConf.getStatisticsSleepInterval(), flowConf.getFlowName(),
                                              flowConf.getSourceConfiguration().getFileName());
         flowfList.add(new Flow(new LogTailer(flowConf, queue, stateProcessor, metricsProcessor),

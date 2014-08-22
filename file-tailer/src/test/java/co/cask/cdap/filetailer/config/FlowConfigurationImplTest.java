@@ -40,7 +40,7 @@ public class FlowConfigurationImplTest {
 
     Assert.assertEquals("logEventStream", flowConfiguration.getSinkConfiguration().getStreamName());
 
-    Assert.assertEquals("log_file", flowConfiguration.getSourceConfiguration().getFileName());
+    Assert.assertEquals("work_dir", flowConfiguration.getSourceConfiguration().getWorkDir());
 
     Assert.assertEquals(60000, flowConfiguration.getSourceConfiguration().getFailureSleepInterval());
   }
@@ -58,6 +58,6 @@ public class FlowConfigurationImplTest {
 
     FlowConfiguration flowConfiguration = flowsConfiguration.get(0);
 
-    flowConfiguration.getStateFile();
+    flowConfiguration.getSourceConfiguration().getFileName();
   }
 }

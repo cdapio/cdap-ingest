@@ -34,7 +34,7 @@ public interface FlowConfiguration {
    *
    * @return the File Tailer home (to save state and metrics) directory path
    */
-  String getStateDir();
+  String getDaemonDir();
 
   /**
    * Returns the name of state file (loaded from configuration file)

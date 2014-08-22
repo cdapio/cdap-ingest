@@ -30,7 +30,6 @@ import java.util.Properties;
 public class FlowConfigurationImpl implements FlowConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(FlowConfigurationImpl.class);
-  public static final String DEFAULT_QUEUE_SIZE = "1000";
 
   private Properties properties;
 
@@ -40,7 +39,15 @@ public class FlowConfigurationImpl implements FlowConfiguration {
   private SourceConfiguration sourceConfiguration;
   private SinkConfiguration sinkConfiguration;
 
+  private static final String DEFAULT_DAEMON_DIR = "/var/run/file-tailer/state_dir";
+
+  private static final String DEFAULT_QUEUE_SIZE = "1000";
+
   private static final String DEFAULT_STATISTICS_SLEEP_INTERVAL = "60000";
+
+  private static final String DEFAULT_STATE_FILE = "state";
+
+  private static final String DEFAULT_STATISTICS_FILE = "stats";
 
   public FlowConfigurationImpl(Properties properties, String key) {
     this.properties = properties;
@@ -56,25 +63,24 @@ public class FlowConfigurationImpl implements FlowConfiguration {
   }
 
   @Override
-  public String getStateDir() {
-    return getRequiredProperty("state_dir") + "/" + keyPath.substring(0, keyPath.length() - 1).replace('.', '/');
+  public String getDaemonDir() {
+    return getProperty("daemon_dir", DEFAULT_DAEMON_DIR) +
+      "/" + keyPath.substring(0, keyPath.length() - 1).replace('.', '/');
   }
 
   @Override
   public String getStateFile() {
-    return getProperty(this.keyPath + "state_file", "state");
+    return getProperty(this.keyPath + "state_file", DEFAULT_STATE_FILE);
   }
 
   @Override
   public String getStatisticsFile() {
-    return getProperty(this.keyPath + "statistics_file", "stats");
+    return getProperty(this.keyPath + "statistics_file", DEFAULT_STATISTICS_FILE);
   }
 
   @Override
   public long getStatisticsSleepInterval() {
-    String statisticsSleepInterval = getProperty(this.keyPath + "statistics_sleep_interval");
-    return Long.parseLong(statisticsSleepInterval != null && !statisticsSleepInterval.equals("") ?
-                            statisticsSleepInterval : DEFAULT_STATISTICS_SLEEP_INTERVAL);
+    return Long.parseLong(getProperty(this.keyPath + "statistics_sleep_interval", DEFAULT_STATISTICS_SLEEP_INTERVAL));
   }
 
   @Override
@@ -119,6 +125,8 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     private String key;
 
+    private static final String DEFAULT_CHARSET_NAME = "UTF-8";
+
     private static final String DEFAULT_RECORD_SEPARATOR = "\n";
 
     private static final String DEFAULT_SLEEP_INTERVAL = "3000";
@@ -148,35 +156,27 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public String getCharsetName() {
-      return getRequiredProperty(this.key + "work_dir");
+      return getProperty(this.key + "work_dir", DEFAULT_CHARSET_NAME);
     }
 
     @Override
     public byte getRecordSeparator() {
-      String recordSeparator = getProperty(this.key + "record_separator");
-      return (recordSeparator != null && !recordSeparator.equals("") ?
-        recordSeparator : DEFAULT_RECORD_SEPARATOR).getBytes()[0];
+      return getProperty(this.key + "record_separator", DEFAULT_RECORD_SEPARATOR).getBytes()[0];
     }
 
     @Override
     public long getSleepInterval() {
-      String sleepInterval = getProperty(this.key + "sleep_interval");
-      return Long.parseLong(sleepInterval != null && !sleepInterval.equals("") ?
-                              sleepInterval : DEFAULT_SLEEP_INTERVAL);
+      return Long.parseLong(getProperty(this.key + "sleep_interval", DEFAULT_SLEEP_INTERVAL));
     }
 
     @Override
     public int getFailureRetryLimit() {
-      String failureRetryLimit = getProperty(this.key + "failure_retry_limit");
-      return Integer.parseInt(failureRetryLimit != null && !failureRetryLimit.equals("") ?
-                                failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
+      return Integer.parseInt(getProperty(this.key + "failure_retry_limit", DEFAULT_FAILURE_RETRY_LIMIT));
     }
 
     @Override
     public long getFailureSleepInterval() {
-      String failureSleepInterval = getProperty(this.key + "failure_sleep_interval");
-      return Long.parseLong(failureSleepInterval != null && !failureSleepInterval.equals("") ?
-                              failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
+      return Long.parseLong(getProperty(this.key + "failure_sleep_interval", DEFAULT_FAILURE_SLEEP_INTERVAL));
     }
   }
 
@@ -212,9 +212,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
       RestStreamClient.Builder builder = new RestStreamClient.Builder(host, port);
 
-      String ssl = getProperty(this.key + "ssl");
-      builder.ssl(Boolean.valueOf(ssl != null && !ssl.equals("") ?
-                                    ssl : DEFAULT_SSL));
+      builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
 
       String authToken = getProperty(this.key + "authToken");
       if (authToken != null && !authToken.equals("")) {
@@ -226,36 +224,26 @@ public class FlowConfigurationImpl implements FlowConfiguration {
         builder.apiKey(apiKey);
       }
 
-      String writerPoolSize = getProperty(this.key + "writerPoolSize");
-      builder.writerPoolSize(Integer.parseInt(writerPoolSize != null && !writerPoolSize.equals("") ?
-                                                writerPoolSize : DEFAULT_WRITER_POOL_SIZE));
+      builder.writerPoolSize(Integer.parseInt(getProperty(this.key + "writerPoolSize", DEFAULT_WRITER_POOL_SIZE)));
 
-      String version = getProperty(this.key + "version");
-      builder.version(version != null && !version.equals("") ?
-                        version : DEFAULT_VERSION);
+      builder.version(getProperty(this.key + "version", DEFAULT_VERSION));
 
       return builder.build();
     }
 
     @Override
     public int getPackSize() {
-      String packSize = getProperty(this.key + "packSize");
-      return Integer.parseInt(packSize != null && !packSize.equals("") ?
-                                packSize : DEFAULT_PACK_SIZE);
+      return Integer.parseInt(getProperty(this.key + "packSize", DEFAULT_PACK_SIZE));
     }
 
     @Override
     public int getFailureRetryLimit() {
-      String failureRetryLimit = getProperty(this.key + "failure_retry_limit");
-      return Integer.parseInt(failureRetryLimit != null && !failureRetryLimit.equals("") ?
-                                failureRetryLimit : DEFAULT_FAILURE_RETRY_LIMIT);
+      return Integer.parseInt(getProperty(this.key + "failure_retry_limit", DEFAULT_FAILURE_RETRY_LIMIT));
     }
 
     @Override
     public long getFailureSleepInterval() {
-      String failureSleepInterval = getProperty(this.key + "failure_sleep_interval");
-      return Long.parseLong(failureSleepInterval != null && !failureSleepInterval.equals("") ?
-                              failureSleepInterval : DEFAULT_FAILURE_SLEEP_INTERVAL);
+      return Long.parseLong(getProperty(this.key + "failure_sleep_interval", DEFAULT_FAILURE_SLEEP_INTERVAL));
     }
   }
 }
