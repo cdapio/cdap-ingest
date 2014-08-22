@@ -37,7 +37,14 @@ As soon as a new record is being appended to the end of a file that the daemon i
  ```
  
  At least following parameters should be specified:
- TODO: Add list of mandatory properties
+
+  - flows
+  - flows.flow1.source.work_dir
+  - flows.flow1.source.file_name
+  - flows.flow1.source.rotated_file_name_pattern
+  - flows.flow1.sink.stream_name
+  - flows.flow1.sink.host
+  - flows.flow1.sink.port
  
  Please note that target file should be accessible for file-tailer user.
  In order to check this, one can use following command:
@@ -107,4 +114,7 @@ As soon as a new record is being appended to the end of a file that the daemon i
 
 ## Additional Notes
  
- TODO: Add description of all configuration parameters here 
+ Configuration parameters description:
+
+ - daemon_dir - the path to directory, intended like storage for File Tailer state and metrics
+ - flows -

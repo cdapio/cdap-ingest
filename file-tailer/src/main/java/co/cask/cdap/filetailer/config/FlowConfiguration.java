@@ -29,7 +29,7 @@ public interface FlowConfiguration {
   String getFlowName();
 
   /**
-   * Returns the path of directory, intended like storage for File Tailer state and metrics
+   * Returns the path to directory, intended like storage for File Tailer state and metrics
    * (loaded from configuration file)
    *
    * @return the File Tailer home (to save state and metrics) directory path
