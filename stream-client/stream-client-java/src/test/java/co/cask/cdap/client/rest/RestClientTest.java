@@ -167,7 +167,7 @@ public class RestClientTest {
     InputStream inputStream = new ByteArrayInputStream("{'test': 'Hello World'}".getBytes(Charsets.UTF_8));
     when(httpEntity.getContent()).thenReturn(inputStream);
 
-    JsonObject jsonObject = RestClient.getEntityAsJsonObject(httpEntity);
+    JsonObject jsonObject = RestClient.toJsonObject(httpEntity);
 
     assertEquals("Hello World", jsonObject.get("test").getAsString());
     verify(httpEntity, times(2)).getContent();
@@ -175,7 +175,7 @@ public class RestClientTest {
 
   @Test(expected = IOException.class)
   public void testNullEntityGetEntityAsJsonObject() throws IOException {
-    RestClient.getEntityAsJsonObject(null);
+    RestClient.toJsonObject(null);
   }
 
   @Test(expected = IOException.class)
@@ -183,7 +183,7 @@ public class RestClientTest {
 
     when(httpEntity.getContent()).thenReturn(null);
 
-    RestClient.getEntityAsJsonObject(httpEntity);
+    RestClient.toJsonObject(httpEntity);
 
     verify(httpEntity).getContent();
   }
@@ -193,7 +193,7 @@ public class RestClientTest {
     InputStream inputStream = new ByteArrayInputStream(StringUtils.EMPTY.getBytes(Charsets.UTF_8));
     when(httpEntity.getContent()).thenReturn(inputStream);
 
-    RestClient.getEntityAsJsonObject(httpEntity);
+    RestClient.toJsonObject(httpEntity);
 
     verify(httpEntity).getContent();
   }

@@ -70,7 +70,7 @@ public class StreamHttpRequestHandler implements HttpRequestHandler {
         BasicHttpEntityEnclosingRequest request = (BasicHttpEntityEnclosingRequest) httpRequest;
         HttpEntity requestEntity = request.getEntity();
         if (requestEntity != null) {
-          String content = RestClient.getEntityAsString(requestEntity);
+          String content = RestClient.toString(requestEntity);
           if (StringUtils.isEmpty(content) || !RestTest.EXPECTED_WRITER_CONTENT.equals(content)) {
             statusCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
           }
