@@ -56,7 +56,7 @@ public class DirPollingService implements Runnable, PollingService {
   public void startDirMonitor(File dir, PollingListener listener) {
     DirPollingObserver observer = new DirPollingObserver(dir, listener);
     DirPollingObserver prevValue = observers.put(observer.getDirectory().getAbsolutePath(), observer);
-    if (prevValue == null) {
+    if (prevValue != null) {
       throw new IllegalArgumentException("Observer for folder {} already registered.");
     }
     LOG.debug("Registered new Observer to the Polling Service: {}.", observer);
