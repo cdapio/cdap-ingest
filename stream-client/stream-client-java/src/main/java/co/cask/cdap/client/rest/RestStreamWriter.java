@@ -122,20 +122,13 @@ public class RestStreamWriter implements StreamWriter {
     });
   }
 
+  @Override
   public void close() throws IOException {
     pool.shutdown();
     restClient.close();
   }
 
-  public RestClient getRestClient() {
-    return restClient;
-  }
-
   public String getStreamName() {
     return streamName;
-  }
-
-  public ListeningExecutorService getPool() {
-    return pool;
   }
 }
