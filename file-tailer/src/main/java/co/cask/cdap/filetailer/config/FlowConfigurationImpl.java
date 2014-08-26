@@ -131,7 +131,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public String getCharsetName() {
-      return getRequiredProperty(this.key + "work_dir");
+      return getRequiredProperty(this.key + "charset_name");
     }
 
     @Override

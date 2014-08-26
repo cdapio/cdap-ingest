@@ -41,7 +41,7 @@ public class FileTailerApplication {
       LOG.error("Too many arguments: {}", args.length);
       return;
     }
-      FlowsManager manager = new FlowsManager(configurationPath);
+      PipeManager manager = new PipeManager(configurationPath);
       try {
           manager.setupFlows();
       } catch (IOException e) {
@@ -50,7 +50,7 @@ public class FileTailerApplication {
       }
      LOG.info("Staring flows");
      manager.startFlows();
-     Runtime.getRuntime().addShutdownHook(new Thread(new FlowShutdownGracefully(manager)));
+     Runtime.getRuntime().addShutdownHook(new Thread(new PipeShutdownTask(manager)));
   }
 
 }
