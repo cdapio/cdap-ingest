@@ -31,6 +31,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -44,7 +48,10 @@ public class LogTailer extends AbstractWorker {
   private long sleepInterval;
   private String logDirectory;
   private String logFileName;
-  private int failureRetryLimit = 10;
+  private String charsetName;
+  private Charset charset;
+  private int failureRetryLimit;
+  private long failureSleepInterval;
   private static final int DEFAULT_BUFSIZE = 4096;
   private FileTailerQueue queue;
   private byte entrySeparator = '\n';
@@ -65,6 +72,10 @@ public class LogTailer extends AbstractWorker {
     this.logDirectory = confLoader.getSourceConfiguration().getWorkDir();
     this.logFileName = confLoader.getSourceConfiguration().getFileName();
     this.entrySeparator = confLoader.getSourceConfiguration().getRecordSeparator();
+    this.charsetName = confLoader.getSourceConfiguration().getCharsetName();
+    this.failureRetryLimit = confLoader.getSourceConfiguration().getFailureRetryLimit();
+    this.failureSleepInterval = confLoader.getSourceConfiguration().getFailureSleepInterval();
+
   }
 
   public FileTailerMetricsProcessor getMetricsProcessor() {
@@ -79,15 +90,31 @@ public class LogTailer extends AbstractWorker {
       LOG.error("Incorrect path to log directory. Directory: {} not exist", logDirectory);
       return;
     }
+    if (!charsetSetup()) {
+      LOG.error("Charset: {} is not supported", charsetName);
+      return;
+    }
     FileTailerState fileTailerState = getSaveStateFromFile();
-    if (fileTailerState == null) {
-      LOG.info("Fail state do not found. Start reading all directory");
-      runWithOutRestore();
-    } else {
-      runFromSaveState(fileTailerState);
+    try {
+      if (fileTailerState == null) {
+        LOG.info("Fail state do not found. Start reading all directory");
+        runWithOutRestore();
+      } else {
+        runFromSaveState(fileTailerState);
+      }
+    } catch (InterruptedException e) {
+      LOG.info("Tailer daemon was interrupted");
     }
   }
 
+
+  private boolean charsetSetup() {
+    if (!Charset.isSupported(charsetName)) {
+      return false;
+    }
+    charset = Charset.forName(charsetName);
+    return true;
+  }
 
   private FileTailerState getSaveStateFromFile() {
     FileTailerState fileTailerState;
@@ -100,11 +127,11 @@ public class LogTailer extends AbstractWorker {
     return fileTailerState;
   }
 
-  private void runFromSaveState(FileTailerState fileTailerState) {
+  private void runFromSaveState(FileTailerState fileTailerState) throws InterruptedException {
     long position = fileTailerState.getPosition();
     long lastModifytime = fileTailerState.getLastModifyTime();
     int hash = fileTailerState.getHash();
-    File currentLogFile = getCurrentLogFile(logDirectory, lastModifytime, true);
+    File currentLogFile = getCurrentLogFile(logDirectory, lastModifytime, true, null);
     if (currentLogFile == null) {
       return;
     }
@@ -117,35 +144,34 @@ public class LogTailer extends AbstractWorker {
         startReadingFromFile(reader, currentLogFile);
       }
     } catch (IOException e) {
-        return;
+      return;
     }
   }
 
-  private void startReadingFromFile(RandomAccessFile reader, File currentLogFile) {
+  private void startReadingFromFile(RandomAccessFile reader, File currentLogFile) throws InterruptedException {
     int lineHash;
     long position;
     long modifyTime = currentLogFile.lastModified();
     try {
       while (!Thread.currentThread().isInterrupted()) {
-        String line = tryReadLine(reader, entrySeparator).toString();
+        String line = tryReadLine(reader, entrySeparator);
         if (line.length() > 0) {
           lineHash = line.hashCode();
           LOG.debug("From log file {} readed entry: {}", currentLogFile, line);
           position = reader.getFilePointer() - line.length() - 1;
           modifyTime = currentLogFile.lastModified();
-          //TODO: Get charset from properties;
           queue.put(new FileTailerEvent(new FileTailerState(currentLogFile.toString(),
                                                             position, lineHash, modifyTime),
-                                        line, Charset.defaultCharset()));
+                                        line, charset));
+
           metricsProcessor.onReadEventMetric(line.getBytes().length);
         } else {
-          File newLog = getCurrentLogFile(logDirectory, modifyTime, false);
+          File newLog = getCurrentLogFile(logDirectory, modifyTime, false, currentLogFile);
           if (newLog == null) {
             LOG.debug("waiting for new log data  from file {}", currentLogFile);
             Thread.sleep(sleepInterval);
           } else {
             LOG.debug("File {} is reading", newLog);
-            newLog = getCurrentLogFile(logDirectory, modifyTime, false);
             currentLogFile = newLog;
             closeQuietly(reader);
             reader = new RandomAccessFile(currentLogFile, RAF_MODE);
@@ -155,19 +181,17 @@ public class LogTailer extends AbstractWorker {
       }
     } catch (IOException e) {
       LOG.error("Tailer daemon stopped due to IO exception during reading file");
-    } catch (InterruptedException e) {
-      LOG.info("Tailer daemon was interrupted");
     } finally {
       closeQuietly(reader);
     }
 
   }
 
-  private void runWithOutRestore() {
+  private void runWithOutRestore() throws InterruptedException {
     File logFile = null;
     RandomAccessFile reader;
     while (logFile == null && !Thread.currentThread().isInterrupted()) {
-      logFile = getCurrentLogFile(logDirectory, (long) 0, false);
+      logFile = getCurrentLogFile(logDirectory, 0L, false, null);
       if (logFile == null) {
         try {
           Thread.sleep(sleepInterval);
@@ -185,7 +209,7 @@ public class LogTailer extends AbstractWorker {
     startReadingFromFile(reader, logFile);
   }
 
-  private boolean checkLine(RandomAccessFile reader, long position, int hash) throws IOException {
+  private boolean checkLine(RandomAccessFile reader, long position, int hash) throws IOException, InterruptedException {
     reader.seek(position);
     String line = tryReadLine(reader, entrySeparator).toString();
     if (line.length() > 0 && line.hashCode() == hash) {
@@ -196,22 +220,35 @@ public class LogTailer extends AbstractWorker {
 
   }
 
-  private File getCurrentLogFile(String logDir, Long currentTime, boolean fromSaveState) {
+  private File getCurrentLogFile(String logDir, Long currentTime, boolean fromSaveState, File currFile) {
     File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName));
-    if (dirFiles.length == 0) {
-      return null;
-    }
-    TreeMap<Long, File> logFilesTimesMap = new TreeMap<Long, File>();
+
+
+    Comparator logfileComparator = new Comparator<LogFileTime>() {
+      @Override
+      public int compare(LogFileTime o1, LogFileTime o2) {
+        int res = o1.getModificationTime().compareTo(o2.getModificationTime());
+        if (res != 0) {
+          return res;
+        } else {
+          res = o2.getFileName().length() - o1.getFileName().length();
+
+        }
+        return (res != 0) ? res : o2.getFileName().compareTo(o1.getFileName());
+      }
+    };
+    TreeMap<LogFileTime, File> logFilesTimesMap = new TreeMap<LogFileTime, File>(logfileComparator);
     for (File f : dirFiles) {
-      logFilesTimesMap.put(f.lastModified(), f);
+      logFilesTimesMap.put(new LogFileTime(f.lastModified(), f.getName()), f);
     }
+    logFilesTimesMap.higherKey(logFilesTimesMap.firstKey());
     if (currentTime == 0) {
       return logFilesTimesMap.firstEntry().getValue();
     }
     if (fromSaveState && logFilesTimesMap.containsKey(currentTime)) {
       return logFilesTimesMap.get(currentTime);
     } else {
-      Long key = logFilesTimesMap.higherKey(currentTime);
+      LogFileTime key = logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName()));
       if (key == null) {
         return null;
       } else {
@@ -220,6 +257,46 @@ public class LogTailer extends AbstractWorker {
     }
   }
 
+  class LogFileTime {
+    private Long modificationTime;
+    private String fileName;
+
+    LogFileTime(Long modificationTime, String fileName) {
+      this.modificationTime = modificationTime;
+      this.fileName = fileName;
+    }
+
+    public Long getModificationTime() {
+      return modificationTime;
+    }
+
+    public String getFileName() {
+      return fileName;
+    }
+  }
+
+  private File getFirstLogFile(String logDir) {
+    File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName));
+
+    File result = null;
+    for (File f : dirFiles) {
+
+      if (result == null) {
+        result = f;
+      } else {
+        if (f.lastModified() > result.lastModified()) {
+          result = f;
+        } else if (f.lastModified() == result.lastModified()) {
+          if (f.getName().compareTo(result.getName()) > 0) {
+            result = f;
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+
   private void checkLogDir(String dir) throws LogDirNotFoundException {
     File logdir = new File(dir);
     if (!(logdir.exists())) {
@@ -227,27 +304,12 @@ public class LogTailer extends AbstractWorker {
     }
   }
 
-  private void trySeek(RandomAccessFile reader, long position) throws IOException {
-    int retryNumber = 0;
-    while (retryNumber < failureRetryLimit) {
-      try {
-        reader.seek(position);
-        break;
-      } catch (IOException e) {
-        retryNumber++;
-      }
-      if (retryNumber >= failureRetryLimit) {
-        LOG.error("fail to seek file after {} attempts", retryNumber);
-        throw new IOException();
-      }
-    }
-  }
 
-  private RandomAccessFile tryOpenFile(File file) throws IOException {
+  private RandomAccessFile tryOpenFile(File file) throws IOException, InterruptedException {
     int retryNumber = 0;
     RandomAccessFile reader;
     while (true) {
-      if (retryNumber > failureRetryLimit) {
+      if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
         LOG.error("fail to open file after {} attempts", retryNumber);
         throw new IOException();
       }
@@ -256,16 +318,18 @@ public class LogTailer extends AbstractWorker {
         break;
       } catch (IOException e) {
         retryNumber++;
+        Thread.sleep(failureSleepInterval);
       }
     }
     return reader;
   }
 
-  private StringBuilder tryReadLine(RandomAccessFile reader, byte separator) throws IOException {
+  private String tryReadLine(RandomAccessFile reader, byte separator) throws IOException, InterruptedException {
     int retryNumber = 0;
     long rePos = 0;
+
     StringBuilder sb = new StringBuilder();
-    while (retryNumber < failureRetryLimit) {
+    while (retryNumber < failureRetryLimit || failureRetryLimit == 0) {
       try {
         rePos = reader.getFilePointer();
         boolean end = false;
@@ -286,14 +350,15 @@ public class LogTailer extends AbstractWorker {
         break;
       } catch (IOException e) {
         retryNumber++;
+        Thread.sleep(failureSleepInterval);
       }
     }
-    if (retryNumber >= failureRetryLimit) {
+    if (retryNumber >= failureRetryLimit && failureRetryLimit > 0) {
       LOG.error("fail to read line  after {} attempts", retryNumber);
       throw new IOException();
     }
     reader.seek(rePos);
-    return sb;
+    return sb.toString();
   }
 
   private void closeQuietly(RandomAccessFile reader) {
