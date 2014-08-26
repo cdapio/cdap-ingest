@@ -46,7 +46,7 @@ Optional configurations that can be set (and their default values):
    streamClient = StreamClient(config)
  ```
 
-Config file structure:
+Config file structure in INI format:
 ```
 [ServerConnection]
 hostname = local.host         - gateway hostname

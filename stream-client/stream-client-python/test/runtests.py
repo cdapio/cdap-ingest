@@ -11,7 +11,7 @@ sys.path.insert(0,parentdir)
 import requests
 
 from config import Config
-from serviceconnector import NoFoundException
+from serviceconnector import NoFoundErrorn
 from streamwriter import StreamWriter
 from streamclient import StreamClient
 
@@ -98,7 +98,7 @@ class TestStreamClient(unittest.TestCase):
 
         try:
             self.sc.setTTL(self.validStream, ttl)
-        except NoFoundException:
+        except NoFoundErrorn:
             self.fail('StreamClient.setTTL() failed')
 
     @httpretty.activate
@@ -116,7 +116,7 @@ class TestStreamClient(unittest.TestCase):
         )
 
         self.assertRaises(
-            NoFoundException,
+            NoFoundErrorn,
             self.sc.setTTL,
             self.invalidStream,
             ttl
@@ -138,7 +138,7 @@ class TestStreamClient(unittest.TestCase):
 
         try:
             self.sc.getTTL(self.validStream)
-        except NoFoundException:
+        except NoFoundErrorn:
             self.fail('StreamClient.getTTL() failed')
 
     @httpretty.activate
@@ -156,7 +156,7 @@ class TestStreamClient(unittest.TestCase):
         )
 
         self.assertRaises(
-            NoFoundException,
+            NoFoundErrorn,
             self.sc.getTTL,
             self.invalidStream
         )
@@ -195,7 +195,7 @@ class TestStreamClient(unittest.TestCase):
         )
 
         self.assertRaises(
-            NoFoundException,
+            NoFoundErrorn,
             self.sc.createWriter,
             self.invalidStream )
 

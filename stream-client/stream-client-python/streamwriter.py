@@ -127,7 +127,7 @@ class StreamPromise(ConnectionErrorChecker):
                 self.__onOkHandler(
                     self.checkResponseErrors(self.__serviceResponse)
                 )
-            except NoFoundException:
+            except NoFoundErrorn:
                 self.__onErrorHandler(self.__serviceResponse)
             finally:
                 self.__onOkHandler = self.__onErrorHandler = None
