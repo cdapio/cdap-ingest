@@ -63,8 +63,8 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
   @Override
   public FileTailerState loadState() throws FileTailerStateProcessorException {
     if (!new File(stateDirPath + "/" + stateFileName).exists()) {
-      LOG.error("Not found state file: {}", stateDirPath + "/" + stateFileName);
-      throw new FileTailerStateProcessorException("Not found state file: " + stateDirPath + "/" + stateFileName);
+      LOG.info("Not found state file: {}", stateDirPath + "/" + stateFileName);
+      return null;
     }
     FileTailerState state;
     LOG.debug("Start loading File Tailer state ..");

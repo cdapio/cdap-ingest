@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-public class FlowConfigurationImplTest {
+public class PipeConfigurationImplTest {
 
   @Test
   public void basicTest() throws ConfigurationLoadingException {
@@ -34,15 +34,15 @@ public class FlowConfigurationImplTest {
 
     Configuration configuration = loader.load(path);
 
-    List<FlowConfiguration> flowsConfiguration = configuration.getFlowsConfiguration();
+    List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
 
-    FlowConfiguration flowConfiguration = flowsConfiguration.get(0);
+    PipeConfiguration pipeConfiguration = pipesConfiguration.get(0);
 
-    Assert.assertEquals("logEventStream", flowConfiguration.getSinkConfiguration().getStreamName());
+    Assert.assertEquals("logEventStream", pipeConfiguration.getSinkConfiguration().getStreamName());
 
-    Assert.assertEquals("work_dir", flowConfiguration.getSourceConfiguration().getWorkDir());
+    Assert.assertEquals("work_dir", pipeConfiguration.getSourceConfiguration().getWorkDir());
 
-    Assert.assertEquals(60000, flowConfiguration.getSourceConfiguration().getFailureSleepInterval());
+    Assert.assertEquals(60000, pipeConfiguration.getSourceConfiguration().getFailureSleepInterval());
   }
 
   @Test(expected = ConfigurationLoaderException.class)
@@ -54,10 +54,10 @@ public class FlowConfigurationImplTest {
 
     Configuration configuration = loader.load(path);
 
-    List<FlowConfiguration> flowsConfiguration = configuration.getFlowsConfiguration();
+    List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
 
-    FlowConfiguration flowConfiguration = flowsConfiguration.get(0);
+    PipeConfiguration pipeConfiguration = pipesConfiguration.get(0);
 
-    flowConfiguration.getSourceConfiguration().getFileName();
+    pipeConfiguration.getSourceConfiguration().getFileName();
   }
 }

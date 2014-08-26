@@ -17,7 +17,7 @@
 
 package co.cask.cdap.filetailer.tailer;
 
-import co.cask.cdap.filetailer.config.FlowConfiguration;
+import co.cask.cdap.filetailer.config.PipeConfiguration;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -27,7 +27,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ TailerLogUtils.deleteTestDir();
   public void readLineTest() throws Exception {
     final  List<String>  lineList = new ArrayList<String>(LINE_SIZE);
     RandomStringUtils randomUtils = new RandomStringUtils();
-    FlowConfiguration flowConfig = TailerLogUtils.loadConfig();
+    PipeConfiguration flowConfig = TailerLogUtils.loadConfig();
     String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
         + flowConfig.getSourceConfiguration().getFileName();
 
@@ -74,7 +73,7 @@ TailerLogUtils.deleteTestDir();
   }
   @Test
   public void readEmptyTest() throws Exception {
-    FlowConfiguration flowConfig = TailerLogUtils.loadConfig();
+    PipeConfiguration flowConfig = TailerLogUtils.loadConfig();
     String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
 

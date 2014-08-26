@@ -34,9 +34,9 @@ public class ConfigurationImplTest {
 
     Configuration configuration = loader.load(path);
 
-    List<FlowConfiguration> flowsConfiguration = configuration.getFlowsConfiguration();
+    List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
 
-    Assert.assertEquals(3, flowsConfiguration.size());
+    Assert.assertEquals(3, pipesConfiguration.size());
   }
 
   @Test(expected = ConfigurationLoaderException.class)
@@ -48,6 +48,6 @@ public class ConfigurationImplTest {
 
     Configuration configuration = loader.load(path);
 
-    configuration.getFlowsConfiguration();
+    configuration.getPipesConfiguration();
   }
 }

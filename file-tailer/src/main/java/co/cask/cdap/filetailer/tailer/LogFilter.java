@@ -23,14 +23,17 @@ import java.io.FilenameFilter;
  * filter log files from directory
  */
 public class LogFilter implements FilenameFilter {
-  public LogFilter(String logfile) {
-    baseLogfile = logfile;
+  private final String logPattern;
+  private final String baseLogfile;
+
+  public LogFilter(String logfile, String logPattern) {
+    this.baseLogfile = logfile;
+    this.logPattern = logPattern;
   }
 
-  static String baseLogfile;
 
   @Override
   public boolean accept(File dir, String name) {
-    return name.contains(baseLogfile);
+    return name.contains(baseLogfile) || name.contains(logPattern);
   }
 }

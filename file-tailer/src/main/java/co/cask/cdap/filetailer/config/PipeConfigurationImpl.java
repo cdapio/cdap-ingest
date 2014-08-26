@@ -22,14 +22,15 @@ import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 /**
  * FlowConfigurationImpl default implementation of FlowConfiguration
  */
-public class FlowConfigurationImpl implements FlowConfiguration {
+public class PipeConfigurationImpl implements PipeConfiguration {
 
-  private static final Logger LOG = LoggerFactory.getLogger(FlowConfigurationImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PipeConfigurationImpl.class);
 
   private Properties properties;
 
@@ -49,16 +50,16 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
   private static final String DEFAULT_STATISTICS_FILE = "stats";
 
-  public FlowConfigurationImpl(Properties properties, String key) {
+  public PipeConfigurationImpl(Properties properties, String key) {
     this.properties = properties;
     this.key = key;
-    this.keyPath = "flows." + key + ".";
+    this.keyPath = "pipes." + key + ".";
     sourceConfiguration = new SourceConfigurationImpl(key);
     sinkConfiguration = new SinkConfigurationImpl(key);
   }
 
   @Override
-  public String getFlowName() {
+  public String getPipeName() {
     return getProperty(this.keyPath + "name", key);
   }
 
@@ -125,6 +126,8 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     private String key;
 
+    private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "*";
+
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";
 
     private static final String DEFAULT_RECORD_SEPARATOR = "\n";
@@ -136,7 +139,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
 
     public SourceConfigurationImpl(String key) {
-      this.key = "flows." + key + ".source.";
+      this.key = "pipes." + key + ".source.";
     }
 
     @Override
@@ -151,12 +154,12 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public String getRotationPattern() {
-      return getRequiredProperty(this.key + "work_dir");
+      return getProperty(this.key + "rotated_file_name_pattern", getFileName() + DEFAULT_ROTATED_FILE_NAME_PATTERN);
     }
 
     @Override
     public String getCharsetName() {
-      return getRequiredProperty(this.key + "charset_name");
+      return getProperty(this.key + "charset_name", DEFAULT_CHARSET_NAME);
     }
 
     @Override
@@ -197,7 +200,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
 
     public SinkConfigurationImpl(String key) {
-      this.key = "flows." + key + ".sink.";
+      this.key = "pipes." + key + ".sink.";
     }
 
     @Override
@@ -207,28 +210,33 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public StreamClient getStreamClient() {
-      String host = getRequiredProperty(this.key + "host");
-      int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
+      try {
+        String host = getRequiredProperty(this.key + "host");
+        int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
 
-      RestStreamClient.Builder builder = new RestStreamClient.Builder(host, port);
+        RestStreamClient.Builder builder = RestStreamClient.builder(host, port);
 
-      builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
+        builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
 
-      String authToken = getProperty(this.key + "authToken");
-      if (authToken != null && !authToken.equals("")) {
-        builder.authToken(authToken);
+        String authToken = getProperty(this.key + "authToken");
+        if (authToken != null && !authToken.equals("")) {
+          builder.authToken(authToken);
+        }
+
+        String apiKey = getProperty(this.key + "apiKey");
+        if (apiKey != null && !apiKey.equals("")) {
+          builder.apiKey(apiKey);
+        }
+
+        builder.writerPoolSize(Integer.parseInt(getProperty(this.key + "writerPoolSize", DEFAULT_WRITER_POOL_SIZE)));
+
+        builder.version(getProperty(this.key + "version", DEFAULT_VERSION));
+
+        return builder.build();
+      } catch (URISyntaxException e) {
+        LOG.error("Can not get Stream Client for this pipe: {}", e.getMessage());
+        throw new ConfigurationLoaderException("Can not get Stream Client for this pipe: " + e.getMessage());
       }
-
-      String apiKey = getProperty(this.key + "apiKey");
-      if (apiKey != null && !apiKey.equals("")) {
-        builder.apiKey(apiKey);
-      }
-
-      builder.writerPoolSize(Integer.parseInt(getProperty(this.key + "writerPoolSize", DEFAULT_WRITER_POOL_SIZE)));
-
-      builder.version(getProperty(this.key + "version", DEFAULT_VERSION));
-
-      return builder.build();
     }
 
     @Override

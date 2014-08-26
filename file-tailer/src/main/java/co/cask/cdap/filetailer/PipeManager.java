@@ -18,11 +18,10 @@ package co.cask.cdap.filetailer;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.client.exception.NotFoundException;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
-import co.cask.cdap.filetailer.config.FlowConfiguration;
+import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -33,6 +32,7 @@ import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +42,7 @@ import java.util.List;
 
 public class PipeManager {
   private final String confPath;
-  private List<Pipe> flowfList = new ArrayList<Pipe>();
+  private List<Pipe> pipeList = new ArrayList<Pipe>();
 
   public PipeManager(String confPath) {
     this.confPath = confPath;
@@ -56,20 +56,20 @@ public class PipeManager {
 
   public void setupPipes() throws IOException {
     try {
-      List<FlowConfiguration> flowConfList = getFlowsConfigList();
-      for (FlowConfiguration flowConf : flowConfList) {
-        FileTailerQueue queue = new FileTailerQueue(flowConf.getQueueSize());
-        StreamWriter writer = getStreamWriterForFlow(flowConf);
+      List<PipeConfiguration> pipeConfList = getPipeConfigList();
+      for (PipeConfiguration pipeConf : pipeConfList) {
+        FileTailerQueue queue = new FileTailerQueue(pipeConf.getQueueSize());
+        StreamWriter writer = getStreamWriterForPipe(pipeConf);
         FileTailerStateProcessor stateProcessor =
-          new FileTailerStateProcessorImpl(flowConf.getDaemonDir(), flowConf.getStateFile());
+          new FileTailerStateProcessorImpl(pipeConf.getDaemonDir(), pipeConf.getStateFile());
         FileTailerMetricsProcessor metricsProcessor =
-          new FileTailerMetricsProcessor(flowConf.getDaemonDir(), flowConf.getStatisticsFile(),
-                                             flowConf.getStatisticsSleepInterval(), flowConf.getFlowName(),
-                                             flowConf.getSourceConfiguration().getFileName());
-        flowfList.add(new Pipe(new LogTailer(flowConf, queue, stateProcessor, metricsProcessor),
+          new FileTailerMetricsProcessor(pipeConf.getDaemonDir(), pipeConf.getStatisticsFile(),
+                                         pipeConf.getStatisticsSleepInterval(), pipeConf.getPipeName(),
+                                         pipeConf.getSourceConfiguration().getFileName());
+        pipeList.add(new Pipe(new LogTailer(pipeConf, queue, stateProcessor, metricsProcessor),
                                new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
                                                   stateProcessor, metricsProcessor,
-                                                  flowConf.getSinkConfiguration().getPackSize()),
+                                                  pipeConf.getSinkConfiguration().getPackSize()),
                                metricsProcessor));
       }
     } catch (ConfigurationLoadingException e) {
@@ -78,15 +78,17 @@ public class PipeManager {
     }
   }
 
+
   /**
    * Get pipes configuration
    * @return List of the  Pipes configuration read from configuration file
    * @throws ConfigurationLoadingException if can not create client stream
    */
-  private List<FlowConfiguration> getFlowsConfigList() throws ConfigurationLoadingException {
+
+  private List<PipeConfiguration> getPipeConfigList() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Configuration configuration = loader.load(confPath);
-    return configuration.getFlowsConfiguration();
+    return configuration.getPipesConfiguration();
   }
 
   /**
@@ -94,16 +96,17 @@ public class PipeManager {
    * @return  streamWriter
    * @throws IOException streamWriter creation failed
    */
-  private StreamWriter getStreamWriterForFlow(FlowConfiguration flowConf) throws IOException {
-    StreamClient client = flowConf.getSinkConfiguration().getStreamClient();
-    String streamName = flowConf.getSinkConfiguration().getStreamName();
+  private StreamWriter getStreamWriterForPipe(PipeConfiguration pipeConf) throws IOException {
+    StreamClient client = pipeConf.getSinkConfiguration().getStreamClient();
+    String streamName = pipeConf.getSinkConfiguration().getStreamName();
     try {
       client.create(streamName);
-      StreamWriter writer = client.createWriter(streamName);
+      StreamWriter writer = null;
+      writer = client.createWriter(streamName);
       return writer;
     } catch (IOException e) {
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
-    } catch (NotFoundException e) {
+    } catch (URISyntaxException e) {
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }
@@ -111,7 +114,7 @@ public class PipeManager {
    * Start all pipes
    */
   public void startPipes() {
-    for (Pipe pipe : flowfList) {
+    for (Pipe pipe : pipeList) {
       pipe.start();
     }
   }
@@ -119,7 +122,7 @@ public class PipeManager {
    * Start all pipes
    */
   public void stopPipes() {
-    for (Pipe pipe : flowfList) {
+    for (Pipe pipe : pipeList) {
       pipe.stop();
     }
   }

@@ -17,7 +17,7 @@
 package co.cask.cdap.filetailer.tailer;
 
 import co.cask.cdap.filetailer.AbstractWorker;
-import co.cask.cdap.filetailer.config.FlowConfiguration;
+import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -52,13 +52,14 @@ public class LogTailer extends AbstractWorker {
   private static final int DEFAULT_BUFSIZE = 4096;
   private FileTailerQueue queue;
   private byte entrySeparator = '\n';
-  private FlowConfiguration confLoader;
+  private PipeConfiguration confLoader;
   private FileTailerStateProcessor fileTailerStateProcessor;
   private FileTailerMetricsProcessor metricsProcessor;
   private final byte inbuf[];
+  private String rotationPattern;
 
 
-  public LogTailer(FlowConfiguration loader, FileTailerQueue queue,
+  public LogTailer(PipeConfiguration loader, FileTailerQueue queue,
                    FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
     inbuf = new byte[DEFAULT_BUFSIZE];
     this.queue = queue;
@@ -72,6 +73,7 @@ public class LogTailer extends AbstractWorker {
     this.charsetName = confLoader.getSourceConfiguration().getCharsetName();
     this.failureRetryLimit = confLoader.getSourceConfiguration().getFailureRetryLimit();
     this.failureSleepInterval = confLoader.getSourceConfiguration().getFailureSleepInterval();
+    this.rotationPattern = confLoader.getSourceConfiguration().getRotationPattern();
 
   }
 
@@ -251,7 +253,7 @@ public class LogTailer extends AbstractWorker {
    *  @return  next log file
    */
   private File getNextLogFile(String logDir, Long currentTime, boolean fromSaveState, File currFile) {
-    File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName));
+    File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName, rotationPattern));
 
 
     Comparator logfileComparator = new Comparator<LogFileTime>() {
@@ -271,12 +273,11 @@ public class LogTailer extends AbstractWorker {
     for (File f : dirFiles) {
       logFilesTimesMap.put(new LogFileTime(f.lastModified(), f.getName()), f);
     }
-    logFilesTimesMap.higherKey(logFilesTimesMap.firstKey());
     if (currentTime == 0) {
       return logFilesTimesMap.firstEntry().getValue();
     }
-    if (fromSaveState && logFilesTimesMap.containsKey(currentTime)) {
-      return logFilesTimesMap.get(currentTime);
+    if (fromSaveState && logFilesTimesMap.containsKey(new LogFileTime(currentTime, null))) {
+      return logFilesTimesMap.get(new LogFileTime(currentTime, null));
     } else {
       LogFileTime key = logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName()));
       if (key == null) {

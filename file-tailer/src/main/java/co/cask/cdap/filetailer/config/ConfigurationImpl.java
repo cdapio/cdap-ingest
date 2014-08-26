@@ -38,11 +38,11 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
-  public List<FlowConfiguration> getFlowsConfiguration() {
-    String[] flows = getRequiredProperty("flows").split(",");
-    List<FlowConfiguration> flowsConfiguration = new ArrayList<FlowConfiguration>(flows.length);
-    for (String flow : flows) {
-      flowsConfiguration.add(new FlowConfigurationImpl(properties, flow));
+  public List<PipeConfiguration> getPipesConfiguration() {
+    String[] pipes = getRequiredProperty("pipes").split(",");
+    List<PipeConfiguration> flowsConfiguration = new ArrayList<PipeConfiguration>(pipes.length);
+    for (String pipe : pipes) {
+      flowsConfiguration.add(new PipeConfigurationImpl(properties, pipe));
     }
     return flowsConfiguration;
   }

@@ -20,11 +20,9 @@ package co.cask.cdap.filetailer.tailer;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
-import co.cask.cdap.filetailer.config.FlowConfiguration;
+import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -43,16 +41,16 @@ public class TailerLogUtils {
     writer.flush();
     writer.close();
   }
-  public static FlowConfiguration loadConfig() throws ConfigurationLoadingException {
+  public static PipeConfiguration loadConfig() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Class<? extends Class> path1 =  TailerLogUtils.class.getClass();
     String path =  TailerLogUtils.class.getClassLoader().getResource("test4.properties").getFile();
     Configuration configuration = loader.load(path);
-    List<FlowConfiguration> flowConfig = configuration.getFlowsConfiguration();
+    List<PipeConfiguration> flowConfig = configuration.getPipesConfiguration();
     return flowConfig.get(0);
       }
   public static void createTestDirIfNeed() throws ConfigurationLoadingException {
-    FlowConfiguration flowConf = loadConfig();
+    PipeConfiguration flowConf = loadConfig();
     String dir = flowConf.getSourceConfiguration().getWorkDir();
     File dirFile = new File(dir);
     if (!dirFile.exists()) {
@@ -60,12 +58,18 @@ public class TailerLogUtils {
     }
   }
   public static void clearTestDir() throws IOException {
-    FlowConfiguration flowConf = loadConfig();
+    PipeConfiguration flowConf = loadConfig();
     String dir = flowConf.getSourceConfiguration().getWorkDir();
     FileUtils.cleanDirectory(new File(dir));
   }
+  public static void clearStateDir() throws IOException {
+    PipeConfiguration flowConf = loadConfig();
+    String dir = flowConf.getDaemonDir();
+    FileUtils.cleanDirectory(new File(dir));
+  }
+
   public static void deleteTestDir() throws IOException {
-    FlowConfiguration flowConf = loadConfig();
+    PipeConfiguration flowConf = loadConfig();
     String dir = flowConf.getSourceConfiguration().getWorkDir();
     FileUtils.deleteDirectory(new File(dir));
   }
