@@ -146,7 +146,7 @@ public void clean() throws IOException {
     fileAppender.setAppend(true);
     FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
     rollingPolicy.setContext(loggerContext);
-    rollingPolicy.setFileNamePattern("new.log" + "%i");
+    rollingPolicy.setFileNamePattern(file + "%i");
     rollingPolicy.setParent(fileAppender);
     rollingPolicy.start();
     fileAppender.setRollingPolicy(rollingPolicy);
