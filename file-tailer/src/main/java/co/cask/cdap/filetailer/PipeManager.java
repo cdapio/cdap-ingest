@@ -38,11 +38,11 @@ import java.util.List;
  * Create and manage flows
  */
 
-public class FlowsManager {
+public class PipeManager {
   private final String confPath;
-  private List<Flow> flowfList = new ArrayList<Flow>();
+  private List<Pipe> flowfList = new ArrayList<Pipe>();
 
-  public FlowsManager(String confPath) {
+  public PipeManager(String confPath) {
     this.confPath = confPath;
   }
 
@@ -55,7 +55,7 @@ public class FlowsManager {
         FileTailerStateProcessor stateProcessor =
           new FileTailerStateProcessorImpl(flowConf.getStateDir(), flowConf.getStateFile());
         new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE, stateProcessor);
-        flowfList.add(new Flow(new LogTailer(flowConf, queue, stateProcessor),
+        flowfList.add(new Pipe(new LogTailer(flowConf, queue, stateProcessor),
                                new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
                                                   stateProcessor, flowConf.getSinkConfiguration().getPackSize())));
       }
@@ -84,14 +84,14 @@ public class FlowsManager {
   }
 
   public void startFlows() {
-    for (Flow flow : flowfList) {
-      flow.start();
+    for (Pipe pipe : flowfList) {
+      pipe.start();
     }
   }
 
   public void stopFlows() {
-    for (Flow flow : flowfList) {
-      flow.stop();
+    for (Pipe pipe : flowfList) {
+      pipe.stop();
     }
   }
 }

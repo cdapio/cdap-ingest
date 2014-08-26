@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Class try shutdown flows correctly
  */
-class FlowShutdownGracefully implements Runnable {
+class PipeShutdownTask implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerApplication.class);
-  FlowShutdownGracefully(FlowsManager manager) {
+  PipeShutdownTask(PipeManager manager) {
     this.manager = manager;
   }
-  FlowsManager manager;
+  PipeManager manager;
 
   @Override
   public void run() {

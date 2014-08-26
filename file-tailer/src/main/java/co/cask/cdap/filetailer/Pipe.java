@@ -24,11 +24,11 @@ import co.cask.cdap.filetailer.tailer.LogTailer;
  * Flow class contain sink and tailer for one flow
  */
 
-public class Flow {
+public class Pipe {
     private LogTailer logTailer;
     private FileTailerSink sink;
 
-    public Flow(LogTailer tailer, FileTailerSink sink) {
+    public Pipe(LogTailer tailer, FileTailerSink sink) {
         this.logTailer = tailer;
         this.sink = sink;
     }
