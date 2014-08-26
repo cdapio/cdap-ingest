@@ -19,14 +19,14 @@ package co.cask.cdap.filetailer.config;
 /**
  * FlowConfiguration is design for getting general properties of the some flow
  */
-public interface FlowConfiguration {
+public interface PipeConfiguration {
 
   /**
    * Returns the name of this flow (loaded from configuration file)
    *
    * @return the name of this flow
    */
-  String getFlowName();
+  String getPipeName();
 
   /**
    * Returns the path to directory, intended like storage for File Tailer state and metrics

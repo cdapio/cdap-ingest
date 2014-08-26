@@ -17,7 +17,7 @@
 package co.cask.cdap.filetailer.tailer;
 
 import co.cask.cdap.filetailer.AbstractWorker;
-import co.cask.cdap.filetailer.config.FlowConfiguration;
+import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -31,10 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -55,13 +52,13 @@ public class LogTailer extends AbstractWorker {
   private static final int DEFAULT_BUFSIZE = 4096;
   private FileTailerQueue queue;
   private byte entrySeparator = '\n';
-  private FlowConfiguration confLoader;
+  private PipeConfiguration confLoader;
   private FileTailerStateProcessor fileTailerStateProcessor;
   private FileTailerMetricsProcessor metricsProcessor;
   private final byte inbuf[];
 
 
-  public LogTailer(FlowConfiguration loader, FileTailerQueue queue,
+  public LogTailer(PipeConfiguration loader, FileTailerQueue queue,
                    FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
     inbuf = new byte[DEFAULT_BUFSIZE];
     this.queue = queue;

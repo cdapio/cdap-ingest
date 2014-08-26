@@ -28,9 +28,9 @@ import java.util.Properties;
 /**
  * FlowConfigurationImpl default implementation of FlowConfiguration
  */
-public class FlowConfigurationImpl implements FlowConfiguration {
+public class PipeConfigurationImpl implements PipeConfiguration {
 
-  private static final Logger LOG = LoggerFactory.getLogger(FlowConfigurationImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PipeConfigurationImpl.class);
 
   private Properties properties;
 
@@ -50,16 +50,16 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
   private static final String DEFAULT_STATISTICS_FILE = "stats";
 
-  public FlowConfigurationImpl(Properties properties, String key) {
+  public PipeConfigurationImpl(Properties properties, String key) {
     this.properties = properties;
     this.key = key;
-    this.keyPath = "flows." + key + ".";
+    this.keyPath = "pipes." + key + ".";
     sourceConfiguration = new SourceConfigurationImpl(key);
     sinkConfiguration = new SinkConfigurationImpl(key);
   }
 
   @Override
-  public String getFlowName() {
+  public String getPipeName() {
     return getProperty(this.keyPath + "name", key);
   }
 
@@ -139,7 +139,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
 
     public SourceConfigurationImpl(String key) {
-      this.key = "flows." + key + ".source.";
+      this.key = "pipes." + key + ".source.";
     }
 
     @Override
@@ -200,7 +200,7 @@ public class FlowConfigurationImpl implements FlowConfiguration {
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
 
     public SinkConfigurationImpl(String key) {
-      this.key = "flows." + key + ".sink.";
+      this.key = "pipes." + key + ".sink.";
     }
 
     @Override

@@ -17,18 +17,18 @@
 
 package co.cask.cdap.filetailer.tailer;
 
-import co.cask.cdap.filetailer.config.FlowConfiguration;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.log4j.DailyRollingFileAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.RollingFileAppender;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -64,7 +64,7 @@ public void clean() throws IOException {
   @Test
   public void baseReadingLogDirTest() throws ConfigurationLoadingException, InterruptedException {
     FileTailerQueue queue = new FileTailerQueue(1);
-    FlowConfiguration flowConfig = TailerLogUtils.loadConfig();
+    PipeConfiguration flowConfig = TailerLogUtils.loadConfig();
 
     String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
@@ -73,11 +73,11 @@ public void clean() throws IOException {
       new FileTailerStateProcessorImpl(flowConfig.getDaemonDir(), flowConfig.getStateFile());
     FileTailerMetricsProcessor metricsProcessor =
         new FileTailerMetricsProcessor(flowConfig.getDaemonDir(), flowConfig.getStatisticsFile(),
-                                       flowConfig.getStatisticsSleepInterval(), flowConfig.getFlowName(),
+                                       flowConfig.getStatisticsSleepInterval(), flowConfig.getPipeName(),
                                        flowConfig.getSourceConfiguration().getFileName());
 
     LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
-    Logger logger =  getSizeLogger(filePath, LOG_FILE_SIZE);
+    ch.qos.logback.classic.Logger logger =  getSizeLogger(filePath, LOG_FILE_SIZE);
     RandomStringUtils randomUtils = new RandomStringUtils();
     List<String> logList = new ArrayList<String>(ENTRY_NUMBER);
 
@@ -99,7 +99,7 @@ public void clean() throws IOException {
   public void fileTimeRotationTest() throws ConfigurationLoadingException, InterruptedException {
 
     FileTailerQueue queue = new FileTailerQueue(QUEUE_SIZE);
-    FlowConfiguration flowConfig = TailerLogUtils.loadConfig();
+    PipeConfiguration flowConfig = TailerLogUtils.loadConfig();
 
     String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
@@ -108,11 +108,11 @@ public void clean() throws IOException {
 
     FileTailerMetricsProcessor metricsProcessor =
       new FileTailerMetricsProcessor(flowConfig.getDaemonDir(), flowConfig.getStatisticsFile(),
-                                     flowConfig.getStatisticsSleepInterval(), flowConfig.getFlowName(),
+                                     flowConfig.getStatisticsSleepInterval(), flowConfig.getPipeName(),
                                      flowConfig.getSourceConfiguration().getFileName());
 
     LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
-    Logger logger =  getTimeLogger(filePath);
+    ch.qos.logback.classic.Logger logger =  getTimeLogger(filePath);
     RandomStringUtils randomUtils = new RandomStringUtils();
     List<String> logList = new ArrayList<String>(ENTRY_NUMBER);
     List<String> queueReturnList = new ArrayList<String>(ENTRY_NUMBER);
@@ -134,49 +134,68 @@ public void clean() throws IOException {
 
 
 
-  private  Logger getSizeLogger(String file, String fileSize) {
+  private  ch.qos.logback.classic.Logger getSizeLogger(String file, String fileSize) {
 
-    // creates pattern layout
-    PatternLayout layout = new PatternLayout();
-    String conversionPattern = "[%d  %-5p %c{1}]  %m%n";
-    layout.setConversionPattern(conversionPattern);
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-    // creates size rolling file appender
-    RollingFileAppender rollingAppender = new RollingFileAppender();
-    rollingAppender.setFile(file);
-    rollingAppender.setMaxFileSize(fileSize);
-    rollingAppender.setMaxBackupIndex(20);
-    rollingAppender.setLayout(layout);
-    rollingAppender.activateOptions();
-    rollingAppender.setAppend(true);
+    ch.qos.logback.core.rolling.RollingFileAppender fileAppender =
+      new ch.qos.logback.core.rolling.RollingFileAppender();
+    fileAppender.setContext(loggerContext);
+    fileAppender.setFile(file);
+    fileAppender.setAppend(true);
+    FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
+    rollingPolicy.setContext(loggerContext);
+    rollingPolicy.setFileNamePattern(file + "%i");
+    rollingPolicy.setParent(fileAppender);
+    rollingPolicy.start();
+    fileAppender.setRollingPolicy(rollingPolicy);
+    SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy();
+    triggeringPolicy.setContext(loggerContext);
+    triggeringPolicy.setMaxFileSize(fileSize);
+    triggeringPolicy.start();
+    fileAppender.setTriggeringPolicy(triggeringPolicy);
+    PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
+    layoutEncoder.setContext(loggerContext);
+    layoutEncoder.setPattern("[%d  %-5p %c{1}] %msg%n");
+    layoutEncoder.start();
+    fileAppender.setEncoder(layoutEncoder);
+    fileAppender.start();
 
     // configures  logger
-    Logger rootLogger = Logger.getLogger(TailerTest.class);
-    rootLogger.setLevel(Level.DEBUG);
-    rootLogger.addAppender(rollingAppender);
+    ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(TailerTest.class.getName() + "size");
+    rootLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+    rootLogger.addAppender(fileAppender);
     return  rootLogger;
 
   }
 
-  private  Logger getTimeLogger(String file) {
-    // creates pattern layout
-    PatternLayout layout = new PatternLayout();
-    String conversionPattern = "[%d  %-5p %c{1}]  %m%n";
-    layout.setConversionPattern(conversionPattern);
+  private  ch.qos.logback.classic.Logger getTimeLogger(String file) {
 
-    // creates daily rolling file appender
-    DailyRollingFileAppender rollingAppender = new DailyRollingFileAppender();
-    rollingAppender.setFile(file);
-    rollingAppender.setDatePattern("'.'yyyy-MM-dd-HH-mm");
-    rollingAppender.setLayout(layout);
-    rollingAppender.activateOptions();
-    rollingAppender.setAppend(true);
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+    ch.qos.logback.core.rolling.RollingFileAppender fileAppender =
+      new ch.qos.logback.core.rolling.RollingFileAppender();
+    fileAppender.setContext(loggerContext);
+    fileAppender.setFile(file);
+    fileAppender.setAppend(true);
+    TimeBasedRollingPolicy rollingPolicy = new TimeBasedRollingPolicy();
+    rollingPolicy.setContext(loggerContext);
+    rollingPolicy.setParent(fileAppender);
+    rollingPolicy.setFileNamePattern(file + "%d{yyyy-MM-dd_HH-mm}");
+    rollingPolicy.start();
+    fileAppender.setRollingPolicy(rollingPolicy);
+    PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
+    layoutEncoder.setContext(loggerContext);
+    layoutEncoder.setPattern("[%d  %-5p %c{1}] %msg%n");
+    layoutEncoder.start();
+    fileAppender.setEncoder(layoutEncoder);
+    fileAppender.start();
 
 
     // configures the root logger
-    Logger rootLogger = Logger.getLogger(TailerTest.class);
-    rootLogger.setLevel(Level.DEBUG);
-    rootLogger.addAppender(rollingAppender);
+    ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(TailerTest.class.getName() + "time");
+    rootLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+    rootLogger.addAppender(fileAppender);
     return  rootLogger;
 
   }

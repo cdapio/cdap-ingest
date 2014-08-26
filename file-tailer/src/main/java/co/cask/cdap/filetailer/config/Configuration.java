@@ -28,5 +28,5 @@ public interface Configuration {
    *
    * @return configurations of each flow
    */
-  List<FlowConfiguration> getFlowsConfiguration();
+  List<PipeConfiguration> getPipesConfiguration();
 }

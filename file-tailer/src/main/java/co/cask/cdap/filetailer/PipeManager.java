@@ -21,7 +21,7 @@ import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
-import co.cask.cdap.filetailer.config.FlowConfiguration;
+import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -50,15 +50,15 @@ public class PipeManager {
 
   public void setupFlows() throws IOException {
     try {
-      List<FlowConfiguration> flowConfList = getFlowsConfigList();
-      for (FlowConfiguration flowConf : flowConfList) {
+      List<PipeConfiguration> flowConfList = getFlowsConfigList();
+      for (PipeConfiguration flowConf : flowConfList) {
         FileTailerQueue queue = new FileTailerQueue(flowConf.getQueueSize());
         StreamWriter writer = getStreamWriterForFlow(flowConf);
         FileTailerStateProcessor stateProcessor =
           new FileTailerStateProcessorImpl(flowConf.getDaemonDir(), flowConf.getStateFile());
         FileTailerMetricsProcessor metricsProcessor =
           new FileTailerMetricsProcessor(flowConf.getDaemonDir(), flowConf.getStatisticsFile(),
-                                             flowConf.getStatisticsSleepInterval(), flowConf.getFlowName(),
+                                             flowConf.getStatisticsSleepInterval(), flowConf.getPipeName(),
                                              flowConf.getSourceConfiguration().getFileName());
         flowfList.add(new Pipe(new LogTailer(flowConf, queue, stateProcessor, metricsProcessor),
                                new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
@@ -72,13 +72,13 @@ public class PipeManager {
     }
   }
 
-  private List<FlowConfiguration> getFlowsConfigList() throws ConfigurationLoadingException {
+  private List<PipeConfiguration> getFlowsConfigList() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Configuration configuration = loader.load(confPath);
-    return configuration.getFlowsConfiguration();
+    return configuration.getPipesConfiguration();
   }
 
-  private StreamWriter getStreamWriterForFlow(FlowConfiguration flowConf) throws IOException {
+  private StreamWriter getStreamWriterForFlow(PipeConfiguration flowConf) throws IOException {
     StreamClient client = flowConf.getSinkConfiguration().getStreamClient();
     String streamName = flowConf.getSinkConfiguration().getStreamName();
     try {
