@@ -1,6 +1,6 @@
-# CDAP ingest Python library
+# CDAP Ingest Python library
 
-Stream Client Python API for managing streams via external custom Python applications.
+Stream Client Python API for managing streams via external Python applications.
 
 ## Supported Actions
 
@@ -13,13 +13,12 @@ Stream Client Python API for managing streams via external custom Python applica
 
 ## Usage
 
- To use the Stream Client Python API, include this into your script:
+ To use the Stream Client Python API, include this in your Python script:
 
-import config
-import streamclient
-or
-from config import Config
-from streamclient import StreamClient
+```
+    from config import Config
+    from streamclient import StreamClient
+```
 
 ## Example
 
@@ -50,10 +49,10 @@ Optional configurations that can be set (and their default values):
 Config file structure:
 ```
 [ServerConnection]
-hostname = kappac             - gateway hostname
+hostname = local.host         - gateway hostname
 port = 10001                  - gateway port
-SSL = true                    - should be SSL used
-APIKey = something            - API key hash
+SSL = true                    - if SSL is being used
+APIKey = ''                   - API key hash
 ```
 
  Create a new Stream with the *stream-id* "newStreamName":
@@ -68,13 +67,13 @@ APIKey = something            - API key hash
   - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
 
- Update TTL for the Stream *stream-id*; TTL is a long value:
+ Update TTL for the Stream "streamName"; TTL is a long value:
 
  ```
    streamClient.setTTL("streamName", newTTL);
  ```
 
- Get the current TTL value for the Stream *stream-id*:
+ Get the current TTL value for the Stream "streamName":
 
  ```
    ttl = streamClient.getTTL("streamName");
@@ -106,9 +105,9 @@ APIKey = something            - API key hash
  ```
 
  ### StreamPromise
- StreamPromise's goal is to implement deffered code execution.
+ StreamPromise's goal is to implement deferred code execution.
 
- To handle successful an error handling you should create a handler for each case and set this handlers using ```onResponse``` method.
+For error handling, create a handler for each case and set it using the onResponse method.
 
 Example:
 
@@ -126,7 +125,7 @@ def onErrorHandler(httpResponse):
 streamPromise.onResponse(onOkResponse, onErrorResponse)
 ```
 
-It's possible to not define an error handler. In that case successful handler would used in both cases.
+It's not required to define an error handler. If you don't specify an error handler, the success handler is used for both success and error conditions.
 
 ## Additional Notes
 

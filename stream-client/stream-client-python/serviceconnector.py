@@ -19,6 +19,9 @@ class NoFoundException(Exception):
     def message(self):
         return self.__errorMsg
 
+    def __str__(self):
+        return "Code: %s \nMessage: %s" % (self.__errorCode, self.__errorMsg)
+
 class ConnectionErrorChecker:
     __HTTP_OK = 200
 

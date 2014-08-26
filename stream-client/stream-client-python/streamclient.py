@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from serviceconnector import *
+from config import Config
+from serviceconnector import ServiceConnector, ConnectionErrorChecker
 from streamwriter import StreamWriter
 import json
 

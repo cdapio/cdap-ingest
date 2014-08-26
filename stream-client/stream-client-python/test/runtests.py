@@ -8,9 +8,12 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
 
+import requests
+
+from config import Config
 from serviceconnector import NoFoundException
 from streamwriter import StreamWriter
-from streamclient import *
+from streamclient import StreamClient
 
 class TestStreamClient(unittest.TestCase):
 

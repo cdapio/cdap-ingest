@@ -6,7 +6,7 @@ from threading import Thread, Lock
 from types import FunctionType
 import locale
 import mimetypes
-from serviceconnector import *
+from serviceconnector import ServiceConnector, ConnectionErrorChecker
 
 class StreamPromise(ConnectionErrorChecker):
     """
@@ -139,7 +139,7 @@ class StreamPromise(ConnectionErrorChecker):
 
         Keyword arguments:
         ok -- Handler to be called in case of successful response.
-        error -- Handler to be calles in case of failed response.
+        error -- Handler to be called in case of failed response.
                  Could be of type None.  In that case would be the _same_
                  as for a successful case.
 
