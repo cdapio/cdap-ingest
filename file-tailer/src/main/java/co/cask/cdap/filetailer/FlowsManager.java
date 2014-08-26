@@ -18,7 +18,6 @@ package co.cask.cdap.filetailer;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.client.exception.NotFoundException;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
@@ -33,6 +32,7 @@ import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,11 +83,12 @@ public class FlowsManager {
     String streamName = flowConf.getSinkConfiguration().getStreamName();
     try {
       client.create(streamName);
-      StreamWriter writer = client.createWriter(streamName);
+      StreamWriter writer = null;
+      writer = client.createWriter(streamName);
       return writer;
     } catch (IOException e) {
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
-    } catch (NotFoundException e) {
+    } catch (URISyntaxException e) {
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }

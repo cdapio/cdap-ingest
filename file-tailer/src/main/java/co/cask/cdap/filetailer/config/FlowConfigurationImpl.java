@@ -22,6 +22,7 @@ import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 /**
@@ -125,6 +126,8 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     private String key;
 
+    private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "yyyy-MM-dd-HH-mm";
+
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";
 
     private static final String DEFAULT_RECORD_SEPARATOR = "\n";
@@ -151,12 +154,12 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public String getRotationPattern() {
-      return getRequiredProperty(this.key + "work_dir");
+      return getProperty(this.key + "rotated_file_name_pattern", DEFAULT_ROTATED_FILE_NAME_PATTERN);
     }
 
     @Override
     public String getCharsetName() {
-      return getProperty(this.key + "work_dir", DEFAULT_CHARSET_NAME);
+      return getProperty(this.key + "charset_name", DEFAULT_CHARSET_NAME);
     }
 
     @Override
@@ -207,28 +210,33 @@ public class FlowConfigurationImpl implements FlowConfiguration {
 
     @Override
     public StreamClient getStreamClient() {
-      String host = getRequiredProperty(this.key + "host");
-      int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
+      try {
+        String host = getRequiredProperty(this.key + "host");
+        int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
 
-      RestStreamClient.Builder builder = new RestStreamClient.Builder(host, port);
+        RestStreamClient.Builder builder = RestStreamClient.builder(host, port);
 
-      builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
+        builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
 
-      String authToken = getProperty(this.key + "authToken");
-      if (authToken != null && !authToken.equals("")) {
-        builder.authToken(authToken);
+        String authToken = getProperty(this.key + "authToken");
+        if (authToken != null && !authToken.equals("")) {
+          builder.authToken(authToken);
+        }
+
+        String apiKey = getProperty(this.key + "apiKey");
+        if (apiKey != null && !apiKey.equals("")) {
+          builder.apiKey(apiKey);
+        }
+
+        builder.writerPoolSize(Integer.parseInt(getProperty(this.key + "writerPoolSize", DEFAULT_WRITER_POOL_SIZE)));
+
+        builder.version(getProperty(this.key + "version", DEFAULT_VERSION));
+
+        return builder.build();
+      } catch (URISyntaxException e) {
+        LOG.error("Can not get Stream Client for this pipe: {}", e.getMessage());
+        throw new ConfigurationLoaderException("Can not get Stream Client for this pipe: " + e.getMessage());
       }
-
-      String apiKey = getProperty(this.key + "apiKey");
-      if (apiKey != null && !apiKey.equals("")) {
-        builder.apiKey(apiKey);
-      }
-
-      builder.writerPoolSize(Integer.parseInt(getProperty(this.key + "writerPoolSize", DEFAULT_WRITER_POOL_SIZE)));
-
-      builder.version(getProperty(this.key + "version", DEFAULT_VERSION));
-
-      return builder.build();
     }
 
     @Override

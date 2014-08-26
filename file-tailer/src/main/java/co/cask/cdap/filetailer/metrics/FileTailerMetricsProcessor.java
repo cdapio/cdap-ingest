@@ -16,12 +16,12 @@
 
 package co.cask.cdap.filetailer.metrics;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.metrics.exception.FileTailerMetricsProcessorException;
-import org.apache.log4j.DailyRollingFileAppender;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.WriterAppender;
-import org.apache.log4j.spi.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +51,8 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerMetricsProcessor.class);
 
+  private final String loggerClass = ch.qos.logback.classic.Logger.class.getName();
+
   private String stateDirPath;
 
   private String metricsFileName;
@@ -72,30 +74,24 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
 
   @Override
   public void run() {
-    WriterAppender appender = null;
+    RollingFileAppender appender = null;
     try {
       createDirs(stateDirPath);
       createFile(stateDirPath + "/" + metricsFileName);
-      org.apache.log4j.Logger logger = initLogger("metricsLogger");
-      appender = initAppender(stateDirPath + "/" + metricsFileName);
+      ch.qos.logback.classic.Logger logger = initLogger("metricsLogger");
+      appender = initAppender(stateDirPath, metricsFileName);
       writeMetricsHeader(logger, appender);
       while (!Thread.currentThread().isInterrupted()) {
         Thread.sleep(metricsSleepInterval);
         String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
-        writeMetrics(logger, appender, currentDate, flowName, fileName,
-                     totalEventsReadPerFile.get(), totalEventsIngestedPerFile.get(),
-                     minEventSizePerFile.get(),
-                     calculateAverage(totalEventSizePerFile.get(), eventsPerFile.get()),
-                     maxEventSizePerFile.get(), minWriteLatencyPerStream.get(),
-                     calculateAverage(totalWriteLatencyPerStream.get(), writesPerStream.get()),
-                     maxWriteLatencyPerStream.get());
+        writeMetrics(logger, appender, currentDate);
         resetMetrics();
       }
     } catch (InterruptedException e) {
       LOG.debug("Metric Processor was interrupted");
     } finally {
       if (appender != null) {
-        appender.close();
+        appender.stop();
       }
     }
   }
@@ -166,7 +162,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     LOG.debug("All metrics reset successfully");
   }
 
-  private void writeMetricsHeader(org.apache.log4j.Logger logger, WriterAppender appender) {
+  private void writeMetricsHeader(ch.qos.logback.classic.Logger logger, RollingFileAppender appender) {
     LOG.debug("Start writing header to file ..");
     String header = new StringBuilder("Current Date").append(",")
       .append("Flow Name").append(",")
@@ -179,45 +175,53 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       .append("Min Write Latency Per Stream").append(",")
       .append("Average Write Latency Per Stream").append(",")
       .append("Max Write Latency Per Stream").append("\n").toString();
-    appender.doAppend(new LoggingEvent(null, logger, null, header, null));
+    appender.doAppend(new ch.qos.logback.classic.spi.LoggingEvent(loggerClass, logger, null, header, null, null));
     LOG.debug("Successfully write header");
   }
 
-  private void writeMetrics(org.apache.log4j.Logger logger, WriterAppender appender,
-                            String currentDate, String flowName, String fileName,
-                            int totalEventsReadPerFile, int totalEventsIngestedPerFile,
-                            int minEventSizePerFile, double averageEventSizePerFile,
-                            int maxEventSizePerFile, int minWriteLatencyPerStream,
-                            double averageWriteLatencyPerStream, int maxWriteLatencyPerStream) {
+  private void writeMetrics(ch.qos.logback.classic.Logger logger, RollingFileAppender appender, String currentDate) {
     LOG.debug("Start writing metric with date {} to file ..", currentDate);
     String metric = new StringBuilder(currentDate).append(",")
       .append(flowName).append(",")
       .append(fileName).append(",")
-      .append(totalEventsReadPerFile).append(",")
-      .append(totalEventsIngestedPerFile).append(",")
-      .append(minEventSizePerFile).append(",")
-      .append(averageEventSizePerFile).append(",")
-      .append(maxEventSizePerFile).append(",")
-      .append(minWriteLatencyPerStream).append(",")
-      .append(averageWriteLatencyPerStream).append(",")
-      .append(maxWriteLatencyPerStream).toString();
-    appender.doAppend(new LoggingEvent(null, logger, null, metric, null));
+      .append(totalEventsReadPerFile.get()).append(",")
+      .append(totalEventsIngestedPerFile.get()).append(",")
+      .append(minEventSizePerFile.get()).append(",")
+      .append(calculateAverage(totalEventSizePerFile.get(), eventsPerFile.get())).append(",")
+      .append(maxEventSizePerFile.get()).append(",")
+      .append(minWriteLatencyPerStream.get()).append(",")
+      .append(calculateAverage(totalWriteLatencyPerStream.get(), writesPerStream.get())).append(",")
+      .append(maxWriteLatencyPerStream.get()).toString();
+    appender.doAppend(new ch.qos.logback.classic.spi.LoggingEvent(loggerClass, logger, null, metric, null, null));
     LOG.debug("Successfully write metric with date: {}", currentDate);
   }
 
-  private WriterAppender initAppender(String path) {
+  private RollingFileAppender initAppender(String path, String fileName) {
     LOG.debug("Starting initialize rolling file appender");
-    DailyRollingFileAppender fileAppender = new DailyRollingFileAppender();
-    fileAppender.setFile(path);
-    fileAppender.setDatePattern("'.'yyyy-MM-dd-HH-mm");
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+    RollingFileAppender fileAppender = new RollingFileAppender();
+    fileAppender.setContext(loggerContext);
+    fileAppender.setFile(path + "/" + fileName);
     fileAppender.setAppend(true);
-    fileAppender.setLayout(new PatternLayout("%m%n"));
-    fileAppender.activateOptions();
+    TimeBasedRollingPolicy rollingPolicy = new TimeBasedRollingPolicy();
+    rollingPolicy.setContext(loggerContext);
+    rollingPolicy.setParent(fileAppender);
+    rollingPolicy.setFileNamePattern(path + "/" + fileName + ".%d");
+    rollingPolicy.start();
+    fileAppender.setRollingPolicy(rollingPolicy);
+    PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
+    layoutEncoder.setContext(loggerContext);
+    layoutEncoder.setPattern("%msg%n");
+    layoutEncoder.start();
+    fileAppender.setEncoder(layoutEncoder);
+    fileAppender.start();
     return fileAppender;
   }
 
-  private org.apache.log4j.Logger initLogger(String name) {
-    return org.apache.log4j.Logger.getLogger(name);
+  private ch.qos.logback.classic.Logger initLogger(String name) {
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+    return  loggerContext.getLogger(name);
   }
 
   private void createFile(String path) {

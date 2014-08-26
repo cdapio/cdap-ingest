@@ -117,4 +117,27 @@ As soon as a new record is being appended to the end of a file that the daemon i
  Configuration parameters description:
 
  - daemon_dir - the path to directory, intended like storage for File Tailer state and metrics
- - flows -
+ - flows - list of all flows
+ - flows.<flow name>.name - name of this flow
+ - flows.<flow name>.state_file - name of file, to which File Tailer save state
+ - flows.<flow name>.statistics_file - name of file, to which File Tailer save statistics
+ - flows.<flow name>.queue_size - size of queue, which intended to store logs before sending them to REST API
+ - flows.<flow name>.source.work_dir - path to directory, where monitor log files
+ - flows.<flow name>.source.file_name - name of log file
+ - flows.<flow name>.source.rotated_file_name_pattern - log file rolling pattern
+ - flows.<flow name>.source.charset_name - name of charset, used by Stream Client for sending logs
+ - flows.<flow name>.source.record_separator - symbol, that separate each log record
+ - flows.<flow name>.source.sleep_interval - interval to sleep, after read all log data
+ - flows.<flow name>.source.failure_retry_limit - number of attempts to read logs, if occurred error while reading file data
+ - flows.<flow name>.source.failure_sleep_interval - interval to sleep, if occurred error while reading file data
+ - flows.<flow name>.sink.stream_name - name of target stream
+ - flows.<flow name>.sink.host - server host
+ - flows.<flow name>.sink.port - server port
+ - flows.<flow name>.sink.ssl - Secure Socket Layer mode [true|false]
+ - flows.<flow name>.sink.authToken - server security token
+ - flows.<flow name>.sink.apiKey - ssl security key
+ - flows.<flow name>.sink.writerPoolSize - number of threads, in which Stream Client sends events
+ - flows.<flow name>.sink.version - reactor server version
+ - flows.<flow name>.sink.packSize - number of logs sent at a time
+ - flows.<flow name>.sink.failure_retry_limit - number of attempts to sent logs, if occurred error while reading file data
+ - flows.<flow name>.sink.failure_sleep_interval - interval to sleep, if occurred error while sending logs
