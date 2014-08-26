@@ -63,7 +63,7 @@ TailerLogUtils.deleteTestDir();
     String filePath = flowConfig.getSourceConfiguration().getWorkDir()+"/"
       +flowConfig.getSourceConfiguration().getFileName();
 
-    LogTailer tailer = new LogTailer(flowConfig,null,null);
+    LogTailer tailer = new LogTailer(flowConfig,null,null,null);
     File file = new File(filePath);
     file.createNewFile();
     RandomAccessFile reader = new RandomAccessFile(filePath,"r");
@@ -87,7 +87,7 @@ TailerLogUtils.deleteTestDir();
     String filePath = flowConfig.getSourceConfiguration().getWorkDir()+"/"
       +flowConfig.getSourceConfiguration().getFileName();
 
-    LogTailer tailer = new LogTailer(flowConfig,null,null);
+    LogTailer tailer = new LogTailer(flowConfig,null,null, null);
     File file = new File(filePath);
     file.createNewFile();
     RandomAccessFile reader = new RandomAccessFile(filePath,"r");

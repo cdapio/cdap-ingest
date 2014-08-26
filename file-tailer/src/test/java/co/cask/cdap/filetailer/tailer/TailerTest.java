@@ -1,7 +1,25 @@
+
+/*
+ * Copyright 2014 Cask, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package co.cask.cdap.filetailer.tailer;
 
 import co.cask.cdap.filetailer.config.FlowConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
+import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
@@ -58,10 +76,14 @@ public void clean() throws IOException {
       +flowConfig.getSourceConfiguration().getFileName();
 
     FileTailerStateProcessor stateProcessor =
-      new FileTailerStateProcessorImpl(flowConfig.getStateDir(), flowConfig.getStateFile());
+      new FileTailerStateProcessorImpl(flowConfig.getDaemonDir(), flowConfig.getStateFile());
+    FileTailerMetricsProcessor metricsProcessor =
+        new FileTailerMetricsProcessor(flowConfig.getDaemonDir(), flowConfig.getStatisticsFile(),
+                                       flowConfig.getStatisticsSleepInterval(), flowConfig.getFlowName(),
+                                       flowConfig.getSourceConfiguration().getFileName());
 
-    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(),queue,stateProcessor);
-    Logger logger =  getSizeLogger(filePath,LOG_FILE_SIZE);
+    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue,stateProcessor, metricsProcessor);
+    Logger logger =  getSizeLogger(filePath, LOG_FILE_SIZE);
     RandomStringUtils randomUtils = new RandomStringUtils();
     List<String> logList = new ArrayList<String>(ENTRY_NUMBER);
 
@@ -81,14 +103,21 @@ public void clean() throws IOException {
 
   @Test
   public void fileTimeRotationTest() throws ConfigurationLoadingException, InterruptedException {
+
     FileTailerQueue queue = new FileTailerQueue(QUEUE_SIZE);
     FlowConfiguration flowConfig = TailerLogUtils.loadConfig();
+
     String filePath = flowConfig.getSourceConfiguration().getWorkDir()+"/"
       +flowConfig.getSourceConfiguration().getFileName();
     FileTailerStateProcessor stateProcessor =
-      new FileTailerStateProcessorImpl(flowConfig.getStateDir(), flowConfig.getStateFile());
+      new FileTailerStateProcessorImpl(flowConfig.getDaemonDir(), flowConfig.getStateFile());
 
-    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(),queue,stateProcessor);
+    FileTailerMetricsProcessor metricsProcessor =
+      new FileTailerMetricsProcessor(flowConfig.getDaemonDir(), flowConfig.getStatisticsFile(),
+                                     flowConfig.getStatisticsSleepInterval(), flowConfig.getFlowName(),
+                                     flowConfig.getSourceConfiguration().getFileName());
+
+    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(),queue,stateProcessor, metricsProcessor);
     Logger logger =  getTimeLogger(filePath);
     RandomStringUtils randomUtils = new RandomStringUtils();
     List<String> logList = new ArrayList<String>(ENTRY_NUMBER);
