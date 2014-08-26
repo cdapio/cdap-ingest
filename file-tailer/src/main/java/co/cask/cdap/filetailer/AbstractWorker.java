@@ -20,7 +20,7 @@ package co.cask.cdap.filetailer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
- * AbstractWorker class implement start/stop method
+ * AbstractWorker class  for sink and tailer worker
  */
 public class AbstractWorker implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractWorker.class);
@@ -29,6 +29,12 @@ public class AbstractWorker implements Runnable {
     public void run() {
 
     }
+  /**
+   * Start worker thread
+   *
+   * @throws IllegalStateException if worker is already running
+   *
+   */
 
     public void startWorker() {
         if (worker == null) {
@@ -36,16 +42,21 @@ public class AbstractWorker implements Runnable {
             worker.start();
         } else {
             LOG.warn("{} deamon is already started!", this.getClass().getName());
-            throw new IllegalStateException(this.getClass().getName() + "  deamon is already started!");
+            throw new IllegalStateException(this.getClass().getName() + "  daemon is already started!");
         }
     }
-
+  /**
+   * Start worker thread
+   *
+   * @throws IllegalStateException if worker is not running
+   *
+   */
     public void stopWorker() {
         if (worker != null) {
             worker.interrupt();
         } else {
             LOG.warn("{} deamon was not started!", this.getClass().getName());
-            throw new IllegalStateException(this.getClass().getName() + "  deamon is already started!");
+            throw new IllegalStateException(this.getClass().getName() + "  daemon is not running!");
 
         }
     }

@@ -22,7 +22,7 @@ import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.tailer.LogTailer;
 
 /**
- * Flow class contain sink and tailer for one flow
+ * Flow class contain sink and tailer instances  for one flow
  */
 
 public class Pipe {
@@ -35,13 +35,17 @@ public class Pipe {
         this.sink = sink;
         this.metricsProcessor = metricsProcessor;
     }
-
+  /**
+   * Start tailer and sink
+   */
     public void start() {
         metricsProcessor.startWorker();
         logTailer.startWorker();
         sink.startWorker();
     }
-
+  /**
+   * Stop tailer and sink
+   */
     public void stop() {
         metricsProcessor.stopWorker();
         logTailer.stopWorker();

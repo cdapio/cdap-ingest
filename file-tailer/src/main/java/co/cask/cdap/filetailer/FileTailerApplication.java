@@ -43,13 +43,13 @@ public class FileTailerApplication {
     }
     PipeManager manager = new PipeManager(configurationPath);
     try {
-      manager.setupFlows();
+      manager.setupPipes();
     } catch (IOException e) {
       LOG.error("Error during flows: {} setup", e.getMessage());
       return;
     }
     LOG.info("Staring flows");
-    manager.startFlows();
+    manager.startPipes();
     Runtime.getRuntime().addShutdownHook(new Thread(new PipeShutdownTask(manager)));
 
   }

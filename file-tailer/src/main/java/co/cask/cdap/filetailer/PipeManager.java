@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Create and manage flows
+ * PipeManager  creates and manage pipes
  */
 
 public class PipeManager {
@@ -48,7 +48,13 @@ public class PipeManager {
     this.confPath = confPath;
   }
 
-  public void setupFlows() throws IOException {
+  /**
+   * Pipes setup
+   *
+   * @throws IOException if can not create client stream
+   */
+
+  public void setupPipes() throws IOException {
     try {
       List<FlowConfiguration> flowConfList = getFlowsConfigList();
       for (FlowConfiguration flowConf : flowConfList) {
@@ -72,12 +78,22 @@ public class PipeManager {
     }
   }
 
+  /**
+   * Get pipes configuration
+   * @return List of the  Pipes configuration read from configuration file
+   * @throws ConfigurationLoadingException if can not create client stream
+   */
   private List<FlowConfiguration> getFlowsConfigList() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Configuration configuration = loader.load(confPath);
     return configuration.getFlowsConfiguration();
   }
 
+  /**
+   * create StreamWriter for pipe
+   * @return  streamWriter
+   * @throws IOException streamWriter creation failed
+   */
   private StreamWriter getStreamWriterForFlow(FlowConfiguration flowConf) throws IOException {
     StreamClient client = flowConf.getSinkConfiguration().getStreamClient();
     String streamName = flowConf.getSinkConfiguration().getStreamName();
@@ -91,14 +107,18 @@ public class PipeManager {
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }
-
-  public void startFlows() {
+  /**
+   * Start all pipes
+   */
+  public void startPipes() {
     for (Pipe pipe : flowfList) {
       pipe.start();
     }
   }
-
-  public void stopFlows() {
+  /**
+   * Start all pipes
+   */
+  public void stopPipes() {
     for (Pipe pipe : flowfList) {
       pipe.stop();
     }
