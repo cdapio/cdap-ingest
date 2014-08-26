@@ -37,9 +37,9 @@ import java.util.List;
  */
 public class TailerLogUtils {
 
-  public static void writeLineToFile(String filePath,String line) throws IOException {
-    Writer writer = new FileWriter(filePath,true);
-    writer.write(line+"\n");
+  public static void writeLineToFile(String filePath, String line) throws IOException {
+    Writer writer = new FileWriter(filePath, true);
+    writer.write(line + "\n");
     writer.flush();
     writer.close();
   }
@@ -52,7 +52,7 @@ public class TailerLogUtils {
     return flowConfig.get(0);
       }
   public static void createTestDirIfNeed() throws ConfigurationLoadingException {
-    FlowConfiguration flowConf= loadConfig();
+    FlowConfiguration flowConf = loadConfig();
     String dir = flowConf.getSourceConfiguration().getWorkDir();
     File dirFile = new File(dir);
     if (!dirFile.exists()) {
@@ -60,12 +60,12 @@ public class TailerLogUtils {
     }
   }
   public static void clearTestDir() throws IOException {
-    FlowConfiguration flowConf= loadConfig();
+    FlowConfiguration flowConf = loadConfig();
     String dir = flowConf.getSourceConfiguration().getWorkDir();
     FileUtils.cleanDirectory(new File(dir));
   }
   public static void deleteTestDir() throws IOException {
-    FlowConfiguration flowConf= loadConfig();
+    FlowConfiguration flowConf = loadConfig();
     String dir = flowConf.getSourceConfiguration().getWorkDir();
     FileUtils.deleteDirectory(new File(dir));
   }

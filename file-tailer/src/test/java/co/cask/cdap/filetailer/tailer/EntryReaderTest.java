@@ -36,7 +36,7 @@ import java.util.List;
  *
  */
 public class EntryReaderTest {
-  private final int SIZE =10;
+  private static  final int LINE_SIZE = 10;
 
   @Before
   public void prepare() throws IOException {
@@ -48,48 +48,48 @@ public class EntryReaderTest {
 TailerLogUtils.deleteTestDir();
   }
   @Test
-  public void ReadLineTest() throws IOException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    final  List<String>  lineList = new ArrayList<String>(SIZE);
+  public void readLineTest() throws Exception {
+    final  List<String>  lineList = new ArrayList<String>(LINE_SIZE);
     RandomStringUtils randomUtils = new RandomStringUtils();
     FlowConfiguration flowConfig = TailerLogUtils.loadConfig();
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir()+"/"
-      +flowConfig.getSourceConfiguration().getFileName();
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+        + flowConfig.getSourceConfiguration().getFileName();
 
-    LogTailer tailer = new LogTailer(flowConfig,null,null,null);
+    LogTailer tailer = new LogTailer(flowConfig, null, null, null);
     File file = new File(filePath);
     file.createNewFile();
-    RandomAccessFile reader = new RandomAccessFile(filePath,"r");
-    Class params[] = {String.class,byte.class};
-    Method method = tailer.getClass().getDeclaredMethod("tryReadLine",RandomAccessFile.class,byte.class);
+    RandomAccessFile reader = new RandomAccessFile(filePath, "r");
+    Class params[] = {String.class, byte.class};
+    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", RandomAccessFile.class, byte.class);
 
     method.setAccessible(true);
-    for (int i=0;i<SIZE;i++)
-    {
-     String currLine = randomUtils.randomAlphanumeric(SIZE);
+    for (int i = 0; i < LINE_SIZE; i++) {
+     String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
      lineList.add(currLine);
-      TailerLogUtils.writeLineToFile(filePath,currLine);
+      TailerLogUtils.writeLineToFile(filePath, currLine);
     }
     for (String line: lineList) {
-      Assert.assertEquals(line, method.invoke(tailer,reader,(byte)'\n'));
+      Assert.assertEquals(line, method.invoke(tailer, reader, (byte) '\n'));
     }
   }
   @Test
-  public void ReadEmptyTest() throws IOException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public void readEmptyTest() throws Exception {
     FlowConfiguration flowConfig = TailerLogUtils.loadConfig();
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir()+"/"
-      +flowConfig.getSourceConfiguration().getFileName();
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+      + flowConfig.getSourceConfiguration().getFileName();
 
-    LogTailer tailer = new LogTailer(flowConfig,null,null, null);
+    LogTailer tailer = new LogTailer(flowConfig, null, null, null);
     File file = new File(filePath);
     file.createNewFile();
-    RandomAccessFile reader = new RandomAccessFile(filePath,"r");
-    Class params[] = {String.class,byte.class};
-    Method method = tailer.getClass().getDeclaredMethod("tryReadLine",RandomAccessFile.class,byte.class);
+    RandomAccessFile reader = new RandomAccessFile(filePath, "r");
+    Class params[] = {String.class, byte.class};
+    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", RandomAccessFile.class, byte.class);
     method.setAccessible(true);
-    String str = (String) method.invoke(tailer,reader,(byte)'\n');
+    String str = (String) method.invoke(tailer, reader, (byte) '\n');
       Assert.assertEquals(0, str.length());
     }
   }
+
 
 
 

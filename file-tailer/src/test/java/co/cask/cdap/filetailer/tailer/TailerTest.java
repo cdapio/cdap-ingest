@@ -66,8 +66,8 @@ public void clean() throws IOException {
     FileTailerQueue queue = new FileTailerQueue(1);
     FlowConfiguration flowConfig = TailerLogUtils.loadConfig();
 
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir()+"/"
-      +flowConfig.getSourceConfiguration().getFileName();
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+      + flowConfig.getSourceConfiguration().getFileName();
 
     FileTailerStateProcessor stateProcessor =
       new FileTailerStateProcessorImpl(flowConfig.getDaemonDir(), flowConfig.getStateFile());
@@ -76,7 +76,7 @@ public void clean() throws IOException {
                                        flowConfig.getStatisticsSleepInterval(), flowConfig.getFlowName(),
                                        flowConfig.getSourceConfiguration().getFileName());
 
-    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue,stateProcessor, metricsProcessor);
+    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
     Logger logger =  getSizeLogger(filePath, LOG_FILE_SIZE);
     RandomStringUtils randomUtils = new RandomStringUtils();
     List<String> logList = new ArrayList<String>(ENTRY_NUMBER);
@@ -101,8 +101,8 @@ public void clean() throws IOException {
     FileTailerQueue queue = new FileTailerQueue(QUEUE_SIZE);
     FlowConfiguration flowConfig = TailerLogUtils.loadConfig();
 
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir()+"/"
-      +flowConfig.getSourceConfiguration().getFileName();
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+      + flowConfig.getSourceConfiguration().getFileName();
     FileTailerStateProcessor stateProcessor =
       new FileTailerStateProcessorImpl(flowConfig.getDaemonDir(), flowConfig.getStateFile());
 
@@ -111,7 +111,7 @@ public void clean() throws IOException {
                                      flowConfig.getStatisticsSleepInterval(), flowConfig.getFlowName(),
                                      flowConfig.getSourceConfiguration().getFileName());
 
-    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(),queue,stateProcessor, metricsProcessor);
+    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
     Logger logger =  getTimeLogger(filePath);
     RandomStringUtils randomUtils = new RandomStringUtils();
     List<String> logList = new ArrayList<String>(ENTRY_NUMBER);
@@ -180,5 +180,4 @@ public void clean() throws IOException {
     return  rootLogger;
 
   }
-
 }
