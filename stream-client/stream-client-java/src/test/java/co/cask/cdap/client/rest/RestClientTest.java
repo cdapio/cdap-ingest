@@ -16,6 +16,10 @@
 
 package co.cask.cdap.client.rest;
 
+import com.google.common.base.Charsets;
+import com.google.gson.JsonObject;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
@@ -24,19 +28,32 @@ import org.apache.http.message.BasicStatusLine;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotAllowedException;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.NotSupportedException;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RestClientTest {
 
   private HttpResponse response;
+  private HttpEntity httpEntity;
 
   @Before
   public void setUp() {
     response = mock(HttpResponse.class);
+    httpEntity = mock(HttpEntity.class);
   }
 
   @Test
@@ -60,5 +77,124 @@ public class RestClientTest {
     RestClient.responseCodeAnalysis(response);
 
     verify(response).getStatusLine();
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void testNotFoundResponseCodeAnalysis() {
+
+    StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_NOT_FOUND,
+                                                "Not Found");
+    when(response.getStatusLine()).thenReturn(statusLine);
+
+    RestClient.responseCodeAnalysis(response);
+
+    verify(response).getStatusLine();
+  }
+
+  @Test(expected = NotAuthorizedException.class)
+  public void testUnauthorizedResponseCodeAnalysis() {
+
+    StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_UNAUTHORIZED,
+                                                "Unauthorized");
+    when(response.getStatusLine()).thenReturn(statusLine);
+
+    RestClient.responseCodeAnalysis(response);
+
+    verify(response).getStatusLine();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void testForbiddenResponseCodeAnalysis() {
+
+    StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_FORBIDDEN,
+                                                "Forbidden");
+    when(response.getStatusLine()).thenReturn(statusLine);
+
+    RestClient.responseCodeAnalysis(response);
+
+    verify(response).getStatusLine();
+  }
+
+  @Test(expected = NotAllowedException.class)
+  public void testNotAllowedResponseCodeAnalysis() {
+
+    StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_METHOD_NOT_ALLOWED,
+                                                "Method Not Allowed");
+    when(response.getStatusLine()).thenReturn(statusLine);
+
+    RestClient.responseCodeAnalysis(response);
+
+    verify(response).getStatusLine();
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void testConflictResponseCodeAnalysis() {
+
+    StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_CONFLICT, "Conflict");
+    when(response.getStatusLine()).thenReturn(statusLine);
+
+    RestClient.responseCodeAnalysis(response);
+
+    verify(response).getStatusLine();
+  }
+
+  @Test(expected = InternalServerErrorException.class)
+  public void testInternalServerErrorResponseCodeAnalysis() {
+
+    StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                                                "Internal Server Error");
+    when(response.getStatusLine()).thenReturn(statusLine);
+
+    RestClient.responseCodeAnalysis(response);
+
+    verify(response).getStatusLine();
+  }
+
+  @Test(expected = NotSupportedException.class)
+  public void testNotImplementedResponseCodeAnalysis() {
+    StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_NOT_IMPLEMENTED,
+                                                "Not Implemented");
+    when(response.getStatusLine()).thenReturn(statusLine);
+
+    RestClient.responseCodeAnalysis(response);
+
+    verify(response).getStatusLine();
+  }
+
+  @Test
+  public void testGetEntityAsJsonObject() throws IOException {
+
+    InputStream inputStream = new ByteArrayInputStream("{'test': 'Hello World'}".getBytes(Charsets.UTF_8));
+    when(httpEntity.getContent()).thenReturn(inputStream);
+
+    JsonObject jsonObject = RestClient.getEntityAsJsonObject(httpEntity);
+
+    assertEquals("Hello World", jsonObject.get("test").getAsString());
+    verify(httpEntity, times(2)).getContent();
+  }
+
+  @Test(expected = IOException.class)
+  public void testNullEntityGetEntityAsJsonObject() throws IOException {
+    RestClient.getEntityAsJsonObject(null);
+  }
+
+  @Test(expected = IOException.class)
+  public void testNullContentGetEntityAsJsonObject() throws IOException {
+
+    when(httpEntity.getContent()).thenReturn(null);
+
+    RestClient.getEntityAsJsonObject(httpEntity);
+
+    verify(httpEntity).getContent();
+  }
+
+  @Test(expected = IOException.class)
+  public void testEmptyContentGetEntityAsJsonObject() throws IOException {
+    InputStream inputStream = new ByteArrayInputStream(StringUtils.EMPTY.getBytes(Charsets.UTF_8));
+    when(httpEntity.getContent()).thenReturn(inputStream);
+
+    RestClient.getEntityAsJsonObject(httpEntity);
+
+    verify(httpEntity).getContent();
   }
 }

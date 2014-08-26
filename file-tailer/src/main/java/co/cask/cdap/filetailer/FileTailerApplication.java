@@ -34,23 +34,23 @@ public class FileTailerApplication {
 
     String configurationPath;
     if (args.length == 0) {
-      configurationPath = FileTailerApplication.class.getClassLoader().getResource("config.properties").getFile();
+      configurationPath = FileTailerApplication.class.getClassLoader().getResource("file-tailer.properties").getFile();
     } else if (args.length == 1) {
       configurationPath = args[0];
     } else {
       LOG.error("Too many arguments: {}", args.length);
       return;
     }
-      PipeManager manager = new PipeManager(configurationPath);
-      try {
-          manager.setupFlows();
-      } catch (IOException e) {
-          LOG.error("Error during flows: {} setup", e.getMessage());
-          return;
-      }
-     LOG.info("Staring flows");
-     manager.startFlows();
-     Runtime.getRuntime().addShutdownHook(new Thread(new PipeShutdownTask(manager)));
-  }
+    PipeManager manager = new PipeManager(configurationPath);
+    try {
+      manager.setupFlows();
+    } catch (IOException e) {
+      LOG.error("Error during flows: {} setup", e.getMessage());
+      return;
+    }
+    LOG.info("Staring flows");
+    manager.startFlows();
+    Runtime.getRuntime().addShutdownHook(new Thread(new PipeShutdownTask(manager)));
 
+  }
 }

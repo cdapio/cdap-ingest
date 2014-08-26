@@ -3,7 +3,7 @@ CDAP Ingest Project
 
 Various ways to ingest data into CDAP. 
 
-For more details, please, look to the README.md files in submodules.
+For details, please see the README.md file in each submodule.
 
 
 ## License and Trademarks

@@ -31,7 +31,7 @@ public class NotFoundException extends Exception {
   }
 
   /**
-   * @return Type of the element: flow, stream, dataset, etc.
+   * @return Type of the element: Flow, Stream, Dataset, etc.
    */
   public String getElementType() {
     return elementType;

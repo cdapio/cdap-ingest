@@ -19,6 +19,7 @@ package co.cask.cdap.filetailer.tailer;
 import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.config.FlowConfiguration;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
+import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.state.FileTailerState;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
@@ -56,15 +57,17 @@ public class LogTailer extends AbstractWorker {
   private byte entrySeparator = '\n';
   private FlowConfiguration confLoader;
   private FileTailerStateProcessor fileTailerStateProcessor;
+  private FileTailerMetricsProcessor metricsProcessor;
   private final byte inbuf[];
 
 
   public LogTailer(FlowConfiguration loader, FileTailerQueue queue,
-                   FileTailerStateProcessor stateProcessor) {
+                   FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
     inbuf = new byte[DEFAULT_BUFSIZE];
     this.queue = queue;
     this.confLoader = loader;
     this.fileTailerStateProcessor = stateProcessor;
+    this.metricsProcessor = metricsProcessor;
     this.sleepInterval = confLoader.getSourceConfiguration().getSleepInterval();
     this.logDirectory = confLoader.getSourceConfiguration().getWorkDir();
     this.logFileName = confLoader.getSourceConfiguration().getFileName();
@@ -73,6 +76,10 @@ public class LogTailer extends AbstractWorker {
     this.failureRetryLimit = confLoader.getSourceConfiguration().getFailureRetryLimit();
     this.failureSleepInterval = confLoader.getSourceConfiguration().getFailureSleepInterval();
 
+  }
+
+  public FileTailerMetricsProcessor getMetricsProcessor() {
+    return metricsProcessor;
   }
 
 
@@ -156,6 +163,8 @@ public class LogTailer extends AbstractWorker {
           queue.put(new FileTailerEvent(new FileTailerState(currentLogFile.toString(),
                                                             position, lineHash, modifyTime),
                                         line, charset));
+
+          metricsProcessor.onReadEventMetric(line.getBytes().length);
         } else {
           File newLog = getCurrentLogFile(logDirectory, modifyTime, false, currentLogFile);
           if (newLog == null) {

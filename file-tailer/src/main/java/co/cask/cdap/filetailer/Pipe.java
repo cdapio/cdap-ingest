@@ -17,6 +17,7 @@
 
 package co.cask.cdap.filetailer;
 
+import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.tailer.LogTailer;
 
@@ -27,18 +28,22 @@ import co.cask.cdap.filetailer.tailer.LogTailer;
 public class Pipe {
     private LogTailer logTailer;
     private FileTailerSink sink;
+    private FileTailerMetricsProcessor metricsProcessor;
+    public Pipe(LogTailer tailer, FileTailerSink sink, FileTailerMetricsProcessor metricsProcessor) {
 
-    public Pipe(LogTailer tailer, FileTailerSink sink) {
         this.logTailer = tailer;
         this.sink = sink;
+        this.metricsProcessor = metricsProcessor;
     }
 
     public void start() {
+        metricsProcessor.startWorker();
         logTailer.startWorker();
         sink.startWorker();
     }
 
     public void stop() {
+        metricsProcessor.stopWorker();
         logTailer.stopWorker();
         sink.stopWorker();
     }

@@ -18,11 +18,13 @@ package co.cask.cdap.filetailer;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.client.exception.NotFoundException;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
 import co.cask.cdap.filetailer.config.FlowConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
+import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
 import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.sink.SinkStrategy;
@@ -53,11 +55,16 @@ public class PipeManager {
         FileTailerQueue queue = new FileTailerQueue(flowConf.getQueueSize());
         StreamWriter writer = getStreamWriterForFlow(flowConf);
         FileTailerStateProcessor stateProcessor =
-          new FileTailerStateProcessorImpl(flowConf.getStateDir(), flowConf.getStateFile());
-        new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE, stateProcessor);
-        flowfList.add(new Pipe(new LogTailer(flowConf, queue, stateProcessor),
+          new FileTailerStateProcessorImpl(flowConf.getDaemonDir(), flowConf.getStateFile());
+        FileTailerMetricsProcessor metricsProcessor =
+          new FileTailerMetricsProcessor(flowConf.getDaemonDir(), flowConf.getStatisticsFile(),
+                                             flowConf.getStatisticsSleepInterval(), flowConf.getFlowName(),
+                                             flowConf.getSourceConfiguration().getFileName());
+        flowfList.add(new Pipe(new LogTailer(flowConf, queue, stateProcessor, metricsProcessor),
                                new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
-                                                  stateProcessor, flowConf.getSinkConfiguration().getPackSize())));
+                                                  stateProcessor, metricsProcessor,
+                                                  flowConf.getSinkConfiguration().getPackSize()),
+                               metricsProcessor));
       }
     } catch (ConfigurationLoadingException e) {
       throw new ConfigurationLoadingException("Error during loading configuration from file: "
@@ -79,6 +86,8 @@ public class PipeManager {
       StreamWriter writer = client.createWriter(streamName);
       return writer;
     } catch (IOException e) {
+      throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
+    } catch (NotFoundException e) {
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }

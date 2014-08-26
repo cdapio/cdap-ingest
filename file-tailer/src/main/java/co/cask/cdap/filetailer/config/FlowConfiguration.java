@@ -34,7 +34,7 @@ public interface FlowConfiguration {
    *
    * @return the File Tailer home (to save state and metrics) directory path
    */
-  String getStateDir();
+  String getDaemonDir();
 
   /**
    * Returns the name of state file (loaded from configuration file)
@@ -49,6 +49,13 @@ public interface FlowConfiguration {
    * @return the state file name
    */
   String getStatisticsFile();
+
+  /**
+   * Returns the sleep interval for writing statistics (loaded from configuration file)
+   *
+   * @return the sleep interval for writing statistics
+   */
+  long getStatisticsSleepInterval();
 
   /**
    * Returns the size of queue, intended for store events before push them to server (loaded from configuration file)

@@ -44,7 +44,7 @@ public class AbstractWorker implements Runnable {
         if (worker != null) {
             worker.interrupt();
         } else {
-            LOG.warn("{} deamon is already started!", this.getClass().getName());
+            LOG.warn("{} deamon was not started!", this.getClass().getName());
             throw new IllegalStateException(this.getClass().getName() + "  deamon is already started!");
 
         }

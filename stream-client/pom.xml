@@ -33,6 +33,7 @@
 
   <modules>
     <module>stream-client-java</module>
+    <module>stream-client-java-example</module>
   </modules>
 
 </project>
