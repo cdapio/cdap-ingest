@@ -23,7 +23,6 @@ import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
 import co.cask.cdap.filetailer.config.FlowConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 
@@ -31,7 +30,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

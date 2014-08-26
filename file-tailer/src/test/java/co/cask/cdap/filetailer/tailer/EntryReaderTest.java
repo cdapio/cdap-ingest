@@ -18,7 +18,6 @@
 package co.cask.cdap.filetailer.tailer;
 
 import co.cask.cdap.filetailer.config.FlowConfiguration;
-import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -26,19 +25,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.RandomAccessFile;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  *
