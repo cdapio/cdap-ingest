@@ -28,6 +28,7 @@
 
   <modules>
     <module>stream-client</module>
+    <module>file-tailer</module>
     <module>file-drop-zone</module>
   </modules>
 
@@ -196,6 +197,7 @@
                   <exclude>**/*.avsc</exclude>
                   <!-- Excludes examples by default, include it in the examples profile -->
                   <exclude>examples/**</exclude>
+                  <exclude>**/testlogs/**</exclude>
                 </excludes>
               </configuration>
             </execution>
