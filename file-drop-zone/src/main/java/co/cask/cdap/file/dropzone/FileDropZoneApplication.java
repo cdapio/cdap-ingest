@@ -27,8 +27,8 @@ import java.io.File;
 /**
  * An Example of using the Directory Polling Service
  */
-public class Main {
-  private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+public class FileDropZoneApplication {
+  private static final Logger LOG = LoggerFactory.getLogger(FileDropZoneApplication.class);
 
   // A hardcoded path to a folder you are monitoring .
   public static final String FOLDER = "/tmp/dropzone";
