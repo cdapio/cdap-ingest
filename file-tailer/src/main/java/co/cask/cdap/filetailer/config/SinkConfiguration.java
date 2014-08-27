@@ -19,7 +19,7 @@ package co.cask.cdap.filetailer.config;
 import co.cask.cdap.client.StreamClient;
 
 /**
- * SinkConfiguration is design for getting sink properties of the some flow
+ * SinkConfiguration is design for getting sink properties of the some pipe
  */
 public interface SinkConfiguration {
 
@@ -38,7 +38,7 @@ public interface SinkConfiguration {
   StreamClient getStreamClient();
 
   /**
-   * Returns the size of events pack, which sends to server (loaded from configuration file)
+   * Returns the size of events pack, which sends to stream (loaded from configuration file)
    *
    * @return the size of events pack
    */

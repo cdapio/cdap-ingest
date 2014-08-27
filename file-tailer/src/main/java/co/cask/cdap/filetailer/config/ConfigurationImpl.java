@@ -59,8 +59,8 @@ public class ConfigurationImpl implements Configuration {
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
     if (property == null) {
-      LOG.error("Property not found");
-      throw new ConfigurationLoaderException("Property not found");
+      LOG.error("Property {} not found", key);
+      throw new ConfigurationLoaderException("Property " + key + " not found");
     }
     return property;
   }

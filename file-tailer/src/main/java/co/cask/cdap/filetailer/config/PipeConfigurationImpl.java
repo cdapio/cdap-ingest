@@ -26,7 +26,7 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 
 /**
- * FlowConfigurationImpl default implementation of FlowConfiguration
+ * PipeConfigurationImpl default implementation of PipeConfiguration
  */
 public class PipeConfigurationImpl implements PipeConfiguration {
 
