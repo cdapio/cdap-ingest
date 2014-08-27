@@ -26,7 +26,7 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 
 /**
- * FlowConfigurationImpl default implementation of FlowConfiguration
+ * PipeConfigurationImpl default implementation of PipeConfiguration
  */
 public class PipeConfigurationImpl implements PipeConfiguration {
 
@@ -116,8 +116,8 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
     if (property == null || property.equals("")) {
-      LOG.error("Property not found");
-      throw new ConfigurationLoaderException("Property not found");
+      LOG.error("Property {} not found", key);
+      throw new ConfigurationLoaderException("Property " + key + " not found");
     }
     return property;
   }

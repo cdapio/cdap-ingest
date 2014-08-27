@@ -17,14 +17,14 @@
 package co.cask.cdap.filetailer.config;
 
 /**
- * FlowConfiguration is design for getting general properties of the some flow
+ * PipeConfiguration is design for getting general properties of the some pipe
  */
 public interface PipeConfiguration {
 
   /**
-   * Returns the name of this flow (loaded from configuration file)
+   * Returns the name of this pipe (loaded from configuration file)
    *
-   * @return the name of this flow
+   * @return the name of this pipe
    */
   String getPipeName();
 
@@ -58,23 +58,23 @@ public interface PipeConfiguration {
   long getStatisticsSleepInterval();
 
   /**
-   * Returns the size of queue, intended for store events before push them to server (loaded from configuration file)
+   * Returns the size of queue, intended for store events before push them to stream (loaded from configuration file)
    *
    * @return the queue size of temporary events queue
    */
   int getQueueSize();
 
   /**
-   * Returns the source configuration loader that return source configurations of this flow
+   * Returns the source configuration loader that return source configurations of this pipe
    *
-   * @return the source configuration loader of this flow
+   * @return the source configuration loader of this pipe
    */
   SourceConfiguration getSourceConfiguration();
 
   /**
-   * Returns the sink configuration loader that return sink configurations of this flow
+   * Returns the sink configuration loader that return sink configurations of this pipe
    *
-   * @return the sink configuration loader of this flow
+   * @return the sink configuration loader of this pipe
    */
   SinkConfiguration getSinkConfiguration();
 }

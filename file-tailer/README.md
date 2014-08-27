@@ -41,7 +41,6 @@ As soon as a new record is being appended to the end of a file that the daemon i
   - pipes
   - pipes.pipe1.source.work_dir
   - pipes.pipe1.source.file_name
-  - pipes.pipe1.source.rotated_file_name_pattern
   - pipes.pipe1.sink.stream_name
   - pipes.pipe1.sink.host
   - pipes.pipe1.sink.port
@@ -121,7 +120,7 @@ As soon as a new record is being appended to the end of a file that the daemon i
  - pipes.<pipe name>.name - name of this pipe
  - pipes.<pipe name>.state_file - name of file, to which File Tailer save state
  - pipes.<pipe name>.statistics_file - name of file, to which File Tailer save statistics
- - pipes.<pipe name>.queue_size - size of queue, which intended to store logs before sending them to REST API
+ - pipes.<pipe name>.queue_size - size of queue, which intended to store logs before sending them to Stream
  - pipes.<pipe name>.source.work_dir - path to directory, where monitor log files
  - pipes.<pipe name>.source.file_name - name of log file
  - pipes.<pipe name>.source.rotated_file_name_pattern - log file rolling pattern

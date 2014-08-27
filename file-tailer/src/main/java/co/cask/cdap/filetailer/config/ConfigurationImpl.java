@@ -40,11 +40,11 @@ public class ConfigurationImpl implements Configuration {
   @Override
   public List<PipeConfiguration> getPipesConfiguration() {
     String[] pipes = getRequiredProperty("pipes").split(",");
-    List<PipeConfiguration> flowsConfiguration = new ArrayList<PipeConfiguration>(pipes.length);
+    List<PipeConfiguration> pipesConfiguration = new ArrayList<PipeConfiguration>(pipes.length);
     for (String pipe : pipes) {
-      flowsConfiguration.add(new PipeConfigurationImpl(properties, pipe));
+      pipesConfiguration.add(new PipeConfigurationImpl(properties, pipe));
     }
-    return flowsConfiguration;
+    return pipesConfiguration;
   }
 
   private String getProperty(String key) {
@@ -59,8 +59,8 @@ public class ConfigurationImpl implements Configuration {
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
     if (property == null) {
-      LOG.error("Property not found");
-      throw new ConfigurationLoaderException("Property not found");
+      LOG.error("Property {} not found", key);
+      throw new ConfigurationLoaderException("Property " + key + " not found");
     }
     return property;
   }

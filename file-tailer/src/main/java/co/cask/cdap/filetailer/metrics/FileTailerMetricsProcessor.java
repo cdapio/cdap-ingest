@@ -75,10 +75,10 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   @Override
   public void run() {
     RollingFileAppender appender = null;
+    ch.qos.logback.classic.Logger logger = initLogger("metricsLogger");
     try {
       createDirs(stateDirPath);
       createFile(stateDirPath + "/" + metricsFileName);
-      ch.qos.logback.classic.Logger logger = initLogger("metricsLogger");
       appender = initAppender(stateDirPath, metricsFileName);
       writeMetricsHeader(logger, appender);
       while (!Thread.currentThread().isInterrupted()) {
@@ -91,6 +91,8 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       LOG.debug("Metric Processor was interrupted");
     } finally {
       if (appender != null) {
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
+        writeMetrics(logger, appender, currentDate);
         appender.stop();
       }
     }

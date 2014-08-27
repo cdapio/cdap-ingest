@@ -17,7 +17,7 @@
 package co.cask.cdap.filetailer.config;
 
 /**
- * SourceConfiguration is design for getting source properties of the some flow
+ * SourceConfiguration is design for getting source properties of the some pipe
  */
 public interface SourceConfiguration {
 

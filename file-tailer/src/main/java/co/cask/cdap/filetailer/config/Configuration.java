@@ -24,9 +24,9 @@ import java.util.List;
 public interface Configuration {
 
   /**
-   * Returns configurations of each flow
+   * Returns configurations of each pipe
    *
-   * @return configurations of each flow
+   * @return configurations of each pipe
    */
   List<PipeConfiguration> getPipesConfiguration();
 }
