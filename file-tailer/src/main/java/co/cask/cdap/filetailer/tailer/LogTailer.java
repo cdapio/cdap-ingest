@@ -56,6 +56,7 @@ public class LogTailer extends AbstractWorker {
   private FileTailerStateProcessor fileTailerStateProcessor;
   private FileTailerMetricsProcessor metricsProcessor;
   private final byte inbuf[];
+  private String rotationPattern;
 
 
   public LogTailer(PipeConfiguration loader, FileTailerQueue queue,
@@ -72,6 +73,7 @@ public class LogTailer extends AbstractWorker {
     this.charsetName = confLoader.getSourceConfiguration().getCharsetName();
     this.failureRetryLimit = confLoader.getSourceConfiguration().getFailureRetryLimit();
     this.failureSleepInterval = confLoader.getSourceConfiguration().getFailureSleepInterval();
+    this.rotationPattern = confLoader.getSourceConfiguration().getRotationPattern();
 
   }
 
@@ -79,7 +81,9 @@ public class LogTailer extends AbstractWorker {
     return metricsProcessor;
   }
 
-
+  /**
+   *  run log tailer thread
+   */
   public void run() {
     try {
       checkLogDir(logDirectory);
@@ -102,9 +106,13 @@ public class LogTailer extends AbstractWorker {
     } catch (InterruptedException e) {
       LOG.info("Tailer daemon was interrupted");
     }
+    LOG.info("Tailer daemon stopped");
   }
 
-
+  /**
+   *  setup charset from name, specified in configuration
+   *  @return false if charset with given name does not exist, true if charset was setup  successfully
+   */
   private boolean charsetSetup() {
     if (!Charset.isSupported(charsetName)) {
       return false;
@@ -112,7 +120,10 @@ public class LogTailer extends AbstractWorker {
     charset = Charset.forName(charsetName);
     return true;
   }
-
+  /**
+   *  Method try to get save state of the tailer
+   *  @return FileTailerState object, if save state file not exist null is returning
+   */
   private FileTailerState getSaveStateFromFile() {
     FileTailerState fileTailerState;
     try {
@@ -123,12 +134,16 @@ public class LogTailer extends AbstractWorker {
     }
     return fileTailerState;
   }
-
+  /**
+   *  Method try start  tailer from save state.
+   *  If could not find log file with saved entry method finished
+   *  @throws  InterruptedException if thread was interrupted
+   */
   private void runFromSaveState(FileTailerState fileTailerState) throws InterruptedException {
     long position = fileTailerState.getPosition();
     long lastModifytime = fileTailerState.getLastModifyTime();
     int hash = fileTailerState.getHash();
-    File currentLogFile = getCurrentLogFile(logDirectory, lastModifytime, true, null);
+    File currentLogFile = getNextLogFile(logDirectory, lastModifytime, true, null);
     if (currentLogFile == null) {
       return;
     }
@@ -144,7 +159,13 @@ public class LogTailer extends AbstractWorker {
       return;
     }
   }
-
+  /**
+   *  Method start reading log directory from current log file and
+   *  current RandomAccessReader position
+   *  @param reader opened RandomAccessReader stream
+   *  @param currentLogFile log file, from which reading is started
+   *  @throws  InterruptedException if thread was interrupted
+   */
   private void startReadingFromFile(RandomAccessFile reader, File currentLogFile) throws InterruptedException {
     int lineHash;
     long position;
@@ -163,7 +184,7 @@ public class LogTailer extends AbstractWorker {
 
           metricsProcessor.onReadEventMetric(line.getBytes().length);
         } else {
-          File newLog = getCurrentLogFile(logDirectory, modifyTime, false, currentLogFile);
+          File newLog = getNextLogFile(logDirectory, modifyTime, false, currentLogFile);
           if (newLog == null) {
             LOG.debug("waiting for new log data  from file {}", currentLogFile);
             Thread.sleep(sleepInterval);
@@ -183,12 +204,15 @@ public class LogTailer extends AbstractWorker {
     }
 
   }
-
+  /**
+   *  Method start reading log from all log directory
+   *  @InterruptedException if thread was interrupted
+   */
   private void runWithOutRestore() throws InterruptedException {
     File logFile = null;
     RandomAccessFile reader;
     while (logFile == null && !Thread.currentThread().isInterrupted()) {
-      logFile = getCurrentLogFile(logDirectory, 0L, false, null);
+      logFile = getNextLogFile(logDirectory, 0L, false, null);
       if (logFile == null) {
         try {
           Thread.sleep(sleepInterval);
@@ -206,6 +230,10 @@ public class LogTailer extends AbstractWorker {
     startReadingFromFile(reader, logFile);
   }
 
+  /**
+   *  Method start reading log from all log directory
+   *  @InterruptedException if thread was interrupted
+   */
   private boolean checkLine(RandomAccessFile reader, long position, int hash) throws IOException, InterruptedException {
     reader.seek(position);
     String line = tryReadLine(reader, entrySeparator).toString();
@@ -216,9 +244,16 @@ public class LogTailer extends AbstractWorker {
     }
 
   }
-
-  private File getCurrentLogFile(String logDir, Long currentTime, boolean fromSaveState, File currFile) {
-    File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName));
+  /**
+   *  Method get next log file if exist
+   *  @param logDir current log directory
+   *  @param currentTime time of the last current log file modification
+   *  @param fromSaveState if starting from save state
+   *  @param currFile current log file name
+   *  @return  next log file
+   */
+  private File getNextLogFile(String logDir, Long currentTime, boolean fromSaveState, File currFile) {
+    File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName, rotationPattern));
 
 
     Comparator logfileComparator = new Comparator<LogFileTime>() {
@@ -238,12 +273,11 @@ public class LogTailer extends AbstractWorker {
     for (File f : dirFiles) {
       logFilesTimesMap.put(new LogFileTime(f.lastModified(), f.getName()), f);
     }
-    logFilesTimesMap.higherKey(logFilesTimesMap.firstKey());
     if (currentTime == 0) {
       return logFilesTimesMap.firstEntry().getValue();
     }
-    if (fromSaveState && logFilesTimesMap.containsKey(currentTime)) {
-      return logFilesTimesMap.get(currentTime);
+    if (fromSaveState && logFilesTimesMap.containsKey(new LogFileTime(currentTime, null))) {
+      return logFilesTimesMap.get(new LogFileTime(currentTime, null));
     } else {
       LogFileTime key = logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName()));
       if (key == null) {
@@ -271,37 +305,22 @@ public class LogTailer extends AbstractWorker {
       return fileName;
     }
   }
-
-  private File getFirstLogFile(String logDir) {
-    File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName));
-
-    File result = null;
-    for (File f : dirFiles) {
-
-      if (result == null) {
-        result = f;
-      } else {
-        if (f.lastModified() > result.lastModified()) {
-          result = f;
-        } else if (f.lastModified() == result.lastModified()) {
-          if (f.getName().compareTo(result.getName()) > 0) {
-            result = f;
-          }
-        }
-      }
-    }
-    return result;
-  }
-
-
+  /**
+   *  Method get next log file if exist
+   *  @throws co.cask.cdap.filetailer.tailer.LogDirNotFoundException if directory specified in log file not exist
+   */
   private void checkLogDir(String dir) throws LogDirNotFoundException {
     File logdir = new File(dir);
     if (!(logdir.exists())) {
       throw new LogDirNotFoundException("Configured log directory not found");
     }
   }
-
-
+  /**
+   *  try open for reading  log file
+   *  @param file log file
+   *  @throws IOException if could not open reader after failureRetryLimit attempts
+   *  @throws InterruptedException if thread was interrupted
+   */
   private RandomAccessFile tryOpenFile(File file) throws IOException, InterruptedException {
     int retryNumber = 0;
     RandomAccessFile reader;
@@ -320,7 +339,13 @@ public class LogTailer extends AbstractWorker {
     }
     return reader;
   }
-
+  /**
+   *  Method try read  log entry from log file
+   *  @param reader  RandomAccessReader steam
+   *  @param separator  log entry separator
+   *  @throws IOException if could not read entry after failureRetryLimit attempts
+   *  @throws InterruptedException if thread was interrupted
+   */
   private String tryReadLine(RandomAccessFile reader, byte separator) throws IOException, InterruptedException {
     int retryNumber = 0;
     long rePos = 0;

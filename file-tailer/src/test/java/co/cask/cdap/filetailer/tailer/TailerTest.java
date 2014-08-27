@@ -55,6 +55,7 @@ public class TailerTest {
   public void prepare() throws IOException {
     TailerLogUtils.createTestDirIfNeed();
     TailerLogUtils.clearTestDir();
+//    TailerLogUtils.clearStateDir();
   }
 @After
 public void clean() throws IOException {

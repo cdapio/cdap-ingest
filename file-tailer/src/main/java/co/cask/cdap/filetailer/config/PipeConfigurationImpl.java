@@ -126,7 +126,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     private String key;
 
-    private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "yyyy-MM-dd-HH-mm";
+    private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "*";
 
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";
 
@@ -154,7 +154,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     @Override
     public String getRotationPattern() {
-      return getProperty(this.key + "rotated_file_name_pattern", DEFAULT_ROTATED_FILE_NAME_PATTERN);
+      return getProperty(this.key + "rotated_file_name_pattern", getFileName() + DEFAULT_ROTATED_FILE_NAME_PATTERN);
     }
 
     @Override

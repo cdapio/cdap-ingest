@@ -48,4 +48,4 @@ if [ ! -f ${FT_HOME}/bin/$command ]; then
    exit 1
 fi
 
-${FT_HOME}/bin/$@
+exec ${FT_HOME}/bin/$@
