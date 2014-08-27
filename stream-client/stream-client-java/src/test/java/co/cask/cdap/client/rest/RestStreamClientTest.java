@@ -302,8 +302,6 @@ public class RestStreamClientTest extends RestTest {
     assertEquals(RestStreamWriter.class, streamWriter.getClass());
     RestStreamWriter restStreamWriter = (RestStreamWriter) streamWriter;
     assertEquals(TestUtils.SUCCESS_STREAM_NAME, restStreamWriter.getStreamName());
-    String expectedBaseUri = "http://" + testServerHost + ":" + testServerPort;
-    assertEquals(expectedBaseUri, restStreamWriter.getRestClient().getBaseURL().toString());
   }
 
   @Test(expected = NotFoundException.class)
@@ -313,8 +311,6 @@ public class RestStreamClientTest extends RestTest {
     assertEquals(RestStreamWriter.class, streamWriter.getClass());
     RestStreamWriter restStreamWriter = (RestStreamWriter) streamWriter;
     assertEquals(TestUtils.SUCCESS_STREAM_NAME, restStreamWriter.getStreamName());
-    String expectedBaseUri = "http://" + testServerHost + ":" + testServerPort;
-    assertEquals(expectedBaseUri, restStreamWriter.getRestClient().getBaseURL().toString());
   }
 
   @After
