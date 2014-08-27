@@ -126,7 +126,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     private String key;
 
-    private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "*";
+    private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "(.*)";
 
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";
 

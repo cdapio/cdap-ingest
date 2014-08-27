@@ -34,6 +34,6 @@ public class LogFilter implements FilenameFilter {
 
   @Override
   public boolean accept(File dir, String name) {
-    return name.contains(baseLogfile) || name.contains(logPattern);
+    return name.contains(baseLogfile) || name.matches(logPattern);
   }
 }
