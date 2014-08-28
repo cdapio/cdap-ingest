@@ -31,6 +31,8 @@ public class ConfigurationImpl implements Configuration {
 
   private static final Logger LOG = LoggerFactory.getLogger(ConfigurationImpl.class);
 
+  private static final String DEFAULT_POLLING_INTERVAL = "5000";
+
   private Properties properties;
 
   public ConfigurationImpl(Properties properties) {
@@ -45,6 +47,31 @@ public class ConfigurationImpl implements Configuration {
       pipesConfiguration.add(new PipeConfigurationImpl(properties, pipe));
     }
     return pipesConfiguration;
+  }
+
+  @Override
+  public long getPollingInterval() {
+    return Long.parseLong(getProperty("polling_interval", DEFAULT_POLLING_INTERVAL));
+  }
+
+  @Override
+  public List<PipeConfiguration> getObserverConfiguration() {
+    String[] observers = getRequiredProperty("observers").split(",");
+    List<PipeConfiguration> pipesConfiguration = new ArrayList<PipeConfiguration>(observers.length);
+    for (String observer : observers) {
+      String pipe = getRequiredProperty("observers." + observer + ".pipe");
+      Properties newProperties = new Properties();
+      newProperties.putAll(properties);
+      newProperties.put("pipes." + pipe + ".source.work_dir",
+                        getRequiredProperty("observers." + observer + ".work_dir"));
+      pipesConfiguration.add(new PipeConfigurationImpl(newProperties, pipe));
+    }
+    return pipesConfiguration;
+  }
+
+  private String getProperty(String key, String defaultValue) {
+    String value = getProperty(key);
+    return value != null && !value.equals("") ? value : defaultValue;
   }
 
   private String getProperty(String key) {

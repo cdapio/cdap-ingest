@@ -126,7 +126,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     private String key;
 
-    private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "*";
+    private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "(.*)";
 
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";
 
@@ -137,6 +137,8 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
 
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
+
+    private static final String DEFAULT_READ_ROTATED_FILES = "true";
 
     public SourceConfigurationImpl(String key) {
       this.key = "pipes." + key + ".source.";
@@ -180,6 +182,11 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     @Override
     public long getFailureSleepInterval() {
       return Long.parseLong(getProperty(this.key + "failure_sleep_interval", DEFAULT_FAILURE_SLEEP_INTERVAL));
+    }
+
+    @Override
+    public boolean getReadRotatedFiles() {
+      return Boolean.valueOf(getProperty(this.key + "read_rotated_files", DEFAULT_READ_ROTATED_FILES));
     }
   }
 
