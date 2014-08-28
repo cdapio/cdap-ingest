@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-require './lib/stream_client'
+require '../lib/stream_client'
 
-stream = 'test'
+stream = 'text'
 client = StreamClient.new
 
 puts 'create stream'
@@ -18,7 +18,7 @@ puts "ttl: #{ttl}"
 puts 'truncate'
 client.truncate stream
 
-writer = client.create_writer stream, 2
+writer = client.create_writer stream, 5
 
 _10mb = '1' * (10 * 1024 * 1024)
 
@@ -31,6 +31,10 @@ _10mb = '1' * (10 * 1024 * 1024)
       puts "error: #{error.response.code} -> #{error.message}"
     }
   )
+}
+
+writer.send('file').then { |response|
+  puts "success send file: #{response.code}"
 }
 
 puts 'after all requests in code'

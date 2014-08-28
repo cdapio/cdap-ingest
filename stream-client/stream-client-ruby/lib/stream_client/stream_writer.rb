@@ -1,4 +1,4 @@
-require './lib/stream_client/rest'
+require '../lib/stream_client/rest'
 require 'thread/pool'
 require 'promise'
 
@@ -49,8 +49,11 @@ class StreamClient
       # NOTE: There will be a new HTTP API in 2.5 to support extracting events from the file based on the content type.
       #       Until that is available, breaking down the file content into multiple events need to happen in the client
       #       side.
-    def send(file, type)
-
+    def send(file, type = 'text/plain')
+      promise_request {
+        file = File.open(file, 'rb') { |io| io.read }
+        rest.request 'post', stream, body: file, headers: { 'Content-type' => type }
+      }
     end
 
     def close

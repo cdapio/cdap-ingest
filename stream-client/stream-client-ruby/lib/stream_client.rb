@@ -1,5 +1,5 @@
-require './lib/stream_client/rest'
-require './lib/stream_client/stream_writer'
+require '../lib/stream_client/rest'
+require '../lib/stream_client/stream_writer'
 
 ###
   # The client interface to interact with services provided by stream endpoint.
