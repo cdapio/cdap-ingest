@@ -18,11 +18,11 @@ puts "ttl: #{ttl}"
 puts 'truncate'
 client.truncate stream
 
-writer = client.create_writer stream, 5
+writer = client.create_writer stream, 3
 
 _10mb = '1' * (10 * 1024 * 1024)
 
-20.times {
+10.times {
   writer.write(_10mb).then(
     -> (response) {
       puts "success: #{response.code}"
@@ -33,7 +33,7 @@ _10mb = '1' * (10 * 1024 * 1024)
   )
 }
 
-writer.send('file').then { |response|
+writer.send('1MB').then { |response|
   puts "success send file: #{response.code}"
 }
 
