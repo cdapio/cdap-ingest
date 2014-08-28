@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * PipeManager  creates and manage pipes
+ * PipeManager creates and manage pipes
  */
 
 public class PipeManager {

@@ -16,13 +16,10 @@
 
 package co.cask.cdap.file.dropzone;
 
-import co.cask.cdap.file.dropzone.polling.PollingListener;
-import co.cask.cdap.file.dropzone.polling.PollingService;
-import co.cask.cdap.file.dropzone.polling.dir.DirPollingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.IOException;
 
 /**
  * An Example of using the Directory Polling Service
@@ -30,36 +27,29 @@ import java.io.File;
 public class FileDropZoneApplication {
   private static final Logger LOG = LoggerFactory.getLogger(FileDropZoneApplication.class);
 
-  // A hardcoded path to a folder you are monitoring .
-  public static final String FOLDER = "/tmp/dropzone";
-
-
   public static void main(String[] args) throws Exception {
-    final long pollingInterval = 5 * 1000;
 
-    final File folder = new File(FOLDER);
+    LOG.info("Application started");
 
-    if (!folder.exists()) {
-      // Test to see if monitored folder exists
-      throw new RuntimeException("Directory not found: " + FOLDER);
+    String configurationPath;
+    if (args.length == 0) {
+      configurationPath = FileDropZoneApplication.class.getClassLoader().getResource("file-drop-zone.properties").getFile();
+    } else if (args.length == 1) {
+      configurationPath = args[0];
+    } else {
+      LOG.error("Too many arguments: {}", args.length);
+      return;
     }
 
-    final PollingService monitor = new DirPollingService(pollingInterval);
-    monitor.startDirMonitor(folder, new PollingListener() {
-
-      @Override
-      public void onFileCreate(File file) {
-        LOG.debug("File Added: {}", file.getAbsolutePath());
-        monitor.removeFile(folder, file);
-      }
-
-      @Override
-      public void onException(Exception exception) {
-        LOG.warn("Error", exception);
-        monitor.stopDirMonitor(folder);
-      }
-    });
-
-    monitor.start();
+    PollingServiceManager pollingServiceManager = new PollingServiceManager(configurationPath);
+    try {
+      pollingServiceManager.initManager();
+      pollingServiceManager.initObservers();
+    } catch (IOException e) {
+      LOG.error("Failed to initialize observers");
+      return;
+    }
+    LOG.info("Starting monitor");
+    pollingServiceManager.startMonitor();
   }
 }

@@ -129,19 +129,19 @@ checkstatus(){
 
   case "$status" in
     $STATUS_RUNNING)
-      success && echo "$desc is running"
+      log_success_msg "$desc is running"
       ;;
     $STATUS_DEAD)
-      failure && echo "$desc is dead and pid file exists"
+      log_failure_msg "$desc is dead and pid file exists"
       ;;
     $STATUS_DEAD_AND_LOCK)
-      failure && echo "$desc is dead and lock file exists"
+      log_failure_msg "$desc is dead and lock file exists"
       ;;
     $STATUS_NOT_RUNNING)
-      failure && echo "$desc is not running"
+      log_failure_msg "$desc is not running"
       ;;
     *)
-      failure && echo "$desc status is unknown"
+      log_failure_msg "$desc status is unknown"
       ;;
   esac
   return $status

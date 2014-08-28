@@ -21,14 +21,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
-import java.nio.file.Files;
 
 public class FileTailerStateProcessorImplTest {
 
   @Test
   public void saveLoadStateTest() throws FileTailerStateProcessorException {
     FileTailerStateProcessor stateProcessor =
-        new FileTailerStateProcessorImpl(System.getProperty("user.home") + "/ft_state_dir", "ft.state");
+      new FileTailerStateProcessorImpl(System.getProperty("user.home") + "/ft_state_dir", "ft.state");
 
     FileTailerState state = new FileTailerState("name", 101, "hash".hashCode(), 102);
 
