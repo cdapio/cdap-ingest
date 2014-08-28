@@ -99,6 +99,14 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return sinkConfiguration;
   }
 
+  @Override
+  public PipeConfiguration getPipeConfiguration(String fileName) {
+    Properties newProperties = new Properties();
+    newProperties.putAll(properties);
+    newProperties.put(keyPath + "source.file_name", fileName);
+    return new PipeConfigurationImpl(newProperties, key);
+  }
+
   private String getProperty(String key, String defaultValue) {
       String value = getProperty(key);
       return value != null && !value.equals("") ? value : defaultValue;

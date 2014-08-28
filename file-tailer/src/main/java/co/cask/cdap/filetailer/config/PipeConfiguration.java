@@ -77,4 +77,12 @@ public interface PipeConfiguration {
    * @return the sink configuration loader of this pipe
    */
   SinkConfiguration getSinkConfiguration();
+
+  /**
+   * Returns the configuration of pipe, that working with specified file
+   *
+   * @param fileName the name of work file
+   * @return the configuration of pipe, that working with specified file
+   */
+  public PipeConfiguration getPipeConfiguration(String fileName);
 }
