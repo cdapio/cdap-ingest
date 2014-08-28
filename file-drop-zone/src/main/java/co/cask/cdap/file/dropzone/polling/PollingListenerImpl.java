@@ -84,7 +84,8 @@ public class PollingListenerImpl implements PollingListener {
                                      pipeConfiguration.getStatisticsSleepInterval(), pipeConfiguration.getPipeName(),
                                      pipeConfiguration.getSourceConfiguration().getFileName());
     PipeListener pipeListener = new PipeListenerImpl(pipeConfiguration.getSourceConfiguration().getWorkDir(),
-                                                     file.getAbsolutePath(), null);
+                                                     file.getAbsolutePath(), pipeConfiguration.getDaemonDir() +
+                                                       "/" + pipeConfiguration.getStateFile());
     Pipe pipe = new Pipe(new LogTailer(pipeConfiguration, queue, stateProcessor, metricsProcessor, pipeListener),
                          new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
                                             stateProcessor, metricsProcessor, pipeListener,

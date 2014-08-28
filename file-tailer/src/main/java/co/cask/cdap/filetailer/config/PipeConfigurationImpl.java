@@ -71,7 +71,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
   @Override
   public String getStateFile() {
-    return getProperty(this.keyPath + "state_file", DEFAULT_STATE_FILE);
+    return getProperty(this.keyPath + "state_file", getSourceConfiguration().getFileName() + "." + DEFAULT_STATE_FILE);
   }
 
   @Override
