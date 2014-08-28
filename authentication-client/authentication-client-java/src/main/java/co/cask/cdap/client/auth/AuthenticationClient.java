@@ -16,6 +16,8 @@
 
 package co.cask.cdap.client.auth;
 
+import java.io.IOException;
+
 /**
  * The client interface to fetch the access token from the Auth. Server.
  */
@@ -25,5 +27,5 @@ public interface AuthenticationClient {
    *
    * @return String value of the access token
    */
-  String getAccessToken();
+  String getAccessToken() throws IOException;
 }

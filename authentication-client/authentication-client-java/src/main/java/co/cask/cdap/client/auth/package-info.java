@@ -15,6 +15,6 @@
  */
 
 /**
- * This package contains internal classes for fetching the access token from the Authentication Server.
+ * This package contains internal classes for fetching the access token from the authentication server.
  */
 package co.cask.cdap.client.auth;

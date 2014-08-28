@@ -35,6 +35,12 @@
     <commons.lang.version>2.5</commons.lang.version>
     <logback.version>1.0.9</logback.version>
     <log4j.over.slf4j.version>1.7.7</log4j.over.slf4j.version>
+    <gson.version>2.2.4</gson.version>
+    <guava.version>17.0</guava.version>
+    <rs-api.version>2.0</rs-api.version>
+    <jersey.version>2.4.1</jersey.version>
+    <mockito.version>1.9.5</mockito.version>
+    <junit.version>4.11</junit.version>
   </properties>
 
   <dependencyManagement>
@@ -68,6 +74,45 @@
         <groupId>org.slf4j</groupId>
         <artifactId>log4j-over-slf4j</artifactId>
         <version>${log4j.over.slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>${gson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>${rs-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-common</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${http.component.version}</version>
+        <classifier>tests</classifier>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
