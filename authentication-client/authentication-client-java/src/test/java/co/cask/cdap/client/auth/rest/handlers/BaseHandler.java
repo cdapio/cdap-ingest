@@ -16,12 +16,7 @@
 
 package co.cask.cdap.client.auth.rest.handlers;
 
-import co.cask.cdap.client.auth.rest.BasicAuthenticationClientTest;
-import com.google.common.base.Charsets;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpException;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -34,7 +29,10 @@ import java.io.IOException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 
-public class AuthenticationHandler implements HttpRequestHandler {
+public class BaseHandler implements HttpRequestHandler {
+  private String authHost;
+  private int authPort;
+
   @Override
   public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
     throws HttpException, IOException {
@@ -43,29 +41,21 @@ public class AuthenticationHandler implements HttpRequestHandler {
     String method = requestLine.getMethod();
     int statusCode;
     if (HttpMethod.GET.equals(method)) {
-      String authHeaderVal = httpRequest.getFirstHeader(HttpHeaders.AUTHORIZATION).getValue();
-      if (StringUtils.isNotEmpty(authHeaderVal)) {
-        authHeaderVal = authHeaderVal.replace("Basic ", StringUtils.EMPTY);
-        String credentialsStr = new String(Base64.decodeBase64(authHeaderVal), Charsets.UTF_8);
-        String[] credentials = credentialsStr.split(":");
-        String username = credentials[0];
-        String password = credentials[1];
-        if (BasicAuthenticationClientTest.AUTHENTICATED_USERNAME.equals(username) &&
-          BasicAuthenticationClientTest.AUTHENTICATED_PASSWORD.equals(password)) {
-          StringEntity entity = new StringEntity("{'access_token':'" + BasicAuthenticationClientTest.TOKEN +
-                                                   "','token_type':'Bearer','expires_in':86400}");
-          entity.setContentType(MediaType.APPLICATION_JSON);
-          httpResponse.setEntity(entity);
-          statusCode = HttpStatus.SC_OK;
-        } else {
-          statusCode = HttpStatus.SC_UNAUTHORIZED;
-        }
-      } else {
-        statusCode = HttpStatus.SC_BAD_REQUEST;
-      }
+      statusCode = HttpStatus.SC_UNAUTHORIZED;
+      StringEntity entity = new StringEntity(String.format("{'auth_uri':['http://%s:%d/token']}", authHost, authPort));
+      entity.setContentType(MediaType.APPLICATION_JSON);
+      httpResponse.setEntity(entity);
     } else {
       statusCode = HttpStatus.SC_NOT_IMPLEMENTED;
     }
     httpResponse.setStatusCode(statusCode);
+  }
+
+  public void setAuthHost(String authHost) {
+    this.authHost = authHost;
+  }
+
+  public void setAuthPort(int authPort) {
+    this.authPort = authPort;
   }
 }

@@ -24,8 +24,18 @@ import java.io.IOException;
 public interface AuthenticationClient {
   /**
    * Retrieves the access token generated according to the credentials required by Auth. Provider in the Auth. Server.
+   * Empty result string means that authentication is disabled in the gateway server.
    *
    * @return String value of the access token
+   * @throws IOException in case of a problem or the connection was aborted
    */
   String getAccessToken() throws IOException;
+
+  /**
+   * Checks is the authentication enabled in the gateway server.
+   *
+   * @return true if authentication is enabled
+   * @throws IOException in case of a problem or the connection was aborted
+   */
+  boolean isAuthEnabled() throws IOException;
 }

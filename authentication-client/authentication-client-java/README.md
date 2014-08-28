@@ -28,7 +28,7 @@ The Authentication Client Java API is for fetching the access token from the aut
  
 ## Example
    
- Create a ```AuthenticationClient``` instance, specifying the fields 'host' and 'port' of the authentication server
+ Create a ```BasicAuthenticationClient``` instance, specifying the fields 'host' and 'port' of the gateway server
  and supported credentials (username and password for the basic authentication mechanism). 
  Optional property that can be set (and its default value):
   
@@ -36,22 +36,31 @@ The Authentication Client Java API is for fetching the access token from the aut
  
  ```
    AuthenticationClient authenticationClient = 
-                        new BasicRestAuthenticationClient("localhost", 10009, "admin", "realtime");
+                        new BasicAuthenticationClient("localhost", 10009, "admin", "realtime");
  ```
       
  or specified SSL using the constructor parameters:
  
  ```
    AuthenticationClient authenticationClient = 
-                           new BasicRestAuthenticationClient("localhost", 10009, false, "admin", "realtime");
+                           new BasicAuthenticationClient("localhost", 10009, false, "admin", "realtime");
  ```
+ 
+ Check is authentication enabled in the gateway server:
+ 
+ ```
+  boolean isEnabled = authenticationClient.isAuthEnabled();
+ ```                      
  
  Get the access token for the user with *username:"admin"* and *password:"realtime"* from the authentication server:
  
  ```  
    String token = authenticationClient.getAccessToken();  
  ```
-
+ 
+ **Note:** If authentication is disabled in the gateway server, ```getAccessToken();``` method returns empty string, 
+ but no need to call this method, if before ```isAuthEnabled();``` method was called and it returned **false** results.
+   
 ## Additional Notes
  
  ```getAccessToken();``` methods from the ```BasicRestAuthenticationClient``` throw exceptions using response code 
