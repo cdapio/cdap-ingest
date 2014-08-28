@@ -189,7 +189,7 @@ public class LogTailer extends AbstractWorker {
           metricsProcessor.onReadEventMetric(line.getBytes().length);
         } else {
           if (!confLoader.getSourceConfiguration().getReadRotatedFiles()) {
-//            TODO: file alredy read
+//            TODO: file already read
           }
           File newLog = getNextLogFile(logDirectory, modifyTime, false, currentLogFile);
           if (newLog == null) {

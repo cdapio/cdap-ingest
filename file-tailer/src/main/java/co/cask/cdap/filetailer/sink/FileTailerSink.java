@@ -79,6 +79,9 @@ public class FileTailerSink extends AbstractWorker {
     EventPack pack = new EventPack(packSize);
     while (!Thread.currentThread().isInterrupted()) {
       try {
+        if (queue.isEmpty()) {
+//          TODO: file already send
+        }
         FileTailerEvent event = queue.take();
 
         pack.add(event);
