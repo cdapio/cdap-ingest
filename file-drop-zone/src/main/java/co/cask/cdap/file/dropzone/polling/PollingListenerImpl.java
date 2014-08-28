@@ -43,6 +43,7 @@ public class PollingListenerImpl implements PollingListener {
   private PollingService monitor;
   private final PipeConfiguration pipeConf;
 
+
   public PollingListenerImpl(PollingService monitor, PipeConfiguration pipeConf) {
     this.monitor = monitor;
     this.pipeConf = pipeConf;
@@ -82,12 +83,15 @@ public class PollingListenerImpl implements PollingListener {
       new FileTailerMetricsProcessor(pipeConfiguration.getDaemonDir(), pipeConfiguration.getStatisticsFile(),
                                      pipeConfiguration.getStatisticsSleepInterval(), pipeConfiguration.getPipeName(),
                                      pipeConfiguration.getSourceConfiguration().getFileName());
-    PipeListener pipeListener = new PipeListenerImpl();
-    return new Pipe(new LogTailer(pipeConfiguration, queue, stateProcessor, metricsProcessor, pipeListener),
-                    new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
-                                       stateProcessor, metricsProcessor, pipeListener,
-                                       pipeConfiguration.getSinkConfiguration().getPackSize()),
-                    metricsProcessor);
+    PipeListener pipeListener = new PipeListenerImpl(pipeConfiguration.getSourceConfiguration().getWorkDir(),
+                                                     file.getAbsolutePath(), null);
+    Pipe pipe = new Pipe(new LogTailer(pipeConfiguration, queue, stateProcessor, metricsProcessor, pipeListener),
+                         new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
+                                            stateProcessor, metricsProcessor, pipeListener,
+                                            pipeConfiguration.getSinkConfiguration().getPackSize()),
+                         metricsProcessor);
+    pipeListener.setPipe(pipe);
+    return pipe;
 
   }
 
@@ -115,9 +119,15 @@ public class PollingListenerImpl implements PollingListener {
   private class PipeListenerImpl implements PipeListener {
 
     private boolean isRead = false;
+    private String directoryPath;
+    private String filePath;
+    private String stateFilePath;
+    private Pipe pipe;
 
-    public PipeListenerImpl() {
-//      TODO: add all needed parameters
+    public PipeListenerImpl(String directoryPath, String filePath, String stateFilePath) {
+      this.directoryPath = directoryPath;
+      this.filePath = filePath;
+      this.stateFilePath = stateFilePath;
     }
 
     @Override
@@ -132,8 +142,26 @@ public class PollingListenerImpl implements PollingListener {
 
     @Override
     public void onIngest() {
-//      TODO: stop pipe, remove file, remove state
+      pipe.stop();
+      monitor.removeFile(new File(directoryPath), new File(filePath));
+      removeStateFile();
     }
+
+    @Override
+    public void setPipe(Pipe pipe) {
+      this.pipe = pipe;
+    }
+
+    private void removeStateFile() {
+      File stateFile = new File(stateFilePath);
+      if (stateFile.delete()) {
+        LOG.debug("File successfully deleted {}.", stateFile);
+      } else {
+        throw new IllegalArgumentException(
+          String.format("Cannot remove specified file %s.", stateFile.getAbsolutePath()));
+      }
+    }
+
   }
 
 }

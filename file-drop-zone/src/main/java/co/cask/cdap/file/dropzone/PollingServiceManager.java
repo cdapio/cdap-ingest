@@ -65,12 +65,11 @@ public class PollingServiceManager {
   }
 
   /**
-   * Get observers configuration
+   * Get pipes configuration
    *
-   * @return List of the  observer configuration read from configuration file
+   * @return List of the pipes configuration read from configuration file
    * @throws co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException if can not create client stream
    */
-
   private List<PipeConfiguration> getPipeConfigList() throws ConfigurationLoadingException {
     return configuration.getObserverConfiguration();
   }

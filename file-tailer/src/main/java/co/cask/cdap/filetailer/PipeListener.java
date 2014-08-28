@@ -39,4 +39,6 @@ public interface PipeListener {
    *
    */
   void onIngest();
+
+  void setPipe(Pipe pipe);
 }
