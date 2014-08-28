@@ -17,6 +17,7 @@
 package co.cask.cdap.filetailer.tailer;
 
 import co.cask.cdap.filetailer.AbstractWorker;
+import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
@@ -58,9 +59,11 @@ public class LogTailer extends AbstractWorker {
   private final byte inbuf[];
   private String rotationPattern;
 
+  private PipeListener pipeListener;
 
-  public LogTailer(PipeConfiguration loader, FileTailerQueue queue,
-                   FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
+
+  public LogTailer(PipeConfiguration loader, FileTailerQueue queue, FileTailerStateProcessor stateProcessor,
+                   FileTailerMetricsProcessor metricsProcessor, PipeListener pipeListener) {
     inbuf = new byte[DEFAULT_BUFSIZE];
     this.queue = queue;
     this.confLoader = loader;
@@ -74,7 +77,7 @@ public class LogTailer extends AbstractWorker {
     this.failureRetryLimit = confLoader.getSourceConfiguration().getFailureRetryLimit();
     this.failureSleepInterval = confLoader.getSourceConfiguration().getFailureSleepInterval();
     this.rotationPattern = confLoader.getSourceConfiguration().getRotationPattern();
-
+    this.pipeListener = pipeListener;
   }
 
   public FileTailerMetricsProcessor getMetricsProcessor() {
@@ -188,8 +191,9 @@ public class LogTailer extends AbstractWorker {
 
           metricsProcessor.onReadEventMetric(line.getBytes().length);
         } else {
-          if (!confLoader.getSourceConfiguration().getReadRotatedFiles()) {
-//            TODO: file already read
+          if (!confLoader.getSourceConfiguration().getReadRotatedFiles() && pipeListener != null) {
+            pipeListener.onRead();
+            break;
           }
           File newLog = getNextLogFile(logDirectory, modifyTime, false, currentLogFile);
           if (newLog == null) {

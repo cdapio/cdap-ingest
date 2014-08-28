@@ -50,7 +50,7 @@ public class FileTailerSinkTest {
 
     StreamWriter writerMock = getDummyStreamWriter();
     FileTailerSink sink = new FileTailerSink(queue, writerMock,
-                                             SinkStrategy.LOADBALANCE, stateProcessor, metricsProcessor);
+                                             SinkStrategy.LOADBALANCE, stateProcessor, metricsProcessor, null);
 
     sink.startWorker();
 
@@ -72,7 +72,7 @@ public class FileTailerSinkTest {
 
     StreamWriter writerMock = getDummyStreamWriter();
     FileTailerSink sink = new FileTailerSink(queue, writerMock,
-                                             SinkStrategy.LOADBALANCE, stateProcessor, metricsProcessor,
+                                             SinkStrategy.LOADBALANCE, stateProcessor, metricsProcessor, null,
                                              CUSTOM_PACK_SIZE);
     try {
       sink.startWorker();
@@ -103,7 +103,7 @@ public class FileTailerSinkTest {
     boolean success = false;
 
     FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE,
-                                             stateProcessor, metricsProcessor, CUSTOM_PACK_SIZE);
+                                             stateProcessor, metricsProcessor, null, CUSTOM_PACK_SIZE);
     try {
       sink.startWorker();
 

@@ -49,6 +49,10 @@ class EventPack {
     return capacity == events.size();
   }
 
+  boolean isEmpty() {
+    return events.isEmpty();
+  }
+
   FileTailerState getState() {
     FileTailerState finalState = events.get(0).getState();
     for (FileTailerEvent event : events) {

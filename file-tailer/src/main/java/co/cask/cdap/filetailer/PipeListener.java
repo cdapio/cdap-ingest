@@ -14,33 +14,29 @@
  * the License.
  */
 
-package co.cask.cdap.filetailer.config;
-
-import java.util.List;
+package co.cask.cdap.filetailer;
 
 /**
- * Configuration is design for getting all properties from configuration file
+ * PipeListener abstraction
  */
-public interface Configuration {
+public interface PipeListener {
 
   /**
-   * Returns configurations of each pipe
+   * Invoked, when all logs from specified file already read
    *
-   * @return configurations of each pipe
    */
-  List<PipeConfiguration> getPipesConfiguration();
+  void onRead();
 
   /**
-   * Returns polling interval
+   * Returns file already read status [true|false]
    *
-   * @return polling interval
+   * @return file already read status [true|false]
    */
-  long getPollingInterval();
+  boolean isRead();
 
   /**
-   * Returns configurations of each observer
+   * Invoked, when all logs from specified file already ingested
    *
-   * @return configurations of each observer
    */
-  public List<PipeConfiguration> getObserverConfiguration();
+  void onIngest();
 }

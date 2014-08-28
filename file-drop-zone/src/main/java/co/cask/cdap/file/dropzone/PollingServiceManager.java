@@ -43,7 +43,7 @@ public class PollingServiceManager {
 
   public void initManager() throws ConfigurationLoadingException {
     this.configuration = getConfiguration();
-    initMonitor();
+    this.monitor = new DirPollingService(configuration.getPollingInterval());
   }
 
   /**
@@ -62,10 +62,6 @@ public class PollingServiceManager {
       throw new ConfigurationLoadingException("Error during loading configuration from file: "
                                                 + confPath + e.getMessage());
     }
-  }
-
-  private void initMonitor() {
-    this.monitor = new DirPollingService(configuration.getPollingInterval());
   }
 
   /**

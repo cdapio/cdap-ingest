@@ -66,9 +66,9 @@ public class PipeManager {
           new FileTailerMetricsProcessor(pipeConf.getDaemonDir(), pipeConf.getStatisticsFile(),
                                          pipeConf.getStatisticsSleepInterval(), pipeConf.getPipeName(),
                                          pipeConf.getSourceConfiguration().getFileName());
-        pipeList.add(new Pipe(new LogTailer(pipeConf, queue, stateProcessor, metricsProcessor),
+        pipeList.add(new Pipe(new LogTailer(pipeConf, queue, stateProcessor, metricsProcessor, null),
                                new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
-                                                  stateProcessor, metricsProcessor,
+                                                  stateProcessor, metricsProcessor, null,
                                                   pipeConf.getSinkConfiguration().getPackSize()),
                                metricsProcessor));
       }

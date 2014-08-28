@@ -19,6 +19,7 @@ package co.cask.cdap.file.dropzone.polling;
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.filetailer.Pipe;
+import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -81,9 +82,10 @@ public class PollingListenerImpl implements PollingListener {
       new FileTailerMetricsProcessor(pipeConfiguration.getDaemonDir(), pipeConfiguration.getStatisticsFile(),
                                      pipeConfiguration.getStatisticsSleepInterval(), pipeConfiguration.getPipeName(),
                                      pipeConfiguration.getSourceConfiguration().getFileName());
-    return new Pipe(new LogTailer(pipeConfiguration, queue, stateProcessor, metricsProcessor),
+    PipeListener pipeListener = new PipeListenerImpl();
+    return new Pipe(new LogTailer(pipeConfiguration, queue, stateProcessor, metricsProcessor, pipeListener),
                     new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
-                                       stateProcessor, metricsProcessor,
+                                       stateProcessor, metricsProcessor, pipeListener,
                                        pipeConfiguration.getSinkConfiguration().getPackSize()),
                     metricsProcessor);
 
@@ -110,21 +112,28 @@ public class PollingListenerImpl implements PollingListener {
     }
   }
 
-  private class PipeListener {
+  private class PipeListenerImpl implements PipeListener {
 
-    private boolean fileReaded;
+    private boolean isRead = false;
 
-    public void onFileReaded() {
-      fileReaded = true;
+    public PipeListenerImpl() {
+//      TODO: add all needed parameters
     }
 
-    public void onFileEventsSent() {
+    @Override
+    public void onRead() {
+      isRead = true;
     }
 
-    public boolean isFileReaded() {
-      return fileReaded;
+    @Override
+    public boolean isRead() {
+      return isRead;
+    }
+
+    @Override
+    public void onIngest() {
+//      TODO: stop pipe, remove file, remove state
     }
   }
-
 
 }

@@ -33,7 +33,8 @@ public class FileDropZoneApplication {
 
     String configurationPath;
     if (args.length == 0) {
-      configurationPath = FileDropZoneApplication.class.getClassLoader().getResource("file-drop-zone.properties").getFile();
+      configurationPath =
+        FileDropZoneApplication.class.getClassLoader().getResource("file-drop-zone.properties").getFile();
     } else if (args.length == 1) {
       configurationPath = args[0];
     } else {

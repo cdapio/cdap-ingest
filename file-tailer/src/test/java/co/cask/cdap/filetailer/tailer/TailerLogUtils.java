@@ -163,7 +163,7 @@ public class  TailerLogUtils {
       new FileTailerMetricsProcessor(flowConfig.getDaemonDir(), flowConfig.getStatisticsFile(),
                                      flowConfig.getStatisticsSleepInterval(), flowConfig.getPipeName(),
                                      flowConfig.getSourceConfiguration().getFileName());
-    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
+    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor, null);
     return tailer;
   }
 }

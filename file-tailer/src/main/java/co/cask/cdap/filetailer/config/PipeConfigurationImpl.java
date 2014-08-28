@@ -40,7 +40,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   private SourceConfiguration sourceConfiguration;
   private SinkConfiguration sinkConfiguration;
 
-  private static final String DEFAULT_DAEMON_DIR = "/var/run/file-tailer/state_dir";
+  private static final String DEFAULT_DAEMON_DIR = "/var/run/file-drop-zone/state_dir";
 
   private static final String DEFAULT_QUEUE_SIZE = "1000";
 

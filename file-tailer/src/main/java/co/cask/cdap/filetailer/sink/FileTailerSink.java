@@ -18,6 +18,7 @@ package co.cask.cdap.filetailer.sink;
 
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.filetailer.AbstractWorker;
+import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -51,15 +52,18 @@ public class FileTailerSink extends AbstractWorker {
   private final FileTailerStateProcessor stateProcessor;
   private final FileTailerMetricsProcessor metricsProcessor;
 
+  private PipeListener pipeListener;
 
-  public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
-                        FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
-    this(queue, writer, strategy, stateProcessor, metricsProcessor, DEFAULT_PACK_SIZE);
+
+  public FileTailerSink(FileTailerQueue queue, StreamWriter writer,
+                        SinkStrategy strategy, FileTailerStateProcessor stateProcessor,
+                        FileTailerMetricsProcessor metricsProcessor, PipeListener pipeListener) {
+    this(queue, writer, strategy, stateProcessor, metricsProcessor, pipeListener, DEFAULT_PACK_SIZE);
   }
 
   public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
                         FileTailerStateProcessor stateProcessor,
-                        FileTailerMetricsProcessor metricsProcessor, int packSize) {
+                        FileTailerMetricsProcessor metricsProcessor, PipeListener pipeListener, int packSize) {
     if (writer == null) {
       throw new IllegalArgumentException("Writer can't be empty!");
     }
@@ -70,6 +74,7 @@ public class FileTailerSink extends AbstractWorker {
     this.strategy = strategy;
     this.packSize = packSize;
     this.random = new Random();
+    this.pipeListener = pipeListener;
   }
 
 
@@ -79,8 +84,16 @@ public class FileTailerSink extends AbstractWorker {
     EventPack pack = new EventPack(packSize);
     while (!Thread.currentThread().isInterrupted()) {
       try {
-        if (queue.isEmpty()) {
-//          TODO: file already send
+        if (pipeListener != null && pipeListener.isRead() && queue.isEmpty()) {
+          if (!pack.isEmpty()) {
+            uploadEventPack(pack);
+            LOG.debug("Saving File Tailer state");
+            stateProcessor.saveState(pack.getState());
+            LOG.debug("Cleanup event pack");
+            pack.clear();
+          }
+          pipeListener.onIngest();
+          break;
         }
         FileTailerEvent event = queue.take();
 
