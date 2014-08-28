@@ -1,92 +1,51 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from configparser import ConfigParser
+import json
+
 
 class Config:
+
     __host = 'localhost'
     __port = 10000
-    __useSSL = False
-    __apiKey = ''
-
-    __sections = {
-        'server': {
-            'sectionName': 'ServerConnection',
-            'options': {
-                'host': 'hostname',
-                'port': 'port',
-                'ssl': 'SSL',
-                'apikey': 'APIKey'
-            }
-        }
-    }
+    __ssl = False
 
     def __init__(self):
         pass
 
-    def getHost(self):
+    @property
+    def host(self):
         return self.__host
 
-    def setHost(self, hostname):
+    @host.setter
+    def host(self, hostname):
         self.__host = hostname
 
-    def getPort(self):
+    @property
+    def port(self):
         return self.__port
 
-    def setPort(self, port):
+    @port.setter
+    def port(self, port):
         self.__port = port
 
-    def getSSL(self):
-        return self.__useSSL
+    @property
+    def ssl(self):
+        return self.__ssl
 
-    def setSSL(self, ssl):
-        self.__useSSL = ssl
-
-    def getAPIKey(self):
-        return self.__apiKey
-
-    def setAPIKey(self, apiKey):
-        self.__apiKey = apiKey
+    @ssl.setter
+    def ssl(self, ssl):
+        self.__ssl = ssl
 
     def readFromFile(filename):
         newConfig = Config()
-        configParser = ConfigParser()
-        configParser.read(filename)
+        jsonConfig = None
 
-        try:
-            host = configParser.get(
-                Config.__sections['server']['sectionName'],
-                Config.__sections['server']['options']['host']
-            )
-            newConfig.setHost(host)
-        except:
-            pass
+        with open(file) as configFile:
+            jsonConfig = json.loads(configFile.read())
 
-        try:
-            port = configParser.getint(
-                Config.__sections['server']['sectionName'],
-                Config.__sections['server']['options']['port']
-            )
-            newConfig.setPort(port)
-        except:
-            pass
-
-        try:
-            useSSL = configParser.getboolean(
-                Config.__sections['server']['sectionName'],
-                Config.__sections['server']['options']['ssl']
-            )
-            newConfig.setSSL(useSSL)
-        except:
-            pass
-
-        try:
-            apiKey = configParser.get(
-                Config.__sections['server']['sectionName'],
-                Config.__sections['server']['options']['apikey']
-            )
-            newConfig.setAPIKey(apiKey)
-        except:
-            pass
+        newConfig.host = jsonConfig['hostname']
+        newConfig.port = jsonConfig['port']
+        newConfig.ssl = jsonConfig['SSL']
 
         return newConfig

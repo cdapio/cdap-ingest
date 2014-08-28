@@ -1,33 +1,38 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import json
 from config import Config
 from serviceconnector import ServiceConnector, ConnectionErrorChecker
 from streamwriter import StreamWriter
-import json
+
 
 class StreamClient(ConnectionErrorChecker):
+
     __serviceConnector = None
     __serviceConfig = None
 
-    __BASE_VER = '/v2'
+    __GATEWAY_VERSION = '/v2'
     __REQUEST_PLACEHOLDERS = {
         'streamid': '<streamid>'
     }
-    __REQUESTS = { 'streams': __BASE_VER + '/streams' }
-    __REQUESTS['stream'] = __REQUESTS['streams'] + '/' + __REQUEST_PLACEHOLDERS['streamid']
-    __REQUESTS['consumerid'] = __REQUESTS['stream'] + '/consumer-id'
-    __REQUESTS['dequeue'] = __REQUESTS['stream'] + '/dequeue'
-    __REQUESTS['config'] = __REQUESTS['stream'] + '/config'
-    __REQUESTS['info'] = __REQUESTS['stream'] + '/info'
-    __REQUESTS['truncate'] = __REQUESTS['stream'] + '/truncate'
+    __REQUESTS = {'streams': __GATEWAY_VERSION + '/streams'}
+    __REQUESTS['stream'] = '{0}/{1}'.format(__REQUESTS['streams'],
+                                            __REQUEST_PLACEHOLDERS['streamid'])
+    __REQUESTS['consumerid'] = '{0}/{1}'.format(__REQUESTS['stream'],
+                                                'consumer-id')
+    __REQUESTS['dequeue'] = '{0}/{1}'.format(__REQUESTS['stream'], 'dequeue')
+    __REQUESTS['config'] = '{0}/{1}'.format(__REQUESTS['stream'], 'config')
+    __REQUESTS['info'] = '{0}/{1}'.format(__REQUESTS['stream'], 'info')
+    __REQUESTS['truncate'] = '{0}/{1}'.format(__REQUESTS['stream'], 'truncate')
 
-    def __init__(self, config = Config()):
+    def __init__(self, config=Config()):
         self.__serviceConfig = config
         self.__serviceConnector = ServiceConnector(self.__serviceConfig)
 
-    def __prepareUri(self, requestName, placeholderName = 'streamid', data = ''):
-        return self.__REQUESTS[requestName].replace(self.__REQUEST_PLACEHOLDERS[placeholderName], data)
+    def __prepareUri(self, requestName, placeholderName='streamid', data=''):
+        return self.__REQUESTS[requestName].replace(
+            self.__REQUEST_PLACEHOLDERS[placeholderName], data)
 
     def create(self, stream):
         """
@@ -92,7 +97,8 @@ class StreamClient(ConnectionErrorChecker):
 
     def createWriter(self, stream):
         """
-        Creates a {@link StreamWriter} instance for writing events to the given stream.
+        Creates a {@link StreamWriter} instance for writing events
+        to the given stream.
 
         Keyword arguments:
         stream -- stream name to get StreamWrite instance for

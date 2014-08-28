@@ -1,19 +1,23 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import unittest, httpretty
-
-import os,sys,inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir)
-
+import unittest
+import httpretty
 import requests
 
+import os
+import sys
+import inspect
+currentdir = os.path.dirname(
+    os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
 from config import Config
-from serviceconnector import NoFoundErrorn
+from serviceconnector import NoFoundError
 from streamwriter import StreamWriter
 from streamclient import StreamClient
+
 
 class TestStreamClient(unittest.TestCase):
 
@@ -23,13 +27,15 @@ class TestStreamClient(unittest.TestCase):
     __REQUEST_PLACEHOLDERS = {
         'streamid': '<streamid>'
     }
-    __REQUESTS = { 'streams': __BASE_URL + '/streams' }
-    __REQUESTS['stream'] = __REQUESTS['streams'] + '/' + __REQUEST_PLACEHOLDERS['streamid']
-    __REQUESTS['consumerid'] = __REQUESTS['stream'] + '/consumer-id'
-    __REQUESTS['dequeue'] = __REQUESTS['stream'] + '/dequeue'
-    __REQUESTS['config'] = __REQUESTS['stream'] + '/config'
-    __REQUESTS['info'] = __REQUESTS['stream'] + '/info'
-    __REQUESTS['truncate'] = __REQUESTS['stream'] + '/truncate'
+    __REQUESTS = {'streams': __BASE_URL + '/streams'}
+    __REQUESTS['stream'] = '{0}/{1}'.format(__REQUESTS['streams'],
+                                            __REQUEST_PLACEHOLDERS['streamid'])
+    __REQUESTS['consumerid'] = '{0}/{1}'.format(__REQUESTS['stream'],
+                                                'consumer-id')
+    __REQUESTS['dequeue'] = '{0}/{1}'.format(__REQUESTS['stream'], 'dequeue')
+    __REQUESTS['config'] = '{0}/{1}'.format(__REQUESTS['stream'], 'config')
+    __REQUESTS['info'] = '{0}/{1}'.format(__REQUESTS['stream'], 'info')
+    __REQUESTS['truncate'] = '{0}/{1}'.format(__REQUESTS['stream'], 'truncate')
 
     validStream = 'validStream'
     invalidStream = 'invalidStream'
@@ -43,8 +49,8 @@ class TestStreamClient(unittest.TestCase):
 
     def setUp(self):
         config = Config()
-        config.setHost(self.__dummy_host)
-        config.setPort(self.__dummy_port)
+        config.host = self.__dummy_host
+        config.port = self.__dummy_port
 
         self.sc = StreamClient(config)
 
@@ -58,7 +64,7 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.PUT,
             url,
-            status = 200
+            status=200
         )
 
         response = requests.put(url)
@@ -75,7 +81,7 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.PUT,
             url,
-            status = 404
+            status=404
         )
 
         response = requests.put(url)
@@ -93,7 +99,7 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.PUT,
             url,
-            status = 200
+            status=200
         )
 
         try:
@@ -112,11 +118,11 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.PUT,
             url,
-            status = 404
+            status=404
         )
 
         self.assertRaises(
-            NoFoundErrorn,
+            NoFoundError,
             self.sc.setTTL,
             self.invalidStream,
             ttl
@@ -132,13 +138,13 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.GET,
             url,
-            status = 200,
-            body = '{"ttl": 88888}'
+            status=200,
+            body='{"ttl": 88888}'
         )
 
         try:
             self.sc.getTTL(self.validStream)
-        except NoFoundErrorn:
+        except NoFoundError:
             self.fail('StreamClient.getTTL() failed')
 
     @httpretty.activate
@@ -151,12 +157,12 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.GET,
             url,
-            status = 404,
-            body = '{"ttl": 88888}'
+            status=404,
+            body='{"ttl": 88888}'
         )
 
         self.assertRaises(
-            NoFoundErrorn,
+            NoFoundError,
             self.sc.getTTL,
             self.invalidStream
         )
@@ -171,8 +177,8 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.GET,
             url,
-            status = 200,
-            body = '{"ttl": 88888}'
+            status=200,
+            body='{"ttl": 88888}'
         )
 
         self.assertIsInstance(
@@ -190,14 +196,14 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.GET,
             url,
-            status = 404,
-            body = '{"ttl": 88888}'
+            status=404,
+            body='{"ttl": 88888}'
         )
 
         self.assertRaises(
-            NoFoundErrorn,
+            NoFoundError,
             self.sc.createWriter,
-            self.invalidStream )
+            self.invalidStream)
 
     @httpretty.activate
     def test_stream_writer_successful_sending(self):
@@ -214,14 +220,14 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.GET,
             urlInfo,
-            status = 200,
-            body = '{"ttl": 88888}'
+            status=200,
+            body='{"ttl": 88888}'
         )
 
         httpretty.register_uri(
             httpretty.POST,
             url,
-            status = 200
+            status=200
         )
 
         sw = self.sc.createWriter(self.validStream)
@@ -249,14 +255,14 @@ class TestStreamClient(unittest.TestCase):
         httpretty.register_uri(
             httpretty.GET,
             urlInfo,
-            status = 200,
-            body = '{"ttl": 88888}'
+            status=200,
+            body='{"ttl": 88888}'
         )
 
         httpretty.register_uri(
             httpretty.POST,
             url,
-            status = 200
+            status=200
         )
 
         sw = self.sc.createWriter(self.validStream)
