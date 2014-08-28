@@ -3,12 +3,18 @@ require './lib/stream_client/stream_writer'
 
 ###
   # The client interface to interact with services provided by stream endpoint.
-module StreamClient
+class StreamClient
+
+  attr_reader :rest
+
+  def initialize config = {}
+    @rest = Rest.new config
+  end
 
   ###
     # Creates a stream with the given name.
-  def self.create(stream)
-    Rest.request 'put', stream
+  def create(stream)
+    rest.request 'put', stream
   end
 
   ###
@@ -17,8 +23,8 @@ module StreamClient
     # @param stream Name of the stream
     # @param ttl TTL in seconds
     # @throws NotFoundException If the stream does not exists
-  def self.set_ttl(stream, ttl)
-    Rest.request 'put', "#{stream}/config", ttl: ttl
+  def set_ttl(stream, ttl)
+    rest.request 'put', "#{stream}/config", body: { ttl: ttl }
   end
 
   ###
@@ -27,9 +33,9 @@ module StreamClient
     # @param stream Name of the stream
     # @return Current TTL of the stream in seconds
     # @throws NotFoundException If the stream does not exists
-  def self.get_ttl(stream)
-    response = Rest.request 'get', "#{stream}/info"
-    response.body['ttl']
+  def get_ttl(stream)
+    response = rest.request 'get', "#{stream}/info"
+    response['ttl']
   end
 
   ###
@@ -37,8 +43,8 @@ module StreamClient
     #
     # @param stream Name of the stream
     # @throws NotFoundException If the stream does not exists
-  def self.truncate(stream)
-    Rest.request 'post', "#{stream}/truncate"
+  def truncate(stream)
+    rest.request 'post', "#{stream}/truncate"
   end
 
   ###
@@ -47,8 +53,8 @@ module StreamClient
     # @param stream Name of the stream
     # @return An instance of {@link StreamWriter} that is ready for writing events to the stream
     # @throws NotFoundException If the stream does not exists
-  def self.create_writer(stream)
-
+  def create_writer(stream, pool_size = nil)
+    StreamWriter.new stream, rest, pool_size
   end
 
 end

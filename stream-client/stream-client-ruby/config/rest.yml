@@ -1,4 +1,0 @@
----
-  gateway: localhost
-  ssl: false
-  X-Continuuity-ApiKey:

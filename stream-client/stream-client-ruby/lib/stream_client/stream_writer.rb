@@ -1,13 +1,23 @@
 require './lib/stream_client/rest'
+require 'thread/pool'
+require 'promise'
 
-module StreamClient
+class StreamClient
 
   ###
     # Provides ability for ingesting events to a stream in different ways.
   class StreamWriter
 
-    def initialize(stream)
+    MAX_POOL_SIZE = 10
 
+    attr_reader :stream, :rest, :pool, :parent_thread
+
+    def initialize stream, rest = nil, pool_size = nil
+      @stream = stream
+      @rest = rest || Rest.new
+      pool_size ||= MAX_POOL_SIZE
+      @pool = Thread.pool pool_size
+      @parent_thread = Thread.current
     end
 
     ###
@@ -21,10 +31,12 @@ module StreamClient
       # @param headers Set of headers for the stream event
       # @return A future that will be completed when the ingestion is completed. The future will fail if the ingestion
       #         failed. Cancelling the returning future has no effect.
-    def write(body, charset, headers = [])
-
+    def write(body, charset = 'utf-8', headers = {})
+      promise_request {
+        body = rest.to_s(body).encode(charset).force_encoding(Encoding::BINARY)
+        rest.request 'post', stream, body: body, headers: headers
+      }
     end
-
 
     ###
       # Sends the content of a {@link File} as multiple stream events.
@@ -39,6 +51,26 @@ module StreamClient
       #       side.
     def send(file, type)
 
+    end
+
+    def close
+      pool.shutdown
+    end
+
+  private
+
+    def promise_request
+      promise = Promise.new
+      pool.process {
+        begin
+          promise.fulfill yield
+        rescue Rest::ResponseError => e
+          promise.reject e
+        rescue Exception => e
+          parent_thread.raise e
+        end
+      }
+      promise
     end
 
   end
