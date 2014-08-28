@@ -142,9 +142,12 @@ public class LogTailer extends AbstractWorker {
   private void runFromSaveState(FileTailerState fileTailerState) throws InterruptedException {
     long position = fileTailerState.getPosition();
     long lastModifytime = fileTailerState.getLastModifyTime();
+    String savedFilename = fileTailerState.getFileName();
     int hash = fileTailerState.getHash();
-    File currentLogFile = getNextLogFile(logDirectory, lastModifytime, true, null);
+    File currentLogFile = getNextLogFile(logDirectory, lastModifytime,
+                                         true, new File(savedFilename));
     if (currentLogFile == null) {
+      LOG.info("Saved log file not exist. Exiting");
       return;
     }
     try {
@@ -153,6 +156,7 @@ public class LogTailer extends AbstractWorker {
         LOG.error("Can not find line from saved state. Exiting.. ");
         return;
       } else {
+        LOG.info("Saved log entry was found. Start reading log from save state");
         startReadingFromFile(reader, currentLogFile);
       }
     } catch (IOException e) {
@@ -184,6 +188,9 @@ public class LogTailer extends AbstractWorker {
 
           metricsProcessor.onReadEventMetric(line.getBytes().length);
         } else {
+          if (!confLoader.getSourceConfiguration().getReadRotatedFiles()) {
+//            TODO: file alredy read
+          }
           File newLog = getNextLogFile(logDirectory, modifyTime, false, currentLogFile);
           if (newLog == null) {
             LOG.debug("waiting for new log data  from file {}", currentLogFile);
@@ -212,7 +219,7 @@ public class LogTailer extends AbstractWorker {
     File logFile = null;
     RandomAccessFile reader;
     while (logFile == null && !Thread.currentThread().isInterrupted()) {
-      logFile = getNextLogFile(logDirectory, 0L, false, null);
+      logFile = getNextLogFile(logDirectory, 0L, false, new File(logFileName));
       if (logFile == null) {
         try {
           Thread.sleep(sleepInterval);
@@ -273,11 +280,11 @@ public class LogTailer extends AbstractWorker {
     for (File f : dirFiles) {
       logFilesTimesMap.put(new LogFileTime(f.lastModified(), f.getName()), f);
     }
-    if (currentTime == 0) {
+    if (currentTime == 0 && logFilesTimesMap.size() > 0) {
       return logFilesTimesMap.firstEntry().getValue();
     }
-    if (fromSaveState && logFilesTimesMap.containsKey(new LogFileTime(currentTime, null))) {
-      return logFilesTimesMap.get(new LogFileTime(currentTime, null));
+    if (fromSaveState && logFilesTimesMap.containsKey(new LogFileTime(currentTime, currFile.getName()))) {
+      return logFilesTimesMap.get(new LogFileTime(currentTime, currFile.getName()));
     } else {
       LogFileTime key = logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName()));
       if (key == null) {
@@ -323,8 +330,8 @@ public class LogTailer extends AbstractWorker {
    */
   private RandomAccessFile tryOpenFile(File file) throws IOException, InterruptedException {
     int retryNumber = 0;
-    RandomAccessFile reader;
-    while (true) {
+    RandomAccessFile reader = null;
+    while (!Thread.currentThread().isInterrupted()) {
       if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
         LOG.error("fail to open file after {} attempts", retryNumber);
         throw new IOException();
@@ -351,7 +358,11 @@ public class LogTailer extends AbstractWorker {
     long rePos = 0;
 
     StringBuilder sb = new StringBuilder();
-    while (retryNumber < failureRetryLimit || failureRetryLimit == 0) {
+    while (!Thread.currentThread().isInterrupted()) {
+      if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
+        LOG.error("fail to read line  after {} attempts", retryNumber);
+        throw new IOException();
+      }
       try {
         rePos = reader.getFilePointer();
         boolean end = false;
@@ -374,10 +385,6 @@ public class LogTailer extends AbstractWorker {
         retryNumber++;
         Thread.sleep(failureSleepInterval);
       }
-    }
-    if (retryNumber >= failureRetryLimit && failureRetryLimit > 0) {
-      LOG.error("fail to read line  after {} attempts", retryNumber);
-      throw new IOException();
     }
     reader.seek(rePos);
     return sb.toString();

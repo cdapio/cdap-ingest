@@ -34,7 +34,7 @@ public class FileTailerApplication {
 
     String configurationPath;
     if (args.length == 0) {
-      configurationPath = FileTailerApplication.class.getClassLoader().getResource("file-tailer.properties").getFile();
+    configurationPath = FileTailerApplication.class.getClassLoader().getResource("file-tailer.properties").getFile();
     } else if (args.length == 1) {
       configurationPath = args[0];
     } else {
