@@ -54,6 +54,7 @@ public class AbstractWorker implements Runnable {
     public void stopWorker() {
         if (worker != null) {
             worker.interrupt();
+            worker = null;
         } else {
             LOG.warn("{} deamon was not started!", this.getClass().getName());
             throw new IllegalStateException(this.getClass().getName() + "  daemon is not running!");
