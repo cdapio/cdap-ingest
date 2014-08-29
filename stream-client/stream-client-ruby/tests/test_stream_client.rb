@@ -1,11 +1,11 @@
-require '../lib/stream_client'
+require './lib/cdap-stream-client'
 require 'test/unit'
 
 class TestStreamClient < Test::Unit::TestCase
 
   def setup
     @stream = 'test_stream'
-    @client = StreamClient.new gateway: 'localhost'
+    @client = CDAP::StreamClient.new gateway: 'localhost'
   end
 
   def test_create_stream

@@ -1,11 +1,12 @@
-require '../lib/stream_client'
+require './lib/cdap-stream-client'
 require 'test/unit'
 
 class TestStreamWriter < Test::Unit::TestCase
 
   def setup
-    client = StreamClient.new gateway: 'localhost'
+    client = CDAP::StreamClient.new gateway: 'localhost'
     @writer = client.create_writer 'test_stream', 3
+    @_1mb = '1' * (1024 * 1024)
   end
 
   def teardown
@@ -13,9 +14,8 @@ class TestStreamWriter < Test::Unit::TestCase
   end
 
   def test_write
-    _1mb = '1' * (10 * 1024)
-    5.times {
-      @writer.write(_1mb).then(
+    7.times {
+      @writer.write(@_1mb).then(
           ->(response) {
             assert_equal 200, response.code
           },
@@ -27,8 +27,11 @@ class TestStreamWriter < Test::Unit::TestCase
   end
 
   def test_send
-    @writer.send('1MB').then { |response|
+    file_name = '1MB'
+    File.open(file_name, 'w') { |io| io.write @_1mb }
+    @writer.send(file_name).then { |response|
       assert_equal 200, response.code
+      File.delete file_name
     }
   end
 

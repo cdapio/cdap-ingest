@@ -1,6 +1,6 @@
 require 'httparty'
 
-class StreamClient
+module CDAP
 
   class Rest
     include HTTParty
