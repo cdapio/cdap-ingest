@@ -13,9 +13,9 @@ class TestStreamWriter < Test::Unit::TestCase
   end
 
   def test_write
-    _10mb = '1' * (10 * 1024 * 1024)
-    10.times {
-      @writer.write(_10mb).then(
+    _1mb = '1' * (10 * 1024)
+    5.times {
+      @writer.write(_1mb).then(
           ->(response) {
             assert_equal 200, response.code
           },
