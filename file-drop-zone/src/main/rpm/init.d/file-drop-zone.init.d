@@ -34,16 +34,16 @@ DESC="File Drop Zone"
 # Common part
 
 DEFAULT=/etc/default/$NAME
-FT_LOG_DIR=/var/log/file-drop-zone
-FT_CONF_DIR=/etc/$NAME/conf
-FT_RUN_DIR=/var/run/file-drop-zone
-FT_HOME=/usr/lib/$NAME
-FT_USER=file-drop-zone
-FT_LOCK_DIR="/var/lock/subsys/"
-FT_PID_FILE=${FT_RUN_DIR}/${NAME}.pid
-FT_SHUTDOWN_TIMEOUT=${FT_SHUTDOWN_TIMEOUT:-60}
+FDZ_LOG_DIR=/var/log/file-drop-zone
+FDZ_CONF_DIR=/etc/$NAME/conf
+FDZ_RUN_DIR=/var/run/file-drop-zone
+FDZ_HOME=/usr/lib/$NAME
+FDZ_USER=file-drop-zone
+FDZ_LOCK_DIR="/var/lock/subsys/"
+FDZ_PID_FILE=${FDZ_RUN_DIR}/${NAME}.pid
+FDZ_SHUTDOWN_TIMEOUT=${FDZ_SHUTDOWN_TIMEOUT:-60}
 
-LOCKFILE="${FT_LOCK_DIR}/${NAME}"
+LOCKFILE="${FDZ_LOCK_DIR}/${NAME}"
 desc="$DESC daemon"
 EXEC_PATH=/usr/bin/$NAME
 JAVA_OPTIONS="-Xmx256m"
@@ -69,12 +69,12 @@ fi
 
 # These directories may be tmpfs and may or may not exist
 # depending on the OS (ex: /var/lock/subsys does not exist on debian/ubuntu)
-for dir in "$FT_RUN_DIR" "$FT_LOCK_DIR"; do
-  [ -d "${dir}" ] || install -d -m 0755 -o $FT_USER -g $FT_USER ${dir}
+for dir in "$FDZ_RUN_DIR" "$FDZ_LOCK_DIR"; do
+  [ -d "${dir}" ] || install -d -m 0755 -o $FDZ_USER -g $FDZ_USER ${dir}
 done
 
-export FT_HOME
-export FT_LOG_DIR
+export FDZ_HOME
+export FDZ_LOG_DIR
 export JAVA_OPTIONS
 
 start() {
@@ -86,35 +86,35 @@ start() {
     exit 0
   fi
 
-  if [ ! -d ${FT_LOG_DIR} ]; then
-      mkdir -p ${FT_LOG_DIR}
+  if [ ! -d ${FDZ_LOG_DIR} ]; then
+      mkdir -p ${FDZ_LOG_DIR}
   fi
 
   log_success_msg "Starting $desc ($NAME): "
-  /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ >${FT_PID_FILE} && exec ${EXEC_PATH} start >>${FT_LOG_DIR}/${NAME}-server.init.log 2>&1' &" $FT_USER
+  /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ >${FDZ_PID_FILE} && exec ${EXEC_PATH} start >>${FDZ_LOG_DIR}/${NAME}-server.init.log 2>&1' &" $FDZ_USER
   RETVAL=$?
   [ $RETVAL -eq 0 ] && touch $LOCKFILE
   return $RETVAL
 }
 
 stop() {
-  if [ ! -e $FT_PID_FILE ]; then
+  if [ ! -e $FDZ_PID_FILE ]; then
     log_failure_msg "$desc is not running"
     exit 0
   fi
 
   log_success_msg "Stopping $desc ($NAME): "
 
-  FT_PID=`cat $FT_PID_FILE`
-  if [ -n $FT_PID ]; then
+  FDZ_PID=`cat $FDZ_PID_FILE`
+  if [ -n $FDZ_PID ]; then
     ${EXEC_PATH} stop
-    for i in `seq 1 ${FT_SHUTDOWN_TIMEOUT}` ; do
-      kill -0 ${FT_PID} &>/dev/null || break
+    for i in `seq 1 ${FDZ_SHUTDOWN_TIMEOUT}` ; do
+      kill -0 ${FDZ_PID} &>/dev/null || break
       sleep 1
     done
-    kill -KILL ${FT_PID} &>/dev/null
+    kill -KILL ${FDZ_PID} &>/dev/null
   fi
-  rm -f $LOCKFILE $FT_PID_FILE
+  rm -f $LOCKFILE $FDZ_PID_FILE
   return 0
 }
 
@@ -124,7 +124,7 @@ restart() {
 }
 
 checkstatus(){
-  pidofproc -p $FT_PID_FILE java > /dev/null
+  pidofproc -p $FDZ_PID_FILE java > /dev/null
   status=$?
 
   case "$status" in

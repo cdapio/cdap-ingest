@@ -33,6 +33,6 @@ function homeDir()
     echo $DIR
 }
 
-export FT_HOME="$( homeDir )"
-export LIB=$FT_HOME/lib
-export CONF=$FT_HOME/conf
+export FDZ_HOME="$( homeDir )"
+export LIB=$FDZ_HOME/lib
+export CONF=$FDZ_HOME/conf
