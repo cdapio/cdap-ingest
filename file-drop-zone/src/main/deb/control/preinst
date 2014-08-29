@@ -21,6 +21,14 @@ if [ -d /usr/lib/file-drop-zone ]; then
     rm -rf /usr/lib/file-drop-zone
 fi
 
+if [ -d /var/file-drop-zone ]; then
+    rm -rf /var/file-drop-zone
+fi
+
+if [ -d /tmp/file-drop-zone ]; then
+    rm -rf /tmp/file-drop-zone
+fi
+
 if ! id file-drop-zone > /dev/null 2>&1 ; then
     adduser --system --no-create-home --group --disabled-password --shell /bin/false file-drop-zone
 fi

@@ -21,6 +21,14 @@ if [ -d /usr/lib/file-drop-zone ]; then
     rm -rf /usr/lib/file-drop-zone
 fi
 
+if [ -d /var/file-drop-zone ]; then
+    rm -rf /var/file-drop-zone
+fi
+
+if [ -d /tmp/file-drop-zone ]; then
+    rm -rf /tmp/file-drop-zone
+fi
+
 getent group  file-drop-zone &>/dev/null || groupadd -r file-drop-zone || :
 getent passwd file-drop-zone &>/dev/null || useradd  -r -g file-drop-zone \
                              -M -s /sbin/nologin file-drop-zone || :

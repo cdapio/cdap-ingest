@@ -18,6 +18,7 @@ package co.cask.cdap.file.dropzone.polling;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.file.dropzone.polling.config.ObserverConfiguration;
 import co.cask.cdap.filetailer.Pipe;
 import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
@@ -41,17 +42,20 @@ import java.net.URISyntaxException;
 public class PollingListenerImpl implements PollingListener {
   private static final Logger LOG = LoggerFactory.getLogger(PollingListenerImpl.class);
   private PollingService monitor;
-  private final PipeConfiguration pipeConf;
+  private final ObserverConfiguration observerConf;
 
   private FileTailerMetricsProcessor metricsProcessor;
 
 
-  public PollingListenerImpl(PollingService monitor, PipeConfiguration pipeConf) {
+  public PollingListenerImpl(PollingService monitor, ObserverConfiguration observerConf) {
     this.monitor = monitor;
-    this.pipeConf = pipeConf;
-    metricsProcessor = new FileTailerMetricsProcessor(pipeConf.getDaemonDir(), pipeConf.getStatisticsFile(),
-                                                      pipeConf.getStatisticsSleepInterval(), pipeConf.getPipeName(),
-                                                      pipeConf.getSourceConfiguration().getWorkDir());
+    this.observerConf = observerConf;
+    metricsProcessor = new FileTailerMetricsProcessor(observerConf.getDaemonDir(),
+                                                      observerConf.getPipeConf().getStatisticsFile(),
+                                                      observerConf.getPipeConf().getStatisticsSleepInterval(),
+                                                      observerConf.getPipeConf().getPipeName(),
+                                                      observerConf.getPipeConf().
+                                                        getSourceConfiguration().getWorkDir());
     metricsProcessor.startWorker();
   }
 
@@ -72,7 +76,7 @@ public class PollingListenerImpl implements PollingListener {
   public void onException(Exception exception) {
     LOG.warn("Error", exception);
     metricsProcessor.stopWorker();
-    monitor.stopDirMonitor(new File(pipeConf.getSourceConfiguration().getWorkDir()));
+    monitor.stopDirMonitor(new File(observerConf.getPipeConf().getSourceConfiguration().getWorkDir()));
   }
 
   /**
@@ -81,13 +85,13 @@ public class PollingListenerImpl implements PollingListener {
    * @throws IOException if can not create client stream
    */
   private Pipe setupPipe(File file) throws IOException {
-    PipeConfiguration pipeConfiguration = pipeConf.getPipeConfiguration(file.getName());
+    PipeConfiguration pipeConfiguration = observerConf.getPipeConf().getPipeConfiguration(file.getName());
     FileTailerQueue queue = new FileTailerQueue(pipeConfiguration.getQueueSize());
     StreamWriter writer = getStreamWriterForPipe(pipeConfiguration);
     FileTailerStateProcessor stateProcessor =
-      new FileTailerStateProcessorImpl(pipeConfiguration.getDaemonDir(), pipeConfiguration.getStateFile());
+      new FileTailerStateProcessorImpl(observerConf.getDaemonDir(), pipeConfiguration.getStateFile());
     PipeListener pipeListener = new PipeListenerImpl(pipeConfiguration.getSourceConfiguration().getWorkDir(),
-                                                     file.getAbsolutePath(), pipeConfiguration.getDaemonDir() +
+                                                     file.getAbsolutePath(), observerConf.getDaemonDir() +
                                                        "/" + pipeConfiguration.getStateFile());
     Pipe pipe = new Pipe(new LogTailer(pipeConfiguration, queue, stateProcessor, metricsProcessor, pipeListener),
                          new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,

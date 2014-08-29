@@ -18,11 +18,13 @@ package co.cask.cdap.file.dropzone;
 
 import co.cask.cdap.file.dropzone.polling.PollingListenerImpl;
 import co.cask.cdap.file.dropzone.polling.PollingService;
+import co.cask.cdap.file.dropzone.polling.config.FileDropZoneConfiguration;
+import co.cask.cdap.file.dropzone.polling.config.FileDropZoneConfigurationImpl;
+import co.cask.cdap.file.dropzone.polling.config.ObserverConfiguration;
 import co.cask.cdap.file.dropzone.polling.dir.DirPollingService;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
-import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 
 import java.io.File;
@@ -35,7 +37,7 @@ import java.util.List;
 public class PollingServiceManager {
   private final String confPath;
   private PollingService monitor;
-  private Configuration configuration;
+  private FileDropZoneConfiguration configuration;
 
   public PollingServiceManager(String confPath) {
     this.confPath = confPath;
@@ -53,10 +55,10 @@ public class PollingServiceManager {
    */
   public void initObservers() throws IOException {
     try {
-      List<PipeConfiguration> pipeConfList = getPipeConfigList();
-      for (PipeConfiguration pipeConf : pipeConfList) {
-        monitor.startDirMonitor(new File(pipeConf.getSourceConfiguration().getWorkDir()),
-                                new PollingListenerImpl(monitor, pipeConf));
+      List<ObserverConfiguration> observerConfList = getObserverConfigList();
+      for (ObserverConfiguration observerConf : observerConfList) {
+        monitor.startDirMonitor(new File(observerConf.getPipeConf().getSourceConfiguration().getWorkDir()),
+                                new PollingListenerImpl(monitor, observerConf));
       }
     } catch (ConfigurationLoadingException e) {
       throw new ConfigurationLoadingException("Error during loading configuration from file: "
@@ -70,13 +72,14 @@ public class PollingServiceManager {
    * @return List of the pipes configuration read from configuration file
    * @throws co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException if can not create client stream
    */
-  private List<PipeConfiguration> getPipeConfigList() throws ConfigurationLoadingException {
+  private List<ObserverConfiguration> getObserverConfigList() throws ConfigurationLoadingException {
     return configuration.getObserverConfiguration();
   }
 
-  private Configuration getConfiguration() throws ConfigurationLoadingException {
+  private FileDropZoneConfiguration getConfiguration() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
-    return loader.load(confPath);
+    Configuration configuration = loader.load(confPath);
+    return new FileDropZoneConfigurationImpl(configuration.getProperties());
   }
 
   public void startMonitor() throws Exception {

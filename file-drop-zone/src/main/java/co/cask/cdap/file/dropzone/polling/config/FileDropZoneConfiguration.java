@@ -14,27 +14,28 @@
  * the License.
  */
 
-package co.cask.cdap.filetailer.config;
+package co.cask.cdap.file.dropzone.polling.config;
+
+import co.cask.cdap.filetailer.config.Configuration;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
- * Configuration is design for getting all properties from configuration file
+ * FileDropZoneConfiguration is design for getting all properties for File DropZone from configuration file
  */
-public interface Configuration {
+public interface FileDropZoneConfiguration extends Configuration {
 
   /**
-   * Returns properties
+   * Returns polling interval
    *
-   * @return properties
+   * @return polling interval
    */
-  Properties getProperties();
+  long getPollingInterval();
 
   /**
-   * Returns configurations of each pipe
+   * Returns configurations of each observer
    *
-   * @return configurations of each pipe
+   * @return configurations of each observer
    */
-  List<PipeConfiguration> getPipesConfiguration();
+  public List<ObserverConfiguration> getObserverConfiguration();
 }

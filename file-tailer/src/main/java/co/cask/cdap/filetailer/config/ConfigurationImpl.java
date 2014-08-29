@@ -31,10 +31,6 @@ public class ConfigurationImpl implements Configuration {
 
   private static final Logger LOG = LoggerFactory.getLogger(ConfigurationImpl.class);
 
-  private static final String DEFAULT_POLLING_INTERVAL = "5000";
-
-  private static final String DEFAULT_WORK_DIR = "var/file-drop-zone/";
-
   private Properties properties;
 
   public ConfigurationImpl(Properties properties) {
@@ -52,27 +48,8 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
-  public long getPollingInterval() {
-    return Long.parseLong(getProperty("polling_interval", DEFAULT_POLLING_INTERVAL));
-  }
-
-  @Override
-  public List<PipeConfiguration> getObserverConfiguration() {
-    String[] observers = getRequiredProperty("observers").split(",");
-    List<PipeConfiguration> pipesConfiguration = new ArrayList<PipeConfiguration>(observers.length);
-    for (String observer : observers) {
-      String pipe = getRequiredProperty("observers." + observer + ".pipe");
-      Properties newProperties = new Properties();
-      newProperties.putAll(properties);
-      newProperties.put("pipes." + pipe + ".source.work_dir", DEFAULT_WORK_DIR + observer);
-      pipesConfiguration.add(new PipeConfigurationImpl(newProperties, pipe));
-    }
-    return pipesConfiguration;
-  }
-
-  private String getProperty(String key, String defaultValue) {
-    String value = getProperty(key);
-    return value != null && !value.equals("") ? value : defaultValue;
+  public Properties getProperties() {
+    return properties;
   }
 
   private String getProperty(String key) {
