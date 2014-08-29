@@ -1,4 +1,4 @@
-require './lib/cdap-stream-client'
+require 'cdap-stream-client'
 require 'test/unit'
 
 class TestStreamClient < Test::Unit::TestCase

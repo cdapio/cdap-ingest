@@ -1,4 +1,4 @@
-require './lib/cdap-stream-client/stream_writer'
+require 'cdap-stream-client/stream_writer'
 
 module CDAP
 

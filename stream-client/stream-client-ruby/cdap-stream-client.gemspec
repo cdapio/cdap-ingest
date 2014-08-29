@@ -12,8 +12,7 @@ Gem::Specification.new do |g|
     'lib/cdap-stream-client/stream_client.rb',
     'lib/cdap-stream-client.rb',
     'tests/test_stream_writer.rb',
-    'tests/test_stream_client.rb',
-    'tests/tests.rb'
+    'tests/test_stream_client.rb'
   ]
   g.author = 'Continuuity: dima.rgb'
   g.licenses = ''

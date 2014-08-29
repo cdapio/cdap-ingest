@@ -1,0 +1,8 @@
+gem build cdap-stream-client.gemspec
+
+gem install --local cdap-stream-client-0.1.gem
+ruby tests/test_stream_client.rb
+ruby tests/test_stream_writer.rb
+gem uninstall cdap-stream-client
+
+rm cdap-stream-client-0.1.gem

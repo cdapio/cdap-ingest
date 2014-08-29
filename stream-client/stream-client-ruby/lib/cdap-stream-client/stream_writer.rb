@@ -1,6 +1,6 @@
 require 'thread/pool'
 require 'promise'
-require './lib/cdap-stream-client/rest'
+require 'cdap-stream-client/rest'
 
 module CDAP
 
