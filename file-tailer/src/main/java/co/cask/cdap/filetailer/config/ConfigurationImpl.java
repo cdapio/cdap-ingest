@@ -33,6 +33,8 @@ public class ConfigurationImpl implements Configuration {
 
   private static final String DEFAULT_POLLING_INTERVAL = "5000";
 
+  private static final String DEFAULT_WORK_DIR = "var/file-drop-zone/";
+
   private Properties properties;
 
   public ConfigurationImpl(Properties properties) {
@@ -62,8 +64,7 @@ public class ConfigurationImpl implements Configuration {
       String pipe = getRequiredProperty("observers." + observer + ".pipe");
       Properties newProperties = new Properties();
       newProperties.putAll(properties);
-      newProperties.put("pipes." + pipe + ".source.work_dir",
-                        getRequiredProperty("observers." + observer + ".work_dir"));
+      newProperties.put("pipes." + pipe + ".source.work_dir", DEFAULT_WORK_DIR + observer);
       pipesConfiguration.add(new PipeConfigurationImpl(newProperties, pipe));
     }
     return pipesConfiguration;
