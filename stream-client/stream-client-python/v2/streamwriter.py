@@ -1,0 +1,72 @@
+#! /usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+import locale
+from serviceconnector import ServiceConnector, ConnectionErrorChecker
+from streampromise import StreamPromise
+
+
+class StreamWriter(object):
+    __serviceConnector = None
+    __serviceUri = None
+
+    def __init__(self, serviceConnector, uri):
+        u"""
+        Object constructor
+
+        Keyword arguments:
+        serviceConnector -- reference to connection pool to communicate
+                            with gatewway
+        uri -- REST URL part to perform request.
+               Example: '/v2/strems/myStream'
+        data -- data to proceed by worker thread.  Please read
+                '__workerTarget' documentation.
+        """
+        if not isinstance(serviceConnector, ServiceConnector):
+            raise TypeError(u'parameter should be of type ServiceConnector')
+
+        self.__serviceConnector = serviceConnector
+        self.__serviceUri = uri
+
+    def write(self, message, charset=None, headers=None):
+        u"""
+        Ingest a stream event with a string as body.
+
+        Keyword arguments:
+        message -- Data to transmit to REST server.
+                   Could be of type None if file field is presented.
+        charset -- Message field content charset. Could be of type None.
+                   Default value: 'utf-8'
+        headers -- Additional HTTP headers. Should be of type 'dict'
+
+        Returns:
+        StreamPromise instance for further handling
+        """
+        dataForPromise = {
+            u'message': message,
+            u'charset': charset,
+            u'headers': headers
+        }
+
+        return StreamPromise(self.__serviceConnector, self.__serviceUri,
+                             dataForPromise)
+
+    def send(self, file, mimetype=None):
+        u"""
+        Sends the content of a file as multiple stream events.
+
+        Keyword arguments:
+        file -- path to file to be sent to Gateway
+        mimetype -- mimetype of a file. If is not defined would performed a try
+                    to detect mimetype automaticaly.
+
+        Returns:
+        StreamPromise instance for further handling
+        """
+        dataForPromise = {
+            u'file': file,
+            u'mimetype': mimetype
+        }
+
+        return StreamPromise(self.__serviceConnector, self.__serviceUri,
+                             dataForPromise)
