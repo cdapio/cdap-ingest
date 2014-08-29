@@ -60,15 +60,15 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   private long metricsSleepInterval;
 
   private String flowName;
-  private String fileName;
+  private String dirName;
 
   public FileTailerMetricsProcessor(String stateDirPath, String metricsFileName, long metricsSleepInterval,
-                                    String flowName, String fileName) {
+                                    String flowName, String dirName) {
     this.stateDirPath = stateDirPath;
     this.metricsFileName = metricsFileName;
     this.metricsSleepInterval = metricsSleepInterval;
     this.flowName = flowName;
-    this.fileName = fileName;
+    this.dirName = dirName;
     initMetrics();
   }
 
@@ -168,7 +168,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     LOG.debug("Start writing header to file ..");
     String header = new StringBuilder("Current Date").append(",")
       .append("Flow Name").append(",")
-      .append("File Name").append(",")
+      .append("Directory Name").append(",")
       .append("Total Events Read Per File").append(",")
       .append("Total Events Ingested Per File").append(",")
       .append("Min Event Size Per File").append(",")
@@ -185,7 +185,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     LOG.debug("Start writing metric with date {} to file ..", currentDate);
     String metric = new StringBuilder(currentDate).append(",")
       .append(flowName).append(",")
-      .append(fileName).append(",")
+      .append(dirName).append(",")
       .append(totalEventsReadPerFile.get()).append(",")
       .append(totalEventsIngestedPerFile.get()).append(",")
       .append(minEventSizePerFile.get()).append(",")

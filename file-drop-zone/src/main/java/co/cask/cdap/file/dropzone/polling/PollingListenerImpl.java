@@ -43,29 +43,36 @@ public class PollingListenerImpl implements PollingListener {
   private PollingService monitor;
   private final PipeConfiguration pipeConf;
 
+  private FileTailerMetricsProcessor metricsProcessor;
+
 
   public PollingListenerImpl(PollingService monitor, PipeConfiguration pipeConf) {
     this.monitor = monitor;
     this.pipeConf = pipeConf;
+    metricsProcessor = new FileTailerMetricsProcessor(pipeConf.getDaemonDir(), pipeConf.getStatisticsFile(),
+                                                      pipeConf.getStatisticsSleepInterval(), pipeConf.getPipeName(),
+                                                      pipeConf.getSourceConfiguration().getWorkDir());
+    metricsProcessor.startWorker();
   }
 
   @Override
   public void onFileCreate(File file) {
     LOG.debug("File Added: {}", file.getAbsolutePath());
-    Pipe pipe = null;
+    Pipe pipe;
     try {
       pipe = setupPipe(file);
     } catch (IOException e) {
       LOG.error("Error during flows: {} setup", e.getMessage());
       return;
     }
-    pipe.start();
+    pipe.startWithoutMetrics();
   }
 
   @Override
   public void onException(Exception exception) {
     LOG.warn("Error", exception);
-    monitor.stopDirMonitor(null);
+    metricsProcessor.stopWorker();
+    monitor.stopDirMonitor(new File(pipeConf.getSourceConfiguration().getWorkDir()));
   }
 
   /**
@@ -79,10 +86,6 @@ public class PollingListenerImpl implements PollingListener {
     StreamWriter writer = getStreamWriterForPipe(pipeConfiguration);
     FileTailerStateProcessor stateProcessor =
       new FileTailerStateProcessorImpl(pipeConfiguration.getDaemonDir(), pipeConfiguration.getStateFile());
-    FileTailerMetricsProcessor metricsProcessor =
-      new FileTailerMetricsProcessor(pipeConfiguration.getDaemonDir(), pipeConfiguration.getStatisticsFile(),
-                                     pipeConfiguration.getStatisticsSleepInterval(), pipeConfiguration.getPipeName(),
-                                     pipeConfiguration.getSourceConfiguration().getFileName());
     PipeListener pipeListener = new PipeListenerImpl(pipeConfiguration.getSourceConfiguration().getWorkDir(),
                                                      file.getAbsolutePath(), pipeConfiguration.getDaemonDir() +
                                                        "/" + pipeConfiguration.getStateFile());
@@ -117,6 +120,21 @@ public class PollingListenerImpl implements PollingListener {
     }
   }
 
+  /**
+   * Delete state file with specified path
+   *
+   * @param stateFilePath path to state file
+   */
+  private void removeStateFile(String stateFilePath) {
+    File stateFile = new File(stateFilePath);
+    if (stateFile.delete()) {
+      LOG.debug("File successfully deleted {}.", stateFile);
+    } else {
+      throw new IllegalArgumentException(
+        String.format("Cannot remove specified file %s.", stateFile.getAbsolutePath()));
+    }
+  }
+
   private class PipeListenerImpl implements PipeListener {
 
     private boolean isRead = false;
@@ -143,26 +161,15 @@ public class PollingListenerImpl implements PollingListener {
 
     @Override
     public void onIngest() {
-      pipe.stop();
+      pipe.stopWithoutMetrics();
+      removeStateFile(stateFilePath);
       monitor.removeFile(new File(directoryPath), new File(filePath));
-      removeStateFile();
     }
 
     @Override
     public void setPipe(Pipe pipe) {
       this.pipe = pipe;
     }
-
-    private void removeStateFile() {
-      File stateFile = new File(stateFilePath);
-      if (stateFile.delete()) {
-        LOG.debug("File successfully deleted {}.", stateFile);
-      } else {
-        throw new IllegalArgumentException(
-          String.format("Cannot remove specified file %s.", stateFile.getAbsolutePath()));
-      }
-    }
-
   }
 
 }

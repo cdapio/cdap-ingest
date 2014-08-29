@@ -35,20 +35,38 @@ public class Pipe {
         this.sink = sink;
         this.metricsProcessor = metricsProcessor;
     }
+
   /**
-   * Start tailer and sink
+   * Start metrics processor, tailer and sink
    */
     public void start() {
         metricsProcessor.startWorker();
         logTailer.startWorker();
         sink.startWorker();
     }
+
   /**
-   * Stop tailer and sink
+   * Start tailer and sink
+   */
+  public void startWithoutMetrics() {
+    logTailer.startWorker();
+    sink.startWorker();
+  }
+
+  /**
+   * Stop metrics processor, tailer and sink
    */
     public void stop() {
         metricsProcessor.stopWorker();
         logTailer.stopWorker();
         sink.stopWorker();
     }
+
+  /**
+   * Stop tailer and sink
+   */
+  public void stopWithoutMetrics() {
+    logTailer.stopWorker();
+    sink.stopWorker();
+  }
 }
