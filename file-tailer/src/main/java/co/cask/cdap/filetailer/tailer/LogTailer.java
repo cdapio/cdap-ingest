@@ -188,9 +188,6 @@ public class LogTailer extends AbstractWorker {
 
           metricsProcessor.onReadEventMetric(line.getBytes().length);
         } else {
-          if (!confLoader.getSourceConfiguration().getReadRotatedFiles()) {
-//            TODO: file alredy read
-          }
           File newLog = getNextLogFile(logDirectory, modifyTime, false, currentLogFile);
           if (newLog == null) {
             LOG.debug("waiting for new log data  from file {}", currentLogFile);

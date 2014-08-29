@@ -29,18 +29,4 @@ public interface Configuration {
    * @return configurations of each pipe
    */
   List<PipeConfiguration> getPipesConfiguration();
-
-  /**
-   * Returns polling interval
-   *
-   * @return polling interval
-   */
-  long getPollingInterval();
-
-  /**
-   * Returns configurations of each observer
-   *
-   * @return configurations of each observer
-   */
-  public List<PipeConfiguration> getObserverConfiguration();
 }

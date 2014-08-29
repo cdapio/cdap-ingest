@@ -78,11 +78,4 @@ public interface SourceConfiguration {
    * @return the failure sleep interval for File Tailer
    */
   long getFailureSleepInterval();
-
-  /**
-   * Returns read rotated files mode [true|false]
-   *
-   * @return read rotated files mode [true|false]
-   */
-  public boolean getReadRotatedFiles();
 }

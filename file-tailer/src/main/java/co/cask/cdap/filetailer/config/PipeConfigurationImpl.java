@@ -99,14 +99,6 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return sinkConfiguration;
   }
 
-  @Override
-  public PipeConfiguration getPipeConfiguration(String fileName) {
-    Properties newProperties = new Properties();
-    newProperties.putAll(properties);
-    newProperties.put(keyPath + "source.file_name", fileName);
-    return new PipeConfigurationImpl(newProperties, key);
-  }
-
   private String getProperty(String key, String defaultValue) {
       String value = getProperty(key);
       return value != null && !value.equals("") ? value : defaultValue;
@@ -145,8 +137,6 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
 
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
-
-    private static final String DEFAULT_READ_ROTATED_FILES = "true";
 
     public SourceConfigurationImpl(String key) {
       this.key = "pipes." + key + ".source.";
@@ -190,11 +180,6 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     @Override
     public long getFailureSleepInterval() {
       return Long.parseLong(getProperty(this.key + "failure_sleep_interval", DEFAULT_FAILURE_SLEEP_INTERVAL));
-    }
-
-    @Override
-    public boolean getReadRotatedFiles() {
-      return Boolean.valueOf(getProperty(this.key + "read_rotated_files", DEFAULT_READ_ROTATED_FILES));
     }
   }
 
