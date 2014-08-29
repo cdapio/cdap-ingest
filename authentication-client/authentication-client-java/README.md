@@ -6,7 +6,8 @@ The Authentication Client Java API is for fetching the access token from the aut
 ## Supported Actions
 
  - fetch a access token from the authentication server with credentials, which are supported by the active 
- authentication mechanism.
+ authentication mechanism;
+ - check is the authentication enabled in the gateway server.
  
  Current implementation supports three authentication mechanisms:
   - Basic Authentication;

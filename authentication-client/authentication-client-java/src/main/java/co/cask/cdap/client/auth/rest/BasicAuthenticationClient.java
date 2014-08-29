@@ -53,8 +53,8 @@ public class BasicAuthenticationClient implements AuthenticationClient {
 
   private final HttpClient httpClient;
   private final URI baseUrl;
-  private final String username;
-  private final String password;
+  private String username;
+  private String password;
   private URI authUrl;
   private Boolean isAuthEnabled;
 
@@ -67,6 +67,14 @@ public class BasicAuthenticationClient implements AuthenticationClient {
 
   public BasicAuthenticationClient(String host, int port, String username, String password) {
     this(host, port, false, username, password);
+  }
+
+  public BasicAuthenticationClient(String host, int port, boolean ssl) {
+    this(host, port, ssl, null, null);
+  }
+
+  public BasicAuthenticationClient(String host, int port) {
+    this(host, port, null, null);
   }
 
   @Override
@@ -122,5 +130,19 @@ public class BasicAuthenticationClient implements AuthenticationClient {
       RestClientUtils.responseCodeAnalysis(response);
     }
     return result;
+  }
+
+  /**
+   * @param username the username to set
+   */
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  /**
+   * @param password the username
+   */
+  public void setPassword(String password) {
+    this.password = password;
   }
 }
