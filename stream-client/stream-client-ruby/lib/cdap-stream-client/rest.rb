@@ -6,7 +6,7 @@ module CDAP
     include HTTParty
 
     DEFAULT_CONFIG = {
-      gateway: 'localhost',
+      gateway: '0.0.0.0',
       port: 10000,
       api_version: 'v2',
       ssl: false
