@@ -17,20 +17,20 @@
 
 function start()
 {
-	if [ -z $FT_LOG_DIR ]; then
-	    FT_LOG_DIR=/var/log/file-drop-zone
+	if [ -z $FDZ_LOG_DIR ]; then
+	    FDZ_LOG_DIR=/var/log/file-drop-zone
 	fi
 
-	JAVA_OPTIONS="$JAVA_OPTIONS -Dft_log_dir=$FT_LOG_DIR"
+	JAVA_OPTIONS="$JAVA_OPTIONS -Dft_log_dir=$FDZ_LOG_DIR"
 
-	echo "Starting $FT_NAME..."
+	echo "Starting $FDZ_NAME..."
 
-	if [ ! -d ${FT_LOG_DIR} ]; then
-	      mkdir -p ${FT_LOG_DIR}
+	if [ ! -d ${FDZ_LOG_DIR} ]; then
+	      mkdir -p ${FDZ_LOG_DIR}
 	fi
 
-    echo "java -cp "$CONF:$LIB/*" $JAVA_OPTIONS $FT_MAIN_CLASS $FT_ARGS >>${FT_LOG_DIR}/${FT_NAME}.out 2>&1"
-	exec java -cp "$CONF:$LIB/*" $JAVA_OPTIONS $FT_MAIN_CLASS $FT_ARGS >>${FT_LOG_DIR}/${FT_NAME}.out 2>&1
+    echo "java -cp "$CONF:$LIB/*" $JAVA_OPTIONS $FDZ_MAIN_CLASS $FDZ_ARGS >>${FDZ_LOG_DIR}/${FDZ_NAME}.out 2>&1"
+	exec java -cp "$CONF:$LIB/*" $JAVA_OPTIONS $FDZ_MAIN_CLASS $FDZ_ARGS >>${FDZ_LOG_DIR}/${FDZ_NAME}.out 2>&1
 }
 
 start

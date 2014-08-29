@@ -17,9 +17,9 @@
 
 # Custom params
 
-export FT_NAME=file-drop-zone
-export FT_MAIN_CLASS=co.cask.cdap.file.dropzone.FileDropZoneApplication
-export FT_LOG_DIR
+export FDZ_NAME=file-drop-zone
+export FDZ_MAIN_CLASS=co.cask.cdap.file.dropzone.FileDropZoneApplication
+export FDZ_LOG_DIR
 
 # Common part
 
@@ -41,11 +41,11 @@ fi
 
 command=$1
 
-if [ ! -f ${FT_HOME}/bin/$command ]; then
+if [ ! -f ${FDZ_HOME}/bin/$command ]; then
    echo "Unknown command '$command'"
    echo
    printUsage
    exit 1
 fi
 
-${FT_HOME}/bin/$@
+${FDZ_HOME}/bin/$@
