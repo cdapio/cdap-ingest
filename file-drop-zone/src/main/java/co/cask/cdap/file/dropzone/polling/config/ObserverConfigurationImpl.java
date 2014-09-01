@@ -44,7 +44,10 @@ public class ObserverConfigurationImpl implements ObserverConfiguration {
 
   @Override
   public String getDaemonDir() {
-    return pipeConfiguration.getDaemonDir().replace("pipe", "observer");
+    String daemonDirectory = pipeConfiguration.getDaemonDir();
+    int observersDirLength = "pipes/".length() + daemonDirectory.length() - daemonDirectory.lastIndexOf("pipe");
+    daemonDirectory = daemonDirectory.substring(0, daemonDirectory.length() - observersDirLength);
+    return daemonDirectory + "observers/" + name;
   }
 
   @Override

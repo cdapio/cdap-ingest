@@ -85,23 +85,22 @@ public class RunFromSaveStateTest {
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
 
     tailer.startWorker();
-    Thread.sleep(1000);
+    Thread.sleep(3000);
     saveState(intQueue, queue, readLogList, stateProcessor);
 
     tailer.stopWorker();
 
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
 
-    Thread.sleep(1000);
     tailer.startWorker();
 
-    Thread.sleep(1000);
+    Thread.sleep(3000);
     saveState(intQueue, queue, readLogList, stateProcessor);
 
     tailer.stopWorker();
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
     tailer.startWorker();
-    Thread.sleep(1000);
+    Thread.sleep(3000);
     tailer.stopWorker();
     saveState(intQueue, queue, readLogList, stateProcessor);
     for (int i = 0; i < logList.size(); i++) {
