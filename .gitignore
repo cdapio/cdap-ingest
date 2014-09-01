@@ -27,5 +27,3 @@ logs/
 # Examples Stuff
 dependency-reduced-pom.xml
 
-# Ruby
-*.gem
