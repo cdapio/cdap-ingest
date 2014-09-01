@@ -103,22 +103,22 @@ public class RestClient {
         LOG.debug("Success operation result code");
         break;
       case HttpStatus.SC_NOT_FOUND:
-        throw new NotFoundException("Not found HTTP code was received from getaway server.");
+        throw new NotFoundException("Not found HTTP code was received from gateway server.");
       case HttpStatus.SC_CONFLICT:
-        throw new BadRequestException("Conflict HTTP code was received from getaway server.");
+        throw new BadRequestException("Conflict HTTP code was received from gateway server.");
       case HttpStatus.SC_BAD_REQUEST:
-        throw new BadRequestException("Bad request HTTP code was received from getaway server.");
+        throw new BadRequestException("Bad request HTTP code was received from gateway server.");
       case HttpStatus.SC_UNAUTHORIZED:
         throw new NotAuthorizedException(response);
       case HttpStatus.SC_FORBIDDEN:
-        throw new ForbiddenException("Forbidden HTTP code was received from getaway server");
+        throw new ForbiddenException("Forbidden HTTP code was received from gateway server");
       case HttpStatus.SC_METHOD_NOT_ALLOWED:
         throw new NotAllowedException(response.getStatusLine().getReasonPhrase());
       case HttpStatus.SC_INTERNAL_SERVER_ERROR:
         throw new InternalServerErrorException("Internal server exception during operation process.");
       case HttpStatus.SC_NOT_IMPLEMENTED:
       default:
-        throw new NotSupportedException("Operation is not supported by getaway server");
+        throw new NotSupportedException("Operation is not supported by gateway server");
     }
   }
 
@@ -178,7 +178,7 @@ public class RestClient {
   }
 
   /**
-   * @return the version of getaway server
+   * @return the version of gateway server
    */
   public String getVersion() {
     return version;

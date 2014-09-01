@@ -137,8 +137,8 @@ public class RestStreamClient implements StreamClient {
   /**
    * Create builder for build RestStreamClient instance
    *
-   * @param host getaway server host
-   * @param port getaway server port
+   * @param host gateway server host
+   * @param port gateway server port
    * @return {@link Builder} Builder instance
    */
   public static Builder builder(String host, int port) {
