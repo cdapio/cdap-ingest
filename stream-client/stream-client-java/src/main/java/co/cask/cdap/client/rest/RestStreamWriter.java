@@ -98,8 +98,8 @@ public class RestStreamWriter implements StreamWriter {
   }
 
   private ListenableFuture<Void> write(HttpEntity entity, Map<String, String> headers) {
-    final HttpPost postRequest = new HttpPost(restClient.getBaseURL() +
-                                                String.format("/%s/streams/%s", restClient.getVersion(), streamName));
+    final HttpPost postRequest = new HttpPost(restClient.getBaseURL().resolve(
+      String.format("/%s/streams/%s", restClient.getVersion(), streamName)));
 
     for (Map.Entry<String, String> entry : headers.entrySet()) {
       postRequest.setHeader(streamName + "." + entry.getKey(), entry.getValue());

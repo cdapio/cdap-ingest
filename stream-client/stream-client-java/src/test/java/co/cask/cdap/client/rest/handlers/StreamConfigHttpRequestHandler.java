@@ -17,7 +17,6 @@
 package co.cask.cdap.client.rest.handlers;
 
 import co.cask.cdap.client.rest.RestClient;
-import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.client.rest.RestTest;
 import co.cask.cdap.client.rest.TestUtils;
 import com.google.gson.JsonObject;

@@ -29,7 +29,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,7 +102,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testNotAuthorizedStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testNotAuthorizedStringWrite() throws IOException, InterruptedException {
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
@@ -114,14 +113,14 @@ public class RestStreamWriterTest extends RestTest {
 
   @Test
   public void testSuccessAuthorizedStringWrite()
-    throws IOException, InterruptedException, ExecutionException, URISyntaxException {
+    throws IOException, InterruptedException, ExecutionException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(RestTest.AUTH_TOKEN).build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
   }
 
   @Test
-  public void testNotAuthorizedEmptyTokenStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testNotAuthorizedEmptyTokenStringWrite() throws IOException, InterruptedException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
@@ -132,7 +131,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testNotAuthorizedUnknownTokenStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testNotAuthorizedUnknownTokenStringWrite() throws IOException, InterruptedException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
@@ -143,7 +142,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testForbiddenStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testForbiddenStringWrite() throws IOException, InterruptedException {
     streamWriter = streamClient.createWriter(TestUtils.FORBIDDEN_STREAM_NAME +
                                                TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
@@ -154,7 +153,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testNotAllowedStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testNotAllowedStringWrite() throws IOException, InterruptedException {
     streamWriter = streamClient.createWriter(TestUtils.NOT_ALLOWED_STREAM_NAME +
                                                TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
@@ -189,7 +188,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testFileSend() throws IOException, InterruptedException, ExecutionException, URISyntaxException {
+  public void testFileSend() throws IOException, InterruptedException, ExecutionException {
     streamWriter = streamClient.createWriter(TestUtils.FILE_STREAM_NAME +
                                                TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
 

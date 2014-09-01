@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
@@ -65,10 +64,9 @@ public class RestClient {
   private final CloseableHttpClient httpClient;
   private final String version;
 
-  public RestClient(RestClientConnectionConfig config, HttpClientConnectionManager connectionManager)
-    throws URISyntaxException {
+  public RestClient(RestClientConnectionConfig config, HttpClientConnectionManager connectionManager) {
     this.config = config;
-    this.baseUrl = new URI(String.format("%s://%s:%d", config.isSSL() ? HTTPS_PROTOCOL : HTTP_PROTOCOL,
+    this.baseUrl = URI.create(String.format("%s://%s:%d", config.isSSL() ? HTTPS_PROTOCOL : HTTP_PROTOCOL,
                                          config.getHost(), config.getPort()));
     this.version = config.getVersion();
     this.httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
