@@ -52,5 +52,6 @@ public class FileDropZoneApplication {
     }
     LOG.info("Starting monitor");
     pollingServiceManager.startMonitor();
+    Runtime.getRuntime().addShutdownHook(new Thread(new FileDropZoneShutdownTask(pollingServiceManager)));
   }
 }

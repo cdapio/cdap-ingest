@@ -71,4 +71,8 @@ public class PollingServiceManager {
     monitor.start();
   }
 
+  public void stopMonitor() throws Exception {
+    monitor.stop();
+  }
+
 }
