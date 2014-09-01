@@ -37,14 +37,14 @@ public class BasicAuthenticationClientTest {
   public static final String AUTHENTICATED_PASSWORD = "realtime";
   public static final String TOKEN = "SuccessGeneratedToken";
 
-  private AuthenticationClient authenticationClient
-    ;
+  private AuthenticationClient<BasicCredentials> authenticationClient;
+
   private LocalTestServer localTestServer;
   private String testServerHost;
   private int testServerPort;
   private final AuthenticationHandler authenticationHandler = new AuthenticationHandler();
   private final BaseHandler baseHandler = new BaseHandler();
-  private Credentials credentials;
+  private BasicCredentials credentials;
 
   @Before
   public void setUp() throws Exception {

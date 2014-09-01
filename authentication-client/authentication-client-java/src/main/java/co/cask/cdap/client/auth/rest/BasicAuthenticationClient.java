@@ -54,7 +54,6 @@ public class BasicAuthenticationClient implements AuthenticationClient<BasicCred
   private final HttpClient httpClient;
   private URI baseUrl;
   private URI authUrl;
-  private Boolean isAuthEnabled;
 
   public BasicAuthenticationClient() {
     this.httpClient = HttpClients.custom().build();
@@ -92,13 +91,11 @@ public class BasicAuthenticationClient implements AuthenticationClient<BasicCred
 
   @Override
   public boolean isAuthEnabled() throws IOException {
-    if (isAuthEnabled == null) {
-      isAuthEnabled = false;
-      String strAuthUrl = getAuthURL();
-      if (StringUtils.isNotEmpty(strAuthUrl)) {
-        isAuthEnabled = true;
-        authUrl = URI.create(strAuthUrl);
-      }
+    boolean isAuthEnabled = false;
+    String strAuthUrl = getAuthURL();
+    if (StringUtils.isNotEmpty(strAuthUrl)) {
+      isAuthEnabled = true;
+      authUrl = URI.create(strAuthUrl);
     }
     return isAuthEnabled;
   }
