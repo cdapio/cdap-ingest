@@ -54,26 +54,11 @@ public class PollingServiceManager {
    * @throws IOException if can not create client stream
    */
   public void initObservers() throws IOException {
-    try {
-      List<ObserverConfiguration> observerConfList = getObserverConfigList();
-      for (ObserverConfiguration observerConf : observerConfList) {
-        monitor.startDirMonitor(new File(observerConf.getPipeConf().getSourceConfiguration().getWorkDir()),
-                                new PollingListenerImpl(monitor, observerConf));
-      }
-    } catch (ConfigurationLoadingException e) {
-      throw new ConfigurationLoadingException("Error during loading configuration from file: "
-                                                + confPath + e.getMessage());
+    List<ObserverConfiguration> observerConfList = configuration.getObserverConfiguration();
+    for (ObserverConfiguration observerConf : observerConfList) {
+      monitor.startDirMonitor(new File(observerConf.getPipeConf().getSourceConfiguration().getWorkDir()),
+                              new PollingListenerImpl(monitor, observerConf));
     }
-  }
-
-  /**
-   * Get pipes configuration
-   *
-   * @return List of the pipes configuration read from configuration file
-   * @throws co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException if can not create client stream
-   */
-  private List<ObserverConfiguration> getObserverConfigList() throws ConfigurationLoadingException {
-    return configuration.getObserverConfiguration();
   }
 
   private FileDropZoneConfiguration getConfiguration() throws ConfigurationLoadingException {

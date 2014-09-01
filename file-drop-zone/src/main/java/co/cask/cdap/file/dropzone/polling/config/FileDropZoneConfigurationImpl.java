@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Created by ytalashko on 8/29/14.
+ * FileDropZoneConfiguration default implementation
  */
 public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements FileDropZoneConfiguration {
 
