@@ -54,12 +54,29 @@ public class DirPollingService implements Runnable, PollingService {
 
   @Override
   public void startDirMonitor(File dir, PollingListener listener) {
+    createDirs(dir.getAbsolutePath());
     DirPollingObserver observer = new DirPollingObserver(dir, listener);
     DirPollingObserver prevValue = observers.put(observer.getDirectory().getAbsolutePath(), observer);
     if (prevValue != null) {
       throw new IllegalArgumentException("Observer for folder {} already registered.");
     }
     LOG.debug("Registered new Observer to the Polling Service: {}.", observer);
+  }
+
+  /**
+   * Creates directory, and all parents directories, with specified path
+   *
+   * @param path the path to directory
+   */
+  private void createDirs(String path) {
+    LOG.debug("Starting create directory with path: {}", path);
+    File directory = new File(path);
+    if (!directory.exists()) {
+      boolean result = directory.mkdirs();
+      LOG.debug("Creating directory result: {}", result);
+    } else {
+      LOG.debug("Directory/File with path: {} already exist", path);
+    }
   }
 
   public void stopDirMonitor(File dir) {
