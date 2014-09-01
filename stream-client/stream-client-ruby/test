@@ -1,8 +1,4 @@
-# build gem
-gem build cdap-stream-client.gemspec
-
-# install gem from gem file
-gem install --local cdap-stream-client-0.1.gem
+sh build_install
 
 # run tests
 ruby tests/test_stream_client.rb

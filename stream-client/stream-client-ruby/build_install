@@ -1,0 +1,5 @@
+# build gem
+gem build cdap-stream-client.gemspec
+
+# install gem from gem file
+gem install --local cdap-stream-client-0.1.gem
