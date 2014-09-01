@@ -101,9 +101,10 @@ public class LogTailer extends AbstractWorker {
     FileTailerState fileTailerState = getSaveStateFromFile();
     try {
       if (fileTailerState == null) {
-        LOG.info("Fail state do not found. Start reading all directory");
+        LOG.info("State file not found. Start reading without restore");
         runWithOutRestore();
       } else {
+        LOG.info("Start recover from state file");
         runFromSaveState(fileTailerState);
       }
     } catch (InterruptedException e) {
