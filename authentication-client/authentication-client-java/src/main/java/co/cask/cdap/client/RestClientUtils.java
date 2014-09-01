@@ -54,7 +54,7 @@ public final class RestClientUtils {
    *
    * @param httpEntity {@link org.apache.http.HttpEntity}
    * @return {@link com.google.gson.JsonObject} generated from input content stream
-   * @throws java.io.IOException if entity content is not available
+   * @throws IOException if entity content is not available
    */
   public static JsonObject toJsonObject(HttpEntity httpEntity) throws IOException {
     if (httpEntity == null || httpEntity.getContent() == null) {

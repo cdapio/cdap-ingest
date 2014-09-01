@@ -25,14 +25,25 @@
 <configuration>
   <logger name="org.apache.http" level="DEBUG"/>
 
-  <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">       
-    <layout>           
-      <pattern>%d{ISO8601} - %-5p [%t:%C{1}@%L] - %m%n</pattern>       
-    </layout>
+  <appender name="Debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>logs/auth-client-debug.log</file>
+    <encoder>
+      <pattern>%d{ISO8601} - %-5p [%t:%C{1}@%L] - %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>DEBUG</level>
+    </filter>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>10</maxIndex>
+      <FileNamePattern>logs/auth-client-debug.log.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>50000KB</MaxFileSize>
+    </triggeringPolicy>
   </appender>
 
   <root level="DEBUG">
-    <appender-ref ref="Console"/>
+    <appender-ref ref="Debug"/>
   </root>
 
 </configuration>
