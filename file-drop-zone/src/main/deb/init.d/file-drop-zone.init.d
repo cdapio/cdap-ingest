@@ -151,6 +151,51 @@ condrestart(){
   [ -e ${LOCKFILE} ] && restart || :
 }
 
+load(){
+ if [ $# -gt 2 ] || [ $# -eq 0 ]; then
+    log_failure_msg "wrong number of args $#"
+ else
+	file_path=$1
+	simple_file_name=$(basename $file_path)
+	observer_list=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep 'observers'| head -n 1| cut -d "=" -f2-`
+	observer=$2
+	if [ ! -e $file_path ];then
+		log_failure_msg "File does not exists"
+	exit 0
+	fi
+    case $# in
+    	1)
+		if [[ "$observer_list" == *,* ]];then
+			log_failure_msg "Few observers are configured. Please, enter observer name"
+		exit 0
+		else
+			fdz_directory="/var/file-drop-zone/"$observer_list
+			temp_folder="/tmp/file-drop-zone/"$observer_list
+		fi;;
+    	2)
+    		if [[ "$props_observers" == *$observer* ]];then
+			fdz_directory="/var/file-drop-zone/"$observer
+			temp_folder="/tmp/file-drop-zone/"$observer
+    		else
+			log_failure_msg "Observer not found"
+			exit 0
+    		fi;;
+    esac
+		if [ ! -d $fdz_directory ]; then
+    		mkdir -p $fdz_directory
+		    chown -R file-drop-zone:file-drop-zone $fdz_directory
+		    chmod 700 $fdz_directory
+
+		    mkdir -p $temp_folder
+		    chown -R file-drop-zone:file-drop-zone $temp_folder
+		    chmod 700 $temp_folder
+		fi
+	cp $file_path $temp_folder
+	mv $temp_folder$simple_file_name $fdz_directory
+
+ fi
+}
+
 case "$1" in
   start)
     start
@@ -163,6 +208,9 @@ case "$1" in
     ;;
   restart)
     restart
+    ;;
+  load)
+    load $2 $3 $4
     ;;
   condrestart|try-restart)
     condrestart
