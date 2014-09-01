@@ -61,7 +61,7 @@ public class RestClientUtilsTest {
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_OK, "OK");
     when(response.getStatusLine()).thenReturn(statusLine);
 
-    RestClientUtils.responseCodeAnalysis(response);
+    RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
   }
@@ -73,7 +73,7 @@ public class RestClientUtilsTest {
                                                 "Bad Request");
     when(response.getStatusLine()).thenReturn(statusLine);
 
-    RestClientUtils.responseCodeAnalysis(response);
+    RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
   }
@@ -85,7 +85,7 @@ public class RestClientUtilsTest {
                                                 "Not Found");
     when(response.getStatusLine()).thenReturn(statusLine);
 
-    RestClientUtils.responseCodeAnalysis(response);
+    RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
   }
@@ -97,7 +97,7 @@ public class RestClientUtilsTest {
                                                 "Unauthorized");
     when(response.getStatusLine()).thenReturn(statusLine);
 
-    RestClientUtils.responseCodeAnalysis(response);
+    RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
   }
@@ -109,7 +109,7 @@ public class RestClientUtilsTest {
                                                 "Forbidden");
     when(response.getStatusLine()).thenReturn(statusLine);
 
-    RestClientUtils.responseCodeAnalysis(response);
+    RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
   }
@@ -121,7 +121,7 @@ public class RestClientUtilsTest {
                                                 "Method Not Allowed");
     when(response.getStatusLine()).thenReturn(statusLine);
 
-    RestClientUtils.responseCodeAnalysis(response);
+    RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
   }
@@ -132,7 +132,7 @@ public class RestClientUtilsTest {
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_CONFLICT, "Conflict");
     when(response.getStatusLine()).thenReturn(statusLine);
 
-    RestClientUtils.responseCodeAnalysis(response);
+    RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
   }
@@ -144,7 +144,7 @@ public class RestClientUtilsTest {
                                                 "Internal Server Error");
     when(response.getStatusLine()).thenReturn(statusLine);
 
-    RestClientUtils.responseCodeAnalysis(response);
+    RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
   }
@@ -155,7 +155,7 @@ public class RestClientUtilsTest {
                                                 "Not Implemented");
     when(response.getStatusLine()).thenReturn(statusLine);
 
-    RestClientUtils.responseCodeAnalysis(response);
+    RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
   }

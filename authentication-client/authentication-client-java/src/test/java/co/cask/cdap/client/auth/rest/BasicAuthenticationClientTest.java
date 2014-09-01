@@ -17,6 +17,7 @@
 package co.cask.cdap.client.auth.rest;
 
 import co.cask.cdap.client.auth.AuthenticationClient;
+import co.cask.cdap.client.auth.Credentials;
 import co.cask.cdap.client.auth.rest.handlers.AuthenticationHandler;
 import co.cask.cdap.client.auth.rest.handlers.BaseHandler;
 import org.apache.commons.lang.StringUtils;
@@ -36,11 +37,14 @@ public class BasicAuthenticationClientTest {
   public static final String AUTHENTICATED_PASSWORD = "realtime";
   public static final String TOKEN = "SuccessGeneratedToken";
 
+  private AuthenticationClient authenticationClient
+    ;
   private LocalTestServer localTestServer;
   private String testServerHost;
   private int testServerPort;
   private final AuthenticationHandler authenticationHandler = new AuthenticationHandler();
   private final BaseHandler baseHandler = new BaseHandler();
+  private Credentials credentials;
 
   @Before
   public void setUp() throws Exception {
@@ -52,37 +56,36 @@ public class BasicAuthenticationClientTest {
     testServerPort = localTestServer.getServiceAddress().getPort();
     baseHandler.setAuthHost(testServerHost);
     baseHandler.setAuthPort(testServerPort);
+    authenticationClient = new BasicAuthenticationClient();
+    authenticationClient.configure(testServerHost, testServerPort, false);
   }
 
   @Test
   public void testSuccessGetAccessToken() throws IOException {
-    authenticationClient = new BasicAuthenticationClient(testServerHost, testServerPort,
-                                                             AUTHENTICATED_USERNAME, AUTHENTICATED_PASSWORD);
-
-    assertEquals(TOKEN, authenticationClient.getAccessToken());
+    credentials = new BasicCredentials(AUTHENTICATED_USERNAME, AUTHENTICATED_PASSWORD);
+    assertEquals(TOKEN, authenticationClient.getAccessToken(credentials));
   }
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedGetAccessToken() throws IOException {
-    authenticationClient = new BasicAuthenticationClient(testServerHost, testServerPort, "test", "test");
-    authenticationClient.getAccessToken();
+    credentials = new BasicCredentials("test", "test");
+    authenticationClient.getAccessToken(credentials);
   }
 
   @Test(expected = IOException.class)
   public void testEmptyUsernameGetAccessToken() throws IOException {
-    authenticationClient = new BasicAuthenticationClient(testServerHost, testServerPort, StringUtils.EMPTY, "test");
-    authenticationClient.getAccessToken();
+    credentials = new BasicCredentials(StringUtils.EMPTY, "test");
+    authenticationClient.getAccessToken(credentials);
   }
 
   @Test(expected = IOException.class)
   public void testEmptyPassGetAccessToken() throws IOException {
-    authenticationClient = new BasicAuthenticationClient(testServerHost, testServerPort, "test", StringUtils.EMPTY);
-    authenticationClient.getAccessToken();
+    credentials = new BasicCredentials("test", StringUtils.EMPTY);
+    authenticationClient.getAccessToken(credentials);
   }
 
   @After
   public void shutDown() throws Exception {
     localTestServer.stop();
   }
-  private AuthenticationClient authenticationClient;
 }

@@ -82,29 +82,29 @@ public final class RestClientUtils {
    *
    * @param response {@link org.apache.http.HttpResponse} http response
    */
-  public static void responseCodeAnalysis(HttpResponse response) {
+  public static void verifyResponseCode(HttpResponse response) {
     int code = response.getStatusLine().getStatusCode();
     switch (code) {
       case HttpStatus.SC_OK:
         LOG.debug("Success operation result code.");
         break;
       case HttpStatus.SC_NOT_FOUND:
-        throw new NotFoundException("Not found HTTP code was received from getaway server.");
+        throw new NotFoundException("Not found HTTP code was received from gateway server.");
       case HttpStatus.SC_CONFLICT:
-        throw new BadRequestException("Conflict HTTP code was received from getaway server.");
+        throw new BadRequestException("Conflict HTTP code was received from gateway server.");
       case HttpStatus.SC_BAD_REQUEST:
-        throw new BadRequestException("Bad request HTTP code was received from getaway server.");
+        throw new BadRequestException("Bad request HTTP code was received from gateway server.");
       case HttpStatus.SC_UNAUTHORIZED:
         throw new NotAuthorizedException(response);
       case HttpStatus.SC_FORBIDDEN:
-        throw new ForbiddenException("Forbidden HTTP code was received from getaway server");
+        throw new ForbiddenException("Forbidden HTTP code was received from gateway server");
       case HttpStatus.SC_METHOD_NOT_ALLOWED:
         throw new NotAllowedException(response.getStatusLine().getReasonPhrase());
       case HttpStatus.SC_INTERNAL_SERVER_ERROR:
         throw new InternalServerErrorException("Internal server exception during operation process.");
       case HttpStatus.SC_NOT_IMPLEMENTED:
       default:
-        throw new NotSupportedException("Operation is not supported by getaway server");
+        throw new NotSupportedException("Operation is not supported by gateway server");
     }
   }
 }

@@ -42,7 +42,7 @@ import java.util.Random;
  * The basic implementation of the authentication client to fetch the access token from the Auth. Server through
  * the REST API with username and password.
  */
-public class BasicAuthenticationClient implements AuthenticationClient {
+public class BasicAuthenticationClient implements AuthenticationClient<BasicCredentials> {
   private static final Logger LOG = LoggerFactory.getLogger(BasicAuthenticationClient.class);
 
   private static final String ACCESS_TOKEN_KEY = "access_token";
@@ -52,52 +52,42 @@ public class BasicAuthenticationClient implements AuthenticationClient {
   private static final String HTTPS_PROTOCOL = "https";
 
   private final HttpClient httpClient;
-  private final URI baseUrl;
-  private String username;
-  private String password;
+  private URI baseUrl;
   private URI authUrl;
   private Boolean isAuthEnabled;
 
-  public BasicAuthenticationClient(String host, int port, boolean ssl, String username, String password) {
-    this.baseUrl = URI.create(String.format("%s://%s:%d", ssl ? HTTPS_PROTOCOL : HTTP_PROTOCOL, host, port));
+  public BasicAuthenticationClient() {
     this.httpClient = HttpClients.custom().build();
-    this.username = username;
-    this.password = password;
-  }
-
-  public BasicAuthenticationClient(String host, int port, String username, String password) {
-    this(host, port, false, username, password);
-  }
-
-  public BasicAuthenticationClient(String host, int port, boolean ssl) {
-    this(host, port, ssl, null, null);
-  }
-
-  public BasicAuthenticationClient(String host, int port) {
-    this(host, port, null, null);
   }
 
   @Override
-  public String getAccessToken() throws IOException {
+  public void configure(String host, int port, boolean ssl) {
+    baseUrl = URI.create(String.format("%s://%s:%d", ssl ? HTTPS_PROTOCOL : HTTP_PROTOCOL, host, port));
+  }
+
+  @Override
+  public String getAccessToken(BasicCredentials credentials) throws IOException {
+    if (!isAuthEnabled()) {
+      throw new IOException("Authentication is disabled in the gateway server.");
+    }
+
+    String username = credentials.getUsername();
+    String password = credentials.getPassword();
     if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
       throw new IOException("Username or password argument is empty.");
     }
 
-    String token = StringUtils.EMPTY;
-    if (isAuthEnabled()) {
-      LOG.debug("Authentication is enabled in the gateway server. Authentication URI {}.", authUrl);
-      HttpGet getRequest = new HttpGet(authUrl);
+    LOG.debug("Authentication is enabled in the gateway server. Authentication URI {}.", authUrl);
+    HttpGet getRequest = new HttpGet(authUrl);
 
-      String auth = Base64.encodeBase64String(String.format("%s:%s", username, password).getBytes());
-      auth = auth.replaceAll("(\r|\n)", StringUtils.EMPTY);
-      getRequest.addHeader(HttpHeaders.AUTHORIZATION, AUTHENTICATION_HEADER_PREFIX_BASIC + auth);
+    String auth = Base64.encodeBase64String(String.format("%s:%s", username, password).getBytes());
+    auth = auth.replaceAll("(\r|\n)", StringUtils.EMPTY);
+    getRequest.addHeader(HttpHeaders.AUTHORIZATION, AUTHENTICATION_HEADER_PREFIX_BASIC + auth);
 
-      HttpResponse httpResponse = httpClient.execute(getRequest);
-      RestClientUtils.responseCodeAnalysis(httpResponse);
-      JsonObject jsonContent = RestClientUtils.toJsonObject(httpResponse.getEntity());
-      token = jsonContent.get(ACCESS_TOKEN_KEY).getAsString();
-    }
-    return token;
+    HttpResponse httpResponse = httpClient.execute(getRequest);
+    RestClientUtils.verifyResponseCode(httpResponse);
+    JsonObject jsonContent = RestClientUtils.toJsonObject(httpResponse.getEntity());
+    return jsonContent.get(ACCESS_TOKEN_KEY).getAsString();
   }
 
   @Override
@@ -127,22 +117,8 @@ public class BasicAuthenticationClient implements AuthenticationClient {
       }
       result = list.get(new Random().nextInt(list.size()));
     } else {
-      RestClientUtils.responseCodeAnalysis(response);
+      RestClientUtils.verifyResponseCode(response);
     }
     return result;
-  }
-
-  /**
-   * @param username the username to set
-   */
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  /**
-   * @param password the username
-   */
-  public void setPassword(String password) {
-    this.password = password;
   }
 }

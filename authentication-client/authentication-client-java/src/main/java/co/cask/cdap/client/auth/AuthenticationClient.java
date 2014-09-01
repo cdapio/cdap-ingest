@@ -19,17 +19,32 @@ package co.cask.cdap.client.auth;
 import java.io.IOException;
 
 /**
- * The client interface to fetch the access token from the Auth. Server.
+ * The client interface to fetch access tokens from the authentication server.
+ *
+ * @param <T> Type of the object which contains credentials required for the enabled authentication provider in the
+ * authentication server.
  */
-public interface AuthenticationClient {
+public interface AuthenticationClient<T extends Credentials> {
   /**
-   * Retrieves the access token generated according to the credentials required by Auth. Provider in the Auth. Server.
-   * Empty result string means that authentication is disabled in the gateway server.
+   * Configures the address of the gateway server for the authentication client.
    *
-   * @return String value of the access token
-   * @throws IOException in case of a problem or the connection was aborted
+   * @param host gateway server host name
+   * @param port gateway server port
+   * @param ssl  should be true, if SSL is enabled in the gateway server.
    */
-  String getAccessToken() throws IOException;
+  void configure(String host, int port, boolean ssl);
+
+  /**
+   * Retrieves the access token generated according to the credentials required by thr authentication provider
+   * in the authentication server.
+   *
+   * @param credentials object contains credentials according to the enabled  authentication provider in the
+   *                    authentication server
+   * @return String value of the access token
+   * @throws IOException in case of a problem or the connection was aborted or authentication is disabled in the
+   *                     gateway server
+   */
+  String getAccessToken(T credentials) throws IOException;
 
   /**
    * Checks is the authentication enabled in the gateway server.
