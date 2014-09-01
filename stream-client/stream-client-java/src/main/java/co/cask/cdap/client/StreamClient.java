@@ -16,17 +16,16 @@
 
 package co.cask.cdap.client;
 
-import co.cask.cdap.client.exception.NotFoundException;
-
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
- * The client interface to interact with services provided by stream endpoint.
+ * The client interface to interact with services provided by the Stream endpoint.
  */
 public interface StreamClient extends Closeable {
   /**
-   * Creates a stream with the given name.
+   * Creates the Stream with the given name.
    *
    * @param stream String value of the Stream id
    * @throws IOException in case of a problem or the connection was aborted
@@ -34,43 +33,39 @@ public interface StreamClient extends Closeable {
   void create(String stream) throws IOException;
 
   /**
-   * Set the Time-To-Live (TTL) property of the given stream.
+   * Set the Time-To-Live (TTL) property of the given Stream.
    *
-   * @param stream Name of the stream
+   * @param stream Name of the Stream
    * @param ttl    TTL in seconds
-   * @throws NotFoundException If the stream does not exists
    * @throws IOException in case of a problem or the connection was aborted
    */
-  void setTTL(String stream, long ttl) throws NotFoundException, IOException;
+  void setTTL(String stream, long ttl) throws IOException;
 
   /**
-   * Retrieves the Time-To-Live (TTL) property of the given stream.
+   * Retrieves the Time-To-Live (TTL) property of the given Stream.
    *
-   * @param stream Name of the stream
-   * @return Current TTL of the stream in seconds
-   * @throws NotFoundException If the stream does not exists
+   * @param stream Name of the Stream
+   * @return Current TTL of the Stream in seconds
    * @throws IOException in case of a problem or the connection was aborted
    */
-  long getTTL(String stream) throws NotFoundException, IOException;
+  long getTTL(String stream) throws IOException;
 
   /**
-   * Truncates all existing events in the give stream.
+   * Truncates all existing events in the give Stream.
    *
-   * @param stream Name of the stream
-   * @throws NotFoundException If the stream does not exists
+   * @param stream Name of the Stream
    * @throws IOException in case of a problem or the connection was aborted
    */
-  void truncate(String stream) throws NotFoundException, IOException;
+  void truncate(String stream) throws IOException;
 
   /**
-   * Creates a {@link StreamWriter} instance for writing events to the given stream.
+   * Creates a {@link StreamWriter} instance for writing events to the given Stream.
    *
-   * @param stream Name of the stream
-   * @return An instance of {@link StreamWriter} that is ready for writing events to the stream
-   * @throws NotFoundException If the stream does not exists
+   * @param stream Name of the Stream
+   * @return An instance of {@link StreamWriter} that is ready for writing events to the Stream
    * @throws IOException in case of a problem or the connection was aborted
    */
-  StreamWriter createWriter(String stream) throws NotFoundException, IOException;
+  StreamWriter createWriter(String stream) throws IOException, URISyntaxException;
 
   /**
    * Closes a {@link org.apache.http.impl.client.CloseableHttpClient} instance for releasing all unused resource
@@ -78,5 +73,6 @@ public interface StreamClient extends Closeable {
    *
    * @throws IOException if an I/O error occurs during close process
    */
+  @Override
   void close() throws IOException;
 }

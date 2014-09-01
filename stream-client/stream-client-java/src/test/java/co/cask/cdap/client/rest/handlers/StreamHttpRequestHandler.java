@@ -55,14 +55,6 @@ public class StreamHttpRequestHandler implements HttpRequestHandler {
       streamName = streamName.replace(TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX, StringUtils.EMPTY);
       if (TestUtils.AUTH_STREAM_NAME.equals(streamName)) {
         statusCode = TestUtils.authorize(httpRequest);
-      } else if (TestUtils.FILE_STREAM_NAME.equals(streamName)) {
-        statusCode = HttpStatus.SC_BAD_REQUEST;
-        BasicHttpEntityEnclosingRequest request = (BasicHttpEntityEnclosingRequest) httpRequest;
-        HttpEntity httpEntity = request.getEntity();
-        String content = RestClient.getEntityAsString(httpEntity);
-        if (StringUtils.isNotEmpty(content) && content.contains(RestTest.EXPECTED_WRITER_CONTENT)) {
-          statusCode = HttpStatus.SC_OK;
-        }
       } else if (TestUtils.WITH_CUSTOM_HEADER_STREAM_NAME.endsWith(streamName)) {
         Header testHeader = httpRequest.getFirstHeader(fullStreamName + "." + RestTest.TEST_HEADER_NAME);
         if (testHeader != null && RestTest.TEST_HEADER_VALUE.equals(testHeader.getValue())) {
@@ -78,7 +70,7 @@ public class StreamHttpRequestHandler implements HttpRequestHandler {
         BasicHttpEntityEnclosingRequest request = (BasicHttpEntityEnclosingRequest) httpRequest;
         HttpEntity requestEntity = request.getEntity();
         if (requestEntity != null) {
-          String content = RestClient.getEntityAsString(requestEntity);
+          String content = RestClient.toString(requestEntity);
           if (StringUtils.isEmpty(content) || !RestTest.EXPECTED_WRITER_CONTENT.equals(content)) {
             statusCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
           }

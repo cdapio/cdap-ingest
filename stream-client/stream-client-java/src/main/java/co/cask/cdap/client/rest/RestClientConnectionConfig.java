@@ -46,11 +46,11 @@ public class RestClientConnectionConfig {
     return version;
   }
 
-  public boolean isSsl() {
+  public boolean isSSL() {
     return ssl;
   }
 
-  public String getApiKey() {
+  public String getAPIKey() {
     return apiKey;
   }
 
