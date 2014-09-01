@@ -5,7 +5,8 @@ from os import path
 import mimetypes
 from threading import Thread, Lock
 from types import FunctionType
-from serviceconnector import ServiceConnector, ConnectionErrorChecker
+from serviceconnector import ServiceConnector, ConnectionErrorChecker, \
+    NoFoundError
 
 
 class StreamPromise(ConnectionErrorChecker):
@@ -41,13 +42,13 @@ class StreamPromise(ConnectionErrorChecker):
 
         self.__handlersLock = Lock()
 
-        self.__workerThread = Thread(target=self.__workerTarget,
+        self.__workerThread = Thread(target=self.__worker_target,
                                      args=(uri, data))
-        self.__handlerThread = Thread(target=self.__responseCheckTarget)
+        self.__handlerThread = Thread(target=self.__response_check_target)
         self.__workerThread.start()
         self.__handlerThread.start()
 
-    def __workerTarget(self, uri, dataDict):
+    def __worker_target(self, uri, dataDict):
         """
         Represents logic for performing requests and repsonses handling.
         This method should be invoked in separate thread to reduce main
@@ -135,7 +136,7 @@ class StreamPromise(ConnectionErrorChecker):
             self.__serviceResponse = self.__serviceConnector.send(
                 uri, fields, headersToSend)
 
-    def __responseCheckTarget(self):
+    def __response_check_target(self):
         """
         Checks for status of HTTP response from Gateway server and
         fires handlers according to status code.
@@ -147,7 +148,7 @@ class StreamPromise(ConnectionErrorChecker):
            and self.__onErrorHandler:
             try:
                 self.__onOkHandler(
-                    self.checkResponseErrors(self.__serviceResponse)
+                    self.check_response_errors(self.__serviceResponse)
                 )
             except NoFoundError:
                 self.__onErrorHandler(self.__serviceResponse)
@@ -155,7 +156,7 @@ class StreamPromise(ConnectionErrorChecker):
                 self.__onOkHandler = self.__onErrorHandler = None
         self.__handlersLock.release()
 
-    def onResponse(self, ok, error=None):
+    def on_response(self, ok, error=None):
         """
         Sets up handlers for successful and error responses.
 
@@ -184,4 +185,4 @@ class StreamPromise(ConnectionErrorChecker):
             self.__onErrorHandler = error
 
         self.__handlersLock.release()
-        self.__responseCheckTarget()
+        self.__response_check_target()

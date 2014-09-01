@@ -30,7 +30,7 @@ class StreamClient(ConnectionErrorChecker):
         self.__serviceConfig = config
         self.__serviceConnector = ServiceConnector(self.__serviceConfig)
 
-    def __prepareUri(self, requestName, placeholderName='streamid', data=''):
+    def __prepare_uri(self, requestName, placeholderName='streamid', data=''):
         return self.__REQUESTS[requestName].replace(
             self.__REQUEST_PLACEHOLDERS[placeholderName], data)
 
@@ -41,11 +41,11 @@ class StreamClient(ConnectionErrorChecker):
         Keyword arguments:
         stream -- stream name to create
         """
-        uri = self.__prepareUri('stream', data=stream)
+        uri = self.__prepare_uri('stream', data=stream)
 
         self.__serviceConnector.request('PUT', uri)
 
-    def setTTL(self, stream, ttl):
+    def set_ttl(self, stream, ttl):
         """
         Set the Time-To-Live (TTL) property of the given stream.
 
@@ -56,14 +56,14 @@ class StreamClient(ConnectionErrorChecker):
         objectToSend = {
             'ttl': ttl
         }
-        uri = self.__prepareUri('config', data=stream)
+        uri = self.__prepare_uri('config', data=stream)
         data = json.dumps(objectToSend)
 
-        self.checkResponseErrors(
+        self.check_response_errors(
             self.__serviceConnector.request('PUT', uri, data)
         )
 
-    def getTTL(self, stream):
+    def get_ttl(self, stream):
         """
         Retrieves the Time-To-Live (TTL) property of the given stream.
 
@@ -73,8 +73,8 @@ class StreamClient(ConnectionErrorChecker):
         Return value:
         Time-To-Live property in seconds
         """
-        uri = self.__prepareUri('info', data=stream)
-        response = self.checkResponseErrors(
+        uri = self.__prepare_uri('info', data=stream)
+        response = self.check_response_errors(
             self.__serviceConnector.request('GET', uri)
         )
 
@@ -89,13 +89,13 @@ class StreamClient(ConnectionErrorChecker):
         Keyword arguments:
         stream -- stream name to truncate
         """
-        uri = self.__prepareUri('truncate', data=stream)
+        uri = self.__prepare_uri('truncate', data=stream)
 
-        self.checkResponseErrors(
+        self.check_response_errors(
             self.__serviceConnector.request('POST', uri)
         )
 
-    def createWriter(self, stream):
+    def create_writer(self, stream):
         """
         Creates a {@link StreamWriter} instance for writing events
         to the given stream.
@@ -109,9 +109,9 @@ class StreamClient(ConnectionErrorChecker):
         The main idea is there is could not be presented info for
         invalid stream.
         """
-        self.getTTL(stream)
+        self.get_ttl(stream)
 
-        uri = self.__prepareUri('stream', data=stream)
+        uri = self.__prepare_uri('stream', data=stream)
 
         return StreamWriter(
             ServiceConnector(self.__serviceConfig),

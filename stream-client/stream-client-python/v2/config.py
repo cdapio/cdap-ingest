@@ -39,7 +39,7 @@ class Config(object):
     def ssl(self, ssl):
         self.__ssl = ssl
 
-    def readFromFile(filename):
+    def read_from_file(filename):
         newConfig = Config()
         jsonConfig = None
 

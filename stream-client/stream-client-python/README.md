@@ -30,10 +30,9 @@ Optional configurations that can be set (and their default values):
 
  ```
    config = Config()
-   config.setHost('localhost')
-   config.setPort(10000)
-   config.setSSL(False)
-   config.setAPIKey('<api-key-hash>')
+   config.host = 'localhost'
+   config.port = 10000
+   config.ssl = False
 
    streamClient = StreamClient(config)
  ```
@@ -41,18 +40,18 @@ Optional configurations that can be set (and their default values):
  or using the readFromFile method of Config object:
 
  ```
-   config = Config.readFromFile('/path/to/config.ini')
+   config = Config.read_from_file('/path/to/config.ini')
 
    streamClient = StreamClient(config)
  ```
 
-Config file structure in INI format:
+Config file structure in JSON format:
 ```
-[ServerConnection]
-hostname = local.host         - gateway hostname
-port = 10001                  - gateway port
-SSL = true                    - if SSL is being used
-APIKey = ''                   - API key hash
+{
+    hostname: 'localhost',    - gateway hostname
+    port: 10000,              - gateway port
+    SSL: false                - if SSL is being used
+}
 ```
 
  Create a new Stream with the *stream-id* "newStreamName":
@@ -70,19 +69,19 @@ APIKey = ''                   - API key hash
  Update TTL for the Stream "streamName"; TTL is a long value:
 
  ```
-   streamClient.setTTL("streamName", newTTL);
+   streamClient.set_ttl("streamName", newTTL);
  ```
 
  Get the current TTL value for the Stream "streamName":
 
  ```
-   ttl = streamClient.getTTL("streamName");
+   ttl = streamClient.get_ttl("streamName");
  ```
 
  Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
 
  ```
-   streamWriter = streamClient.createWriter("streamName");
+   streamWriter = streamClient.create_writer("streamName");
  ```
 
  To write new events to the Stream, you can use any of these two methods of the ```StreamWriter``` class:

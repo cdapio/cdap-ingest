@@ -29,7 +29,7 @@ class ConnectionErrorChecker(object):
 
     __HTTP_OK = 200
 
-    def checkResponseErrors(self, httpResponse):
+    def check_response_errors(self, httpResponse):
         if self.__HTTP_OK is not httpResponse.status_code:
             raise NoFoundError(httpResponse.status_code, httpResponse.reason)
 
@@ -62,7 +62,7 @@ class ServiceConnector(object):
             self.__connectionConfig.port
         )
 
-    def setAuthorizationToken(self, token):
+    def set_authorization_token(self, token):
         self.__defaultHeaders[u'Authorization'] = u'Bearer ' + token
 
     def request(self, method, uri, body=None, headers=None):

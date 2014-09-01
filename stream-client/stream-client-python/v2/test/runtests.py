@@ -108,8 +108,8 @@ class TestStreamClient(unittest.TestCase):
         )
 
         try:
-            self.sc.setTTL(self.validStream, ttl)
-        except NoFoundErrorn:
+            self.sc.set_ttl(self.validStream, ttl)
+        except NoFoundError:
             self.fail(u'StreamClient.setTTL() failed')
 
     @httpretty.activate
@@ -128,7 +128,7 @@ class TestStreamClient(unittest.TestCase):
 
         self.assertRaises(
             NoFoundError,
-            self.sc.setTTL,
+            self.sc.set_ttl,
             self.invalidStream,
             ttl
         )
@@ -148,7 +148,7 @@ class TestStreamClient(unittest.TestCase):
         )
 
         try:
-            self.sc.getTTL(self.validStream)
+            self.sc.get_ttl(self.validStream)
         except NoFoundError:
             self.fail(u'StreamClient.getTTL() failed')
 
@@ -168,7 +168,7 @@ class TestStreamClient(unittest.TestCase):
 
         self.assertRaises(
             NoFoundError,
-            self.sc.getTTL,
+            self.sc.get_ttl,
             self.invalidStream
         )
 
@@ -187,7 +187,7 @@ class TestStreamClient(unittest.TestCase):
         )
 
         self.assertIsInstance(
-            self.sc.createWriter(self.validStream),
+            self.sc.create_writer(self.validStream),
             StreamWriter
         )
 
@@ -207,7 +207,7 @@ class TestStreamClient(unittest.TestCase):
 
         self.assertRaises(
             NoFoundError,
-            self.sc.createWriter,
+            self.sc.create_writer,
             self.invalidStream)
 
     @httpretty.activate
@@ -235,13 +235,13 @@ class TestStreamClient(unittest.TestCase):
             status=200
         )
 
-        sw = self.sc.createWriter(self.validStream)
+        sw = self.sc.create_writer(self.validStream)
 
-        def onResponse(response):
+        def on_response(response):
             self.exit_code = response.status_code
 
         q = sw.send(self.validFile)
-        q.onResponse(onResponse)
+        q.on_response(on_response)
 
         self.assertEqual(self.exit_code, 200)
 
@@ -270,13 +270,13 @@ class TestStreamClient(unittest.TestCase):
             status=200
         )
 
-        sw = self.sc.createWriter(self.validStream)
+        sw = self.sc.create_writer(self.validStream)
 
-        def onResponse(response):
+        def on_response(response):
             self.exit_code = response.status_code
 
         q = sw.write(self.messageToWrite)
-        q.onResponse(onResponse)
+        q.on_response(on_response)
 
         self.assertEqual(self.exit_code, 200)
 
