@@ -28,6 +28,7 @@
 
   <modules>
     <module>stream-client</module>
+    <module>cdap-sink</module>
   </modules>
 
   <properties>
