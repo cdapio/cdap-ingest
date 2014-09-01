@@ -158,7 +158,6 @@ load(){
 	file_path=$1
 	simple_file_name=$(basename $file_path)
 	observer_list=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep 'observers'| head -n 1| cut -d "=" -f2-`
-	observer_list=,$observer_list,
 	observer=$2
 	if [ ! -e $file_path ];then
 		log_failure_msg "File $file_path does not exists"
@@ -166,31 +165,30 @@ load(){
 	fi
     case $# in
     	1)
-		if [[ "$observer_list" == *,* ]];then
-			log_failure_msg "Few observers are configured. Please, enter observer name"
-		exit 0
-		else
-			fdz_directory="/var/file-drop-zone/"$observer_list
-			temp_folder="/tmp/file-drop-zone/"$observer_list
-		fi;;
+		    if [[ "$observer_list" == *,* ]];then
+			    log_failure_msg "Few observers are configured. Please, enter observer name"
+		    exit 0
+		    else
+			    fdz_directory="/var/file-drop-zone/"$observer_list
+			    temp_folder="/tmp/file-drop-zone/"$observer_list
+		    fi;;
     	2)
+    	  observer_list=,$observer_list,
     		if [[ "$observer_list" == *,$observer,* ]];then
-			fdz_directory="/var/file-drop-zone/"$observer
-			temp_folder="/tmp/file-drop-zone/"$observer
+			    fdz_directory="/var/file-drop-zone/"$observer
+			    temp_folder="/tmp/file-drop-zone/"$observer
     		else
-			log_failure_msg "Observer not found"
-			exit 0
+			    log_failure_msg "Observer not found"
+			    exit 0
     		fi;;
     esac
 		if [ ! -d $fdz_directory ]; then
-		    echo "$fdz_directory"
     		mkdir -p $fdz_directory
 		    chown -R file-drop-zone:file-drop-zone $fdz_directory
 		    chmod 755 $fdz_directory
     fi
 
     if [ ! -d $temp_folder ]; then
-    	  echo "$temp_folder"
 		    mkdir -p $temp_folder
 		    chown -R file-drop-zone:file-drop-zone $temp_folder
 		    chmod 755 $temp_folder
