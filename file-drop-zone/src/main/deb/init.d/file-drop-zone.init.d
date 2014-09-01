@@ -158,6 +158,7 @@ load(){
 	file_path=$1
 	simple_file_name=$(basename $file_path)
 	observer_list=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep 'observers'| head -n 1| cut -d "=" -f2-`
+	observer_list=,$observer_list,
 	observer=$2
 	if [ ! -e $file_path ];then
 		log_failure_msg "File $file_path does not exists"
@@ -173,7 +174,7 @@ load(){
 			temp_folder="/tmp/file-drop-zone/"$observer_list
 		fi;;
     	2)
-    		if [[ "$observer_list" == *$observer* ]];then
+    		if [[ "$observer_list" == *,$observer,* ]];then
 			fdz_directory="/var/file-drop-zone/"$observer
 			temp_folder="/tmp/file-drop-zone/"$observer
     		else

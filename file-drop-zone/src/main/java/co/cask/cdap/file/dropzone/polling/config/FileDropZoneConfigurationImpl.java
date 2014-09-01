@@ -17,7 +17,6 @@
 package co.cask.cdap.file.dropzone.polling.config;
 
 import co.cask.cdap.filetailer.config.ConfigurationImpl;
-import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.config.PipeConfigurationImpl;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import org.slf4j.Logger;
