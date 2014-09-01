@@ -60,7 +60,7 @@ public class DirPollingService implements Runnable, PollingService {
     if (prevValue != null) {
       throw new IllegalArgumentException("Observer for folder {} already registered.");
     }
-    LOG.debug("Registered new Observer to the Polling Service: {}.", observer);
+    LOG.info("Registered new Observer to the Polling Service: {}.", observer);
   }
 
   /**
@@ -84,24 +84,24 @@ public class DirPollingService implements Runnable, PollingService {
     if (observer == null) {
       throw new IllegalArgumentException("Observer is not found!");
     }
-    LOG.debug("Removed Observer from the Polling Service: {}.", observer);
+    LOG.info("Removed Observer from the Polling Service: {}.", observer);
   }
 
   @Override
   public synchronized void start() throws Exception {
-    LOG.debug("Try to start Directory Polling Service...");
+    LOG.info("Try to start Directory Polling Service...");
     if (running) {
       throw new IllegalStateException("Monitor is already running");
     }
     running = true;
     thread = new Thread(this);
     thread.start();
-    LOG.debug("Successfully start of Directory Polling Service.");
+    LOG.info("Successfully start of Directory Polling Service.");
   }
 
   @Override
   public synchronized void stop() throws Exception {
-    LOG.debug("Try to stop Directory Polling Service...");
+    LOG.info("Try to stop Directory Polling Service...");
     if (!running) {
       throw new IllegalStateException("Monitor is not running");
     }
@@ -111,7 +111,7 @@ public class DirPollingService implements Runnable, PollingService {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
-    LOG.debug("Successfully stop of Directory Polling Service.");
+    LOG.info("Successfully stop of Directory Polling Service.");
   }
 
   @Override

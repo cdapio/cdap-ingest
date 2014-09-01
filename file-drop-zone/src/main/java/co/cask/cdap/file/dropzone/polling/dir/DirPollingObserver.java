@@ -90,7 +90,7 @@ public class DirPollingObserver {
    * @param files The current list of files
    */
   private void checkAndNotify(File[] files) {
-    LOG.debug("Check {}", files);
+    LOG.debug("Waiting for new log files {}", files);
     for (File file : files) {
       if (!file.isDirectory()) {
         checkFile(file);
@@ -108,7 +108,7 @@ public class DirPollingObserver {
       processedFiles.add(file.getAbsolutePath());
       listener.onFileCreate(file);
     } else {
-      LOG.debug("File already processed {}.", file);
+      LOG.info("File already processed {}.", file);
     }
   }
 

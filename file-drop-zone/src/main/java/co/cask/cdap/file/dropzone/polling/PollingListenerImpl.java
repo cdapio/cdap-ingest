@@ -61,14 +61,17 @@ public class PollingListenerImpl implements PollingListener {
 
   @Override
   public void onFileCreate(File file) {
-    LOG.debug("File Added: {}", file.getAbsolutePath());
+    LOG.info("File Added: {}", file.getAbsolutePath());
     Pipe pipe;
     try {
+      LOG.debug("Start configure pipe for file: {}", file.getAbsolutePath());
       pipe = setupPipe(file);
+      LOG.debug("Pipe for file {} successfully configured", file.getAbsolutePath());
     } catch (IOException e) {
-      LOG.error("Error during flows: {} setup", e.getMessage());
+      LOG.error("Error during pipe setup: {}", e.getMessage());
       return;
     }
+    LOG.info("Start processing file: {}", file.getAbsolutePath());
     pipe.startWithoutMetrics();
   }
 
@@ -132,7 +135,7 @@ public class PollingListenerImpl implements PollingListener {
   private void removeStateFile(String stateFilePath) {
     File stateFile = new File(stateFilePath);
     if (stateFile.delete()) {
-      LOG.debug("File successfully deleted {}.", stateFile);
+      LOG.info("State file successfully deleted {}.", stateFile);
     } else {
       throw new IllegalArgumentException(
         String.format("Cannot remove specified file %s.", stateFile.getAbsolutePath()));
@@ -155,6 +158,7 @@ public class PollingListenerImpl implements PollingListener {
 
     @Override
     public void onRead() {
+      LOG.info("File {} already read", filePath);
       isRead = true;
     }
 
@@ -165,6 +169,7 @@ public class PollingListenerImpl implements PollingListener {
 
     @Override
     public void onIngest() {
+      LOG.info("File {} already processed", filePath);
       pipe.stopWithoutMetrics();
       removeStateFile(stateFilePath);
       monitor.removeFile(new File(directoryPath), new File(filePath));
