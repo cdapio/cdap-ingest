@@ -12,20 +12,11 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-source "http://rubygems.org"
+require "yaml"
 
-# Specify your gem's dependencies in dropbox-api.gemspec
-gemspec
+config = YAML.load_file("spec/stream.yml")
 
-gem "rspec"
-gem "fuubar"
-
-gem "rake"
-gem "simplecov"
-gem "simplecov-rcov"
-gem "vcr"
-gem "webmock"
-gem 'httparty'
-gem 'thread'
-gem 'promise.rb'
-gem 'pry'
+CDAPIngest::Rest.gateway     = config['gateway']
+CDAPIngest::Rest.port        = config['port']
+CDAPIngest::Rest.api_version = config['api_version']
+CDAPIngest::Rest.ssl         = config['ssl']

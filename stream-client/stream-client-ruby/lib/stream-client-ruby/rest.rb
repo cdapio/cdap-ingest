@@ -1,30 +1,41 @@
-require 'httparty'
+#  Copyright 2014 Cask, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License"); you may not
+#  use this file except in compliance with the License. You may obtain a copy of
+#  the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#  License for the specific language governing permissions and limitations under
+#  the License.
 
-module CDAP
+require 'httparty'
+require 'em-http-request'
+
+module CDAPIngest
 
   class Rest
     include HTTParty
 
-    DEFAULT_CONFIG = {
-      gateway: '0.0.0.0',
-      port: 10000,
-      api_version: 'v2',
-      ssl: false
-    }
-
     attr_reader :config
 
-    def initialize _config = {}
-      @config = DEFAULT_CONFIG.merge _config
-      protocol = ssl? ? 'https' : 'http'
-      gateway = config[:gateway]
-      port = config[:port]
-      api_version = config[:api_version]
-      self.class.base_uri "#{protocol}://#{gateway}:#{port}/#{api_version}/streams"
+    class << self
+      attr_accessor :gateway
+      attr_accessor :port
+      attr_accessor :api_version
+      attr_accessor :ssl
+    end
+
+    def initialize
+      protocol = self.class.ssl ? 'https' : 'http'
+      self.class.base_uri "#{protocol}://#{self.class.gateway}:#{self.class.port}/#{self.class.api_version}/streams"
     end
 
     def ssl?
-      !!config[:ssl]
+      !!self.class.ssl
     end
 
     def request method, url, options = {}, &block

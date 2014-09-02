@@ -12,20 +12,15 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-source "http://rubygems.org"
+require 'httparty'
+require 'thread'
+require 'promise.rb'
 
-# Specify your gem's dependencies in dropbox-api.gemspec
-gemspec
+module CDAPIngest
+  
+end
 
-gem "rspec"
-gem "fuubar"
-
-gem "rake"
-gem "simplecov"
-gem "simplecov-rcov"
-gem "vcr"
-gem "webmock"
-gem 'httparty'
-gem 'thread'
-gem 'promise.rb'
-gem 'pry'
+require "stream-client-ruby/stream_client"
+require "stream-client-ruby/stream_writer"
+require "stream-client-ruby/rest"
+require "stream-client-ruby/version"

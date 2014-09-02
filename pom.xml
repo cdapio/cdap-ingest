@@ -195,6 +195,11 @@
                   <exclude>**/*.avsc</exclude>
                   <!-- Excludes examples by default, include it in the examples profile -->
                   <exclude>examples/**</exclude>
+                  <exclude>**/*.yml</exclude>
+                  <exclude>stream-client-ruby/spec/fixtures/1MB</exclude>
+                  <exclude>stream-client-ruby/Gemfile.lock</exclude>
+                  <exclude>stream-client-ruby/README.md</exclude>
+                  <!--<exclude>**/1MB</exclude>-->
                 </excludes>
               </configuration>
             </execution>
