@@ -12,20 +12,6 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-source "http://rubygems.org"
-
-# Specify your gem's dependencies in dropbox-api.gemspec
-gemspec
-
-gem "rspec"
-gem "fuubar"
-
-gem "rake"
-gem "simplecov"
-gem "simplecov-rcov"
-gem "vcr"
-gem "webmock"
-gem 'httparty'
-gem 'thread'
-gem 'promise.rb'
-gem 'pry'
+module CDAPIngest
+  VERSION = "0.0.1"
+end
