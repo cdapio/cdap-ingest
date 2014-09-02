@@ -147,6 +147,13 @@ checkstatus(){
   return $status
 }
 
+load(){
+ file_path=$1
+ observer=$2
+ /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ > $FDZ_PID_FILE && exec ${EXEC_PATH} load $file_path $observer >>${FDZ_LOG_DIR}/${NAME}-server.init.log 2>&1' &" $FDZ_USER
+
+}
+
 condrestart(){
   [ -e ${LOCKFILE} ] && restart || :
 }
@@ -164,11 +171,14 @@ case "$1" in
   restart)
     restart
     ;;
+  load)
+      load $2 $3
+      ;;
   condrestart|try-restart)
     condrestart
     ;;
   *)
-    echo $"Usage: $0 {start|stop|status|restart|try-restart|condrestart}"
+    echo $"Usage: $0 {start|stop|status|restart|try-restart|load|condrestart}"
     exit 1
 esac
 

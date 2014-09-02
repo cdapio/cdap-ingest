@@ -177,7 +177,7 @@
           <classifier></classifier>
           <copyright>Cask</copyright>
           <distribution>development</distribution>
-          <group>Applications/File Tailer</group>
+          <group>Applications/File DropZone</group>
           <packager>${user.name}</packager>
           <changelogFile>CHANGELOG</changelogFile>
           <defaultDirmode>500</defaultDirmode>
@@ -191,6 +191,9 @@
               <username>${script.app.user}</username>
               <groupname>${script.app.user}</groupname>
               <sources>
+                <source>
+                  <location>target/lib</location>
+                </source>
                 <source>
                   <location>target/${project.build.finalName}.jar</location>
                 </source>
