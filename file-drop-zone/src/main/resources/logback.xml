@@ -16,10 +16,10 @@
   -->
 <configuration>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${ft_log_dir}/file-tailer.log</file>
+        <file>${fdz_log_dir}/file-drop-zone.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily -->
-            <fileNamePattern>${ft_log_dir}/file-tailer-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${fdz_log_dir}/file-drop-zone-%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
 
         <encoder>
