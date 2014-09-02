@@ -44,6 +44,7 @@ public class FileTailerStateProcessorImplTest {
     Assert.assertEquals(state.getHash(), loadedState.getHash());
     Assert.assertEquals(state.getLastModifyTime(), loadedState.getLastModifyTime());
 
+    new File(System.getProperty("user.home") + "/ft_state_dir/ft.state").delete();
     new File(System.getProperty("user.home") + "/ft_state_dir").delete();
   }
 }
