@@ -106,11 +106,7 @@ public class DirPollingService implements Runnable, PollingService {
       throw new IllegalStateException("Monitor is not running");
     }
     running = false;
-    try {
-      thread.join(pollingInterval);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
+    thread.interrupt();
     LOG.info("Successfully stop of Directory Polling Service.");
   }
 
