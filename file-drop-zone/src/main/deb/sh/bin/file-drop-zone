@@ -48,4 +48,4 @@ if [ ! -f ${FDZ_HOME}/bin/$command ]; then
    exit 1
 fi
 
-${FDZ_HOME}/bin/$@
+exec ${FDZ_HOME}/bin/$@
