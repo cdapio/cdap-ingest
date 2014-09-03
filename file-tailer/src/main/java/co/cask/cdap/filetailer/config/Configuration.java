@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,7 +19,7 @@ package co.cask.cdap.filetailer.config;
 import java.util.List;
 
 /**
- * Configuration s design for getting all properties from configuration file
+ * Configuration is design for getting all properties from configuration file
  */
 public interface Configuration {
 

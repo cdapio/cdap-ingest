@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,7 +16,7 @@
 
 package co.cask.cdap.filetailer.tailer;
 
-import co.cask.cdap.filetailer.AbstractWorker;
+import co.cask.cdap.filetailer.BaseWorker;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
@@ -38,7 +38,7 @@ import java.util.TreeMap;
  * Tailer daemon
  */
 
-public class LogTailer extends AbstractWorker {
+public class LogTailer extends BaseWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(LogTailer.class);
   private static final String RAF_MODE = "r";
@@ -74,7 +74,6 @@ public class LogTailer extends AbstractWorker {
     this.failureRetryLimit = confLoader.getSourceConfiguration().getFailureRetryLimit();
     this.failureSleepInterval = confLoader.getSourceConfiguration().getFailureSleepInterval();
     this.rotationPattern = confLoader.getSourceConfiguration().getRotationPattern();
-
   }
 
   public FileTailerMetricsProcessor getMetricsProcessor() {
@@ -120,6 +119,7 @@ public class LogTailer extends AbstractWorker {
     charset = Charset.forName(charsetName);
     return true;
   }
+
   /**
    *  Method try to get save state of the tailer
    *  @return FileTailerState object, if save state file not exist null is returning
@@ -134,6 +134,7 @@ public class LogTailer extends AbstractWorker {
     }
     return fileTailerState;
   }
+
   /**
    *  Method try start  tailer from save state.
    *  If could not find log file with saved entry method finished
@@ -163,6 +164,7 @@ public class LogTailer extends AbstractWorker {
       return;
     }
   }
+
   /**
    *  Method start reading log directory from current log file and
    *  current RandomAccessReader position
@@ -206,8 +208,8 @@ public class LogTailer extends AbstractWorker {
     } finally {
       closeQuietly(reader);
     }
-
   }
+
   /**
    *  Method start reading log from all log directory
    *  @InterruptedException if thread was interrupted
@@ -246,8 +248,8 @@ public class LogTailer extends AbstractWorker {
     } else {
       return false;
     }
-
   }
+
   /**
    *  Method get next log file if exist
    *  @param logDir current log directory
@@ -258,7 +260,6 @@ public class LogTailer extends AbstractWorker {
    */
   private File getNextLogFile(String logDir, Long currentTime, boolean fromSaveState, File currFile) {
     File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName, rotationPattern));
-
 
     Comparator logfileComparator = new Comparator<LogFileTime>() {
       @Override
@@ -283,6 +284,16 @@ public class LogTailer extends AbstractWorker {
     if (fromSaveState && logFilesTimesMap.containsKey(new LogFileTime(currentTime, currFile.getName()))) {
       return logFilesTimesMap.get(new LogFileTime(currentTime, currFile.getName()));
     } else {
+      boolean currentFileChanged = true;
+      for (LogFileTime logFileTime : logFilesTimesMap.keySet()) {
+        if (logFileTime.getModificationTime().equals(currentTime)) {
+          currentFileChanged = false;
+          break;
+        }
+      }
+      if (currentFileChanged) {
+        return null;
+      }
       LogFileTime key = logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName()));
       if (key == null) {
         return null;
@@ -309,6 +320,7 @@ public class LogTailer extends AbstractWorker {
       return fileName;
     }
   }
+
   /**
    *  Method get next log file if exist
    *  @throws co.cask.cdap.filetailer.tailer.LogDirNotFoundException if directory specified in log file not exist
@@ -319,6 +331,7 @@ public class LogTailer extends AbstractWorker {
       throw new LogDirNotFoundException("Configured log directory not found");
     }
   }
+
   /**
    *  try open for reading  log file
    *  @param file log file
@@ -343,6 +356,7 @@ public class LogTailer extends AbstractWorker {
     }
     return reader;
   }
+
   /**
    *  Method try read  log entry from log file
    *  @param reader  RandomAccessReader steam
@@ -396,8 +410,5 @@ public class LogTailer extends AbstractWorker {
 
       }
     }
-
-
   }
-
 }

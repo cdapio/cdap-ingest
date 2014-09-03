@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,7 +17,7 @@
 package co.cask.cdap.filetailer.sink;
 
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.filetailer.AbstractWorker;
+import co.cask.cdap.filetailer.BaseWorker;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -35,7 +35,7 @@ import java.util.Random;
 /**
  * Created by dev on 15.08.14.
  */
-public class FileTailerSink extends AbstractWorker {
+public class FileTailerSink extends BaseWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerSink.class);
 
