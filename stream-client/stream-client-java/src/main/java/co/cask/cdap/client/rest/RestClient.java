@@ -48,7 +48,7 @@ import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.core.HttpHeaders;
 
 /**
- * Provides way to execute http requests with Apache HttpClient {@link org.apache.http.client.HttpClient}
+ * Provides way to execute http requests with Apache HttpClient {@link org.apache.http.client.HttpClient}.
  */
 public class RestClient {
 
@@ -92,7 +92,7 @@ public class RestClient {
   }
 
   /**
-   * Utility method for analysis http response status code and throw appropriate Java API Exception
+   * Utility method for analysis http response status code and throw appropriate Java API Exception.
    *
    * @param response {@link HttpResponse} http response
    */
@@ -162,7 +162,7 @@ public class RestClient {
   }
 
   /**
-   * Method for releasing unused resources
+   * Method for releasing unused resources.
    *
    * @throws IOException if an I/O error occurs
    */

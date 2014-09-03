@@ -42,7 +42,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 /**
- * Stream writer implementation used REST Api for write Streams to processing server
+ * Stream writer implementation used REST Api for write Streams to processing server.
  */
 public class RestStreamWriter implements StreamWriter {
   private static final Logger LOG = LoggerFactory.getLogger(RestStreamWriter.class);

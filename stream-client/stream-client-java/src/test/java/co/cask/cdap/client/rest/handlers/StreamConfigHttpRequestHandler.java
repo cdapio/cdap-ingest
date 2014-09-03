@@ -33,6 +33,9 @@ import org.apache.http.protocol.HttpRequestHandler;
 import java.io.IOException;
 import javax.ws.rs.HttpMethod;
 
+/**
+ * The http request handler implementation to test client's requests to the configuration method in the REST Stream API.
+ */
 public class StreamConfigHttpRequestHandler implements HttpRequestHandler {
   private static final String TTL_ATTRIBUTE_NAME = "ttl";
 

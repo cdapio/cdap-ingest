@@ -34,7 +34,7 @@ import java.io.IOException;
 import javax.ws.rs.core.MediaType;
 
 /**
- * Stream client implementation used REST Api for stream management
+ * Stream client implementation used REST Api for stream management.
  */
 public class RestStreamClient implements StreamClient {
   private static final Logger LOG = LoggerFactory.getLogger(RestStreamClient.class);
@@ -135,7 +135,7 @@ public class RestStreamClient implements StreamClient {
   }
 
   /**
-   * Create builder for build RestStreamClient instance
+   * Create builder for build RestStreamClient instance.
    *
    * @param host gateway server host
    * @param port gateway server port
@@ -146,7 +146,7 @@ public class RestStreamClient implements StreamClient {
   }
 
   /**
-   * Class Builder for create RestStreamClient instance
+   * Class Builder for create RestStreamClient instance.
    */
   public static class Builder {
     //mandatory

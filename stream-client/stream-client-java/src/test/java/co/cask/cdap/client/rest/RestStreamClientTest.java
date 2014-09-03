@@ -36,6 +36,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Unit tests for the {@link co.cask.cdap.client.rest.RestStreamClient} class.
+ */
 public class RestStreamClientTest extends RestTest {
   private StreamClient streamClient;
 

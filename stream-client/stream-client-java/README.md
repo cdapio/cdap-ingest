@@ -12,7 +12,11 @@ The Stream Client Java API is for managing Streams via external custom Java appl
  - write an event to an existing Stream; 
  - send a File to an existing Stream.
 
-
+## Build
+ 
+ To build the Stream Client Java API jar, use:
+ 
+ ```mvn package``` or ``` mvn package -DskipTests```
 
 ## Usage
 
