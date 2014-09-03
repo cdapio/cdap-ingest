@@ -42,7 +42,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 /**
- * Stream writer implementation used REST Api for write Streams to processing server
+ * Stream writer implementation used REST Api for write Streams to processing server.
  */
 public class RestStreamWriter implements StreamWriter {
   private static final Logger LOG = LoggerFactory.getLogger(RestStreamWriter.class);
@@ -98,8 +98,8 @@ public class RestStreamWriter implements StreamWriter {
   }
 
   private ListenableFuture<Void> write(HttpEntity entity, Map<String, String> headers) {
-    final HttpPost postRequest = new HttpPost(restClient.getBaseURL() +
-                                                String.format("/%s/streams/%s", restClient.getVersion(), streamName));
+    final HttpPost postRequest = new HttpPost(restClient.getBaseURL().resolve(
+      String.format("/%s/streams/%s", restClient.getVersion(), streamName)));
 
     for (Map.Entry<String, String> entry : headers.entrySet()) {
       postRequest.setHeader(streamName + "." + entry.getKey(), entry.getValue());
