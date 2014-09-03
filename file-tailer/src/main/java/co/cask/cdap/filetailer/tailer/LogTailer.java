@@ -291,6 +291,16 @@ public class LogTailer extends AbstractWorker {
     if (fromSaveState && logFilesTimesMap.containsKey(new LogFileTime(currentTime, currFile.getName()))) {
       return logFilesTimesMap.get(new LogFileTime(currentTime, currFile.getName()));
     } else {
+      boolean currentFileChanged = true;
+      for (LogFileTime logFileTime : logFilesTimesMap.keySet()) {
+        if (logFileTime.getModificationTime().equals(currentTime)) {
+          currentFileChanged = false;
+          break;
+        }
+      }
+      if (currentFileChanged) {
+        return null;
+      }
       LogFileTime key = logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName()));
       if (key == null) {
         return null;
