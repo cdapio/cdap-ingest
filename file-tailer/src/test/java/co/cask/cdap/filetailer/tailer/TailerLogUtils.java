@@ -56,7 +56,7 @@ public class  TailerLogUtils {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Class<? extends Class> path1 = TailerLogUtils.class.getClass();
     String path = TailerLogUtils.class.getClassLoader().getResource("test4.properties").getFile();
-    Configuration configuration = loader.load(path);
+    Configuration configuration = loader.load(new File(path));
     List<PipeConfiguration> flowConfig = configuration.getPipesConfiguration();
     return flowConfig.get(0);
   }

@@ -21,6 +21,7 @@ import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
 
 public class PipeConfigurationImplTest {
@@ -32,7 +33,7 @@ public class PipeConfigurationImplTest {
 
     String path = getClass().getClassLoader().getResource("test.properties").getFile();
 
-    Configuration configuration = loader.load(path);
+    Configuration configuration = loader.load(new File(path));
 
     List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
 
@@ -52,7 +53,7 @@ public class PipeConfigurationImplTest {
 
     String path = getClass().getClassLoader().getResource("test.properties").getFile();
 
-    Configuration configuration = loader.load(path);
+    Configuration configuration = loader.load(new File(path));
 
     List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
 

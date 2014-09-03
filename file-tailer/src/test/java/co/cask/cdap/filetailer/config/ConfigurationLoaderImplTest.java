@@ -20,6 +20,7 @@ import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.Properties;
@@ -33,7 +34,7 @@ public class ConfigurationLoaderImplTest {
 
     String path = getClass().getClassLoader().getResource("test.properties").getFile();
 
-    Configuration configuration = loader.load(path);
+    Configuration configuration = loader.load(new File(path));
 
     Field field = configuration.getClass().getDeclaredField("properties");
     field.setAccessible(true);
@@ -48,6 +49,6 @@ public class ConfigurationLoaderImplTest {
 
     String fakePath = "fake path";
 
-    loader.load(fakePath);
+    loader.load(new File(fakePath));
   }
 }
