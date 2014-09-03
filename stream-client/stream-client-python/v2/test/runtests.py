@@ -1,8 +1,8 @@
 #! /usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-# Python 2.6 does not have 'unittest' module.
-# 'unittest2' should de imported instead.
+# Python 2.6 does not have 'unittest' module;
+# try importing 'unittest2' instead.
 try:
     import unittest2 as unittest
 except ImportError:
