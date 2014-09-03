@@ -11,13 +11,6 @@ class StreamPromise(ConnectionErrorChecker):
     u"""
     Type to simulate ListenableFuture functionality of Guava framework.
     """
-    __workerThread = None
-    __handlerThread = None
-    __serviceConnector = None
-    __serviceResponse = None
-    __onOkHandler = None
-    __onErrorHandler = None
-    __handlersLock = None
 
     def __init__(self, serviceConnector, uri, data):
         u"""

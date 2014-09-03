@@ -6,9 +6,6 @@ from streamwriter import StreamWriter
 
 class StreamClient(ConnectionErrorChecker):
 
-    __serviceConnector = None
-    __serviceConfig = None
-
     __GATEWAY_VERSION = u'/v2'
     __REQUEST_PLACEHOLDERS = {
         u'streamid': u'<streamid>'

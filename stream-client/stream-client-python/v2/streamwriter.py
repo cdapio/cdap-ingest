@@ -4,8 +4,6 @@ from streampromise import StreamPromise
 
 
 class StreamWriter(object):
-    __serviceConnector = None
-    __serviceUri = None
 
     def __init__(self, serviceConnector, uri):
         u"""

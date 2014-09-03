@@ -4,9 +4,6 @@ from config import Config
 
 class NotFoundError(Exception):
 
-    __errorCode = -1
-    __errorMsg = u''
-
     def __init__(self, code, msg):
         super(self.__class__, self).__init__()
         self.__errorCode = code
@@ -35,14 +32,13 @@ class ConnectionErrorChecker(object):
 
 class ServiceConnector(object):
 
-    __protocol = u''
-    __base_url = u'{0}://{1}:{2}'
-    __connectionConfig = None
     __defaultHeaders = {
         u'Authorization': u'Bearer '
     }
 
     def __init__(self, config=Config()):
+        self.__base_url = u'{0}://{1}:{2}'
+
         if not isinstance(config, Config):
             raise TypeError(u'parameter should be of type Config')
 
