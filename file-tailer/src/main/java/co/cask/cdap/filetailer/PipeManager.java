@@ -105,9 +105,7 @@ public class PipeManager {
       writer = client.createWriter(streamName);
       return writer;
     } catch (IOException e) {
-      throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
-    } catch (URISyntaxException e) {
-      throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
+        throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }
   /**
