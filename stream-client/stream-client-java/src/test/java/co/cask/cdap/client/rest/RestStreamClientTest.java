@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.InternalServerErrorException;
@@ -37,6 +36,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Unit tests for the {@link co.cask.cdap.client.rest.RestStreamClient} class.
+ */
 public class RestStreamClientTest extends RestTest {
   private StreamClient streamClient;
 
@@ -68,19 +70,19 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedEmptyTokenGetTTL() throws IOException, NotFoundException, URISyntaxException {
+  public void testNotAuthorizedEmptyTokenGetTTL() throws IOException, NotFoundException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
     streamClient.getTTL(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedUnknownTokenGetTTL() throws IOException, NotFoundException, URISyntaxException {
+  public void testNotAuthorizedUnknownTokenGetTTL() throws IOException, NotFoundException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
     streamClient.getTTL(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test
-  public void testSuccessAuthGetTTL() throws NotFoundException, IOException, URISyntaxException {
+  public void testSuccessAuthGetTTL() throws NotFoundException, IOException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(AUTH_TOKEN).build();
     long ttl = streamClient.getTTL(TestUtils.SUCCESS_STREAM_NAME);
     assertTrue(ttl == STREAM_TTL);
@@ -132,19 +134,19 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedEmptyTokenSetTTL() throws IOException, NotFoundException, URISyntaxException {
+  public void testNotAuthorizedEmptyTokenSetTTL() throws IOException, NotFoundException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
     streamClient.setTTL(TestUtils.AUTH_STREAM_NAME, STREAM_TTL);
   }
 
   @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedUnknownTokenSetTTL() throws IOException, NotFoundException, URISyntaxException {
+  public void testNotAuthorizedUnknownTokenSetTTL() throws IOException, NotFoundException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
     streamClient.setTTL(TestUtils.AUTH_STREAM_NAME, STREAM_TTL);
   }
 
   @Test
-  public void testSuccessAuthSetTTL() throws NotFoundException, IOException, URISyntaxException {
+  public void testSuccessAuthSetTTL() throws NotFoundException, IOException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(AUTH_TOKEN).build();
     streamClient.setTTL(TestUtils.SUCCESS_STREAM_NAME, STREAM_TTL);
   }
@@ -195,19 +197,19 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedEmptyTokenTruncate() throws IOException, NotFoundException, URISyntaxException {
+  public void testNotAuthorizedEmptyTokenTruncate() throws IOException, NotFoundException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
     streamClient.truncate(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedUnknownTokenTruncate() throws IOException, NotFoundException, URISyntaxException {
+  public void testNotAuthorizedUnknownTokenTruncate() throws IOException, NotFoundException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
     streamClient.truncate(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test
-  public void testSuccessAuthTruncate() throws NotFoundException, IOException, URISyntaxException {
+  public void testSuccessAuthTruncate() throws NotFoundException, IOException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(AUTH_TOKEN).build();
     streamClient.truncate(TestUtils.SUCCESS_STREAM_NAME);
   }
@@ -253,19 +255,19 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedEmptyTokenCreate() throws IOException, URISyntaxException {
+  public void testNotAuthorizedEmptyTokenCreate() throws IOException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
     streamClient.create(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedUnknownTokenCreate() throws IOException, URISyntaxException {
+  public void testNotAuthorizedUnknownTokenCreate() throws IOException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
     streamClient.create(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test
-  public void testSuccessAuthCreate() throws IOException, URISyntaxException {
+  public void testSuccessAuthCreate() throws IOException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(AUTH_TOKEN).build();
     streamClient.create(TestUtils.SUCCESS_STREAM_NAME);
   }
@@ -296,7 +298,7 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test
-  public void testCreateWriter() throws NotFoundException, IOException, URISyntaxException {
+  public void testCreateWriter() throws NotFoundException, IOException {
     StreamWriter streamWriter = streamClient.createWriter(TestUtils.SUCCESS_STREAM_NAME);
     assertNotNull(streamWriter);
     assertEquals(RestStreamWriter.class, streamWriter.getClass());
@@ -305,7 +307,7 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void testNotExistStreamCreateWriter() throws NotFoundException, IOException, URISyntaxException {
+  public void testNotExistStreamCreateWriter() throws NotFoundException, IOException {
     StreamWriter streamWriter = streamClient.createWriter(TestUtils.NOT_FOUND_STREAM_NAME);
     assertNotNull(streamWriter);
     assertEquals(RestStreamWriter.class, streamWriter.getClass());
