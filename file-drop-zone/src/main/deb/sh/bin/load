@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2014 Cask, Inc.
+# Copyright 2014 Cask Data, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -27,6 +27,16 @@ function load(){
 	simple_file_name=$(basename $file_path)
 	observer_list=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep 'observers'| head -n 1| cut -d "=" -f2-`
 	observer=$2
+  fdz_work_dir=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep "work_dir"| head -n 1| cut -d "=" -f2-`
+
+	if [ -z $fdz_work_dir ]; then
+		fdz_work_dir="/var/file-drop-zone/"
+	fi
+
+	if [[ $fdz_work_dir != *"/" ]]; then
+		fdz_work_dir=$fdz_work_dir"/"
+	fi
+
 	if [ ! -e $file_path ];then
 		log_failure_msg "File $file_path does not exists"
 	exit 0
@@ -37,13 +47,13 @@ function load(){
 			    log_failure_msg "Few observers are configured. Please, enter observer name"
 		    exit 0
 		    else
-			    fdz_directory="/var/file-drop-zone/"$observer_list
+			    fdz_directory=$fdz_work_dir$observer_list
 			    temp_folder="/tmp/file-drop-zone/"$observer_list
 		    fi;;
     	2)
     	  observer_list=,$observer_list,
     		if [[ "$observer_list" == *,$observer,* ]];then
-			    fdz_directory="/var/file-drop-zone/"$observer
+			    fdz_directory=$fdz_work_dir$observer
 			    temp_folder="/tmp/file-drop-zone/"$observer
     		else
 			    log_failure_msg "Observer not found"

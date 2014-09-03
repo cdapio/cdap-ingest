@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -80,7 +80,7 @@ public class DirPollingObserver {
     if (rootFile.exists()) {
       checkAndNotify(listFiles(rootFile));
     } else {
-      listener.onException(new FileNotFoundException("Root directory is missing"));
+      listener.onException(new FileNotFoundException("Root directory: " + rootFile.getAbsolutePath() + " is missing"));
     }
   }
 
