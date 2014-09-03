@@ -6,7 +6,7 @@ import mimetypes
 from threading import Thread, Lock
 from types import FunctionType
 from serviceconnector import ServiceConnector, ConnectionErrorChecker, \
-    NoFoundError
+    NotFoundError
 
 
 class StreamPromise(ConnectionErrorChecker):
@@ -150,7 +150,7 @@ class StreamPromise(ConnectionErrorChecker):
                 self.__onOkHandler(
                     self.check_response_errors(self.__serviceResponse)
                 )
-            except NoFoundError:
+            except NotFoundError:
                 self.__onErrorHandler(self.__serviceResponse)
             finally:
                 self.__onOkHandler = self.__onErrorHandler = None

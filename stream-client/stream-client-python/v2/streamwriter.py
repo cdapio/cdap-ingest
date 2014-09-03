@@ -1,6 +1,3 @@
-#! /usr/bin/env python2
-# -*- coding: utf-8 -*-
-
 import locale
 from serviceconnector import ServiceConnector, ConnectionErrorChecker
 from streampromise import StreamPromise
@@ -16,7 +13,7 @@ class StreamWriter(object):
 
         Keyword arguments:
         serviceConnector -- reference to connection pool to communicate
-                            with gatewway
+                            with gateway server.
         uri -- REST URL part to perform request.
                Example: '/v2/strems/myStream'
         data -- data to proceed by worker thread.  Please read
@@ -37,7 +34,7 @@ class StreamWriter(object):
                    Could be of type None if file field is presented.
         charset -- Message field content charset. Could be of type None.
                    Default value: 'utf-8'
-        headers -- Additional HTTP headers. Should be of type 'dict'
+        headers -- Additional HTTP headers. Should be of type 'dict'.
 
         Returns:
         StreamPromise instance for further handling
@@ -57,16 +54,16 @@ class StreamWriter(object):
 
         Keyword arguments:
         file -- path to file to be sent to Gateway
-        mimetype -- mimetype of a file. If is not defined would performed a try
+        mimetype -- mimetype of a file. If is not defined will attempt
                     to detect mimetype automaticaly.
 
         Returns:
         StreamPromise instance for further handling
         """
-        dataForPromise = {
+        promiseData = {
             u'file': file,
             u'mimetype': mimetype
         }
 
         return StreamPromise(self.__serviceConnector, self.__serviceUri,
-                             dataForPromise)
+                             promiseData)

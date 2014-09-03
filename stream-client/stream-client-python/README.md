@@ -1,6 +1,6 @@
-# CDAP Ingest Python library
+# CDAP Stream Client Python library
 
-Stream Client Python API for managing streams via external Python applications.
+Stream Client Python API for managing Streams via external Python applications.
 
 ## Supported Actions
 
@@ -13,7 +13,7 @@ Stream Client Python API for managing streams via external Python applications.
 
 ## Usage
 
- To use the Stream Client Python API, include this in your Python script:
+ To use the Stream Client Python API, include these imports in your Python script:
 
 ```
     from config import Config
@@ -22,11 +22,11 @@ Stream Client Python API for managing streams via external Python applications.
 
 ## Example
 
-Create a StreamClient instance, specifying the fields 'host' and 'port' of the gateway server. 
+Create a ```StreamClient``` instance, specifying the fields 'host' and 'port' of the gateway server. 
 Optional configurations that can be set (and their default values):
 
   - SSL: False (use HTTP protocol)
-  - apiKey:  '' (Need to specify to authenticate client requests using SSL)
+  - apiKey:  '' (need to specify only for authenticating client requests using SSL)
 
  ```
    config = Config()
@@ -37,7 +37,7 @@ Optional configurations that can be set (and their default values):
    streamClient = StreamClient(config)
  ```
 
- or using the readFromFile method of Config object:
+ or using the ```read_from_file``` method of the ```Config``` object:
 
  ```
    config = Config.read_from_file('/path/to/config.ini')
@@ -62,11 +62,11 @@ Config file structure in JSON format:
 
  Notes:
 
-  - The <stream-id> should only contain ASCII letters, digits and hyphens.
+  - The <stream-id> can only contain ASCII letters, digits and hyphens.
   - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
 
- Update TTL for the Stream "streamName"; TTL is a long value:
+ Update TTL for the Stream "streamName"; ```newTTL``` is a long value:
 
  ```
    streamClient.set_ttl("streamName", newTTL);
@@ -84,7 +84,7 @@ Config file structure in JSON format:
    streamWriter = streamClient.create_writer("streamName");
  ```
 
- To write new events to the Stream, you can use any of these two methods of the ```StreamWriter``` class:
+ To write new events to the Stream, you can use either of these these methods of the ```StreamWriter``` class:
 
  ```
    def write(self, message, charset=None, headers=None)
@@ -106,7 +106,7 @@ Config file structure in JSON format:
  ### StreamPromise
  StreamPromise's goal is to implement deferred code execution.
 
-For error handling, create a handler for each case and set it using the onResponse method.
+For error handling, create a handler for each case and set it using the ```onResponse``` method.
 
 Example:
 

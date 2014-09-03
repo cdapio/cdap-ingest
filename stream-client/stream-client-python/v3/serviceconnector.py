@@ -5,7 +5,7 @@ import requests
 from config import Config
 
 
-class NoFoundError(Exception):
+class NotFoundError(Exception):
 
     __errorCode = -1
     __errorMsg = ''
@@ -31,7 +31,7 @@ class ConnectionErrorChecker:
 
     def check_response_errors(self, httpResponse):
         if self.__HTTP_OK is not httpResponse.status_code:
-            raise NoFoundError(httpResponse.status_code, httpResponse.reason)
+            raise NotFoundError(httpResponse.status_code, httpResponse.reason)
 
         return httpResponse
 

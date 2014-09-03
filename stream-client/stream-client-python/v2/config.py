@@ -1,6 +1,3 @@
-#! /usr/bin/env python2
-# -*- coding: utf-8 -*-
-
 from __future__ import with_statement
 import json
 from io import open

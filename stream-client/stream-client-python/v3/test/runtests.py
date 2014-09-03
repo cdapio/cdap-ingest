@@ -14,7 +14,7 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
 from config import Config
-from serviceconnector import NoFoundError
+from serviceconnector import NotFoundError
 from streamwriter import StreamWriter
 from streamclient import StreamClient
 
@@ -104,7 +104,7 @@ class TestStreamClient(unittest.TestCase):
 
         try:
             self.sc.set_ttl(self.validStream, ttl)
-        except NoFoundErrorn:
+        except NotFoundErrorn:
             self.fail('StreamClient.setTTL() failed')
 
     @httpretty.activate
@@ -122,7 +122,7 @@ class TestStreamClient(unittest.TestCase):
         )
 
         self.assertRaises(
-            NoFoundError,
+            NotFoundError,
             self.sc.set_ttl,
             self.invalidStream,
             ttl
@@ -144,7 +144,7 @@ class TestStreamClient(unittest.TestCase):
 
         try:
             self.sc.get_ttl(self.validStream)
-        except NoFoundError:
+        except NotFoundError:
             self.fail('StreamClient.getTTL() failed')
 
     @httpretty.activate
@@ -162,7 +162,7 @@ class TestStreamClient(unittest.TestCase):
         )
 
         self.assertRaises(
-            NoFoundError,
+            NotFoundError,
             self.sc.get_ttl,
             self.invalidStream
         )
@@ -201,7 +201,7 @@ class TestStreamClient(unittest.TestCase):
         )
 
         self.assertRaises(
-            NoFoundError,
+            NotFoundError,
             self.sc.create_writer,
             self.invalidStream)
 
