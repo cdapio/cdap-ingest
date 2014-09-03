@@ -37,51 +37,54 @@ public class BasicAuthenticationClientTest {
   public static final String AUTHENTICATED_PASSWORD = "realtime";
   public static final String TOKEN = "SuccessGeneratedToken";
 
-  private AuthenticationClient<BasicCredentials> authenticationClient;
+  private AuthenticationClient<BasicAuthenticationClientConfig, BasicCredentials> authenticationClient;
 
   private LocalTestServer localTestServer;
-  private String testServerHost;
-  private int testServerPort;
   private final AuthenticationHandler authenticationHandler = new AuthenticationHandler();
   private final BaseHandler baseHandler = new BaseHandler();
   private BasicCredentials credentials;
+  private BasicAuthenticationClientConfig config;
 
   @Before
   public void setUp() throws Exception {
+    authenticationClient = new BasicAuthenticationClient();
     localTestServer = new LocalTestServer(null, null);
     localTestServer.register("*/token", authenticationHandler);
     localTestServer.register("*", baseHandler);
     localTestServer.start();
-    testServerHost = localTestServer.getServiceAddress().getHostName();
-    testServerPort = localTestServer.getServiceAddress().getPort();
+    String testServerHost = localTestServer.getServiceAddress().getHostName();
+    int testServerPort = localTestServer.getServiceAddress().getPort();
     baseHandler.setAuthHost(testServerHost);
     baseHandler.setAuthPort(testServerPort);
-    authenticationClient = new BasicAuthenticationClient();
-    authenticationClient.configure(testServerHost, testServerPort, false);
+    config = new BasicAuthenticationClientConfig(testServerHost, testServerPort, false);
   }
 
   @Test
   public void testSuccessGetAccessToken() throws IOException {
     credentials = new BasicCredentials(AUTHENTICATED_USERNAME, AUTHENTICATED_PASSWORD);
-    assertEquals(TOKEN, authenticationClient.getAccessToken(credentials));
+    authenticationClient.configure(config, credentials);
+    assertEquals(TOKEN, authenticationClient.getAccessToken());
   }
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedGetAccessToken() throws IOException {
     credentials = new BasicCredentials("test", "test");
-    authenticationClient.getAccessToken(credentials);
+    authenticationClient.configure(config, credentials);
+    authenticationClient.getAccessToken();
   }
 
   @Test(expected = IOException.class)
   public void testEmptyUsernameGetAccessToken() throws IOException {
     credentials = new BasicCredentials(StringUtils.EMPTY, "test");
-    authenticationClient.getAccessToken(credentials);
+    authenticationClient.configure(config, credentials);
+    authenticationClient.getAccessToken();
   }
 
   @Test(expected = IOException.class)
   public void testEmptyPassGetAccessToken() throws IOException {
     credentials = new BasicCredentials("test", StringUtils.EMPTY);
-    authenticationClient.getAccessToken(credentials);
+    authenticationClient.configure(config, credentials);
+    authenticationClient.getAccessToken();
   }
 
   @After

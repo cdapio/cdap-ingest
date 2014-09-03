@@ -21,30 +21,29 @@ import java.io.IOException;
 /**
  * The client interface to fetch access tokens from the authentication server.
  *
- * @param <T> Type of the object which contains credentials required for the enabled authentication provider in the
+ * @param <T> Type of the object which contains configuration parameters for the client
+ * @param <K> Type of the object which contains credentials required for the enabled authentication provider in the
  * authentication server.
  */
-public interface AuthenticationClient<T extends Credentials> {
+public interface AuthenticationClient<T extends AuthenticationClientConfig, K extends Credentials> {
   /**
    * Configures the address of the gateway server for the authentication client.
    *
-   * @param host gateway server host name
-   * @param port gateway server port
-   * @param ssl  should be true, if SSL is enabled in the gateway server.
+   * @param config contains gateway server access parameters
+   * @param credentials contains credentials corresponding to enabled authentication provider in the
+   *                    authentication server
    */
-  void configure(String host, int port, boolean ssl);
+  void configure(T config, K credentials);
 
   /**
    * Retrieves the access token generated according to the credentials required by thr authentication provider
    * in the authentication server.
    *
-   * @param credentials object contains credentials according to the enabled  authentication provider in the
-   *                    authentication server
    * @return String value of the access token
    * @throws IOException in case of a problem or the connection was aborted or authentication is disabled in the
    *                     gateway server
    */
-  String getAccessToken(T credentials) throws IOException;
+  String getAccessToken() throws IOException;
 
   /**
    * Checks is the authentication enabled in the gateway server.
@@ -53,4 +52,11 @@ public interface AuthenticationClient<T extends Credentials> {
    * @throws IOException in case of a problem or the connection was aborted
    */
   boolean isAuthEnabled() throws IOException;
+
+  /**
+   * Invalidate cashed access token.
+   *
+   * @return the new access token string value
+   */
+  String invalidateToken() throws IOException;
 }

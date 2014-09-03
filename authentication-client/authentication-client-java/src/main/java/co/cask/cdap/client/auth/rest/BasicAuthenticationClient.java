@@ -42,7 +42,9 @@ import java.util.Random;
  * The basic implementation of the authentication client to fetch the access token from the Auth. Server through
  * the REST API with username and password.
  */
-public class BasicAuthenticationClient implements AuthenticationClient<BasicCredentials> {
+public class BasicAuthenticationClient implements
+  AuthenticationClient<BasicAuthenticationClientConfig, BasicCredentials> {
+
   private static final Logger LOG = LoggerFactory.getLogger(BasicAuthenticationClient.class);
 
   private static final String ACCESS_TOKEN_KEY = "access_token";
@@ -54,22 +56,47 @@ public class BasicAuthenticationClient implements AuthenticationClient<BasicCred
   private final HttpClient httpClient;
   private URI baseUrl;
   private URI authUrl;
+  private BasicCredentials credentials;
+  private Boolean authEnabled;
+  private String accessToken;
 
   public BasicAuthenticationClient() {
     this.httpClient = new DefaultHttpClient();
   }
 
   @Override
-  public void configure(String host, int port, boolean ssl) {
-    baseUrl = URI.create(String.format("%s://%s:%d", ssl ? HTTPS_PROTOCOL : HTTP_PROTOCOL, host, port));
+  public void configure(BasicAuthenticationClientConfig clientConfig, BasicCredentials credentials) {
+    if (this.credentials == null) {
+      this.credentials = credentials;
+      baseUrl = URI.create(String.format("%s://%s:%d", clientConfig.isSSL() ? HTTPS_PROTOCOL : HTTP_PROTOCOL,
+                                         clientConfig.getHostname(), clientConfig.getPort()));
+    } else {
+      throw new IllegalStateException("Client is already configured!");
+    }
   }
 
   @Override
-  public String getAccessToken(BasicCredentials credentials) throws IOException {
+  public String getAccessToken() throws IOException {
+    return getAccessToken(false);
+  }
+
+  @Override
+  public String invalidateToken() throws IOException {
+    return getAccessToken(true);
+  }
+
+  public String getAccessToken(boolean forceInvalidate) throws IOException {
     if (!isAuthEnabled()) {
       throw new IOException("Authentication is disabled in the gateway server.");
     }
 
+    if (forceInvalidate || accessToken == null) {
+      accessToken = fetchAccessToken();
+    }
+    return accessToken;
+  }
+
+  private String fetchAccessToken() throws IOException {
     String username = credentials.getUsername();
     String password = credentials.getPassword();
     if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
@@ -91,13 +118,14 @@ public class BasicAuthenticationClient implements AuthenticationClient<BasicCred
 
   @Override
   public boolean isAuthEnabled() throws IOException {
-    boolean isAuthEnabled = false;
-    String strAuthUrl = getAuthURL();
-    if (StringUtils.isNotEmpty(strAuthUrl)) {
-      isAuthEnabled = true;
-      authUrl = URI.create(strAuthUrl);
+    if (authEnabled == null) {
+      String strAuthUrl = getAuthURL();
+      authEnabled = StringUtils.isNotEmpty(strAuthUrl);
+      if (authEnabled) {
+        authUrl = URI.create(strAuthUrl);
+      }
     }
-    return isAuthEnabled;
+    return authEnabled;
   }
 
   private String getAuthURL() throws IOException {
