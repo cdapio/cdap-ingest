@@ -65,13 +65,21 @@ public class BasicAuthenticationClient implements
   }
 
   @Override
-  public void configure(BasicAuthenticationClientConfig clientConfig, BasicCredentials credentials) {
-    if (this.credentials == null) {
-      this.credentials = credentials;
+  public void configure(BasicAuthenticationClientConfig clientConfig) {
+    if (baseUrl == null) {
       baseUrl = URI.create(String.format("%s://%s:%d", clientConfig.isSSL() ? HTTPS_PROTOCOL : HTTP_PROTOCOL,
                                          clientConfig.getHostname(), clientConfig.getPort()));
     } else {
       throw new IllegalStateException("Client is already configured!");
+    }
+  }
+
+  @Override
+  public void setCredentials(BasicCredentials credentials) {
+    if (this.credentials == null) {
+      this.credentials = credentials;
+    } else {
+      throw new IllegalStateException("Credentials are already set!");
     }
   }
 

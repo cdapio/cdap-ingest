@@ -42,8 +42,6 @@ public class BasicAuthenticationClientTest {
   private LocalTestServer localTestServer;
   private final AuthenticationHandler authenticationHandler = new AuthenticationHandler();
   private final BaseHandler baseHandler = new BaseHandler();
-  private BasicCredentials credentials;
-  private BasicAuthenticationClientConfig config;
 
   @Before
   public void setUp() throws Exception {
@@ -56,34 +54,30 @@ public class BasicAuthenticationClientTest {
     int testServerPort = localTestServer.getServiceAddress().getPort();
     baseHandler.setAuthHost(testServerHost);
     baseHandler.setAuthPort(testServerPort);
-    config = new BasicAuthenticationClientConfig(testServerHost, testServerPort, false);
+    authenticationClient.configure(new BasicAuthenticationClientConfig(testServerHost, testServerPort, false));
   }
 
   @Test
   public void testSuccessGetAccessToken() throws IOException {
-    credentials = new BasicCredentials(AUTHENTICATED_USERNAME, AUTHENTICATED_PASSWORD);
-    authenticationClient.configure(config, credentials);
+    authenticationClient.setCredentials(new BasicCredentials(AUTHENTICATED_USERNAME, AUTHENTICATED_PASSWORD));
     assertEquals(TOKEN, authenticationClient.getAccessToken());
   }
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedGetAccessToken() throws IOException {
-    credentials = new BasicCredentials("test", "test");
-    authenticationClient.configure(config, credentials);
+    authenticationClient.setCredentials(new BasicCredentials("test", "test"));
     authenticationClient.getAccessToken();
   }
 
   @Test(expected = IOException.class)
   public void testEmptyUsernameGetAccessToken() throws IOException {
-    credentials = new BasicCredentials(StringUtils.EMPTY, "test");
-    authenticationClient.configure(config, credentials);
+    authenticationClient.setCredentials(new BasicCredentials(StringUtils.EMPTY, "test"));
     authenticationClient.getAccessToken();
   }
 
   @Test(expected = IOException.class)
   public void testEmptyPassGetAccessToken() throws IOException {
-    credentials = new BasicCredentials("test", StringUtils.EMPTY);
-    authenticationClient.configure(config, credentials);
+    authenticationClient.setCredentials(new BasicCredentials("test", StringUtils.EMPTY));
     authenticationClient.getAccessToken();
   }
 

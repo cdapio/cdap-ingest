@@ -30,10 +30,17 @@ public interface AuthenticationClient<T extends AuthenticationClientConfig, K ex
    * Configures the address of the gateway server for the authentication client.
    *
    * @param config contains gateway server access parameters
+   *
+   */
+  void configure(T config);
+
+  /**
+   * Method for set credentials to the client instance
+   *
    * @param credentials contains credentials corresponding to enabled authentication provider in the
    *                    authentication server
    */
-  void configure(T config, K credentials);
+  void setCredentials(K credentials);
 
   /**
    * Retrieves the access token generated according to the credentials required by thr authentication provider
