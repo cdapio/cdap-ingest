@@ -45,6 +45,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for the {@link RestClient} class.
+ */
 public class RestClientTest {
 
   private HttpResponse response;

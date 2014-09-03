@@ -41,6 +41,9 @@ import javax.ws.rs.NotAuthorizedException;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Unit tests for the {@link co.cask.cdap.client.rest.RestStreamWriter} class.
+ */
 public class RestStreamWriterTest extends RestTest {
 
   private StreamClient streamClient;
