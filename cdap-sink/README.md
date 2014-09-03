@@ -1,65 +1,67 @@
 cdap-sink
 ==================
 
-The Cdap sink is Flume Sink  implementation, which use RestStreamWriter to write events, recieved from source.
+TThe CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write events received from a source.
 
 ## Usage
 
- To use the Cdap sink, put Cdap Sink jar file to flume classpath (foe example to flume lib directory)
- Specify fully qualified name of your Cdap Sink class to Flume configuration properties
+ To use, put the CDAP Sink jar file in the Flume classpath (for example, in the Flume lib directory).
+ Specify the fully-qualified name of your CDAP Sink class in the Flume configuration properties:
  ```
- a1.sinks.sink1.type = co.cask.cdap.flumesink.CdapSink
+ a1.sinks.sink1.type = co.cask.cdap.flume.StreamSink
  ```
- input host name that is used by stream client:
-   ```
-   a1.sinks.sink1.host = <hostname or host ip>  
-   ```
- input host port that is used by stream client:
-   ```
-   a1.sinks.sink1.port = <port>
-  ```
- Also optional parameters can be specified
+ Enter the host name that is used by the stream client:
+ ```
+ a1.sinks.sink1.host = <hostname or host ip>  
+ ```
+ Target Stream name:
+ ```
+ a1.sinks.sink1.streamName = <Stream name>
+ ```
  
- Secure Socket Layer mode [true|false] (default false)
+ Also optional parameters can be specified with their default values.
+  
+ Enter the host port that is used by the stream client:
  ```
- a1.sinks.sink1.slEnabled = 
+ a1.sinks.sink1.port = 10000
  ```
- Number of threads, in which Stream Client sends events:
+ Secure Socket Layer mode [true | false]
  ```
- a1.sinks.sink1.writerPoolSize = 
+ a1.sinks.sink1.sslEnabled = false 
+ ```
+ Number of threads to which Stream Client can send events:
+ ```
+ a1.sinks.sink1.writerPoolSize = 10
  ```
  Server security token:
  ```
- a1.sinks.sink1.authToken =
+ a1.sinks.sink1.authToken = ""
  ```
- Ssl security key:
+ SSL security key:
  ```
- a1.sinks.sink1.apiKey =
+ a1.sinks.sink1.apiKey = ""
  ```
- eactor server version: ( default v2) 
+ Reactor server version: ( default v2) 
  ```
- a1.sinks.sink1.version =
+ a1.sinks.sink1.version = v2
  ```
- Name of target stream:
- ```
- a1.sinks.sink1.streamName = 
- ```
+ 
 ## Example
    
-Configuration of the flume agent, that reads data from log file and puts them to continuuity reactor using cdap sink.
-```
-a1.sources = r1
-a1.channels = c1
-a1.sources.r1.type = exec
-a1.sources.r1.command = tail -F /tmp/log
-a1.sources.r1.channels = c1
-a1.sinks = k1
-a1.sinks.k1.type = co.cask.cdap.flumesink.CdapSink
-a1.sinks.k1.channel = c1
-a1.sinks.k1.host  = 127.0.0.1
-a1.sinks.k1.port = 10000
-a1.sinks.k1.streamName = logEventStream
-a1.channels.c1.type = memory
-a1.channels.c1.capacity = 1000
-a1.channels.c1.transactionCapacity = 100
-```
+ Configuration of the flume agent, that reads data from log file and puts them to continuuity reactor using cdap sink.
+ ```
+ a1.sources = r1
+ a1.channels = c1
+ a1.sources.r1.type = exec
+ a1.sources.r1.command = tail -F /tmp/log
+ a1.sources.r1.channels = c1
+ a1.sinks = k1
+ a1.sinks.k1.type = co.cask.cdap.flume.StreamSink
+ a1.sinks.k1.channel = c1
+ a1.sinks.k1.host  = 127.0.0.1
+ a1.sinks.k1.port = 10000
+ a1.sinks.k1.streamName = logEventStream
+ a1.channels.c1.type = memory
+ a1.channels.c1.capacity = 1000
+ a1.channels.c1.transactionCapacity = 100
+ ```

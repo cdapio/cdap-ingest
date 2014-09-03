@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,8 +15,9 @@
  */
 
 
-package co.cask.cdap.flumesink;
+package co.cask.cdap.flume;
 
+import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.client.rest.RestStreamClient;
 import com.google.common.base.Preconditions;
@@ -36,12 +37,12 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
 /**
- * Flume cdap sink
+ * Flume CDAP sink
  */
-public class CdapSink extends AbstractSink implements Configurable {
+public class StreamSink extends AbstractSink implements Configurable {
 
-  private static final Logger logger = LoggerFactory.getLogger
-    (CdapSink.class);
+  private static final Logger LOG = LoggerFactory.getLogger
+    (StreamSink.class);
 
   private static final int DEFAULT_WRITER_POOL_SIZE = 10;
 
@@ -49,14 +50,13 @@ public class CdapSink extends AbstractSink implements Configurable {
 
   private static final String DEFAULT_VERSION = "v2";
 
-  private static final String DEFAULT_STREAM_NAME = "stream1";
+  private static final int DEFAULT_PORT = 10000;
 
   private String host;
   private Integer port;
   private boolean sslEnabled;
   private int writerPoolSize;
   private String authToken;
-  private String apiKey;
   private String version;
   private String streamName;
   private StreamWriter writer;
@@ -64,16 +64,14 @@ public class CdapSink extends AbstractSink implements Configurable {
   @Override
   public void configure(Context context) {
     host = context.getString("host");
-    port = context.getInteger("port");
-
-    sslEnabled = context.getBoolean("ssl", DEFAULT_SSL);
+    port = context.getInteger("port", DEFAULT_PORT);
+    sslEnabled = context.getBoolean("sslEnabled", DEFAULT_SSL);
     authToken = context.getString("authToken");
-    apiKey = context.getString("apiKey");
     version = context.getString("version", DEFAULT_VERSION);
     writerPoolSize = context.getInteger("writerPoolSize", DEFAULT_WRITER_POOL_SIZE);
-    streamName = context.getString("streamName", DEFAULT_STREAM_NAME);
+    streamName = context.getString("streamName");
     Preconditions.checkState(host != null, "No hostname specified");
-    Preconditions.checkState(port != null, "No port specified");
+    Preconditions.checkState(streamName != null, "No stream name specified");
   }
 
   @Override
@@ -84,6 +82,7 @@ public class CdapSink extends AbstractSink implements Configurable {
     Transaction transaction = channel.getTransaction();
 
     try {
+      tryReopenClientConnection();
       transaction.begin();
       Event event = channel.take();
       if (event != null) {
@@ -96,11 +95,10 @@ public class CdapSink extends AbstractSink implements Configurable {
       if (t instanceof Error) {
         throw (Error) t;
       } else if (t instanceof ChannelException) {
-        logger.error("Rpc Sink " + getName() + ": Unable to get event from" +
-                       " channel " + channel.getName() + ". Exception follows.", t);
+        LOG.error("RPC Sink {}: Unable to get event from channel {} ", getName(), channel.getName());
         status = Status.BACKOFF;
       } else {
-        destroyClienConnection();
+        destroyClientConnection();
         throw new EventDeliveryException("Failed to send events", t);
       }
     } finally {
@@ -110,13 +108,21 @@ public class CdapSink extends AbstractSink implements Configurable {
     return status;
   }
 
-  private void destroyClienConnection() {
+  private void destroyClientConnection() {
     try {
       if (writer != null) {
         writer.close();
       }
     } catch (IOException e) {
-      logger.error("error during closing writer ", e.getMessage());
+      LOG.error("Error closing writer: {}", e.getMessage());
+    }
+    writer = null;
+  }
+
+  private void tryReopenClientConnection() throws URISyntaxException, IOException {
+    if (writer == null) {
+      LOG.debug("Trying to reopen stream writer ");
+      createStreamClient();
     }
   }
 
@@ -130,40 +136,35 @@ public class CdapSink extends AbstractSink implements Configurable {
       builder.authToken(authToken);
     }
 
-    if (apiKey != null && !apiKey.equals("")) {
-      builder.apiKey(apiKey);
-    }
-
     builder.writerPoolSize(writerPoolSize);
 
     builder.version(version);
 
     try {
-      RestStreamClient client = builder.build();
+      StreamClient client = builder.build();
       client.create(streamName);
       writer = client.createWriter(streamName);
     } catch (IOException e) {
-      throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
+      throw new IOException("Can not create/get client stream by name: " + streamName + ": " + e.getMessage());
     } catch (URISyntaxException e) {
-      throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
+      throw new IOException("Can not create/get client stream by name: " + streamName + ": " + e.getMessage());
     }
   }
 
   public synchronized void start() {
+    super.start();
     try {
       createStreamClient();
     } catch (Exception e) {
-      logger.warn("Unable to create Stream client for host " + host
-                    + ", port: " + port, e);
-      destroyClienConnection();
+      LOG.warn("Unable to create Stream client for host: {}, port: {}", host, port);
+      destroyClientConnection();
     }
-    super.start();
-    logger.info("Cdap sink {} started.", getName());
+    LOG.info("Cdap sink {} started.", getName());
   }
 
   public synchronized void stop() {
-    destroyClienConnection();
-    logger.info("Cdapsink {} stopping...", getName());
+    destroyClientConnection();
+    LOG.info("Cdapsink {} stopping...", getName());
     super.stop();
   }
 }
