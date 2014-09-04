@@ -1,7 +1,7 @@
-cdap-sink
+CDAP Sink
 ==================
 
-TThe CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write events received from a source.
+The CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write events received from a source.
 
 ## Usage
 
@@ -19,7 +19,7 @@ TThe CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write ev
  a1.sinks.sink1.streamName = <Stream name>
  ```
  
- Also optional parameters can be specified with their default values.
+ Optional parameters that can be specified are listed below with their default values.
   
  Enter the host port that is used by the stream client:
  ```
@@ -41,14 +41,14 @@ TThe CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write ev
  ```
  a1.sinks.sink1.apiKey = ""
  ```
- Reactor server version: ( default v2) 
+ CDAP Gateway server version:
  ```
  a1.sinks.sink1.version = v2
  ```
  
 ## Example
    
- Configuration of the flume agent, that reads data from log file and puts them to continuuity reactor using cdap sink.
+ Configuration of the Flume agent that reads data from a log file and puts them to CDAP using CDAP Sink.
  ```
  a1.sources = r1
  a1.channels = c1

@@ -30,7 +30,7 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
 /**
- *
+ *CDAP Sink Test.
  */
 public class StreamSinkTest {
   @Test

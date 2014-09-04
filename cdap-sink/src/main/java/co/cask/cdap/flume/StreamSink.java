@@ -37,7 +37,7 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
 /**
- * Flume CDAP sink
+ * CDAP Sink, a Flume sink implementation.
  */
 public class StreamSink extends AbstractSink implements Configurable {
 
