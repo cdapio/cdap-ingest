@@ -25,7 +25,7 @@ Stream Client Python API for managing Streams via external Python applications.
 Create a ```StreamClient``` instance, specifying the fields 'host' and 'port' of the gateway server. 
 Optional configurations that can be set (and their default values):
 
-  - SSL: False (use HTTP protocol)
+  - ssl: False (use HTTP protocol)
 
  ```
    config = Config()
