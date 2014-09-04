@@ -20,7 +20,6 @@ import co.cask.cdap.security.authentication.client.AccessToken;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +29,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The basic implementation of the non-interactive authentication client to fetch the access token from the
@@ -50,6 +51,7 @@ public class BasicAuthenticationClient implements AuthenticationClient {
 
   private static final Gson GSON = new Gson();
   private static final Random RANDOM = new Random();
+  private static final long SPARE_TIME_IN_MILLIS = 5000;
   private static final String ACCESS_TOKEN_KEY = "access_token";
   private static final String EXPIRES_IN_KEY = "expires_in";
   private static final String TOKEN_TYPE_KEY = "token_type";
@@ -70,6 +72,7 @@ public class BasicAuthenticationClient implements AuthenticationClient {
   private AccessToken accessToken;
   private String username;
   private String password;
+  private long expirationTime;
 
   public BasicAuthenticationClient() {
     this.httpClient = new DefaultHttpClient();
@@ -77,7 +80,9 @@ public class BasicAuthenticationClient implements AuthenticationClient {
 
   @Override
   public void configure(Properties properties) {
-    if (baseUrl == null) {
+    if (baseUrl != null) {
+      throw new IllegalStateException("Client is already configured!");
+    } else {
       username = properties.getProperty(USERNAME_PROP_NAME);
       Preconditions.checkArgument(StringUtils.isNotEmpty(username), "The username property cannot be empty.");
 
@@ -96,8 +101,6 @@ public class BasicAuthenticationClient implements AuthenticationClient {
       baseUrl = URI.create(String.format("%s://%s:%d", isSslEnable ? HTTPS_PROTOCOL : HTTP_PROTOCOL, hostname,
                                          Integer.valueOf(port)));
       LOG.debug("Basic authentication client for the gateway server: {} is configured successfully.", baseUrl);
-    } else {
-      throw new IllegalStateException("Client is already configured!");
     }
   }
 
@@ -107,7 +110,7 @@ public class BasicAuthenticationClient implements AuthenticationClient {
       throw new IOException("Authentication is disabled in the gateway server.");
     }
 
-    if (accessToken == null) {
+    if (accessToken == null || isTokenExpired()) {
       accessToken = fetchAccessToken();
     }
     return accessToken;
@@ -135,6 +138,7 @@ public class BasicAuthenticationClient implements AuthenticationClient {
       throw new IllegalStateException("Base authentication client is not configured!");
     }
 
+    long requestTime = System.currentTimeMillis();
     LOG.debug("Authentication is enabled in the gateway server. Authentication URI {}.", authUrl);
     HttpGet getRequest = new HttpGet(authUrl);
 
@@ -145,18 +149,22 @@ public class BasicAuthenticationClient implements AuthenticationClient {
     HttpResponse httpResponse = httpClient.execute(getRequest);
     RestClientUtils.verifyResponseCode(httpResponse);
 
-    JsonElement jsonElement = RestClientUtils.toJsonElement(httpResponse.getEntity());
-    Map<String, String> responseMap = GSON.fromJson(jsonElement, new TypeToken<Map<String, String>>() {
-    }.getType());
+    Map<String, String> responseMap = GSON.fromJson(EntityUtils.toString(httpResponse.getEntity()),
+            new TypeToken<Map<String, String>>() { }.getType());
     String tokenValue = responseMap.get(ACCESS_TOKEN_KEY);
     String tokenType = responseMap.get(TOKEN_TYPE_KEY);
-    if (StringUtils.isEmpty(tokenValue) || StringUtils.isEmpty(tokenType)) {
+    String expiresInStr = responseMap.get(EXPIRES_IN_KEY);
+    if (StringUtils.isEmpty(tokenValue) || StringUtils.isEmpty(tokenType) || StringUtils.isEmpty(expiresInStr)) {
       throw new IOException("Unexpected response was received from the authentication server.");
     }
 
-    String expiresInStr = responseMap.get(EXPIRES_IN_KEY);
-    Long expiresIn = StringUtils.isNotEmpty(expiresInStr) ? Long.valueOf(expiresInStr) : Long.valueOf(0);
+    Long expiresIn = Long.valueOf(expiresInStr);
+    expirationTime = requestTime + TimeUnit.SECONDS.toMillis(expiresIn) - SPARE_TIME_IN_MILLIS;
     return new AccessToken(tokenValue, expiresIn, tokenType);
+  }
+
+  private boolean isTokenExpired() {
+    return expirationTime < System.currentTimeMillis();
   }
 
   private String getAuthURL() throws IOException {
@@ -169,13 +177,13 @@ public class BasicAuthenticationClient implements AuthenticationClient {
     HttpGet get = new HttpGet(baseUrl);
     HttpResponse response = httpClient.execute(get);
     if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-      JsonElement jsonElement = RestClientUtils.toJsonElement(response.getEntity());
-      Map<String, List<String>> responseMap = GSON.fromJson(jsonElement,
-                                                            new TypeToken<Map<String, List<String>>>() {
-                                                            }.getType());
+      Map<String, List<String>> responseMap = GSON.fromJson(EntityUtils.toString(response.getEntity()),
+                                                            new TypeToken<Map<String, List<String>>>() { }.getType());
       List<String> uriList = responseMap.get(AUTH_URI_KEY);
       if (uriList != null && !uriList.isEmpty()) {
         result = uriList.get(RANDOM.nextInt(uriList.size()));
+      } else {
+        throw new IOException("Authenticated url is not available from the gateway server.");
       }
     }
     return result;

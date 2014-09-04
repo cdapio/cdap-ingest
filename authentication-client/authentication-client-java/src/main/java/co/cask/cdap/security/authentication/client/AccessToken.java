@@ -30,7 +30,7 @@ public class AccessToken {
    *
    * @param value     string value of the access token
    * @param expiresIn token validity lifetime in seconds
-   * @param tokenType access token value supported by the authentication provider in the authentication server.
+   * @param tokenType access token type supported by the authentication server.
    */
   public AccessToken(String value, Long expiresIn, String tokenType) {
     this.value = value;

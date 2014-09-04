@@ -20,21 +20,22 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * The client interface to fetch access tokens from the authentication server.
+ * The client interface to fetch access token from the authentication server.
  */
 public interface AuthenticationClient {
   /**
-   * Configures the address of the gateway server for the authentication client.
+   * Configures the authentication client and can be called only once for every AuthenticationClient object
    *
-   * @param properties the configuration properties for authentication client
+   * @param properties the configuration for authentication client which includes connection information and
+   *                   credentials
    */
   void configure(Properties properties);
 
   /**
-   * Retrieves the access token generated according to the credentials required by thr authentication provider
+   * Retrieves the access token generated according to the credentials required by the authentication provider
    * in the authentication server. The access token will be cached until its expiry.
    *
-   * @return {@link AccessToken} object contains the access token value, the expiration date and the access token type
+   * @return {@link AccessToken} object containing the access token
    * @throws IOException in case of a problem or the connection was aborted or authentication is disabled in the
    *                     gateway server
    */

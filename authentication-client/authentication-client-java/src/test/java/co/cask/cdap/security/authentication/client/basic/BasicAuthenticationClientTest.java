@@ -35,8 +35,8 @@ import static org.junit.Assert.assertTrue;
 
 
 public class BasicAuthenticationClientTest {
-  public static final String AUTHENTICATED_USERNAME = "admin";
-  public static final String AUTHENTICATED_PASSWORD = "realtime";
+  public static final String USERNAME = "admin";
+  public static final String PASSWORD = "realtime";
   public static final String TOKEN = "SuccessGeneratedToken";
   public static final String TOKEN_TYPE = "Bearer";
   public static final String EMPTY_TOKEN_USERNAME = "emptyToken";
@@ -67,8 +67,8 @@ public class BasicAuthenticationClientTest {
     testProperties = new Properties();
     testProperties.setProperty(HOSTNAME_PROP_NAME, testServerHost);
     testProperties.setProperty(PORT_PROP_NAME, String.valueOf(testServerPort));
-    testProperties.setProperty(USERNAME_PROP_NAME, AUTHENTICATED_USERNAME);
-    testProperties.setProperty(PASSWORD_PROP_NAME, AUTHENTICATED_PASSWORD);
+    testProperties.setProperty(USERNAME_PROP_NAME, USERNAME);
+    testProperties.setProperty(PASSWORD_PROP_NAME, PASSWORD);
   }
 
   @Test

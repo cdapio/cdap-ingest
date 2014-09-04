@@ -50,34 +50,6 @@ public final class RestClientUtils {
   }
 
   /**
-   * Utility method for converting {@link org.apache.http.HttpEntity} HTTP entity content to JsonElement.
-   *
-   * @param httpEntity {@link org.apache.http.HttpEntity}
-   * @return {@link JsonElement} generated from input content stream
-   * @throws IOException if entity content is not available
-   */
-  public static JsonElement toJsonElement(HttpEntity httpEntity) throws IOException {
-    if (httpEntity == null || httpEntity.getContent() == null) {
-      throw new IOException("Empty HttpEntity is received.");
-    }
-    Charset charset = Charsets.UTF_8;
-    ContentType contentType = ContentType.get(httpEntity);
-    if (contentType != null && contentType.getCharset() != null) {
-      charset = contentType.getCharset();
-    }
-    Reader reader = new InputStreamReader(httpEntity.getContent(), charset);
-    try {
-      String content = CharStreams.toString(reader);
-      if (StringUtils.isEmpty(content)) {
-        throw new IOException("Failed to write entity content.");
-      }
-      return new JsonParser().parse(content);
-    } finally {
-      reader.close();
-    }
-  }
-
-  /**
    * Utility method for analysis http response status code and throw appropriate Java API Exception
    *
    * @param response {@link org.apache.http.HttpResponse} http response

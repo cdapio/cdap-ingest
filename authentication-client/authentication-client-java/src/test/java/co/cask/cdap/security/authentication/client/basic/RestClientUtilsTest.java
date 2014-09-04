@@ -162,43 +162,4 @@ public class RestClientUtilsTest {
 
     verify(response).getStatusLine();
   }
-
-  @Test
-  public void testGetEntityAsJsonObject() throws IOException {
-
-    InputStream inputStream = new ByteArrayInputStream("{'test': 'Hello World'}".getBytes(Charsets.UTF_8));
-    when(httpEntity.getContent()).thenReturn(inputStream);
-
-    JsonElement jsonElement = RestClientUtils.toJsonElement(httpEntity);
-    Map<String, String> responseMap = new Gson().fromJson(jsonElement, new TypeToken<Map<String, String>>() {
-    }.getType());
-
-    assertEquals("Hello World", responseMap.get("test"));
-    verify(httpEntity, times(2)).getContent();
-  }
-
-  @Test(expected = IOException.class)
-  public void testNullEntityGetEntityAsJsonObject() throws IOException {
-    RestClientUtils.toJsonElement(null);
-  }
-
-  @Test(expected = IOException.class)
-  public void testNullContentGetEntityAsJsonObject() throws IOException {
-
-    when(httpEntity.getContent()).thenReturn(null);
-
-    RestClientUtils.toJsonElement(httpEntity);
-
-    verify(httpEntity).getContent();
-  }
-
-  @Test(expected = IOException.class)
-  public void testEmptyContentGetEntityAsJsonObject() throws IOException {
-    InputStream inputStream = new ByteArrayInputStream(StringUtils.EMPTY.getBytes(Charsets.UTF_8));
-    when(httpEntity.getContent()).thenReturn(inputStream);
-
-    RestClientUtils.toJsonElement(httpEntity);
-
-    verify(httpEntity).getContent();
-  }
 }

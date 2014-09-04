@@ -50,8 +50,8 @@ public class AuthenticationHandler implements HttpRequestHandler {
         String[] credentials = credentialsStr.split(":");
         String username = credentials[0];
         String password = credentials[1];
-        if (BasicAuthenticationClientTest.AUTHENTICATED_USERNAME.equals(username) &&
-          BasicAuthenticationClientTest.AUTHENTICATED_PASSWORD.equals(password)) {
+        if (BasicAuthenticationClientTest.USERNAME.equals(username) &&
+          BasicAuthenticationClientTest.PASSWORD.equals(password)) {
           StringEntity entity = new StringEntity(createEntityBody(BasicAuthenticationClientTest.TOKEN,
                                                                   BasicAuthenticationClientTest.TOKEN_TYPE,
                                                                   BasicAuthenticationClientTest.TOKEN_LIFE_TIME));
