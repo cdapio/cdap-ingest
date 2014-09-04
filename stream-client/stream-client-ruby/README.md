@@ -43,6 +43,7 @@ You can configure StreamClient settings in your config files, for example:
 gateway: 'localhost'
 port: 10000
 api_version: 'v2'
+api_key:
 ssl: false
 ```
 ```
@@ -71,11 +72,11 @@ client = CDAPIngest::StreamClient.new
 
  Notes:
 
-  - The <stream-id> should only contain ASCII letters, digits and hyphens.
+  - The <stream-id> must only contain ASCII letters, digits and hyphens.
   - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
 
- Update TTL for the Stream *stream_name*; TTL is a integer value:
+ Update TTL for the Stream *stream_name*; TTL is a integer value such as 256:
 
  ```
 client.set_ttl stream_name, 256
