@@ -150,13 +150,13 @@ checkstatus(){
 load(){
  file_path=$1
  observer=$2
- /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ > $FDZ_PID_FILE && exec ${EXEC_PATH} load $file_path $observer >>${FDZ_LOG_DIR}/${NAME}.init.log 2>&1' &" $FDZ_USER
+ /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ > $FDZ_PID_FILE && exec ${EXEC_PATH} load $file_path $observer >>${FDZ_LOG_DIR}/${NAME}.log 2>&1' &" $FDZ_USER
 
 }
 
 set_work_dir(){
   new_work_dir=$1
-  /bin/su -s /bin/bash -c "/bin/bash -c 'exec ${EXEC_PATH} set_work_dir $new_work_dir >>${FDZ_LOG_DIR}/${NAME}.init.log 2>&1' &" $FDZ_USER
+  /bin/su -s /bin/bash -c "/bin/bash -c 'exec ${EXEC_PATH} set_work_dir $new_work_dir >>${FDZ_LOG_DIR}/${NAME}.log 2>&1' &" $FDZ_USER
 }
 condrestart(){
   [ -e ${LOCKFILE} ] && restart || :

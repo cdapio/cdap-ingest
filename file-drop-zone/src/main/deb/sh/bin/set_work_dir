@@ -27,14 +27,28 @@ function set_work_dir(){
   if [ -z $FDZ_CONF_DIR ]; then
    	    FDZ_CONF_DIR=/etc/file-drop-zone/conf
   fi
+
   if [[ $new_work_dir != *"/" ]]; then
   		new_work_dir=$new_work_dir"/"
   fi
 	if [ -d $new_work_dir ]; then
+
+  if [ ! -e $FDZ_PID_FILE ]; then
+      service file-drop-zone stop
+  fi
 	  chown -R file-drop-zone:file-drop-zone $new_work_dir
     chmod 755 $new_work_dir
+    old_work_dir=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep "work_dir"| head -n 1| cut -d "=" -f2-`
+
+    if [ -z $old_work_dir ]; then
+    		old_work_dir="/var/file-drop-zone/"
+    fi
+
+    mv $old_work_dir* $new_work_dir
+
 		new_work_dir="${1//\//\\\/}"
 		sed -i "s/\(work_dir=\).*\$/\1${new_work_dir}/" $FDZ_CONF_DIR"/file-drop-zone.properties"
+		service file-drop-zone start
 	else
 		log_failure_msg "$1 directory does not exists"
 	fi
