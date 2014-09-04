@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
@@ -49,7 +48,7 @@ import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.core.HttpHeaders;
 
 /**
- * Provides way to execute http requests with Apache HttpClient {@link org.apache.http.client.HttpClient}
+ * Provides way to execute http requests with Apache HttpClient {@link org.apache.http.client.HttpClient}.
  */
 public class RestClient {
 
@@ -65,10 +64,9 @@ public class RestClient {
   private final CloseableHttpClient httpClient;
   private final String version;
 
-  public RestClient(RestClientConnectionConfig config, HttpClientConnectionManager connectionManager)
-    throws URISyntaxException {
+  public RestClient(RestClientConnectionConfig config, HttpClientConnectionManager connectionManager) {
     this.config = config;
-    this.baseUrl = new URI(String.format("%s://%s:%d", config.isSSL() ? HTTPS_PROTOCOL : HTTP_PROTOCOL,
+    this.baseUrl = URI.create(String.format("%s://%s:%d", config.isSSL() ? HTTPS_PROTOCOL : HTTP_PROTOCOL,
                                          config.getHost(), config.getPort()));
     this.version = config.getVersion();
     this.httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
@@ -94,7 +92,7 @@ public class RestClient {
   }
 
   /**
-   * Utility method for analysis http response status code and throw appropriate Java API Exception
+   * Utility method for analysis http response status code and throw appropriate Java API Exception.
    *
    * @param response {@link HttpResponse} http response
    */
@@ -105,22 +103,22 @@ public class RestClient {
         LOG.debug("Success operation result code");
         break;
       case HttpStatus.SC_NOT_FOUND:
-        throw new NotFoundException("Not found HTTP code was received from getaway server.");
+        throw new NotFoundException("Not found HTTP code was received from gateway server.");
       case HttpStatus.SC_CONFLICT:
-        throw new BadRequestException("Conflict HTTP code was received from getaway server.");
+        throw new BadRequestException("Conflict HTTP code was received from gateway server.");
       case HttpStatus.SC_BAD_REQUEST:
-        throw new BadRequestException("Bad request HTTP code was received from getaway server.");
+        throw new BadRequestException("Bad request HTTP code was received from gateway server.");
       case HttpStatus.SC_UNAUTHORIZED:
         throw new NotAuthorizedException(response);
       case HttpStatus.SC_FORBIDDEN:
-        throw new ForbiddenException("Forbidden HTTP code was received from getaway server");
+        throw new ForbiddenException("Forbidden HTTP code was received from gateway server");
       case HttpStatus.SC_METHOD_NOT_ALLOWED:
         throw new NotAllowedException(response.getStatusLine().getReasonPhrase());
       case HttpStatus.SC_INTERNAL_SERVER_ERROR:
         throw new InternalServerErrorException("Internal server exception during operation process.");
       case HttpStatus.SC_NOT_IMPLEMENTED:
       default:
-        throw new NotSupportedException("Operation is not supported by getaway server");
+        throw new NotSupportedException("Operation is not supported by gateway server");
     }
   }
 
@@ -164,7 +162,7 @@ public class RestClient {
   }
 
   /**
-   * Method for releasing unused resources
+   * Method for releasing unused resources.
    *
    * @throws IOException if an I/O error occurs
    */
@@ -180,7 +178,7 @@ public class RestClient {
   }
 
   /**
-   * @return the version of getaway server
+   * @return the version of gateway server
    */
   public String getVersion() {
     return version;

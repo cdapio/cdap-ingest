@@ -25,6 +25,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.ws.rs.core.HttpHeaders;
 
+/**
+ * Contains common utility methods for unit tests for the REST Stream Client API implementation.
+ */
 public final class TestUtils {
   public static final String SUCCESS_STREAM_NAME = "success";
   public static final String NOT_FOUND_STREAM_NAME = "notFound";

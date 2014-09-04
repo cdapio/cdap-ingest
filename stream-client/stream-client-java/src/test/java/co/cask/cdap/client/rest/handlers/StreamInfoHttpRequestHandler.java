@@ -31,6 +31,10 @@ import java.io.IOException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * The http request handler implementation to test client's requests to the provide information method in the REST
+ * Stream API.
+ */
 public class StreamInfoHttpRequestHandler implements HttpRequestHandler {
 
   @Override
