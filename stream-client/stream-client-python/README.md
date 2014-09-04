@@ -26,7 +26,6 @@ Create a ```StreamClient``` instance, specifying the fields 'host' and 'port' of
 Optional configurations that can be set (and their default values):
 
   - SSL: False (use HTTP protocol)
-  - apiKey:  '' (need to specify only for authenticating client requests using SSL)
 
  ```
    config = Config()
