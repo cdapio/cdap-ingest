@@ -147,17 +147,6 @@ checkstatus(){
   return $status
 }
 
-load(){
- file_path=$1
- observer=$2
- /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ > $FDZ_PID_FILE && exec ${EXEC_PATH} load $file_path $observer >>${FDZ_LOG_DIR}/${NAME}.log 2>&1' &" $FDZ_USER
-
-}
-
-set_work_dir(){
-  new_work_dir=$1
-  /bin/su -s /bin/bash -c "/bin/bash -c 'exec ${EXEC_PATH} set_work_dir $new_work_dir >>${FDZ_LOG_DIR}/${NAME}.log 2>&1' &" $FDZ_USER
-}
 condrestart(){
   [ -e ${LOCKFILE} ] && restart || :
 }
@@ -175,17 +164,11 @@ case "$1" in
   restart)
     restart
     ;;
-  load)
-      load $2 $3
-      ;;
-  set_work_dir)
-      set_work_dir $2
-      ;;
   condrestart|try-restart)
     condrestart
     ;;
   *)
-    echo $"Usage: $0 {start|stop|status|restart|try-restart|set_work_dir|load|condrestart}"
+    echo $"Usage: $0 {start|stop|status|restart|try-restart|condrestart}"
     exit 1
 esac
 

@@ -55,7 +55,7 @@
   </dependencies>
 
   <properties>
-    <script.app.mainclass>co.cask.cdap.file.dropzone.FileDropZoneApplication</script.app.mainclass>
+    <script.app.mainclass>co.cask.cdap.file.dropzone.FileDropZoneMain</script.app.mainclass>
     <script.app.user>file-drop-zone</script.app.user>
     <script.app.name>file-drop-zone</script.app.name>
   </properties>

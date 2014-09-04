@@ -20,30 +20,31 @@ import co.cask.cdap.file.dropzone.polling.PollingServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
  * An Example of using the Directory Polling Service
  */
-public class FileDropZoneApplication {
-  private static final Logger LOG = LoggerFactory.getLogger(FileDropZoneApplication.class);
+public class FileDropZoneMain {
+  private static final Logger LOG = LoggerFactory.getLogger(FileDropZoneMain.class);
 
   public static void main(String[] args) throws Exception {
 
     LOG.info("Application started");
 
-    String configurationPath;
+    File configurationFile;
     if (args.length == 0) {
-      configurationPath =
-        FileDropZoneApplication.class.getClassLoader().getResource("file-drop-zone.properties").getFile();
+      configurationFile =
+        new File(FileDropZoneMain.class.getClassLoader().getResource("file-drop-zone.properties").getPath());
     } else if (args.length == 1) {
-      configurationPath = args[0];
+      configurationFile = new File(args[0]);
     } else {
       LOG.error("Too many arguments: {}", args.length);
       return;
     }
 
-    PollingServiceManager pollingServiceManager = new PollingServiceManager(configurationPath);
+    PollingServiceManager pollingServiceManager = new PollingServiceManager(configurationFile);
     try {
       pollingServiceManager.initManager();
       pollingServiceManager.initObservers();

@@ -17,8 +17,8 @@
 package co.cask.cdap.filetailer.sink;
 
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.BaseWorker;
+import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
