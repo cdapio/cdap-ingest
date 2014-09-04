@@ -42,7 +42,7 @@ public interface AuthenticationClient {
   AccessToken getAccessToken() throws IOException;
 
   /**
-   * Checks is the authentication enabled in the gateway server.
+   * Checks if authentication is enabled on the gateway server.
    *
    * @return true if authentication is enabled
    * @throws IOException in case of a problem or the connection was aborted
