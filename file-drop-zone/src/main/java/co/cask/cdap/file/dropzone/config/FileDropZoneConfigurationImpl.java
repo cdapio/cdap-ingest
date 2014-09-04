@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,7 +14,7 @@
  * the License.
  */
 
-package co.cask.cdap.file.dropzone.polling.config;
+package co.cask.cdap.file.dropzone.config;
 
 import co.cask.cdap.filetailer.config.ConfigurationImpl;
 import co.cask.cdap.filetailer.config.PipeConfigurationImpl;
@@ -35,7 +35,7 @@ public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements 
 
   private static final String DEFAULT_POLLING_INTERVAL = "5000";
 
-  private static final String DEFAULT_WORK_DIR = "var/file-drop-zone/";
+  private static final String DEFAULT_WORK_DIR = "/var/file-drop-zone/";
 
   public FileDropZoneConfigurationImpl(Properties properties) {
     super(properties);
@@ -54,18 +54,45 @@ public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements 
       String pipe = getRequiredProperty("observers." + observer + ".pipe");
       Properties newProperties = new Properties();
       newProperties.putAll(getProperties());
-      newProperties.put("pipes." + pipe + ".source.work_dir", DEFAULT_WORK_DIR + observer);
+      newProperties.put("pipes." + pipe + ".source.work_dir", getWorkDir() + observer);
       observersConfiguration.add(new ObserverConfigurationImpl(observer,
                                                                new PipeConfigurationImpl(newProperties, pipe)));
     }
     return observersConfiguration;
   }
 
+  /**
+   * Return the path to work directory
+   *
+   * @return the path to directory where polling dirs located
+   */
+  private String getWorkDir() {
+    String workDir = getProperty("work_dir", DEFAULT_WORK_DIR);
+    if (!workDir.endsWith("/")) {
+      workDir += "/";
+    }
+    LOG.info("work directory = {}", workDir);
+    return workDir;
+  }
+
+  /**
+   * Return property value
+   *
+   * @param key          The property key
+   * @param defaultValue The default value of property
+   * @return property value
+   */
   private String getProperty(String key, String defaultValue) {
     String value = getProperty(key);
     return value != null && !value.equals("") ? value : defaultValue;
   }
 
+  /**
+   * Return property value
+   *
+   * @param key The property key
+   * @return property value
+   */
   private String getProperty(String key) {
     LOG.debug("Start returning property by key: {}", key);
     if (getProperties() == null) {
@@ -75,6 +102,13 @@ public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements 
     return getProperties().getProperty(key);
   }
 
+  /**
+   * Return property value
+   *
+   * @param key The property key
+   * @return property value
+   * @throws ConfigurationLoaderException if properties not found
+   */
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
     if (property == null) {

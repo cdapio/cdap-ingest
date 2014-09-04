@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2014 Cask, Inc.
+# Copyright 2014 Cask Data, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -92,7 +92,7 @@ start() {
   fi
 
   log_success_msg "Starting $desc ($NAME): "
-  /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ > $FDZ_PID_FILE && exec ${EXEC_PATH} start >>${FDZ_LOG_DIR}/${NAME}-server.init.log 2>&1' &" $FDZ_USER
+  /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ > $FDZ_PID_FILE && exec ${EXEC_PATH} start >>${FDZ_LOG_DIR}/${NAME}.init.log 2>&1' &" $FDZ_USER
   RETVAL=$?
   [ $RETVAL -eq 0 ] && touch $LOCKFILE
   return $RETVAL
@@ -154,8 +154,13 @@ condrestart(){
 load(){
  file_path=$1
  observer=$2
- /bin/su -s /bin/bash -c "/bin/bash -c 'exec ${EXEC_PATH} load $file_path $observer >>${FDZ_LOG_DIR}/${NAME}-server.init.log 2>&1' &" $FDZ_USER
+ /bin/su -s /bin/bash -c "/bin/bash -c 'exec ${EXEC_PATH} load $file_path $observer >>${FDZ_LOG_DIR}/${NAME}.log 2>&1' &" $FDZ_USER
 
+}
+
+set_work_dir(){
+  new_work_dir=$1
+  /bin/su -s /bin/bash -c "/bin/bash -c 'exec ${EXEC_PATH} set_work_dir $new_work_dir >>${FDZ_LOG_DIR}/${NAME}.log 2>&1' &" $FDZ_USER
 }
 
 case "$1" in
@@ -174,11 +179,14 @@ case "$1" in
   load)
     load $2 $3
     ;;
+  set_work_dir)
+    set_work_dir $2
+    ;;
   condrestart|try-restart)
     condrestart
     ;;
   *)
-    echo $"Usage: $0 {start|stop|status|restart|try-restart|load|condrestart}"
+    echo $"Usage: $0 {start|stop|status|restart|try-restart|set_work_dir|load|condrestart}"
     exit 1
 esac
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,13 +14,11 @@
  * the License.
  */
 
-package co.cask.cdap.file.dropzone;
+package co.cask.cdap.file.dropzone.polling;
 
-import co.cask.cdap.file.dropzone.polling.PollingListenerImpl;
-import co.cask.cdap.file.dropzone.polling.PollingService;
-import co.cask.cdap.file.dropzone.polling.config.FileDropZoneConfiguration;
-import co.cask.cdap.file.dropzone.polling.config.FileDropZoneConfigurationImpl;
-import co.cask.cdap.file.dropzone.polling.config.ObserverConfiguration;
+import co.cask.cdap.file.dropzone.config.FileDropZoneConfiguration;
+import co.cask.cdap.file.dropzone.config.FileDropZoneConfigurationImpl;
+import co.cask.cdap.file.dropzone.config.ObserverConfiguration;
 import co.cask.cdap.file.dropzone.polling.dir.DirPollingService;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
@@ -43,6 +41,11 @@ public class PollingServiceManager {
     this.confPath = confPath;
   }
 
+  /**
+   * Polling service manager setup
+   *
+   * @throws ConfigurationLoadingException if can not setup polling service manager
+   */
   public void initManager() throws ConfigurationLoadingException {
     this.configuration = getConfiguration();
     this.monitor = new DirPollingService(configuration.getPollingInterval());
@@ -61,16 +64,28 @@ public class PollingServiceManager {
     }
   }
 
+  /**
+   * Return DropZone configuration
+   *
+   * @return DropZone configuration
+   * @throws ConfigurationLoadingException configuration load failed
+   */
   private FileDropZoneConfiguration getConfiguration() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Configuration configuration = loader.load(confPath);
     return new FileDropZoneConfigurationImpl(configuration.getProperties());
   }
 
+  /**
+   * Start polling service
+   */
   public void startMonitor() throws Exception {
     monitor.start();
   }
 
+  /**
+   * Stop polling service
+   */
   public void stopMonitor() throws Exception {
     monitor.stop();
   }

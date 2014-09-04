@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,7 +18,7 @@ package co.cask.cdap.file.dropzone.polling;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.file.dropzone.polling.config.ObserverConfiguration;
+import co.cask.cdap.file.dropzone.config.ObserverConfiguration;
 import co.cask.cdap.filetailer.Pipe;
 import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
@@ -40,12 +40,11 @@ import java.net.URISyntaxException;
  * The listener for polling dirs with some time interval
  */
 public class PollingListenerImpl implements PollingListener {
+
   private static final Logger LOG = LoggerFactory.getLogger(PollingListenerImpl.class);
   private PollingService monitor;
   private final ObserverConfiguration observerConf;
-
   private FileTailerMetricsProcessor metricsProcessor;
-
 
   public PollingListenerImpl(PollingService monitor, ObserverConfiguration observerConf) {
     this.monitor = monitor;
@@ -95,7 +94,7 @@ public class PollingListenerImpl implements PollingListener {
       new FileTailerStateProcessorImpl(observerConf.getDaemonDir(), pipeConfiguration.getStateFile());
     PipeListener pipeListener = new PipeListenerImpl(pipeConfiguration.getSourceConfiguration().getWorkDir(),
                                                      file.getAbsolutePath(), observerConf.getDaemonDir() +
-                                                       "/" + pipeConfiguration.getStateFile());
+      "/" + pipeConfiguration.getStateFile());
     Pipe pipe = new Pipe(new LogTailer(pipeConfiguration, queue, stateProcessor, metricsProcessor, pipeListener),
                          new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
                                             stateProcessor, metricsProcessor, pipeListener,
@@ -109,6 +108,7 @@ public class PollingListenerImpl implements PollingListener {
   /**
    * create StreamWriter for pipe
    *
+   * @param pipeConf the pipe configuration
    * @return streamWriter
    * @throws java.io.IOException streamWriter creation failed
    */
@@ -142,6 +142,9 @@ public class PollingListenerImpl implements PollingListener {
     }
   }
 
+  /**
+   * The listener for pipes
+   */
   private class PipeListenerImpl implements PipeListener {
 
     private boolean isRead = false;

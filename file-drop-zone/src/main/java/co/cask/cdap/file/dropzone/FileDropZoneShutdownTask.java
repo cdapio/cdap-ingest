@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,6 +16,7 @@
 
 package co.cask.cdap.file.dropzone;
 
+import co.cask.cdap.file.dropzone.polling.PollingServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ class FileDropZoneShutdownTask implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileDropZoneShutdownTask.class);
 
-  PollingServiceManager manager;
+  private PollingServiceManager manager;
 
   FileDropZoneShutdownTask(PollingServiceManager manager) {
     this.manager = manager;
