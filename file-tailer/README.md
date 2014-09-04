@@ -1,20 +1,20 @@
-file-tailer
+File-Tailer
 ==================
 
-File Tailer is a daemon process that can runs on any machine and perform tailing of set of local files. 
-As soon as a new record is being appended to the end of a file that the daemon is monitoring, it will send it to a Stream via REST API.
+File Tailer is a daemon process that performs tailing of sets of local files. 
+As soon as a new record has been appended to the end of a file that the daemon is monitoring, it will send it to a Stream via the REST API.
 
 ## Features
 
  - distributed as debian and rpm packages;
- - loads properties from configuration file;
+ - loads properties from a configuration file [unless it is really files];
  - supports rotation of log files;
- - persists state and is able to resume from first unsent record;
- - dumps statistics info;
+ - persists state and is able to resume from first unsent record; and
+ - dumps statistics info.
 
 ## Usage
 
- In order to install File Tailer one should execute following command:
+ To install File Tailer, execute one of these commands:
  
  - on Debian/Ubuntu systems:
  
@@ -29,14 +29,13 @@ As soon as a new record is being appended to the end of a file that the daemon i
  ```
  
 
- Once installed, 
- To configure the daemon, edit following file:
+ Once installed, configure the daemon by editing the file:
  
  ```
     /etc/file-tailer/conf/file-tailer.properties
  ```
  
- At least following parameters should be specified:
+ These parameters must be specified:
 
   - pipes
   - pipes.pipe1.source.work_dir
@@ -45,28 +44,27 @@ As soon as a new record is being appended to the end of a file that the daemon i
   - pipes.pipe1.sink.host
   - pipes.pipe1.sink.port
  
- Please note that target file should be accessible for file-tailer user.
- In order to check this, one can use following command:
+ Please note that the target file must be accessible to the file-tailer user.
+ To check this, you can use the more command with the file-tailer user:
  
  ``` 
  sudo -u file-tailer more path_to_target_file
  ```
     
- Once configured, 
- To start the daemon, execute following command:
+ To start the daemon, execute the command:
  
  ```
     sudo service file-tailer start
  ```
  
- To stop the daemon, execute following command:
+ To stop the daemon, execute the command:
  
  ```
     sudo service file-tailer stop
  ``` 
  
- File Tailer stores logs in /var/log/file-tailer folder.
- File Tailer stores pid, states and statistics in /var/run/file-tailer folder.
+ File Tailer stores log files in the `/var/log/file-tailer directory.
+ PID, states and statistics are stored in the /var/run/file-tailer directory.
  
   
 ## Example Configuration
@@ -113,30 +111,30 @@ As soon as a new record is being appended to the end of a file that the daemon i
 
 ## Additional Notes
  
- Configuration parameters description:
+ Description of configuration parameters:
 
- - daemon_dir - the path to directory, intended like storage for File Tailer state and metrics
- - pipes - list of all pipes
- - pipes.<pipe name>.name - name of this pipe
- - pipes.<pipe name>.state_file - name of file, to which File Tailer save state
- - pipes.<pipe name>.statistics_file - name of file, to which File Tailer save statistics
- - pipes.<pipe name>.queue_size - size of queue, which intended to store logs before sending them to Stream
- - pipes.<pipe name>.source.work_dir - path to directory, where monitor log files
- - pipes.<pipe name>.source.file_name - name of log file
- - pipes.<pipe name>.source.rotated_file_name_pattern - log file rolling pattern
- - pipes.<pipe name>.source.charset_name - name of charset, used by Stream Client for sending logs
- - pipes.<pipe name>.source.record_separator - symbol, that separate each log record
- - pipes.<pipe name>.source.sleep_interval - interval to sleep, after read all log data
- - pipes.<pipe name>.source.failure_retry_limit - number of attempts to read logs, if occurred error while reading file data
- - pipes.<pipe name>.source.failure_sleep_interval - interval to sleep, if occurred error while reading file data
- - pipes.<pipe name>.sink.stream_name - name of target stream
- - pipes.<pipe name>.sink.host - server host
- - pipes.<pipe name>.sink.port - server port
- - pipes.<pipe name>.sink.ssl - Secure Socket Layer mode [true|false]
- - pipes.<pipe name>.sink.authToken - server security token
- - pipes.<pipe name>.sink.apiKey - ssl security key
- - pipes.<pipe name>.sink.writerPoolSize - number of threads, in which Stream Client sends events
- - pipes.<pipe name>.sink.version - reactor server version
- - pipes.<pipe name>.sink.packSize - number of logs sent at a time
- - pipes.<pipe name>.sink.failure_retry_limit - number of attempts to sent logs, if occurred error while reading file data
- - pipes.<pipe name>.sink.failure_sleep_interval - interval to sleep, if occurred error while sending logs
+ - daemon_dir - the path to directory for storage of File Tailer state and metrics
+ - pipes - list of all pipes, comma-separated
+ - pipes.<pipe-name>.name - name of the pipe
+ - pipes.<pipe-name>.state_file - name of file, used to save state
+ - pipes.<pipe-name>.statistics_file - name of file, used to save statistics
+ - pipes.<pipe-name>.queue_size - size of queue (default 1000), of stored log records, before sending them to Stream
+ - pipes.<pipe-name>.source.work_dir - path to directory being monitored for target log files
+ - pipes.<pipe-name>.source.file_name - name of target log file
+ - pipes.<pipe-name>.source.rotated_file_name_pattern - log file rollover pattern (default "(.*)" )
+ - pipes.<pipe-name>.source.charset_name - name of charset used by Stream Client for sending logs (default "UTF-8")
+ - pipes.<pipe-name>.source.record_separator - symbol that separates each log record (default "\n")
+ - pipes.<pipe-name>.source.sleep_interval - interval to sleep after reading all log data (default 3000 ms)
+ - pipes.<pipe-name>.source.failure_retry_limit - number of attempts to retry reading a log, if an error occurred while reading file data (default value is 0 for unlimited attempts)
+ - pipes.<pipe-name>.source.failure_sleep_interval - interval to sleep if an error occurred while reading the file data (default 60000 ms)
+ - pipes.<pipe-name>.sink.stream_name - name of target stream
+ - pipes.<pipe-name>.sink.host - server host
+ - pipes.<pipe-name>.sink.port - server port
+ - pipes.<pipe-name>.sink.ssl - Secure Socket Layer mode [true|false] (default false)
+ - pipes.<pipe-name>.sink.authToken - server security token
+ - pipes.<pipe-name>.sink.apiKey - SSL security key
+ - pipes.<pipe-name>.sink.writerPoolSize - number of threads with which Stream Client sends events (default 10)
+ - pipes.<pipe-name>.sink.version - CDAP server version (default "v2")
+ - pipes.<pipe-name>.sink.packSize - number of logs sent at a time (default 1)
+ - pipes.<pipe-name>.sink.failure_retry_limit - number of attempts to retry sending logs, if an error occurred while reading file data (default value is 0 for unlimited attempts)
+ - pipes.<pipe-name>.sink.failure_sleep_interval - interval to sleep if an error occurred while sending the logs (default 60000 ms)
