@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,32 +18,36 @@ package co.cask.cdap.filetailer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * AbstractWorker class  for sink and tailer worker
  */
-public class AbstractWorker implements Runnable {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractWorker.class);
+public class BaseWorker implements Runnable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BaseWorker.class);
+
     private Thread worker;
+
     @Override
     public void run() {
-
     }
+
   /**
    * Start worker thread
    *
    * @throws IllegalStateException if worker is already running
    *
    */
-
     public void startWorker() {
         if (worker == null) {
             worker = new Thread(this);
             worker.start();
         } else {
-            LOG.warn("{} deamon is already started!", this.getClass().getName());
-            throw new IllegalStateException(this.getClass().getName() + "  daemon is already started!");
+            LOG.warn("{} worker is already started!", this.getClass().getName());
+            throw new IllegalStateException(this.getClass().getName() + "  worker is already started!");
         }
     }
+
   /**
    * Start worker thread
    *
@@ -56,9 +59,8 @@ public class AbstractWorker implements Runnable {
             worker.interrupt();
             worker = null;
         } else {
-            LOG.warn("{} deamon was not started!", this.getClass().getName());
-            throw new IllegalStateException(this.getClass().getName() + "  daemon is not running!");
-
+            LOG.warn("{} worker was not started!", this.getClass().getName());
+            throw new IllegalStateException(this.getClass().getName() + "  worker is not running!");
         }
     }
 }

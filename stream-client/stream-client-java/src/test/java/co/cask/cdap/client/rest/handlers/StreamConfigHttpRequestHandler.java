@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,7 +17,6 @@
 package co.cask.cdap.client.rest.handlers;
 
 import co.cask.cdap.client.rest.RestClient;
-import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.client.rest.RestTest;
 import co.cask.cdap.client.rest.TestUtils;
 import com.google.gson.JsonObject;
@@ -34,6 +33,9 @@ import org.apache.http.protocol.HttpRequestHandler;
 import java.io.IOException;
 import javax.ws.rs.HttpMethod;
 
+/**
+ * The http request handler implementation to test client's requests to the configuration method in the REST Stream API.
+ */
 public class StreamConfigHttpRequestHandler implements HttpRequestHandler {
   private static final String TTL_ATTRIBUTE_NAME = "ttl";
 

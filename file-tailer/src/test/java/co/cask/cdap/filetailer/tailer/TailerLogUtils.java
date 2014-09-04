@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -56,7 +56,7 @@ public class  TailerLogUtils {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Class<? extends Class> path1 = TailerLogUtils.class.getClass();
     String path = TailerLogUtils.class.getClassLoader().getResource("test4.properties").getFile();
-    Configuration configuration = loader.load(path);
+    Configuration configuration = loader.load(new File(path));
     List<PipeConfiguration> flowConfig = configuration.getPipesConfiguration();
     return flowConfig.get(0);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,6 +21,7 @@ import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
 
 public class ConfigurationImplTest {
@@ -32,7 +33,7 @@ public class ConfigurationImplTest {
 
     String path = getClass().getClassLoader().getResource("test2.properties").getFile();
 
-    Configuration configuration = loader.load(path);
+    Configuration configuration = loader.load(new File(path));
 
     List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
 
@@ -46,7 +47,7 @@ public class ConfigurationImplTest {
 
     String path = getClass().getClassLoader().getResource("test3.properties").getFile();
 
-    Configuration configuration = loader.load(path);
+    Configuration configuration = loader.load(new File(path));
 
     configuration.getPipesConfiguration();
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -29,7 +29,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +41,9 @@ import javax.ws.rs.NotAuthorizedException;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Unit tests for the {@link co.cask.cdap.client.rest.RestStreamWriter} class.
+ */
 public class RestStreamWriterTest extends RestTest {
 
   private StreamClient streamClient;
@@ -103,7 +105,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testNotAuthorizedStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testNotAuthorizedStringWrite() throws IOException, InterruptedException {
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
@@ -114,14 +116,14 @@ public class RestStreamWriterTest extends RestTest {
 
   @Test
   public void testSuccessAuthorizedStringWrite()
-    throws IOException, InterruptedException, ExecutionException, URISyntaxException {
+    throws IOException, InterruptedException, ExecutionException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(RestTest.AUTH_TOKEN).build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
   }
 
   @Test
-  public void testNotAuthorizedEmptyTokenStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testNotAuthorizedEmptyTokenStringWrite() throws IOException, InterruptedException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
@@ -132,7 +134,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testNotAuthorizedUnknownTokenStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testNotAuthorizedUnknownTokenStringWrite() throws IOException, InterruptedException {
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
@@ -143,7 +145,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testForbiddenStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testForbiddenStringWrite() throws IOException, InterruptedException {
     streamWriter = streamClient.createWriter(TestUtils.FORBIDDEN_STREAM_NAME +
                                                TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
@@ -154,7 +156,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testNotAllowedStringWrite() throws IOException, InterruptedException, URISyntaxException {
+  public void testNotAllowedStringWrite() throws IOException, InterruptedException {
     streamWriter = streamClient.createWriter(TestUtils.NOT_ALLOWED_STREAM_NAME +
                                                TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
@@ -189,7 +191,7 @@ public class RestStreamWriterTest extends RestTest {
   }
 
   @Test
-  public void testFileSend() throws IOException, InterruptedException, ExecutionException, URISyntaxException {
+  public void testFileSend() throws IOException, InterruptedException, ExecutionException {
     streamWriter = streamClient.createWriter(TestUtils.FILE_STREAM_NAME +
                                                TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
 

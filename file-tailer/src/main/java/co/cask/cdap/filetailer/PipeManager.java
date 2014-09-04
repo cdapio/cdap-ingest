@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -31,6 +31,7 @@ import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -39,24 +40,18 @@ import java.util.List;
 /**
  * PipeManager creates and manage pipes
  */
-
 public class PipeManager {
-  private final String confPath;
-  private List<Pipe> pipeList = new ArrayList<Pipe>();
 
-  public PipeManager(String confPath) {
-    this.confPath = confPath;
-  }
+  private final List<Pipe> pipeList = new ArrayList<Pipe>();
 
   /**
    * Pipes setup
    *
    * @throws IOException if can not create client stream
    */
-
-  public void setupPipes() throws IOException {
+  public void setupPipes(File confFile) throws IOException {
     try {
-      List<PipeConfiguration> pipeConfList = getPipeConfigList();
+      List<PipeConfiguration> pipeConfList = getPipeConfigList(confFile);
       for (PipeConfiguration pipeConf : pipeConfList) {
         FileTailerQueue queue = new FileTailerQueue(pipeConf.getQueueSize());
         StreamWriter writer = getStreamWriterForPipe(pipeConf);
@@ -74,20 +69,18 @@ public class PipeManager {
       }
     } catch (ConfigurationLoadingException e) {
       throw new ConfigurationLoadingException("Error during loading configuration from file: "
-                                                + confPath + e.getMessage());
+                                                + confFile.getAbsolutePath() + e.getMessage());
     }
   }
-
 
   /**
    * Get pipes configuration
    * @return List of the  Pipes configuration read from configuration file
    * @throws ConfigurationLoadingException if can not create client stream
    */
-
-  private List<PipeConfiguration> getPipeConfigList() throws ConfigurationLoadingException {
+  private List<PipeConfiguration> getPipeConfigList(File confFile) throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
-    Configuration configuration = loader.load(confPath);
+    Configuration configuration = loader.load(confFile);
     return configuration.getPipesConfiguration();
   }
 
@@ -101,15 +94,12 @@ public class PipeManager {
     String streamName = pipeConf.getSinkConfiguration().getStreamName();
     try {
       client.create(streamName);
-      StreamWriter writer = null;
-      writer = client.createWriter(streamName);
-      return writer;
+      return client.createWriter(streamName);
     } catch (IOException e) {
-      throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
-    } catch (URISyntaxException e) {
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }
+
   /**
    * Start all pipes
    */
@@ -118,6 +108,7 @@ public class PipeManager {
       pipe.start();
     }
   }
+
   /**
    * Start all pipes
    */

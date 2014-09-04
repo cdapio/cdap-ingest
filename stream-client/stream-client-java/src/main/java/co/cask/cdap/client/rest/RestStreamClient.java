@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -32,11 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import javax.ws.rs.core.MediaType;
 
 /**
- * Stream client implementation used REST Api for stream management
+ * Stream client implementation used REST Api for stream management.
  */
 public class RestStreamClient implements StreamClient {
   private static final Logger LOG = LoggerFactory.getLogger(RestStreamClient.class);
@@ -50,7 +49,7 @@ public class RestStreamClient implements StreamClient {
   private final int writerPoolSize;
   private final RestClient restClient;
 
-  private RestStreamClient(Builder builder) throws URISyntaxException {
+  private RestStreamClient(Builder builder) {
     writerPoolSize = builder.writerPoolSize;
     config = new RestClientConnectionConfig(builder.host, builder.port, builder.authToken, builder.apiKey,
                                             builder.ssl, builder.version);
@@ -120,7 +119,7 @@ public class RestStreamClient implements StreamClient {
   }
 
   @Override
-  public StreamWriter createWriter(String stream) throws IOException, URISyntaxException {
+  public StreamWriter createWriter(String stream) throws IOException {
     //get the Stream TTL for check does the requested Stream exist
     long ttl = getTTL(stream);
     LOG.debug("The Stream with id {} exists. Got the current Stream TTL value {} successfully.", stream, ttl);
@@ -137,10 +136,10 @@ public class RestStreamClient implements StreamClient {
   }
 
   /**
-   * Create builder for build RestStreamClient instance
+   * Create builder for build RestStreamClient instance.
    *
-   * @param host getaway server host
-   * @param port getaway server port
+   * @param host gateway server host
+   * @param port gateway server port
    * @return {@link Builder} Builder instance
    */
   public static Builder builder(String host, int port) {
@@ -148,7 +147,7 @@ public class RestStreamClient implements StreamClient {
   }
 
   /**
-   * Class Builder for create RestStreamClient instance
+   * Class Builder for create RestStreamClient instance.
    */
   public static class Builder {
     //mandatory
@@ -192,7 +191,7 @@ public class RestStreamClient implements StreamClient {
       return this;
     }
 
-    public RestStreamClient build() throws URISyntaxException {
+    public RestStreamClient build() {
       return new RestStreamClient(this);
     }
   }

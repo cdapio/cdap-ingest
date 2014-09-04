@@ -15,6 +15,6 @@
  */
 
 /**
- * This package contains internal classes for the StreamClient API.
+ * This package contains unit tests for the REST Stream Client API implementation.
  */
-package co.cask.cdap.client;
+package co.cask.cdap.client.rest;

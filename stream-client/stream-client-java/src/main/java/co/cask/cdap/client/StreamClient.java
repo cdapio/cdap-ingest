@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,7 +18,6 @@ package co.cask.cdap.client;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 /**
  * The client interface to interact with services provided by the Stream endpoint.
@@ -65,7 +64,7 @@ public interface StreamClient extends Closeable {
    * @return An instance of {@link StreamWriter} that is ready for writing events to the Stream
    * @throws IOException in case of a problem or the connection was aborted
    */
-  StreamWriter createWriter(String stream) throws IOException, URISyntaxException;
+  StreamWriter createWriter(String stream) throws IOException;
 
   /**
    * Closes a {@link org.apache.http.impl.client.CloseableHttpClient} instance for releasing all unused resource

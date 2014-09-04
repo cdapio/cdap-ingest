@@ -18,7 +18,7 @@
 # Custom params
 
 export FT_NAME=file-tailer
-export FT_MAIN_CLASS=co.cask.cdap.filetailer.FileTailerApplication
+export FT_MAIN_CLASS=co.cask.cdap.filetailer.FileTailerMain
 export FT_LOG_DIR
 
 # Common part
