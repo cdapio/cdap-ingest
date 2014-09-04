@@ -55,6 +55,7 @@ public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements 
       Properties newProperties = new Properties();
       newProperties.putAll(getProperties());
       newProperties.put("pipes." + pipe + ".source.work_dir", getWorkDir() + observer);
+      newProperties.put("pipes." + pipe + ".source.read_rotated_files", "false");
       observersConfiguration.add(new ObserverConfigurationImpl(observer,
                                                                new PipeConfigurationImpl(newProperties, pipe)));
     }

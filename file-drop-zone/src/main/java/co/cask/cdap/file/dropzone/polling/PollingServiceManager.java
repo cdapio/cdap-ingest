@@ -33,12 +33,12 @@ import java.util.List;
  * PollingServiceManager creates and manage polling service
  */
 public class PollingServiceManager {
-  private final String confPath;
+  private final File confFile;
   private PollingService monitor;
   private FileDropZoneConfiguration configuration;
 
-  public PollingServiceManager(String confPath) {
-    this.confPath = confPath;
+  public PollingServiceManager(File confFile) {
+    this.confFile = confFile;
   }
 
   /**
@@ -72,7 +72,7 @@ public class PollingServiceManager {
    */
   private FileDropZoneConfiguration getConfiguration() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
-    Configuration configuration = loader.load(confPath);
+    Configuration configuration = loader.load(confFile);
     return new FileDropZoneConfigurationImpl(configuration.getProperties());
   }
 

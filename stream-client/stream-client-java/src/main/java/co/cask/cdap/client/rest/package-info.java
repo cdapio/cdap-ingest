@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,16 +14,7 @@
  * the License.
  */
 
-package co.cask.cdap.filetailer.client;
-
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.nio.charset.Charset;
-
 /**
- * Created by dev on 15.08.14.
+ * This package contains Rest StreamClient API implementation.
  */
-public interface RestClient {
-
-  ListenableFuture<Void> write(String str, Charset charset);
-}
+package co.cask.cdap.client.rest;

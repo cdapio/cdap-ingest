@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -34,6 +34,9 @@ import org.apache.http.protocol.HttpRequestHandler;
 import java.io.IOException;
 import javax.ws.rs.HttpMethod;
 
+/**
+ * The http request handler implementation to test client's requests to the REST Stream API.
+ */
 public class StreamHttpRequestHandler implements HttpRequestHandler {
   @Override
   public void handle(HttpRequest httpRequest, HttpResponse response, HttpContext httpContext)

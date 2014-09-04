@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 /**
  * The listener for polling dirs with some time interval
@@ -121,8 +120,6 @@ public class PollingListenerImpl implements PollingListener {
       writer = client.createWriter(streamName);
       return writer;
     } catch (IOException e) {
-      throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
-    } catch (URISyntaxException e) {
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }

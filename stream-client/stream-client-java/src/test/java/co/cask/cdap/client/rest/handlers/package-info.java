@@ -15,6 +15,6 @@
  */
 
 /**
- * This package contains internal classes for the StreamClient API.
+ * This package contains handlers to register in the {@link org.apache.http.localserver.LocalTestServer} for unit tests.
  */
-package co.cask.cdap.client;
+package co.cask.cdap.client.rest.handlers;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,7 +21,7 @@ import co.cask.cdap.filetailer.state.FileTailerState;
 import java.nio.charset.Charset;
 
 /**
- *
+ * FileTailerEvent is design to represent File Tailer event or log
  */
 public class FileTailerEvent {
 
@@ -49,10 +49,9 @@ public class FileTailerEvent {
 
   @Override
   public String toString() {
-    final StringBuffer sb = new StringBuffer("FileTailerEvent{");
-    sb.append("state=").append(state);
-    sb.append(", eventData='").append(eventData).append('\'');
-    sb.append('}');
-    return sb.toString();
+    return new StringBuilder("FileTailerEvent{")
+      .append("state=").append(state)
+      .append(", eventData='").append(eventData).append('\'')
+      .append('}').toString();
   }
 }

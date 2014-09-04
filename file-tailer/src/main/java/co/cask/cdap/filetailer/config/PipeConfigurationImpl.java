@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -225,33 +225,28 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     @Override
     public StreamClient getStreamClient() {
-      try {
-        String host = getRequiredProperty(this.key + "host");
-        int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
+      String host = getRequiredProperty(this.key + "host");
+      int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
 
-        RestStreamClient.Builder builder = RestStreamClient.builder(host, port);
+      RestStreamClient.Builder builder = RestStreamClient.builder(host, port);
 
-        builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
+      builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
 
-        String authToken = getProperty(this.key + "authToken");
-        if (authToken != null && !authToken.equals("")) {
-          builder.authToken(authToken);
-        }
-
-        String apiKey = getProperty(this.key + "apiKey");
-        if (apiKey != null && !apiKey.equals("")) {
-          builder.apiKey(apiKey);
-        }
-
-        builder.writerPoolSize(Integer.parseInt(getProperty(this.key + "writerPoolSize", DEFAULT_WRITER_POOL_SIZE)));
-
-        builder.version(getProperty(this.key + "version", DEFAULT_VERSION));
-
-        return builder.build();
-      } catch (URISyntaxException e) {
-        LOG.error("Can not get Stream Client for this pipe: {}", e.getMessage());
-        throw new ConfigurationLoaderException("Can not get Stream Client for this pipe: " + e.getMessage());
+      String authToken = getProperty(this.key + "authToken");
+      if (authToken != null && !authToken.equals("")) {
+        builder.authToken(authToken);
       }
+
+      String apiKey = getProperty(this.key + "apiKey");
+      if (apiKey != null && !apiKey.equals("")) {
+        builder.apiKey(apiKey);
+      }
+
+      builder.writerPoolSize(Integer.parseInt(getProperty(this.key + "writerPoolSize", DEFAULT_WRITER_POOL_SIZE)));
+
+      builder.version(getProperty(this.key + "version", DEFAULT_VERSION));
+
+      return builder.build();
     }
 
     @Override

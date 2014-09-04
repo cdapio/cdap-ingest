@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -56,12 +56,11 @@ public class FileTailerState implements Serializable {
 
   @Override
   public String toString() {
-    final StringBuffer sb = new StringBuffer("FileTailerState{");
-    sb.append("fileName='").append(fileName).append('\'');
-    sb.append(", position=").append(position);
-    sb.append(", hash='").append(hash).append('\'');
-    sb.append(", lastModifyTime=").append(lastModifyTime);
-    sb.append('}');
-    return sb.toString();
+    return new StringBuffer("FileTailerState{")
+      .append("fileName='").append(fileName).append('\'')
+      .append(", position=").append(position)
+      .append(", hash='").append(hash).append('\'')
+      .append(", lastModifyTime=").append(lastModifyTime)
+      .append('}').toString();
   }
 }

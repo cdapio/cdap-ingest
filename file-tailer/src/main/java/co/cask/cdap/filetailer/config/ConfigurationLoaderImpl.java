@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,8 +20,10 @@ import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -32,15 +34,26 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
   private static final Logger LOG = LoggerFactory.getLogger(ConfigurationLoaderImpl.class);
 
   @Override
-  public Configuration load(String path) throws ConfigurationLoadingException {
-    LOG.debug("Start initializing loader with file: {}", path);
+  public Configuration load(File file) throws ConfigurationLoadingException {
+    LOG.debug("Start initializing loader with file: {}", file.getAbsolutePath());
     Properties properties = new Properties();
+    InputStream is = null;
     try {
-      properties.load(new FileInputStream(path));
-      LOG.debug("Loader successfully initialized with file: {}", path);
+      is = new FileInputStream(file);
+      properties.load(is);
+      is.close();
+      LOG.debug("Loader successfully initialized with file: {}", file.getAbsolutePath());
     } catch (IOException e) {
       LOG.error("Can not load properties: {}", e.getMessage());
       throw new ConfigurationLoadingException(e.getMessage());
+    } finally {
+      try {
+        if (is != null) {
+          is.close();
+        }
+      } catch (IOException e) {
+        LOG.error("Can not close input stream for file {}: {}", file.getAbsolutePath(), e.getMessage());
+      }
     }
     return new ConfigurationImpl(properties);
   }

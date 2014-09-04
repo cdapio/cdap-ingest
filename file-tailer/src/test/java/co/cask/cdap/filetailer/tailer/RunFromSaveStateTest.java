@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -85,7 +85,7 @@ public class RunFromSaveStateTest {
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
 
     tailer.startWorker();
-    Thread.sleep(3000);
+    Thread.sleep(5000);
     saveState(intQueue, queue, readLogList, stateProcessor);
 
     tailer.stopWorker();
@@ -94,13 +94,13 @@ public class RunFromSaveStateTest {
 
     tailer.startWorker();
 
-    Thread.sleep(3000);
+    Thread.sleep(5000);
     saveState(intQueue, queue, readLogList, stateProcessor);
 
     tailer.stopWorker();
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
     tailer.startWorker();
-    Thread.sleep(3000);
+    Thread.sleep(5000);
     tailer.stopWorker();
     saveState(intQueue, queue, readLogList, stateProcessor);
     for (int i = 0; i < logList.size(); i++) {

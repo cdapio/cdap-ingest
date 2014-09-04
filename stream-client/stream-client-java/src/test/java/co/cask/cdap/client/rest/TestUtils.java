@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,6 +25,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.ws.rs.core.HttpHeaders;
 
+/**
+ * Contains common utility methods for unit tests for the REST Stream Client API implementation.
+ */
 public final class TestUtils {
   public static final String SUCCESS_STREAM_NAME = "success";
   public static final String NOT_FOUND_STREAM_NAME = "notFound";
