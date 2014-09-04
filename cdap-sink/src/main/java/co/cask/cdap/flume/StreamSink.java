@@ -146,8 +146,6 @@ public class StreamSink extends AbstractSink implements Configurable {
       writer = client.createWriter(streamName);
     } catch (IOException e) {
       throw new IOException("Can not create/get client stream by name: " + streamName + ": " + e.getMessage());
-    } catch (URISyntaxException e) {
-      throw new IOException("Can not create/get client stream by name: " + streamName + ": " + e.getMessage());
     }
   }
 
