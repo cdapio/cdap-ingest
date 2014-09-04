@@ -14,10 +14,12 @@
  * the License.
  */
 
-package co.cask.cdap.client;
+package co.cask.cdap.security.authentication.client.basic;
 
 import com.google.common.base.Charsets;
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -31,6 +33,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.InternalServerErrorException;
@@ -166,15 +169,17 @@ public class RestClientUtilsTest {
     InputStream inputStream = new ByteArrayInputStream("{'test': 'Hello World'}".getBytes(Charsets.UTF_8));
     when(httpEntity.getContent()).thenReturn(inputStream);
 
-    JsonObject jsonObject = RestClientUtils.toJsonObject(httpEntity);
+    JsonElement jsonElement = RestClientUtils.toJsonElement(httpEntity);
+    Map<String, String> responseMap = new Gson().fromJson(jsonElement, new TypeToken<Map<String, String>>() {
+    }.getType());
 
-    assertEquals("Hello World", jsonObject.get("test").getAsString());
+    assertEquals("Hello World", responseMap.get("test"));
     verify(httpEntity, times(2)).getContent();
   }
 
   @Test(expected = IOException.class)
   public void testNullEntityGetEntityAsJsonObject() throws IOException {
-    RestClientUtils.toJsonObject(null);
+    RestClientUtils.toJsonElement(null);
   }
 
   @Test(expected = IOException.class)
@@ -182,7 +187,7 @@ public class RestClientUtilsTest {
 
     when(httpEntity.getContent()).thenReturn(null);
 
-    RestClientUtils.toJsonObject(httpEntity);
+    RestClientUtils.toJsonElement(httpEntity);
 
     verify(httpEntity).getContent();
   }
@@ -192,7 +197,7 @@ public class RestClientUtilsTest {
     InputStream inputStream = new ByteArrayInputStream(StringUtils.EMPTY.getBytes(Charsets.UTF_8));
     when(httpEntity.getContent()).thenReturn(inputStream);
 
-    RestClientUtils.toJsonObject(httpEntity);
+    RestClientUtils.toJsonElement(httpEntity);
 
     verify(httpEntity).getContent();
   }

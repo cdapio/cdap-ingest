@@ -14,43 +14,31 @@
  * the License.
  */
 
-package co.cask.cdap.client.auth;
+package co.cask.cdap.security.authentication.client;
 
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * The client interface to fetch access tokens from the authentication server.
- *
- * @param <T> Type of the object which contains configuration parameters for the client
- * @param <K> Type of the object which contains credentials required for the enabled authentication provider in the
- * authentication server.
  */
-public interface AuthenticationClient<T extends AuthenticationClientConfig, K extends Credentials> {
+public interface AuthenticationClient {
   /**
    * Configures the address of the gateway server for the authentication client.
    *
-   * @param config contains gateway server access parameters
-   *
+   * @param properties the configuration properties for authentication client
    */
-  void configure(T config);
-
-  /**
-   * Method for set credentials to the client instance
-   *
-   * @param credentials contains credentials corresponding to enabled authentication provider in the
-   *                    authentication server
-   */
-  void setCredentials(K credentials);
+  void configure(Properties properties);
 
   /**
    * Retrieves the access token generated according to the credentials required by thr authentication provider
-   * in the authentication server.
+   * in the authentication server. The access token will be cached until its expiry.
    *
-   * @return String value of the access token
+   * @return {@link AccessToken} object contains the access token value, the expiration date and the access token type
    * @throws IOException in case of a problem or the connection was aborted or authentication is disabled in the
    *                     gateway server
    */
-  String getAccessToken() throws IOException;
+  AccessToken getAccessToken() throws IOException;
 
   /**
    * Checks is the authentication enabled in the gateway server.
@@ -61,9 +49,7 @@ public interface AuthenticationClient<T extends AuthenticationClientConfig, K ex
   boolean isAuthEnabled() throws IOException;
 
   /**
-   * Invalidate cashed access token.
-   *
-   * @return the new access token string value
+   * Invalidate the cached access token.
    */
-  String invalidateToken() throws IOException;
+  void invalidateToken();
 }

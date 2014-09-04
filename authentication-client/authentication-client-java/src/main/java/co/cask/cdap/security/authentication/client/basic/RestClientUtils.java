@@ -14,11 +14,11 @@
  * the License.
  */
 
-package co.cask.cdap.client;
+package co.cask.cdap.security.authentication.client.basic;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
@@ -50,13 +50,13 @@ public final class RestClientUtils {
   }
 
   /**
-   * Utility method for converting {@link org.apache.http.HttpEntity} HTTP entity content to JsonObject.
+   * Utility method for converting {@link org.apache.http.HttpEntity} HTTP entity content to JsonElement.
    *
    * @param httpEntity {@link org.apache.http.HttpEntity}
-   * @return {@link com.google.gson.JsonObject} generated from input content stream
+   * @return {@link JsonElement} generated from input content stream
    * @throws IOException if entity content is not available
    */
-  public static JsonObject toJsonObject(HttpEntity httpEntity) throws IOException {
+  public static JsonElement toJsonElement(HttpEntity httpEntity) throws IOException {
     if (httpEntity == null || httpEntity.getContent() == null) {
       throw new IOException("Empty HttpEntity is received.");
     }
@@ -71,7 +71,7 @@ public final class RestClientUtils {
       if (StringUtils.isEmpty(content)) {
         throw new IOException("Failed to write entity content.");
       }
-      return new JsonParser().parse(content).getAsJsonObject();
+      return new JsonParser().parse(content);
     } finally {
       reader.close();
     }

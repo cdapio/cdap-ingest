@@ -14,7 +14,7 @@
  * the License.
  */
 
-package co.cask.cdap.client.auth.rest.handlers;
+package co.cask.cdap.security.authentication.client.basic.handlers;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,6 +15,7 @@
  */
 
 /**
- * This package contains internal classes for fetching access tokens from the authentication server.
+ * This package contains the authentication client implementation for the authentication provider based on the base
+ * authentication mechanism with username and password.
  */
-package co.cask.cdap.client.auth;
+package co.cask.cdap.security.authentication.client.basic;
