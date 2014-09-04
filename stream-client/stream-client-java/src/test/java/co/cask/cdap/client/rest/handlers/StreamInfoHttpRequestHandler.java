@@ -31,6 +31,10 @@ import java.io.IOException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * The http request handler implementation to test client's requests to the provide information method in the REST
+ * Stream API.
+ */
 public class StreamInfoHttpRequestHandler implements HttpRequestHandler {
 
   @Override
@@ -47,6 +51,8 @@ public class StreamInfoHttpRequestHandler implements HttpRequestHandler {
       String streamName = TestUtils.getStreamNameFromUri(uri);
       if (TestUtils.AUTH_STREAM_NAME.equals(streamName)) {
         statusCode = TestUtils.authorize(httpRequest);
+      } else if (streamName.contains(TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX)) {
+        statusCode = HttpStatus.SC_OK;
       } else {
         statusCode = TestUtils.getStatusCodeByStreamName(streamName);
       }

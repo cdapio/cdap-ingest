@@ -17,7 +17,7 @@
 package co.cask.cdap.client.rest;
 
 /**
- * Container for REST client configuration properties
+ * Container for REST client configuration properties.
  */
 public class RestClientConnectionConfig {
 
@@ -46,11 +46,11 @@ public class RestClientConnectionConfig {
     return version;
   }
 
-  public boolean isSsl() {
+  public boolean isSSL() {
     return ssl;
   }
 
-  public String getApiKey() {
+  public String getAPIKey() {
     return apiKey;
   }
 
