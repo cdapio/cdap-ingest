@@ -25,6 +25,7 @@ function load(){
  else
 	file_path=$1
 	simple_file_name=$(basename $file_path)
+	date=`date +%s%N`
 	observer_list=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep 'observers'| head -n 1| cut -d "=" -f2-`
 	observer=$2
   fdz_work_dir=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep "work_dir"| head -n 1| cut -d "=" -f2-`
@@ -71,8 +72,8 @@ function load(){
 		    chown -R file-drop-zone:file-drop-zone $temp_folder
 		    chmod 755 $temp_folder
 		fi
-	cp $file_path $temp_folder
-	mv $temp_folder"/"$simple_file_name $fdz_directory
+	ln $file_path $temp_folder"/"$simple_file_name"."$date
+	mv $temp_folder"/"$simple_file_name"."$date $fdz_directory
 
  fi
 }
