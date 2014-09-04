@@ -1,6 +1,3 @@
-#! /usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import json
 from config import Config
 from serviceconnector import ServiceConnector, ConnectionErrorChecker
@@ -78,9 +75,7 @@ class StreamClient(ConnectionErrorChecker):
             self.__serviceConnector.request('GET', uri)
         )
 
-        ttl = response.json()['ttl']
-
-        return ttl
+        return response.json()['ttl']
 
     def truncate(self, stream):
         """

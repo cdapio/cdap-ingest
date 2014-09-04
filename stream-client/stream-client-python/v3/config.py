@@ -1,18 +1,13 @@
-#! /usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import json
 
 
 class Config:
 
-    __host = 'localhost'
-    __port = 10000
-    __ssl = False
-
     def __init__(self):
-        pass
-
+        self.__host = 'localhost'
+        self.__port = 10000
+        self.__ssl = False
+ 
     @property
     def host(self):
         return self.__host

@@ -1,6 +1,3 @@
-#! /usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 from os import path
 import mimetypes
 from threading import Thread, Lock
@@ -14,13 +11,6 @@ class StreamPromise(ConnectionErrorChecker):
     """
     Type to simulate ListenableFuture functionality of Guava framework.
     """
-    __workerThread = None
-    __handlerThread = None
-    __serviceConnector = None
-    __serviceResponse = None
-    __onOkHandler = None
-    __onErrorHandler = None
-    __handlersLock = None
 
     def __init__(self, serviceConnector, uri, data):
         """
@@ -38,6 +28,9 @@ class StreamPromise(ConnectionErrorChecker):
             raise TypeError('"serviceConnector" parameter \
                             should be of type ServiceConnector')
 
+        self.__onOkHandler = None
+        self.__onErrorHandler = None
+
         self.__serviceConnector = serviceConnector
 
         self.__handlersLock = Lock()
@@ -51,12 +44,12 @@ class StreamPromise(ConnectionErrorChecker):
     def __worker_target(self, uri, dataDict):
         """
         Represents logic for performing requests and repsonses handling.
-        This method should be invoked in separate thread to reduce main
+        This method should be invoked in a separate thread to reduce main
         thread locks.
 
         uri -- REST URL part to perform request.
                Example: '/v2/strems/myStream'
-        dataDict -- parameters that should be passed to REST server:
+        dataDict -- parameters that are to be passed to REST server:
         {
             'message': '',       Data to transmit to REST server.
                                  Could be of type None if file field
@@ -69,7 +62,7 @@ class StreamPromise(ConnectionErrorChecker):
                                  Could be of type None if message field
                                  is presented.
             'mimetype': '',      Mimetype of a file which should be transmited.
-                                 If is omitted, application would try to
+                                 If omitted, application would try to
                                  determine mimetype itself.
             'headers': dict      Additional HTTP headers.
         }
@@ -81,12 +74,13 @@ class StreamPromise(ConnectionErrorChecker):
             raise TypeError('parameter should contain "message" \
                             or "file" field')
 
-        if 'message' in dataDict and not isinstance(dataDict['message'], str) \
-           and not isinstance(dataDict['message'], bytes):
+        if 'message' in dataDict and not isinstance(dataDict['message'], \
+                                                    (str, bytes)):
             raise TypeError('"message" field should be of type \
                             "string" or "bytes"')
 
-        if 'message' in dataDict and isinstance(dataDict['message'], str) \
+        if 'message' in dataDict and isinstance(dataDict['message'], \
+                                                (str, bytes)) \
            and 'charset' not in dataDict:
             raise TypeError('parameter should contain "charset" field \
                             in case if "message" is string')
@@ -96,7 +90,7 @@ class StreamPromise(ConnectionErrorChecker):
             raise TypeError('"headers" field should be of type dict')
 
         """
-        In case if message is of type 'bytes' it would not be rewriten
+        In case if message is of type 'bytes' it would not be rewritten
         by next if block
         """
         if 'message' in dataDict:
@@ -156,33 +150,34 @@ class StreamPromise(ConnectionErrorChecker):
                 self.__onOkHandler = self.__onErrorHandler = None
         self.__handlersLock.release()
 
-    def on_response(self, ok, error=None):
+    def on_response(self, success_handler, error_handler=None):
         """
-        Sets up handlers for successful and error responses.
+        Sets up handlers for success and error responses.
 
         Keyword arguments:
-        ok -- Handler to be called in case of successful response.
-        error -- Handler to be called in case of failed response.
-                 Could be of type None.  In that case would be the _same_
-                 as for a successful case.
+        success_handler -- Handler to be called in case of successful response.
+        error_handler -- Handler to be called in case of failed response.
+                 Could be of type None.  In that case would be _identical_
+                 to a successful response.
 
-        Handlers should be a function daclared with next signature:
+        Handlers should be a function declared with next signature:
 
         def coolErrorHandler( httpResponseObject):
             ...
             fooling around with response
             ...
         """
-        if not isinstance(ok, FunctionType) or \
-           (error is not None and not isinstance(error, FunctionType)):
+        if not isinstance(success_handler, FunctionType) or \
+           (error_handler is not None \
+            and not isinstance(error_handler, FunctionType)):
             raise TypeError('parameters should be functions')
 
         self.__handlersLock.acquire()
-        self.__onOkHandler = ok
-        if None == error:
-            self.__onErrorHandler = ok
+        self.__onOkHandler = success_handler
+        if None == error_handler:
+            self.__onErrorHandler = success_handler
         else:
-            self.__onErrorHandler = error
+            self.__onErrorHandler = error_handler
 
         self.__handlersLock.release()
         self.__response_check_target()

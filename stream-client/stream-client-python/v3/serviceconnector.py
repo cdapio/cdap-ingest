@@ -1,14 +1,8 @@
-#! /usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import requests
 from config import Config
 
 
 class NotFoundError(Exception):
-
-    __errorCode = -1
-    __errorMsg = ''
 
     def __init__(self, code, msg):
         super().__init__()

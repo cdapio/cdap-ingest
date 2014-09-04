@@ -5,12 +5,10 @@ from io import open
 
 class Config(object):
 
-    __host = u'localhost'
-    __port = 10000
-    __ssl = False
-
     def __init__(self):
-        pass
+        self.__host = u'localhost'
+        self.__port = 10000
+        self.__ssl = False
 
     @property
     def host(self):

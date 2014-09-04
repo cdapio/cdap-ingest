@@ -153,7 +153,7 @@ class StreamPromise(ConnectionErrorChecker):
         success_handler -- Handler to be called in case of successful response.
         error_handler -- Handler to be called in case of failed response.
                  Could be of type None.  In that case would be _identical_
-                 to a successful case.
+                 to a successful response.
 
         Handlers should be a function declared with next signature:
 
