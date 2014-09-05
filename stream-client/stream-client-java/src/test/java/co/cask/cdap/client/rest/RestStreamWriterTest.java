@@ -123,13 +123,12 @@ public class RestStreamWriterTest extends RestTest {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(authClient.isAuthEnabled()).thenReturn(true);
     Mockito.when(accessToken.getValue()).thenReturn(RestTest.AUTH_TOKEN);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
     streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
-
-
   }
 
   @Test
