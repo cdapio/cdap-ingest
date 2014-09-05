@@ -19,6 +19,7 @@ package co.cask.cdap.filetailer.config;
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
+import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,6 +211,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     @Override
     public StreamClient getStreamClient() {
+//      BasicAuthenticationClient
       String host = getRequiredProperty(this.key + "host");
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
 
