@@ -57,7 +57,6 @@ public class RestClient {
   private static final String HTTP_PROTOCOL = "http";
   private static final String HTTPS_PROTOCOL = "https";
   private static final String CONTINUUITY_API_KEY_HEADER_NAME = "X-Continuuity-ApiKey";
-  private static final String AUTHENTICATION_HEADER_PREFIX_BEARER = "Bearer ";
 
   private final RestClientConnectionConfig config;
   private final URI baseUrl;
@@ -82,7 +81,7 @@ public class RestClient {
    */
   public CloseableHttpResponse execute(HttpRequestBase request) throws IOException {
     if (StringUtils.isNotEmpty(config.getAuthToken())) {
-      request.setHeader(HttpHeaders.AUTHORIZATION, AUTHENTICATION_HEADER_PREFIX_BEARER + config.getAuthToken());
+      request.setHeader(HttpHeaders.AUTHORIZATION, config.getAuthTokenType() + " " + config.getAuthToken());
     }
     if (StringUtils.isNotEmpty(config.getAPIKey())) {
       request.setHeader(CONTINUUITY_API_KEY_HEADER_NAME, config.getAPIKey());

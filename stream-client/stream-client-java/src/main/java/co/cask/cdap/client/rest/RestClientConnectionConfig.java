@@ -16,6 +16,10 @@
 
 package co.cask.cdap.client.rest;
 
+import co.cask.cdap.security.authentication.client.AuthenticationClient;
+
+import java.io.IOException;
+
 /**
  * Container for REST client configuration properties.
  */
@@ -23,16 +27,16 @@ public class RestClientConnectionConfig {
 
   private final String host;
   private final int port;
-  private final String authToken;
+  private final AuthenticationClient authClient;
   private final String apiKey;
   private final boolean ssl;
   private final String version;
 
-  public RestClientConnectionConfig(String host, int port, String authToken, String apiKey,
+  public RestClientConnectionConfig(String host, int port, AuthenticationClient authClient, String apiKey,
                                     boolean ssl, String version) {
     this.host = host;
     this.port = port;
-    this.authToken = authToken;
+    this.authClient = authClient;
     this.apiKey = apiKey;
     this.ssl = ssl;
     this.version = version;
@@ -58,7 +62,11 @@ public class RestClientConnectionConfig {
     return port;
   }
 
-  public String getAuthToken() {
-    return authToken;
+  public String getAuthTokenType() throws IOException {
+    return authClient.getAccessToken().getTokenType();
+  }
+
+  public String getAuthToken() throws IOException {
+    return authClient.getAccessToken().getValue();
   }
 }
