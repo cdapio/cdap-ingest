@@ -17,6 +17,7 @@
 package co.cask.cdap.security.authentication.client;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -26,8 +27,8 @@ public interface AuthenticationClient {
   /**
    * Configures the authentication client and can be called only once for every AuthenticationClient object
    *
-   * @param properties the configuration for authentication client which includes connection information and
-   *                   credentials
+   * @param properties the configuration for authentication client which includes credentials and some additional
+   *                   properties, if needed
    */
   void configure(Properties properties);
 
@@ -53,4 +54,20 @@ public interface AuthenticationClient {
    * Invalidate the cached access token.
    */
   void invalidateToken();
+
+  /**
+   * Configures connection info for the gateway server.
+   *
+   * @param host the gateway server host
+   * @param port the gateway server port
+   * @param ssl true, if SSL is enabled in the gateway server
+   */
+  void setConnectionInfo(String host, int port, boolean ssl);
+
+  /**
+   * Provides credentials which are supported by the authentication server.
+   *
+   * @return list of {@link Credential} objects for authentication
+   */
+  List<Credential> getRequiredCredentials();
 }

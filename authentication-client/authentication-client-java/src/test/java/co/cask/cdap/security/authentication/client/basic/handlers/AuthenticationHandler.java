@@ -35,10 +35,12 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 
 public class AuthenticationHandler implements HttpRequestHandler {
+  private int requestsCounter = 0;
+
   @Override
   public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
     throws HttpException, IOException {
-
+    requestsCounter++;
     RequestLine requestLine = httpRequest.getRequestLine();
     String method = requestLine.getMethod();
     int statusCode;
@@ -62,6 +64,19 @@ public class AuthenticationHandler implements HttpRequestHandler {
           StringEntity entity = new StringEntity(createEntityBody(StringUtils.EMPTY,
                                                                   BasicAuthenticationClientTest.TOKEN_TYPE,
                                                                   BasicAuthenticationClientTest.TOKEN_LIFE_TIME));
+          entity.setContentType(MediaType.APPLICATION_JSON);
+          httpResponse.setEntity(entity);
+          statusCode = HttpStatus.SC_OK;
+        } else if (BasicAuthenticationClientTest.EXPIRED_TOKEN_USERNAME.equals(username)) {
+          StringEntity entity;
+          if (requestsCounter == 1) {
+            entity = new StringEntity(createEntityBody(BasicAuthenticationClientTest.TOKEN,
+                                                       BasicAuthenticationClientTest.TOKEN_TYPE, 5L));
+          } else {
+            entity = new StringEntity(createEntityBody(BasicAuthenticationClientTest.NEW_TOKEN,
+                                                       BasicAuthenticationClientTest.TOKEN_TYPE,
+                                                       BasicAuthenticationClientTest.TOKEN_LIFE_TIME));
+          }
           entity.setContentType(MediaType.APPLICATION_JSON);
           httpResponse.setEntity(entity);
           statusCode = HttpStatus.SC_OK;
