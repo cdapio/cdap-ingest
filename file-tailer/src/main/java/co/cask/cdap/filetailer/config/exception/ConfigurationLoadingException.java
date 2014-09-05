@@ -19,13 +19,13 @@ package co.cask.cdap.filetailer.config.exception;
 import java.io.IOException;
 
 /**
- * ConfigurationLoadingException is exception that throws when ConfigurationLoader error occurred.
- * For example, configuration file does not exists.
+ * Thrown when an error occurs loading the configuration file.
+ * For example, if the configuration file does not exist.
  */
 public class ConfigurationLoadingException extends IOException {
 
   /**
-   * Constructs an new ConfigurationLoadingException with the specified detail message.
+   * Constructs a new ConfigurationLoadingException with a detailed message.
    *
    * @param message the detail message
    */

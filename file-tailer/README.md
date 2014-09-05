@@ -49,7 +49,7 @@ it will send it to a Stream via the REST API.
  To check this, you can use the more command with the file-tailer user:
  
  ``` 
- sudo -u file-tailer more path_to_target_file
+    sudo -u file-tailer more path_to_target_file
  ```
     
  To start the daemon, execute the command:
@@ -110,6 +110,35 @@ it will send it to a Stream via the REST API.
  ```
  
 
+## Authentication Client
+
+ Once File Tailer installed, configure the Authentication Client by editing the file:
+ 
+ ```
+    /etc/file-tailer/conf/auth-client.properties
+ ```
+ 
+ Description of Authentication Client configuration parameters:
+ 
+ - pipes.<pipe-name>.sink.auth_client - classpath of authentication client class
+ - pipes.<pipe-name>.sink.auth_client_properties - path to authentication client properties file
+ 
+## Authentication Client Example Configuration
+ 
+ ```
+ 
+     # User name
+     security.auth.client.username=admin
+     # User password
+     security.auth.client.password=realtime
+     # Host name that is used by authentication client
+     security.auth.client.gateway.hostname=localhost
+     # Host port name that is used by authentication client
+     security.auth.client.gateway.port=10000
+     # SSL mode [true|false]
+     security.auth.client.gateway.ssl.enabled=false
+ ```
+ 
 ## Additional Notes
  
  Description of configuration parameters:

@@ -46,10 +46,10 @@ public class BaseTailerTest {
   public void prepare() throws IOException {
     TailerLogUtils.createTestDirIfNeed();
     TailerLogUtils.clearTestDir();
-//    TailerLogUtils.clearStateDir();
   }
-@After
-public void clean() throws IOException {
+  
+  @After
+  public void clean() throws IOException {
     TailerLogUtils.deleteTestDir();
   }
 
