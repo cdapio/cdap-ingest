@@ -26,7 +26,6 @@ import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -53,10 +52,8 @@ public class PollingServiceManager {
 
   /**
    * Observers setup
-   *
-   * @throws IOException if can not create client stream
    */
-  public void initObservers() throws IOException {
+  public void initObservers() {
     List<ObserverConfiguration> observerConfList = configuration.getObserverConfiguration();
     for (ObserverConfiguration observerConf : observerConfList) {
       monitor.startDirMonitor(new File(observerConf.getPipeConf().getSourceConfiguration().getWorkDir()),
@@ -68,7 +65,7 @@ public class PollingServiceManager {
    * Return DropZone configuration
    *
    * @return DropZone configuration
-   * @throws ConfigurationLoadingException configuration load failed
+   * @throws ConfigurationLoadingException if configuration load failed
    */
   private FileDropZoneConfiguration getConfiguration() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
