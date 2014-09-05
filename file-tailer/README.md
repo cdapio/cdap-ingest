@@ -69,8 +69,8 @@ As soon as a new record has been appended to the end of a file that the daemon i
   
 ## Example Configuration
  
- Following configuration file will force file-tailer application to monitor two applications.
- Logs for each application will be sent to separate streams.
+ This configuration file will have the file-tailer` application monitor two different directories for target log files.
+ Logs from each directory will be sent to two separate streams.
  
  ```
  
@@ -78,31 +78,31 @@ As soon as a new record has been appended to the end of a file that the daemon i
      pipes=app1pipe,app2pipe
      # General pipe properties
      
-     # pipe source properties
+     # Pipe 1 source properties
      # Working directory (where to monitor files)
      pipes.app1pipe.source.work_dir=/var/log/app1
      # Name of log file
      pipes.app1pipe.source.file_name=app1.log
      
-     # pipe sink properties
+     # Pipe 1 sink properties
      # Name of the stream
      pipes.app1pipe.sink.stream_name=app1Stream
      # Host name that is used by stream client
-     pipes.app1pipe.sink.host=reactor_host
+     pipes.app1pipe.sink.host=cdap_host
      # Host port that is used by stream client
      pipes.app1pipe.sink.port=10000
      
-     # pipe source properties
+     # Pipe 2 source properties
      # Working directory (where to monitor files)
      pipes.app2pipe.source.work_dir=/var/log/app2
      # Name of log file
      pipes.app2pipe.source.file_name=app2.log
       
-     # pipe sink properties
+     # Pipe 2 sink properties
      # Name of the stream
      pipes.app2pipe.sink.stream_name=app1Stream
      # Host name that is used by stream client
-     pipes.app2pipe.sink.host=reactor_host
+     pipes.app2pipe.sink.host=cdap_host
      # Host port that is used by stream client
      pipes.app2pipe.sink.port=10000
 

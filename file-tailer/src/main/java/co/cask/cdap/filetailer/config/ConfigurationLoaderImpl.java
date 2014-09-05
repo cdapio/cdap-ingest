@@ -41,7 +41,6 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
     try {
       is = new FileInputStream(file);
       properties.load(is);
-      is.close();
       LOG.debug("Loader successfully initialized with file: {}", file.getAbsolutePath());
     } catch (IOException e) {
       LOG.error("Can not load properties: {}", e.getMessage());
