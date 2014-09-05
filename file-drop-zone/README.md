@@ -13,7 +13,7 @@ File DropZone is to support user easily perform bulk ingestion using local files
 
 ## Usage
 
- In order to install File DropZone one should execute following command:
+ To install File DropZone, execute one of these commands:
  
  - on Debian/Ubuntu systems:
  
@@ -28,14 +28,13 @@ File DropZone is to support user easily perform bulk ingestion using local files
  ```
  
 
- Once installed, 
- To configure the daemon, edit following file:
+ Once installed, configure the daemon by editing the file:
  
  ```
     /etc/file-drop-zone/conf/file-drop-zone.properties
  ```
  
- At least following parameters should be specified:
+ These parameters must be specified:
 
   - polling_interval
   - observers
@@ -45,21 +44,20 @@ File DropZone is to support user easily perform bulk ingestion using local files
   - pipes.pipe1.sink.host
   - pipes.pipe1.sink.port
 
- Once configured, 
- To start the daemon, execute following command:
+ To start the daemon, execute the command:
  
  ```
     sudo service file-drop-zone start
  ```
  
- To stop the daemon, execute following command:
+ To stop the daemon, execute the command:
  
  ```
     sudo service file-drop-zone stop
  ``` 
  
- File Drop Zone stores logs in /var/log/file-drop-zone folder.
- File Drop Zone stores pid, states and statistics in /var/run/file-drop-zone folder.
+ File DropZone stores log files in the `/var/log/file-drop-zone directory.
+ PID, states and statistics are stored in the /var/run/file-drop-zone directory
  
   
 ## Example Configuration
