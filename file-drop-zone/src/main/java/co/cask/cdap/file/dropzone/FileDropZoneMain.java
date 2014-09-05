@@ -49,7 +49,7 @@ public class FileDropZoneMain {
       pollingServiceManager.initManager();
       pollingServiceManager.initObservers();
     } catch (IOException e) {
-      LOG.error("Failed to initialize observers");
+      LOG.error("Error during manager setup: {}", e.getMessage());
       return;
     }
     LOG.info("Starting monitor");
