@@ -150,7 +150,7 @@ public abstract class AbstractAuthenticationClient implements AuthenticationClie
       if (uriList != null && !uriList.isEmpty()) {
         result = uriList.get(RANDOM.nextInt(uriList.size()));
       } else {
-        throw new IOException("Authenticated url is not available from the gateway server.");
+        throw new IOException("Authentication servers list is empty.");
       }
     }
     return result;
