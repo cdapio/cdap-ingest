@@ -40,7 +40,7 @@ class StreamPromise(ConnectionErrorChecker):
 
     def __worker_target(self, uri, dataDict):
         u"""
-        Represents logic for performing requests and repsonses handling.
+        Represents logic for performing requests and repsonse handling.
         This method should be invoked in a separate thread to reduce main
         thread locks.
 

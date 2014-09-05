@@ -37,14 +37,14 @@ class StreamWriter:
         Returns:
         StreamPromise instance for further handling
         """
-        dataForPromise = {
+        promiseData = {
             'message': message,
             'charset': charset,
             'headers': headers
         }
 
         return StreamPromise(self.__serviceConnector, self.__serviceUri,
-                             dataForPromise)
+                             promiseData)
 
     def send(self, file, mimetype=None):
         """
