@@ -17,7 +17,7 @@
 package co.cask.cdap.security.authentication.client;
 
 /**
- * This class contains all info about credential supported by the authentication server.
+ * Represents a credential required for authentication.
  */
 public class Credential {
   private final String name;

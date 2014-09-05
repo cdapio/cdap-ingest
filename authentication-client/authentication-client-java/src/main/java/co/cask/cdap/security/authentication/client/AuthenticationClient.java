@@ -56,7 +56,7 @@ public interface AuthenticationClient {
   void invalidateToken();
 
   /**
-   * Configures connection info for the gateway server.
+   * Configures gateway server information.
    *
    * @param host the gateway server host
    * @param port the gateway server port
@@ -65,7 +65,9 @@ public interface AuthenticationClient {
   void setConnectionInfo(String host, int port, boolean ssl);
 
   /**
-   * Provides credentials which are supported by the authentication server.
+   * Provides credentials which are required by the authentication provider on authentication server.
+   * Interactive clients can use this list to obtain credentials from the user, and then run
+   * {@link AuthenticationClient#configure(Properties)}.
    *
    * @return list of {@link Credential} objects for authentication
    */

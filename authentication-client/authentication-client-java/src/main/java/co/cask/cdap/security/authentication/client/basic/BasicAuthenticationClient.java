@@ -20,33 +20,25 @@ import co.cask.cdap.security.authentication.client.AbstractAuthenticationClient;
 import co.cask.cdap.security.authentication.client.AccessToken;
 import co.cask.cdap.security.authentication.client.Credential;
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
- * The basic implementation of the non-interactive authentication client to fetch the access token from the
- * authentication server through the REST API with username and password.
+ * Authentication client that supports "Basic access authentication" using username and password.
  */
 public class BasicAuthenticationClient extends AbstractAuthenticationClient {
   private static final Logger LOG = LoggerFactory.getLogger(BasicAuthenticationClient.class);
 
   private static final String AUTHENTICATION_HEADER_PREFIX_BASIC = "Basic ";
-  private static final String ACCESS_TOKEN_KEY = "access_token";
-  private static final String EXPIRES_IN_KEY = "expires_in";
-  private static final String TOKEN_TYPE_KEY = "token_type";
   private static final String USERNAME_PROP_NAME = "security.auth.client.username";
   private static final String PASSWORD_PROP_NAME = "security.auth.client.password";
 
@@ -59,8 +51,8 @@ public class BasicAuthenticationClient extends AbstractAuthenticationClient {
    */
   public BasicAuthenticationClient() {
     super();
-    credentials = Arrays.asList(new Credential(USERNAME_PROP_NAME, "Username for basic authentication.", false),
-                                new Credential(PASSWORD_PROP_NAME, "Password for basic authentication.", true));
+    credentials = ImmutableList.of(new Credential(USERNAME_PROP_NAME, "Username for basic authentication.", false),
+                                   new Credential(PASSWORD_PROP_NAME, "Password for basic authentication.", true));
   }
 
   @Override
@@ -89,26 +81,13 @@ public class BasicAuthenticationClient extends AbstractAuthenticationClient {
       throw new IllegalStateException("Base authentication client is not configured!");
     }
 
-    LOG.debug("Authentication is enabled in the gateway server. Authentication URI {}.", authUrl);
-    HttpGet getRequest = new HttpGet(authUrl);
+    LOG.debug("Authentication is enabled in the gateway server. Authentication URI {}.", getAuthUrl());
+    HttpGet getRequest = new HttpGet(getAuthUrl());
 
     String auth = Base64.encodeBase64String(String.format("%s:%s", username, password).getBytes());
     auth = auth.replaceAll("(\r|\n)", StringUtils.EMPTY);
     getRequest.addHeader(HttpHeaders.AUTHORIZATION, AUTHENTICATION_HEADER_PREFIX_BASIC + auth);
 
-    HttpResponse httpResponse = httpClient.execute(getRequest);
-    RestClientUtils.verifyResponseCode(httpResponse);
-
-    Map<String, String> responseMap = GSON.fromJson(EntityUtils.toString(httpResponse.getEntity()),
-                                                    new TypeToken<Map<String, String>>() { }.getType());
-    String tokenValue = responseMap.get(ACCESS_TOKEN_KEY);
-    String tokenType = responseMap.get(TOKEN_TYPE_KEY);
-    String expiresInStr = responseMap.get(EXPIRES_IN_KEY);
-
-    if (StringUtils.isEmpty(tokenValue) || StringUtils.isEmpty(tokenType) || StringUtils.isEmpty(expiresInStr)) {
-      throw new IOException("Unexpected response was received from the authentication server.");
-    }
-
-    return new AccessToken(tokenValue, Long.valueOf(expiresInStr), tokenType);
+    return execute(getRequest);
   }
 }

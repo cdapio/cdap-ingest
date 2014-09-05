@@ -18,8 +18,10 @@ package co.cask.cdap.security.authentication.client.basic;
 
 import co.cask.cdap.security.authentication.client.AccessToken;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
+import co.cask.cdap.security.authentication.client.basic.handlers.AuthDisabledHandler;
 import co.cask.cdap.security.authentication.client.basic.handlers.AuthenticationHandler;
 import co.cask.cdap.security.authentication.client.basic.handlers.BaseHandler;
+import co.cask.cdap.security.authentication.client.basic.handlers.EmptyUrlListHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.localserver.LocalTestServer;
 import org.junit.After;
@@ -31,6 +33,7 @@ import java.util.Properties;
 import javax.ws.rs.NotAuthorizedException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -144,6 +147,20 @@ public class BasicAuthenticationClientTest {
   public void testIsAuthEnabled() throws IOException {
     authenticationClient.configure(testProperties);
     assertTrue(authenticationClient.isAuthEnabled());
+  }
+
+  @Test(expected = IOException.class)
+  public void testEmptyUrlListIsAuthEnabled() throws IOException {
+    localTestServer.register("*", new EmptyUrlListHandler());
+    authenticationClient.configure(testProperties);
+    assertTrue(authenticationClient.isAuthEnabled());
+  }
+
+  @Test
+  public void testAuthDisabledIsAuthEnabled() throws IOException {
+    localTestServer.register("*", new AuthDisabledHandler());
+    authenticationClient.configure(testProperties);
+    assertFalse(authenticationClient.isAuthEnabled());
   }
 
   @After

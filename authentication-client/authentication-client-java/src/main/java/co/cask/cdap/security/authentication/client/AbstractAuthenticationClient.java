@@ -17,6 +17,7 @@
 
 package co.cask.cdap.security.authentication.client;
 
+import co.cask.cdap.security.authentication.client.basic.RestClientUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +25,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -38,7 +40,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The Abstract authentication client implementation with common methods.
+ * Abstract authentication client implementation with common methods.
  */
 public abstract class AbstractAuthenticationClient implements AuthenticationClient {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractAuthenticationClient.class);
@@ -47,15 +49,27 @@ public abstract class AbstractAuthenticationClient implements AuthenticationClie
   private static final String AUTH_URI_KEY = "auth_uri";
   private static final String HTTP_PROTOCOL = "http";
   private static final String HTTPS_PROTOCOL = "https";
+  private static final String ACCESS_TOKEN_KEY = "access_token";
+  private static final String EXPIRES_IN_KEY = "expires_in";
+  private static final String TOKEN_TYPE_KEY = "token_type";
   private static final long SPARE_TIME_IN_MILLIS = 5000;
-  protected static final Gson GSON = new Gson();
+  private static final Gson GSON = new Gson();
 
   private long expirationTime;
-  protected AccessToken accessToken;
-  protected URI baseUrl;
-  protected URI authUrl;
-  protected Boolean authEnabled;
-  protected final HttpClient httpClient;
+  private AccessToken accessToken;
+  private URI baseUrl;
+  private URI authUrl;
+  private Boolean authEnabled;
+  private final HttpClient httpClient;
+
+  /**
+   * Fetches the access token from the authentication server.
+   *
+   * @return {@link AccessToken} object containing the access token
+   * @throws IOException in case of a problem or the connection was aborted or if the access token is not received
+   * successfully form the authentication server
+   */
+  protected abstract AccessToken fetchAccessToken() throws IOException;
 
   /**
    * Constructs new instance.
@@ -105,20 +119,11 @@ public abstract class AbstractAuthenticationClient implements AuthenticationClie
   }
 
   /**
-   * Fetches the access token from the authentication server.
+   * Checks if the access token has expired.
    *
-   * @return {@link AccessToken} object containing the access token
-   * @throws IOException in case of a problem or the connection was aborted or if the access token is not received
-   * successfully form the authentication server
+   * @return true, if the access token has expired
    */
-  protected abstract AccessToken fetchAccessToken() throws IOException;
-
-  /**
-   * Checks is the access token already expired.
-   *
-   * @return true, if the access token already expired
-   */
-  protected boolean isTokenExpired() {
+  private boolean isTokenExpired() {
     return expirationTime < System.currentTimeMillis();
   }
 
@@ -127,9 +132,9 @@ public abstract class AbstractAuthenticationClient implements AuthenticationClie
    * otherwise, empty string will be returned.
    *
    * @return string value of the authentication server URL
-   * @throws IOException IOException in case of a problem or the connection was aborted
+   * @throws IOException IOException in case of a problem or the connection was aborted or if url list is empty
    */
-  protected String fetchAuthURL() throws IOException {
+  private String fetchAuthURL() throws IOException {
     if (baseUrl == null) {
       throw new IllegalStateException("Base authentication client is not configured!");
     }
@@ -144,8 +149,42 @@ public abstract class AbstractAuthenticationClient implements AuthenticationClie
       List<String> uriList = responseMap.get(AUTH_URI_KEY);
       if (uriList != null && !uriList.isEmpty()) {
         result = uriList.get(RANDOM.nextInt(uriList.size()));
+      } else {
+        throw new IOException("Authenticated url is not available from the gateway server.");
       }
     }
     return result;
+  }
+
+  /**
+   * Executes fetch access token request.
+   *
+   * @param request the http request to fetch access token from the authentication server
+   * @return  {@link AccessToken} object containing the access token
+   * @throws IOException IOException in case of a problem or the connection was aborted or if the access token is not
+   * received successfully from the authentication server
+   */
+  protected AccessToken execute(HttpRequestBase request) throws IOException {
+    HttpResponse httpResponse = httpClient.execute(request);
+    RestClientUtils.verifyResponseCode(httpResponse);
+
+    Map<String, String> responseMap = GSON.fromJson(EntityUtils.toString(httpResponse.getEntity()),
+                                                    new TypeToken<Map<String, String>>() { }.getType());
+    String tokenValue = responseMap.get(ACCESS_TOKEN_KEY);
+    String tokenType = responseMap.get(TOKEN_TYPE_KEY);
+    String expiresInStr = responseMap.get(EXPIRES_IN_KEY);
+
+    if (StringUtils.isEmpty(tokenValue) || StringUtils.isEmpty(tokenType) || StringUtils.isEmpty(expiresInStr)) {
+      throw new IOException("Unexpected response was received from the authentication server.");
+    }
+
+    return new AccessToken(tokenValue, Long.valueOf(expiresInStr), tokenType);
+  }
+
+  /**
+   * @return the authentication server URL or empty value if authentication is not enabled in the gateway server
+   */
+  protected URI getAuthUrl() {
+    return authUrl;
   }
 }
