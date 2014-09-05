@@ -19,11 +19,12 @@ package co.cask.cdap.filetailer.config;
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
-import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
+import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
+import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
+import java.io.File;
 import java.util.Properties;
 
 /**
@@ -200,6 +201,11 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
 
+    private static final String DEFAULT_AUTH_CLIENT =
+      "co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient";
+
+    private static final String DEFAULT_AUTH_CLIENT_PROPERTIES = "/etc/file-tailer/conf/auth-client.properties";
+
     public SinkConfigurationImpl(String key) {
       this.key = "pipes." + key + ".sink.";
     }
@@ -211,7 +217,6 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     @Override
     public StreamClient getStreamClient() {
-//      BasicAuthenticationClient
       String host = getRequiredProperty(this.key + "host");
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
 
@@ -219,9 +224,19 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
       builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
 
-      String authToken = getProperty(this.key + "authToken");
-      if (authToken != null && !authToken.equals("")) {
-        builder.authToken(authToken);
+      String authClientClassPath = getProperty(this.key + "auth_client", DEFAULT_AUTH_CLIENT);
+      String authClientPropertiesPath = getProperty(this.key + "auth_client_properties",
+                                                    DEFAULT_AUTH_CLIENT_PROPERTIES);
+      try {
+        AuthenticationClient authClient =
+          (AuthenticationClient) Class.forName(authClientClassPath).getConstructor().newInstance();
+        authClient.configure(new ConfigurationLoaderImpl().load(new File(authClientPropertiesPath)).getProperties());
+        builder.authClient(authClient);
+      } catch (ReflectiveOperationException e) {
+        LOG.error("Can not resolve class {}: {}", authClientClassPath, e.getMessage());
+      } catch (ConfigurationLoadingException e) {
+        LOG.error("Can not load Authentication Client properties file {}: {}",
+                  authClientPropertiesPath, e.getMessage());
       }
 
       String apiKey = getProperty(this.key + "apiKey");

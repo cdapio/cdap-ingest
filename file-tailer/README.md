@@ -2,12 +2,13 @@ File-Tailer
 ==================
 
 File Tailer is a daemon process that performs tailing of sets of local files. 
-As soon as a new record has been appended to the end of a file that the daemon is monitoring, it will send it to a Stream via the REST API.
+As soon as a new record has been appended to the end of a file that the daemon is monitoring, 
+it will send it to a Stream via the REST API.
 
 ## Features
 
  - distributed as debian and rpm packages;
- - loads properties from a configuration file [unless it is really files];
+ - loads properties from a configuration file;
  - supports rotation of log files;
  - persists state and is able to resume from first unsent record; and
  - dumps statistics info.
@@ -63,13 +64,13 @@ As soon as a new record has been appended to the end of a file that the daemon i
     sudo service file-tailer stop
  ``` 
  
- File Tailer stores log files in the `/var/log/file-tailer directory.
+ File Tailer stores log files in the /var/log/file-tailer directory.
  PID, states and statistics are stored in the /var/run/file-tailer directory.
  
   
 ## Example Configuration
  
- This configuration file will have the file-tailer` application monitor two different directories for target log files.
+ This configuration file will have the file-tailer application monitor two different directories for target log files.
  Logs from each directory will be sent to two separate streams.
  
  ```
@@ -131,7 +132,6 @@ As soon as a new record has been appended to the end of a file that the daemon i
  - pipes.<pipe-name>.sink.host - server host
  - pipes.<pipe-name>.sink.port - server port
  - pipes.<pipe-name>.sink.ssl - Secure Socket Layer mode [true|false] (default false)
- - pipes.<pipe-name>.sink.authToken - server security token
  - pipes.<pipe-name>.sink.apiKey - SSL security key
  - pipes.<pipe-name>.sink.writerPoolSize - number of threads with which Stream Client sends events (default 10)
  - pipes.<pipe-name>.sink.version - CDAP server version (default "v2")

@@ -38,6 +38,11 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
+  public Properties getProperties() {
+    return properties;
+  }
+
+  @Override
   public List<PipeConfiguration> getPipesConfiguration() {
     String[] pipes = getRequiredProperty("pipes").split(",");
     List<PipeConfiguration> pipesConfiguration = new ArrayList<PipeConfiguration>(pipes.length);

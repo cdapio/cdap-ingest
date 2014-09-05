@@ -21,7 +21,7 @@ import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.tailer.LogTailer;
 
 /**
- * Flow class contain sink and tailer instances for one flow
+ * Contains the sink and tailer instances for one Pipe.
  */
 public class Pipe {
 

@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * PipeManager creates and manage pipes
+ * Creates and manage pipes.
  */
 public class PipeManager {
 
@@ -75,8 +75,9 @@ public class PipeManager {
 
   /**
    * Get pipes configuration
-   * @return List of the  Pipes configuration read from configuration file
-   * @throws ConfigurationLoadingException if can not create client stream
+   *
+   * @return the pipes configuration read from the configuration file
+   * @throws ConfigurationLoadingException if can not load configuration
    */
   private List<PipeConfiguration> getPipeConfigList(File confFile) throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
@@ -85,8 +86,9 @@ public class PipeManager {
   }
 
   /**
-   * create StreamWriter for pipe
-   * @return  streamWriter
+   * Create StreamWriter for pipe
+   *
+   * @return the pipe's streamWriter
    * @throws IOException streamWriter creation failed
    */
   private StreamWriter getStreamWriterForPipe(PipeConfiguration pipeConf) throws IOException {
@@ -110,7 +112,7 @@ public class PipeManager {
   }
 
   /**
-   * Start all pipes
+   * Stop all pipes.
    */
   public void stopPipes() {
     for (Pipe pipe : pipeList) {
