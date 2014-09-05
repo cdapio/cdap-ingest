@@ -219,10 +219,9 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     public StreamClient getStreamClient() {
       String host = getRequiredProperty(this.key + "host");
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
+      Boolean ssl = Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL));
 
-      RestStreamClient.Builder builder = RestStreamClient.builder(host, port);
-
-      builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
+      RestStreamClient.Builder builder = RestStreamClient.builder(host, port).ssl(ssl);
 
       String authClientClassPath = getProperty(this.key + "auth_client", DEFAULT_AUTH_CLIENT);
       String authClientPropertiesPath = getProperty(this.key + "auth_client_properties",
@@ -230,6 +229,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
       try {
         AuthenticationClient authClient =
           (AuthenticationClient) Class.forName(authClientClassPath).getConstructor().newInstance();
+        authClient.setConnectionInfo(host, port, ssl);
         authClient.configure(new ConfigurationLoaderImpl().load(new File(authClientPropertiesPath)).getProperties());
         builder.authClient(authClient);
       } catch (ReflectiveOperationException e) {
