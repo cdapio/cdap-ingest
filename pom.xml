@@ -45,6 +45,41 @@
     <log4j.over.slf4j.version>1.7.7</log4j.over.slf4j.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>continuuity-public</id>
+      <url>https://repository.continuuity.com/content/repositories/public</url>
+    </repository>
+    <repository>
+      <id>smartifacts</id>
+      <url>https://repository.continuuity.com/content/repositories/smartifacts</url>
+    </repository>
+    <repository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>continuuity</id>
+      <url>https://repository.continuuity.com/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>nexus</id>
+      <name>continuuity-internal</name>
+      <url>https://repository.continuuity.com/service/local/staging/deploy/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>continuuity</id>
+      <url>https://repository.continuuity.com/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <site>
+      <id>continuuity</id>
+      <url>http://continuuity.com</url>
+    </site>
+  </distributionManagement>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
