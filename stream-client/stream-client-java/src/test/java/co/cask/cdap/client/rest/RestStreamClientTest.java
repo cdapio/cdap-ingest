@@ -18,10 +18,13 @@ package co.cask.cdap.client.rest;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.security.authentication.client.AccessToken;
+import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import javax.ws.rs.BadRequestException;
@@ -45,7 +48,12 @@ public class RestStreamClientTest extends RestTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(null);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
   }
 
   @Test
@@ -71,19 +79,34 @@ public class RestStreamClientTest extends RestTest {
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedEmptyTokenGetTTL() throws IOException, NotFoundException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.getTTL(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedUnknownTokenGetTTL() throws IOException, NotFoundException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn("test");
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.getTTL(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test
   public void testSuccessAuthGetTTL() throws NotFoundException, IOException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(AUTH_TOKEN).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(AUTH_TOKEN);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     long ttl = streamClient.getTTL(TestUtils.SUCCESS_STREAM_NAME);
     assertTrue(ttl == STREAM_TTL);
   }
@@ -135,19 +158,34 @@ public class RestStreamClientTest extends RestTest {
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedEmptyTokenSetTTL() throws IOException, NotFoundException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.setTTL(TestUtils.AUTH_STREAM_NAME, STREAM_TTL);
   }
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedUnknownTokenSetTTL() throws IOException, NotFoundException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn("test");
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.setTTL(TestUtils.AUTH_STREAM_NAME, STREAM_TTL);
   }
 
   @Test
   public void testSuccessAuthSetTTL() throws NotFoundException, IOException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(AUTH_TOKEN).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(AUTH_TOKEN);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.setTTL(TestUtils.SUCCESS_STREAM_NAME, STREAM_TTL);
   }
 
@@ -198,19 +236,34 @@ public class RestStreamClientTest extends RestTest {
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedEmptyTokenTruncate() throws IOException, NotFoundException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.truncate(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedUnknownTokenTruncate() throws IOException, NotFoundException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn("test");
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.truncate(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test
   public void testSuccessAuthTruncate() throws NotFoundException, IOException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(AUTH_TOKEN).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(AUTH_TOKEN);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.truncate(TestUtils.SUCCESS_STREAM_NAME);
   }
 
@@ -256,19 +309,34 @@ public class RestStreamClientTest extends RestTest {
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedEmptyTokenCreate() throws IOException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.create(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test(expected = NotAuthorizedException.class)
   public void testNotAuthorizedUnknownTokenCreate() throws IOException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn("test");
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.create(TestUtils.AUTH_STREAM_NAME);
   }
 
   @Test
   public void testSuccessAuthCreate() throws IOException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(AUTH_TOKEN).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(AUTH_TOKEN);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamClient.create(TestUtils.SUCCESS_STREAM_NAME);
   }
 
