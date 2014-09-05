@@ -117,6 +117,7 @@ public class StreamSink extends AbstractSink implements Configurable {
       } catch (IOException e) {
         LOG.error("Error during reopening client by name: {} for host: {}, port: {}. Reason: {} ",
                   new Object[]{streamName, host, port, e.getMessage(), e});
+        throw new IOException(e);
       }
     }
   }
