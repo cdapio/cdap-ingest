@@ -1,4 +1,4 @@
-CDAP Sink
+CDAP FLUME
 ==================
 
 The CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write events received from a source.
@@ -36,10 +36,6 @@ The CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write eve
  Server security token:
  ```
  a1.sinks.sink1.authToken = ""
- ```
- SSL security key:
- ```
- a1.sinks.sink1.apiKey = ""
  ```
  CDAP Gateway server version:
  ```

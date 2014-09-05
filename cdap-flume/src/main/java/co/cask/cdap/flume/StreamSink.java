@@ -41,8 +41,7 @@ import java.nio.ByteBuffer;
  */
 public class StreamSink extends AbstractSink implements Configurable {
 
-  private static final Logger LOG = LoggerFactory.getLogger
-    (StreamSink.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StreamSink.class);
 
   private static final int DEFAULT_WRITER_POOL_SIZE = 10;
 
@@ -60,6 +59,7 @@ public class StreamSink extends AbstractSink implements Configurable {
   private String version;
   private String streamName;
   private StreamWriter writer;
+  private StreamClient streamClient;
 
   @Override
   public void configure(Context context) {
@@ -95,58 +95,85 @@ public class StreamSink extends AbstractSink implements Configurable {
       if (t instanceof Error) {
         throw (Error) t;
       } else if (t instanceof ChannelException) {
-        LOG.error("RPC Sink {}: Unable to get event from channel {} ", getName(), channel.getName());
+        LOG.error("Stream Sink {}: Unable to get event from channel {} ", getName(), channel.getName());
         status = Status.BACKOFF;
       } else {
-        destroyClientConnection();
+        closeClientQuietly();
+        closeWriterQuietly();
         throw new EventDeliveryException("Failed to send events", t);
       }
     } finally {
       transaction.close();
     }
-
     return status;
   }
 
-  private void destroyClientConnection() {
+
+  private void tryReopenClientConnection() throws IOException {
+    if (writer == null) {
+      LOG.debug("Trying to reopen stream writer {} ", streamName);
+      try {
+        createStreamClient();
+      } catch (IOException e) {
+        LOG.error("Error during reopening client by name: {} for host: {}, port: {}. Reason: {} ",
+                  new Object[]{streamName, host, port, e.getMessage(), e});
+      }
+    }
+  }
+
+  private void createStreamClient() throws IOException {
+
+    if (streamClient == null) {
+      RestStreamClient.Builder builder = RestStreamClient.builder(host, port);
+
+      builder.ssl(sslEnabled);
+
+      if (authToken != null && !authToken.equals("")) {
+        builder.authToken(authToken);
+      }
+
+      builder.writerPoolSize(writerPoolSize);
+
+      builder.version(version);
+      try {
+        streamClient = builder.build();
+        streamClient.create(streamName);
+
+      } catch (IOException e) {
+        closeClientQuietly();
+        throw new IOException("Can not create client stream by name: " + streamName, e);
+      }
+    }
+    try {
+      if (writer == null) {
+        writer = streamClient.createWriter(streamName);
+      }
+    } catch (IOException e) {
+      closeWriterQuietly();
+      throw new IOException("Can not create stream writer by name: " + streamName, e);
+    }
+  }
+
+  private void closeClientQuietly() {
+    if (streamClient != null) {
+      try {
+        streamClient.close();
+      } catch (IOException e) {
+        LOG.error("Error closing stream client. {}", e.getMessage(), e);
+      }
+      streamClient = null;
+    }
+  }
+
+  private void closeWriterQuietly() {
     try {
       if (writer != null) {
         writer.close();
       }
     } catch (IOException e) {
-      LOG.error("Error closing writer: {}", e.getMessage());
+      LOG.error("Error closing writer. {}", e.getMessage(), e);
     }
     writer = null;
-  }
-
-  private void tryReopenClientConnection() throws URISyntaxException, IOException {
-    if (writer == null) {
-      LOG.debug("Trying to reopen stream writer ");
-      createStreamClient();
-    }
-  }
-
-  private void createStreamClient() throws URISyntaxException, IOException {
-
-    RestStreamClient.Builder builder = RestStreamClient.builder(host, port);
-
-    builder.ssl(sslEnabled);
-
-    if (authToken != null && !authToken.equals("")) {
-      builder.authToken(authToken);
-    }
-
-    builder.writerPoolSize(writerPoolSize);
-
-    builder.version(version);
-
-    try {
-      StreamClient client = builder.build();
-      client.create(streamName);
-      writer = client.createWriter(streamName);
-    } catch (IOException e) {
-      throw new IOException("Can not create/get client stream by name: " + streamName + ": " + e.getMessage());
-    }
   }
 
   public synchronized void start() {
@@ -154,15 +181,18 @@ public class StreamSink extends AbstractSink implements Configurable {
     try {
       createStreamClient();
     } catch (Exception e) {
-      LOG.warn("Unable to create Stream client for host: {}, port: {}", host, port);
-      destroyClientConnection();
+      LOG.error("Unable to create Stream client by name: {} for host: {}, port: {}. Reason: {} ",
+                new Object[]{streamName, host, port, e.getMessage(), e});
+      closeWriterQuietly();
+      closeClientQuietly();
     }
-    LOG.info("Cdap sink {} started.", getName());
+    LOG.info("StreamSink {} started.", getName());
   }
 
   public synchronized void stop() {
-    destroyClientConnection();
-    LOG.info("Cdapsink {} stopping...", getName());
+    LOG.info("StreamSink {} stopping...", getName());
+    closeWriterQuietly();
+    closeClientQuietly();
     super.stop();
   }
 }

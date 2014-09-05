@@ -24,53 +24,26 @@ import org.apache.flume.event.SimpleEvent;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
 /**
- *CDAP Sink Test.
+ * CDAP Sink Test.
  */
 public class StreamSinkTest {
-  @Test
-  public void eventRollbackWhenWriterFailsTest() throws EventDeliveryException, IOException, URISyntaxException {
+
+  @Test(expected = EventDeliveryException.class)
+  public void eventRollbackWhenWriterFailsTest() throws Exception {
     MockStreamSink sink = new MockStreamSink();
-    Field writerField = null;
-    try {
-      writerField = StreamSink.class.getDeclaredField("writer");
-    } catch (NoSuchFieldException e) {
-    }
-    writerField.setAccessible(true);
-    try {
-      writerField.set(sink, getFailMockWriter());
-    } catch (IllegalAccessException e) {
-    }
-    try {
-      sink.process();
-    } catch (EventDeliveryException e) {
-      return;
-    }
+    sink.setWriter(getFailMockWriter());
+    sink.process();
   }
 
   @Test
   public void eventSuccessfulProcessingTest() throws Exception {
     MockStreamSink sink = new MockStreamSink();
-    Field writerField = null;
-    try {
-      writerField = StreamSink.class.getDeclaredField("writer");
-    } catch (NoSuchFieldException e) {
-    }
-    writerField.setAccessible(true);
-    try {
-      writerField.set(sink, getPassMockWriter());
-    } catch (IllegalAccessException e) {
-    }
-    try {
-      sink.process();
-    } catch (EventDeliveryException e) {
-      throw new Exception("Error during event processing", e);
-    }
+    sink.setWriter(getPassMockWriter());
+    sink.process();
   }
 
 
@@ -94,6 +67,13 @@ class MockStreamSink extends StreamSink {
   @Override
   public synchronized Channel getChannel() {
     return getMockChannel();
+  }
+
+  public void setWriter(StreamWriter mockWriter) throws NoSuchFieldException, IllegalAccessException {
+    Field writerField = null;
+    writerField = StreamSink.class.getDeclaredField("writer");
+    writerField.setAccessible(true);
+    writerField.set(this, mockWriter);
   }
 
   private Channel getMockChannel() {
