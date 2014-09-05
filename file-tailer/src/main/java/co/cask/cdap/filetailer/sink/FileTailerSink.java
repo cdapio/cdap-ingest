@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Created by dev on 15.08.14.
+ * Sink daemon
  */
 public class FileTailerSink extends BaseWorker {
 

@@ -84,7 +84,7 @@ public class LogTailer extends BaseWorker {
   }
 
   /**
-   *  run log tailer thread
+   *  Runs the log tailer thread.
    */
   public void run() {
     try {
@@ -112,8 +112,9 @@ public class LogTailer extends BaseWorker {
   }
 
   /**
-   *  setup charset from name, specified in configuration
-   *  @return false if charset with given name does not exist, true if charset was setup  successfully
+   *  Sets the charset using the name specified in the configuration file.
+   *
+   *  @return false if the charset with specified name does not exist; true if the charset was successfully setup
    */
   private boolean charsetSetup() {
     if (!Charset.isSupported(charsetName)) {
@@ -124,8 +125,9 @@ public class LogTailer extends BaseWorker {
   }
 
   /**
-   *  Method try to get save state of the tailer
-   *  @return FileTailerState object, if save state file not exist null is returning
+   *  Retrieves the saved state of the File Tailer.
+   *
+   *  @return the state; <code>null</code> if the save state file does not exist
    */
   private FileTailerState getSaveStateFromFile() {
     FileTailerState fileTailerState;
@@ -141,6 +143,7 @@ public class LogTailer extends BaseWorker {
   /**
    *  Method try start  tailer from save state.
    *  If could not find log file with saved entry method finished
+   *
    *  @throws  InterruptedException if thread was interrupted
    */
   private void runFromSaveState(FileTailerState fileTailerState) throws InterruptedException {
@@ -171,6 +174,7 @@ public class LogTailer extends BaseWorker {
   /**
    *  Method start reading log directory from current log file and
    *  current RandomAccessReader position
+   *
    *  @param reader opened RandomAccessReader stream
    *  @param currentLogFile log file, from which reading is started
    *  @throws  InterruptedException if thread was interrupted
@@ -195,10 +199,10 @@ public class LogTailer extends BaseWorker {
         } else {
           File newLog = getNextLogFile(logDirectory, modifyTime, false, currentLogFile);
           if (newLog == null) {
-            LOG.debug("waiting for new log data  from file {}", currentLogFile);
+            LOG.debug("Waiting for new log data from file {}", currentLogFile);
             Thread.sleep(sleepInterval);
           } else {
-            LOG.debug("File {} is reading", newLog);
+            LOG.debug("Reading file {}", newLog);
             currentLogFile = newLog;
             closeQuietly(reader);
             reader = new RandomAccessFile(currentLogFile, RAF_MODE);
@@ -207,7 +211,7 @@ public class LogTailer extends BaseWorker {
         }
       }
     } catch (IOException e) {
-      LOG.error("Tailer daemon stopped due to IO exception during reading file");
+      LOG.error("Tailer daemon stopped due to IO exception while reading file: {}", e.getMessage());
     } finally {
       closeQuietly(reader);
     }
@@ -215,6 +219,7 @@ public class LogTailer extends BaseWorker {
 
   /**
    *  Method start reading log from all log directory
+   *
    *  @InterruptedException if thread was interrupted
    */
   private void runWithOutRestore() throws InterruptedException {
@@ -241,6 +246,7 @@ public class LogTailer extends BaseWorker {
 
   /**
    *  Method start reading log from all log directory
+   *
    *  @InterruptedException if thread was interrupted
    */
   private boolean checkLine(RandomAccessFile reader, long position, int hash) throws IOException, InterruptedException {
@@ -255,6 +261,7 @@ public class LogTailer extends BaseWorker {
 
   /**
    *  Method get next log file if exist
+   *
    *  @param logDir current log directory
    *  @param currentTime time of the last current log file modification
    *  @param fromSaveState if starting from save state
@@ -326,7 +333,8 @@ public class LogTailer extends BaseWorker {
 
   /**
    *  Method get next log file if exist
-   *  @throws co.cask.cdap.filetailer.tailer.LogDirNotFoundException if directory specified in log file not exist
+   *
+   *  @throws LogDirNotFoundException if directory specified in log file not exist
    */
   private void checkLogDir(String dir) throws LogDirNotFoundException {
     File logdir = new File(dir);
@@ -336,7 +344,8 @@ public class LogTailer extends BaseWorker {
   }
 
   /**
-   *  try open for reading  log file
+   *  Try open for reading  log file
+   *
    *  @param file log file
    *  @throws IOException if could not open reader after failureRetryLimit attempts
    *  @throws InterruptedException if thread was interrupted
@@ -362,6 +371,7 @@ public class LogTailer extends BaseWorker {
 
   /**
    *  Method try read  log entry from log file
+   *
    *  @param reader  RandomAccessReader steam
    *  @param separator  log entry separator
    *  @throws IOException if could not read entry after failureRetryLimit attempts

@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * EventPack is design to represent pack of FileTailerEvents
+ * Represents a "pack" of FileTailerEvents.
  */
 class EventPack {
 

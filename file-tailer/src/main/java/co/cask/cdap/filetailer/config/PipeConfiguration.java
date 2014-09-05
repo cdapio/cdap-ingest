@@ -17,12 +17,12 @@
 package co.cask.cdap.filetailer.config;
 
 /**
- * PipeConfiguration is design for getting general properties of the some pipe
+ * Retrieves general properties of a pipe.
  */
 public interface PipeConfiguration {
 
   /**
-   * Returns the name of this pipe (loaded from configuration file)
+   * Retrieves the name of the pipe that was loaded from the configuration file.
    *
    * @return the name of this pipe
    */

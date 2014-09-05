@@ -17,14 +17,22 @@
 package co.cask.cdap.filetailer.config;
 
 import java.util.List;
+import java.util.Properties;
 
 /**
- * Configuration is design for getting all properties from configuration file
+ * Retrieves all properties from configuration file.
  */
 public interface Configuration {
 
   /**
-   * Returns configurations of each pipe
+   * Retrieves properties of this configuration
+   *
+   * @return properties of this configuration
+   */
+  Properties getProperties();
+
+  /**
+   * Retrieves configuration of each pipe.
    *
    * @return configurations of each pipe
    */

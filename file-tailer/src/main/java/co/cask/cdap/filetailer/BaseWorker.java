@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * AbstractWorker class  for sink and tailer worker
+ * BaseWorker for sink and tailer worker
  */
 public class BaseWorker implements Runnable {
 
@@ -49,7 +49,7 @@ public class BaseWorker implements Runnable {
     }
 
   /**
-   * Start worker thread
+   * Stop worker thread
    *
    * @throws IllegalStateException if worker is not running
    *

@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class try shutdown flows correctly
+ * Shutdowns all Flows.
  */
 class PipeShutdownTask implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerMain.class);

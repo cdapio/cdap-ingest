@@ -21,10 +21,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>co.cask.cdap</groupId>
-  <artifactId>cdap-injest</artifactId>
+  <artifactId>cdap-ingest</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>CDAP injest</name>
+  <name>CDAP ingest</name>
 
   <modules>
     <module>stream-client</module>
@@ -33,6 +33,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <cdap.clients.version>1.0-SNAPSHOT</cdap.clients.version>
     <guava.version>17.0</guava.version>
     <http.component.version>4.3.1</http.component.version>
     <commons.lang.version>2.5</commons.lang.version>
@@ -47,6 +48,11 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>co.cask.cdap</groupId>
+        <artifactId>authentication-client-java</artifactId>
+        <version>${cdap.clients.version}</version>
+      </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>

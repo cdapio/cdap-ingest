@@ -19,12 +19,12 @@ package co.cask.cdap.filetailer.state;
 import co.cask.cdap.filetailer.state.exception.FileTailerStateProcessorException;
 
 /**
- * Created by root on 8/15/14.
+ * Stores and retrieves the state of the File Tailer.
  */
 public interface FileTailerStateProcessor {
 
   /**
-   * Save state of File Tailer.
+   * Saves the state of the File Tailer.
    * Used to save current state of File Tailer for its future usage.
    *
    * @param state the state to save
@@ -32,7 +32,7 @@ public interface FileTailerStateProcessor {
   void saveState(FileTailerState state) throws FileTailerStateProcessorException;
 
   /**
-   * Returns last saved state of File Tailer.
+   * Retrieves the last saved state of the File Tailer.
    * Used for restore File Tailer state after stop or restart.
    *
    * @return last saved state of File Tailer

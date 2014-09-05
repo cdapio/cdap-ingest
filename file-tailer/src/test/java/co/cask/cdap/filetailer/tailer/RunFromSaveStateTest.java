@@ -89,6 +89,7 @@ public class RunFromSaveStateTest {
     saveState(intQueue, queue, readLogList, stateProcessor);
 
     tailer.stopWorker();
+    saveState(intQueue, queue, readLogList, stateProcessor);
 
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
 
@@ -98,9 +99,12 @@ public class RunFromSaveStateTest {
     saveState(intQueue, queue, readLogList, stateProcessor);
 
     tailer.stopWorker();
+    saveState(intQueue, queue, readLogList, stateProcessor);
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
     tailer.startWorker();
+
     Thread.sleep(SLEEP_TIME);
+
     tailer.stopWorker();
     saveState(intQueue, queue, readLogList, stateProcessor);
     for (int i = 0; i < logList.size(); i++) {

@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Main class
+ * File Tailer performs tailing of sets of local files.
+ * Once a new record has been appended to the end of a file that the File Tailer's daemon is monitoring,
+ * it sends it to a Stream via the REST API.
  */
 public class FileTailerMain {
 

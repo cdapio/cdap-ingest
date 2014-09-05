@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 /**
- * filter log files from directory
+ * Filters the log files returned from the log directory.
  */
 public class LogFilter implements FilenameFilter {
   private final String logPattern;
