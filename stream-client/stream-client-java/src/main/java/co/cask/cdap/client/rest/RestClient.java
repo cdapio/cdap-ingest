@@ -80,7 +80,7 @@ public class RestClient {
    * @throws IOException in case of a problem or the connection was aborted
    */
   public CloseableHttpResponse execute(HttpRequestBase request) throws IOException {
-    if (StringUtils.isNotEmpty(config.getAuthToken())) {
+    if (config.isAuthEnabled()) {
       request.setHeader(HttpHeaders.AUTHORIZATION, config.getAuthTokenType() + " " + config.getAuthToken());
     }
     if (StringUtils.isNotEmpty(config.getAPIKey())) {

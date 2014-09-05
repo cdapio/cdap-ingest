@@ -55,12 +55,7 @@ public class RestStreamWriterTest extends RestTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
-    AccessToken accessToken = Mockito.mock(AccessToken.class);
-    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
-    Mockito.when(accessToken.getValue()).thenReturn(null);
-    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).build();
   }
 
   @Test

@@ -62,19 +62,15 @@ public class RestClientConnectionConfig {
     return port;
   }
 
+  public boolean isAuthEnabled() throws IOException {
+    return authClient != null && authClient.isAuthEnabled();
+  }
+
   public String getAuthTokenType() throws IOException {
-    if (authClient != null) {
-      return authClient.getAccessToken().getTokenType();
-    } else {
-      return null;
-    }
+    return authClient.getAccessToken().getTokenType();
   }
 
   public String getAuthToken() throws IOException {
-    if (authClient != null) {
-      return authClient.getAccessToken().getValue();
-    } else {
-      return null;
-    }
+    return authClient.getAccessToken().getValue();
   }
 }
