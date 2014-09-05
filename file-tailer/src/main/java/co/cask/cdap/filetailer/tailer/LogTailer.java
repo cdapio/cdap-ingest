@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Comparator;
 import java.util.TreeMap;
@@ -51,17 +54,17 @@ public class LogTailer extends BaseWorker {
   private long failureSleepInterval;
   private static final int DEFAULT_BUFSIZE = 4096;
   private FileTailerQueue queue;
-  private byte entrySeparator = '\n';
+  private char entrySeparator = '\n';
   private PipeConfiguration confLoader;
   private FileTailerStateProcessor fileTailerStateProcessor;
   private FileTailerMetricsProcessor metricsProcessor;
-  private final byte inbuf[];
+  private final ByteBuffer buffer;
   private String rotationPattern;
 
 
   public LogTailer(PipeConfiguration loader, FileTailerQueue queue,
                    FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
-    inbuf = new byte[DEFAULT_BUFSIZE];
+    buffer = ByteBuffer.allocate(DEFAULT_BUFSIZE);
     this.queue = queue;
     this.confLoader = loader;
     this.fileTailerStateProcessor = stateProcessor;
@@ -364,25 +367,30 @@ public class LogTailer extends BaseWorker {
    *  @throws IOException if could not read entry after failureRetryLimit attempts
    *  @throws InterruptedException if thread was interrupted
    */
-  private String tryReadLine(RandomAccessFile reader, byte separator) throws IOException, InterruptedException {
+  private String tryReadLine(RandomAccessFile reader, char separator) throws IOException, InterruptedException {
     int retryNumber = 0;
     long rePos = 0;
-
     StringBuilder sb = new StringBuilder();
     while (!Thread.currentThread().isInterrupted()) {
       if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
         LOG.error("fail to read line  after {} attempts", retryNumber);
         throw new IOException();
       }
+      FileChannel channel = null;
       try {
+        channel = reader.getChannel();
         rePos = reader.getFilePointer();
+        buffer.clear();
         boolean end = false;
         int num;
-        while (((num = reader.read(inbuf)) != -1) && !end) {
+        while (((num = channel.read(buffer)) != -1) && !end) {
+          buffer.flip();
+          CharBuffer charBuffer = charset.decode(buffer);
           for (int i = 0; i < num; i++) {
-            byte ch = inbuf[i];
+            char ch = charBuffer.charAt(i);
+
             if (ch != separator) {
-              sb.append((char) ch);
+              sb.append(ch);
               rePos++;
             } else {
               rePos++;
@@ -390,6 +398,7 @@ public class LogTailer extends BaseWorker {
               break;
             }
           }
+          buffer.clear();
         }
         break;
       } catch (IOException e) {

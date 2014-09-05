@@ -27,7 +27,9 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,16 +61,18 @@ TailerLogUtils.deleteTestDir();
     file.createNewFile();
     RandomAccessFile reader = new RandomAccessFile(filePath, "r");
     Class params[] = {String.class, byte.class};
-    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", RandomAccessFile.class, byte.class);
-
+    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", RandomAccessFile.class, char.class);
     method.setAccessible(true);
+    Field field = tailer.getClass().getDeclaredField("charset");
+    field.setAccessible(true);
+    field.set(tailer, Charset.defaultCharset());
     for (int i = 0; i < LINE_SIZE; i++) {
      String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
      lineList.add(currLine);
       TailerLogUtils.writeLineToFile(filePath, currLine);
     }
     for (String line: lineList) {
-      Assert.assertEquals(line, method.invoke(tailer, reader, (byte) '\n'));
+      Assert.assertEquals(line, method.invoke(tailer, reader, '\n'));
     }
   }
   @Test
@@ -80,11 +84,15 @@ TailerLogUtils.deleteTestDir();
     LogTailer tailer = new LogTailer(flowConfig, null, null, null);
     File file = new File(filePath);
     file.createNewFile();
+
     RandomAccessFile reader = new RandomAccessFile(filePath, "r");
     Class params[] = {String.class, byte.class};
-    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", RandomAccessFile.class, byte.class);
+    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", RandomAccessFile.class, char.class);
     method.setAccessible(true);
-    String str = (String) method.invoke(tailer, reader, (byte) '\n');
+    Field field = tailer.getClass().getDeclaredField("charset");
+    field.setAccessible(true);
+    field.set(tailer, Charset.defaultCharset());
+    String str = (String) method.invoke(tailer, reader, '\n');
       Assert.assertEquals(0, str.length());
     }
   }

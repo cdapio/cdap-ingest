@@ -54,7 +54,7 @@ public interface SourceConfiguration {
    *
    * @return the separator between records
    */
-  byte getRecordSeparator();
+  char getRecordSeparator();
 
   /**
    * Returns the interval for File Tailer to wait, after read all data of new file (loaded from configuration file)

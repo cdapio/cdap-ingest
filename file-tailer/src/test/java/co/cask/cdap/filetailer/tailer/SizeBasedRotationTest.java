@@ -40,7 +40,7 @@ public class SizeBasedRotationTest {
   private static final int ENTRY_WRITE_NUMBER = 7000;
   private static final String LOG_FILE_SIZE = "50KB";
   private static final int QUEUE_SIZE = 9000;
-  private static final int WRITING_INTERVAL = 1000;
+  private static final int SLEEP_TIME = 9000;
 
   @Before
   public void prepare() throws IOException {
@@ -71,7 +71,7 @@ public class SizeBasedRotationTest {
     List<String> readLogList = new ArrayList<String>(ENTRY_WRITE_NUMBER);
     RandomStringUtils randomUtils = new RandomStringUtils();
     ch.qos.logback.classic.Logger logger = TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
-    //  tailer.startWorker();
+    tailer.startWorker();
     for (int i = 0; i < ENTRY_WRITE_NUMBER; i++) {
       String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
       logger.debug(currLine);
@@ -80,8 +80,7 @@ public class SizeBasedRotationTest {
          Thread.sleep(100);
       }
     }
-    tailer.startWorker();
-    Thread.sleep(1000);
+    Thread.sleep(SLEEP_TIME);
     for (int i = 0; i < logList.size(); i++) {
       Assert.assertEquals(true, queue.take().getEventData().contains(logList.get(i)));
     }
