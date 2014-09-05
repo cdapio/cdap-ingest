@@ -19,27 +19,27 @@ package co.cask.cdap.file.dropzone.config;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 
 /**
- * ObserverConfiguration is design for getting properties of the some observer
+ * Retrieves general properties of an observer
  */
 public interface ObserverConfiguration {
 
   /**
-   * Returns the name of this observer
+   * Retrieves the name of this observer
    *
    * @return the name of this observer
    */
   String getName();
 
   /**
-   * Returns the path to directory, intended like storage for File DropZone state and metrics
-   * (loaded from configuration file)
+   * Retrieves the path to directory, intended like storage for File DropZone state and metrics
+   * that was loaded from the configuration file.
    *
    * @return the File DropZone home (to save state and metrics) directory path
    */
   String getDaemonDir();
 
   /**
-   * Returns the pipe configuration of this observer
+   * Retrieves the pipe configuration of this observer
    *
    * @return the pipe configuration of this observer
    */

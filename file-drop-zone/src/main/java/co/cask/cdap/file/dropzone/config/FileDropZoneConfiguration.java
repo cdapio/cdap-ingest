@@ -21,19 +21,19 @@ import co.cask.cdap.filetailer.config.Configuration;
 import java.util.List;
 
 /**
- * FileDropZoneConfiguration is design for getting all properties for File DropZone from configuration file
+ * Retrieves all properties from configuration file.
  */
 public interface FileDropZoneConfiguration extends Configuration {
 
   /**
-   * Returns polling interval
+   * Retrieves polling interval
    *
    * @return polling interval
    */
   long getPollingInterval();
 
   /**
-   * Returns configurations of each observer
+   * Retrieves configuration of each observer
    *
    * @return configurations of each observer
    */

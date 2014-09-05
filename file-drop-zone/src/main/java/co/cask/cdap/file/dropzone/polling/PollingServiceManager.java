@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * PollingServiceManager creates and manage polling service
+ * Creates and manage polling service
  */
 public class PollingServiceManager {
   private final File confFile;

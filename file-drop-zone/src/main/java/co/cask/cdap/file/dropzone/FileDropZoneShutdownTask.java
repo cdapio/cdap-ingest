@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class try shutdown monitor correctly
+ * Shutdown polling service
  */
 class FileDropZoneShutdownTask implements Runnable {
 
@@ -35,7 +35,7 @@ class FileDropZoneShutdownTask implements Runnable {
 
   @Override
   public void run() {
-    LOG.info("Kill signal recieved, trying to shutdown drop zone gracefully");
+    LOG.info("Kill signal received, trying to shutdown drop zone gracefully");
     try {
       manager.stopMonitor();
     } catch (Exception e) {

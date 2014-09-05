@@ -83,7 +83,7 @@ public class PollingListenerImpl implements PollingListener {
   /**
    * Pipe setup
    *
-   * @throws IOException if can not create client stream
+   * @throws IOException if can not setup pipe
    */
   private Pipe setupPipe(File file) throws IOException {
     PipeConfiguration pipeConfiguration = observerConf.getPipeConf().getPipeConfiguration(file.getName());
@@ -108,7 +108,7 @@ public class PollingListenerImpl implements PollingListener {
    * create StreamWriter for pipe
    *
    * @param pipeConf the pipe configuration
-   * @return streamWriter
+   * @return the pipe's streamWriter
    * @throws java.io.IOException streamWriter creation failed
    */
   private StreamWriter getStreamWriterForPipe(PipeConfiguration pipeConf) throws IOException {

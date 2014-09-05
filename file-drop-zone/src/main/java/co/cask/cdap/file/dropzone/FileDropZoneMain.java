@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * An Example of using the Directory Polling Service
+ * File DropZone is to support user easily perform bulk ingestion using local files.
  */
 public class FileDropZoneMain {
   private static final Logger LOG = LoggerFactory.getLogger(FileDropZoneMain.class);

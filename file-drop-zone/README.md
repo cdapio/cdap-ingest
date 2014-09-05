@@ -56,7 +56,7 @@ File DropZone is to support user easily perform bulk ingestion using local files
     sudo service file-drop-zone stop
  ``` 
  
- File DropZone stores log files in the `/var/log/file-drop-zone directory.
+ File DropZone stores log files in the /var/log/file-drop-zone directory.
  PID, states and statistics are stored in the /var/run/file-drop-zone directory
  
   
