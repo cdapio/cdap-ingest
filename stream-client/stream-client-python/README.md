@@ -39,7 +39,7 @@ Optional configurations that can be set (and their default values):
  or using the ```read_from_file``` method of the ```Config``` object:
 
  ```
-   config = Config.read_from_file('/path/to/config.ini')
+   config = Config.read_from_file('/path/to/config.json')
 
    streamClient = StreamClient(config)
  ```

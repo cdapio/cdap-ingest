@@ -20,7 +20,7 @@ class StreamPromise(ConnectionErrorChecker):
         serviceConnector -- reference to connection pool to communicate with
                             gateway
         uri -- REST URL part to perform request.
-               Example: '/v2/strems/mystream'
+               Example: '/v2/streams/mystream'
         data -- data to proceed by worker thread.
                 Please read '__workerTarget' documentation.
         """
@@ -43,12 +43,12 @@ class StreamPromise(ConnectionErrorChecker):
 
     def __worker_target(self, uri, dataDict):
         """
-        Represents logic for performing requests and repsonse handling.
+        Represents logic for performing requests and response handling.
         This method should be invoked in a separate thread to reduce main
         thread locks.
 
         uri -- REST URL part to perform request.
-               Example: '/v2/strems/myStream'
+               Example: '/v2/streams/mystream'
         dataDict -- parameters that are to be passed to REST server:
         {
             'message': '',       Data to transmit to REST server.
@@ -164,7 +164,7 @@ class StreamPromise(ConnectionErrorChecker):
 
         def coolErrorHandler( httpResponseObject):
             ...
-            fooling around with response
+            Error handling response
             ...
         """
         if not isinstance(success_handler, FunctionType) or \
