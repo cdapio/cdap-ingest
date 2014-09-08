@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Comparator;
 import java.util.TreeMap;
@@ -51,17 +54,17 @@ public class LogTailer extends BaseWorker {
   private long failureSleepInterval;
   private static final int DEFAULT_BUFSIZE = 4096;
   private FileTailerQueue queue;
-  private byte entrySeparator = '\n';
+  private char entrySeparator = '\n';
   private PipeConfiguration confLoader;
   private FileTailerStateProcessor fileTailerStateProcessor;
   private FileTailerMetricsProcessor metricsProcessor;
-  private final byte inbuf[];
+  private final ByteBuffer buffer;
   private String rotationPattern;
 
 
   public LogTailer(PipeConfiguration loader, FileTailerQueue queue,
                    FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
-    inbuf = new byte[DEFAULT_BUFSIZE];
+    buffer = ByteBuffer.allocate(DEFAULT_BUFSIZE);
     this.queue = queue;
     this.confLoader = loader;
     this.fileTailerStateProcessor = stateProcessor;
@@ -155,13 +158,13 @@ public class LogTailer extends BaseWorker {
       return;
     }
     try {
-      RandomAccessFile reader = tryOpenFile(currentLogFile);
-      if (!checkLine(reader, position, hash)) {
+      FileChannel channel = tryOpenFile(currentLogFile);
+      if (!checkLine(channel, position, hash)) {
         LOG.error("Can not find line from saved state. Exiting.. ");
         return;
       } else {
         LOG.info("Saved log entry was found. Start reading log from save state");
-        startReadingFromFile(reader, currentLogFile);
+        startReadingFromFile(channel, currentLogFile);
       }
     } catch (IOException e) {
       return;
@@ -172,21 +175,21 @@ public class LogTailer extends BaseWorker {
    *  Starts reading in the log directory using the current log file
    *  and the current RandomAccessReader position.
    *
-   *  @param reader opened RandomAccessReader stream
+   *  @param channel opened RandomAccessReader stream
    *  @param currentLogFile log file, from which reading is started
    *  @throws  InterruptedException if thread was interrupted
    */
-  private void startReadingFromFile(RandomAccessFile reader, File currentLogFile) throws InterruptedException {
+  private void startReadingFromFile(FileChannel channel, File currentLogFile) throws InterruptedException {
     int lineHash;
     long position;
     long modifyTime = currentLogFile.lastModified();
     try {
       while (isRunning()) {
-        String line = tryReadLine(reader, entrySeparator);
+        String line = tryReadLine(channel, entrySeparator);
         if (line.length() > 0) {
           lineHash = line.hashCode();
           LOG.debug("From log file {} readed entry: {}", currentLogFile, line);
-          position = reader.getFilePointer() - line.length() - 1;
+          position = channel.position() - line.length() - 1;
           modifyTime = currentLogFile.lastModified();
           queue.put(new FileTailerEvent(new FileTailerState(currentLogFile.toString(),
                                                             position, lineHash, modifyTime),
@@ -201,8 +204,8 @@ public class LogTailer extends BaseWorker {
           } else {
             LOG.debug("Reading file {}", newLog);
             currentLogFile = newLog;
-            closeQuietly(reader);
-            reader = new RandomAccessFile(currentLogFile, RAF_MODE);
+            closeQuietly(channel);
+            channel  = (new RandomAccessFile(currentLogFile, RAF_MODE)).getChannel();
             modifyTime = currentLogFile.lastModified();
           }
         }
@@ -210,7 +213,7 @@ public class LogTailer extends BaseWorker {
     } catch (IOException e) {
       LOG.error("Tailer daemon stopped due to IO exception while reading file: {}", e.getMessage());
     } finally {
-      closeQuietly(reader);
+      closeQuietly(channel);
     }
   }
 
@@ -221,7 +224,7 @@ public class LogTailer extends BaseWorker {
    */
   private void runWithOutRestore() throws InterruptedException {
     File logFile = null;
-    RandomAccessFile reader;
+    FileChannel channel;
     while (logFile == null && !Thread.currentThread().isInterrupted()) {
       logFile = getNextLogFile(logDirectory, 0L, false, new File(logFileName));
       if (logFile == null) {
@@ -234,11 +237,11 @@ public class LogTailer extends BaseWorker {
       }
     }
     try {
-      reader = tryOpenFile(logFile);
+      channel = tryOpenFile(logFile);
     } catch (IOException e) {
       return;
     }
-    startReadingFromFile(reader, logFile);
+    startReadingFromFile(channel, logFile);
   }
 
   /**
@@ -246,9 +249,9 @@ public class LogTailer extends BaseWorker {
    *
    *  @InterruptedException if thread was interrupted
    */
-  private boolean checkLine(RandomAccessFile reader, long position, int hash) throws IOException, InterruptedException {
-    reader.seek(position);
-    String line = tryReadLine(reader, entrySeparator).toString();
+  private boolean checkLine(FileChannel channel, long position, int hash) throws IOException, InterruptedException {
+    channel.position(position);
+    String line = tryReadLine(channel, entrySeparator).toString();
     if (line.length() > 0 && line.hashCode() == hash) {
       return true;
     } else {
@@ -298,15 +301,12 @@ public class LogTailer extends BaseWorker {
           break;
         }
       }
-      if (currentFileChanged) {
+      if (currentFileChanged && logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName())) == null) {
         return null;
       }
       LogFileTime key = logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName()));
-      if (key == null) {
-        return null;
-      } else {
-        return logFilesTimesMap.get(key);
-      }
+
+      return key == null ? null : logFilesTimesMap.get(key);
     }
   }
 
@@ -346,9 +346,10 @@ public class LogTailer extends BaseWorker {
    *  @throws IOException if could not open reader after failureRetryLimit attempts
    *  @throws InterruptedException if thread was interrupted
    */
-  private RandomAccessFile tryOpenFile(File file) throws IOException, InterruptedException {
+  private FileChannel tryOpenFile(File file) throws IOException, InterruptedException {
     int retryNumber = 0;
     RandomAccessFile reader = null;
+    FileChannel channel = null;
     while (!Thread.currentThread().isInterrupted()) {
       if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
         LOG.error("fail to open file after {} attempts", retryNumber);
@@ -356,27 +357,27 @@ public class LogTailer extends BaseWorker {
       }
       try {
         reader = new RandomAccessFile(file, RAF_MODE);
+        channel = reader.getChannel();
         break;
       } catch (IOException e) {
         retryNumber++;
         Thread.sleep(failureSleepInterval);
       }
     }
-    return reader;
+    return channel;
   }
 
   /**
    *  Method try read  log entry from log file
    *
-   *  @param reader  RandomAccessReader steam
+   *  @param channel RandomAccessReader steam
    *  @param separator  log entry separator
    *  @throws IOException if could not read entry after failureRetryLimit attempts
    *  @throws InterruptedException if thread was interrupted
    */
-  private String tryReadLine(RandomAccessFile reader, byte separator) throws IOException, InterruptedException {
+  private String tryReadLine(FileChannel channel, char separator) throws IOException, InterruptedException {
     int retryNumber = 0;
     long rePos = 0;
-
     StringBuilder sb = new StringBuilder();
     while (!Thread.currentThread().isInterrupted()) {
       if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
@@ -384,14 +385,18 @@ public class LogTailer extends BaseWorker {
         throw new IOException();
       }
       try {
-        rePos = reader.getFilePointer();
+        rePos = channel.position();
+        buffer.clear();
         boolean end = false;
         int num;
-        while (((num = reader.read(inbuf)) != -1) && !end) {
+        while (((num = channel.read(buffer)) != -1) && !end) {
+          buffer.flip();
+          CharBuffer charBuffer = charset.decode(buffer);
           for (int i = 0; i < num; i++) {
-            byte ch = inbuf[i];
+            char ch = charBuffer.charAt(i);
+
             if (ch != separator) {
-              sb.append((char) ch);
+              sb.append(ch);
               rePos++;
             } else {
               rePos++;
@@ -399,6 +404,7 @@ public class LogTailer extends BaseWorker {
               break;
             }
           }
+          buffer.clear();
         }
         break;
       } catch (IOException e) {
@@ -406,14 +412,14 @@ public class LogTailer extends BaseWorker {
         Thread.sleep(failureSleepInterval);
       }
     }
-    reader.seek(rePos);
+    channel.position(rePos);
     return sb.toString();
   }
 
-  private void closeQuietly(RandomAccessFile reader) {
-    if (reader != null) {
+  private void closeQuietly(FileChannel channel) {
+    if (channel != null) {
       try {
-        reader.close();
+        channel.close();
       } catch (IOException e) {
         LOG.warn("Exception during closing", e.getMessage());
 

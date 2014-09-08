@@ -162,7 +162,7 @@ public class RestStreamClient implements StreamClient {
     private int writerPoolSize = DEFAULT_WRITER_POOL_SIZE;
     private String version = DEFAULT_VERSION;
 
-    private Builder(String host, int port) {
+    public Builder(String host, int port) {
       this.host = host;
       this.port = port;
     }

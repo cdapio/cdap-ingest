@@ -41,7 +41,7 @@ public class BaseTailerTest {
   private static final String LOG_FILE_SIZE = "1KB";
   private static final int QUEUE_SIZE = 200;
   private static final int WRITING_INTERVAL = 1000;
-
+  private static final int SLEEP_TIME = 5000;
   @Before
   public void prepare() throws IOException {
     TailerLogUtils.createTestDirIfNeed();
@@ -71,6 +71,7 @@ public class BaseTailerTest {
     }
     tailer.startAsync();
     Thread.sleep(3000);
+    Thread.currentThread().sleep(SLEEP_TIME);
     for (String str:logList)  {
       Assert.assertEquals(true, queue.take().getEventData().contains(str));
     }
@@ -93,14 +94,12 @@ public class BaseTailerTest {
       String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
       logger.debug(currLine);
       logList.add(currLine);
-      Thread.sleep(WRITING_INTERVAL);
+      Thread.currentThread().sleep(WRITING_INTERVAL);
     }
-    Thread.sleep(2000);
+    Thread.currentThread().sleep(SLEEP_TIME);
     for (String str:logList) {
       Assert.assertEquals(true, queue.take().getEventData().contains(str));
     }
-
     tailer.stopAsync();
   }
-
  }

@@ -71,12 +71,6 @@ public class  TailerLogUtils {
     FileUtils.cleanDirectory(new File(dir));
   }
 
-  public static void clearStateDir() throws IOException {
-    PipeConfiguration flowConf = loadConfig();
-    String dir = flowConf.getDaemonDir();
-    FileUtils.cleanDirectory(new File(dir));
-  }
-
   public static void deleteTestDir() throws IOException {
     PipeConfiguration flowConf = loadConfig();
     String dir = flowConf.getSourceConfiguration().getWorkDir();

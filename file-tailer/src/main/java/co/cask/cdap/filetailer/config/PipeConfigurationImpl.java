@@ -165,8 +165,8 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     }
 
     @Override
-    public byte getRecordSeparator() {
-      return getProperty(this.key + "record_separator", DEFAULT_RECORD_SEPARATOR).getBytes()[0];
+    public char getRecordSeparator() {
+      return getProperty(this.key + "record_separator", DEFAULT_RECORD_SEPARATOR).charAt(0);
     }
 
     @Override

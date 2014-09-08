@@ -44,6 +44,7 @@ public class RunFromSaveStateTest {
   private static final int ENTRY_WRITE_NUMBER = 400;
   private static final String LOG_FILE_SIZE = "10KB";
   private static final int QUEUE_SIZE = 2000;
+  private static final int SLEEP_TIME = 20000;
 
   @Before
   public void prepare() throws IOException {
@@ -79,19 +80,20 @@ public class RunFromSaveStateTest {
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
     LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
     tailer.startAsync();
-    Thread.sleep(20000);
+    Thread.sleep(SLEEP_TIME);
+    tailer.stopAsync();
+    saveState(intQueue, queue, readLogList, stateProcessor);
+    saveState(intQueue, queue, readLogList, stateProcessor);
+    write_log(ENTRY_WRITE_NUMBER, logger, logList);
+    tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
+    tailer.startAsync();
+    Thread.sleep(SLEEP_TIME);
     tailer.stopAsync();
     saveState(intQueue, queue, readLogList, stateProcessor);
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
     tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
     tailer.startAsync();
-    Thread.sleep(20000);
-    tailer.stopAsync();
-    saveState(intQueue, queue, readLogList, stateProcessor);
-    write_log(ENTRY_WRITE_NUMBER, logger, logList);
-    tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
-    tailer.startAsync();
-    Thread.sleep(20000);
+    Thread.sleep(SLEEP_TIME);
     tailer.stopAsync();
     saveState(intQueue, queue, readLogList, stateProcessor);
     for (int i = 0; i < logList.size(); i++) {

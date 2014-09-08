@@ -38,8 +38,9 @@ import java.util.List;
 public class SizeBasedRotationTest {
   private static final int LINE_SIZE = 20;
   private static final int ENTRY_WRITE_NUMBER = 7000;
-  private static final String LOG_FILE_SIZE = "50KB";
+  private static final String LOG_FILE_SIZE = "100KB";
   private static final int QUEUE_SIZE = 9000;
+  private static final int SLEEP_TIME = 5000;
 
   @Before
   public void prepare() throws IOException {
@@ -67,24 +68,21 @@ public class SizeBasedRotationTest {
       + flowConfig.getSourceConfiguration().getFileName();
 
     List<String> logList = new ArrayList<String>(ENTRY_WRITE_NUMBER);
-    List<String> readLogList = new ArrayList<String>(ENTRY_WRITE_NUMBER);
     RandomStringUtils randomUtils = new RandomStringUtils();
     ch.qos.logback.classic.Logger logger = TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
-    //  tailer.startWorker();
+    tailer.startAsync();
     for (int i = 0; i < ENTRY_WRITE_NUMBER; i++) {
       String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
       logger.debug(currLine);
       logList.add(currLine);
-      if (i % 100 == 0) {
-         Thread.sleep(100);
+      if (i % 50 == 0) {
+         Thread.currentThread().sleep(300);
       }
     }
-    tailer.startAsync();
-    Thread.sleep(1000);
+    Thread.currentThread().sleep(SLEEP_TIME);
+    tailer.stopAsync();
     for (int i = 0; i < logList.size(); i++) {
       Assert.assertEquals(true, queue.take().getEventData().contains(logList.get(i)));
     }
-
-    tailer.stopAsync();
   }
 }
