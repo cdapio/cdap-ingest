@@ -77,7 +77,7 @@ public class FileTailerSink extends BaseWorker {
   public void run() {
     LOG.debug("Creating new event pack");
     EventPack pack = new EventPack(packSize);
-    while (!Thread.currentThread().isInterrupted()) {
+    while (isRunning()) {
       try {
         FileTailerEvent event = queue.take();
 

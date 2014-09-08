@@ -85,19 +85,19 @@ public class LogTailer extends BaseWorker {
    */
   public void run() {
     try {
-      checkLogDir(logDirectory);
+      checkLogDirExists(logDirectory);
     } catch (LogDirNotFoundException e) {
-      LOG.error("Incorrect path to log directory. Directory: {} not exist", logDirectory);
+      LOG.error("Incorrect path to log directory; directory {} does not exist", logDirectory);
       return;
     }
     if (!charsetSetup()) {
-      LOG.error("Charset: {} is not supported", charsetName);
+      LOG.error("Charset {} is not supported", charsetName);
       return;
     }
     FileTailerState fileTailerState = getSaveStateFromFile();
     try {
       if (fileTailerState == null) {
-        LOG.info("Fail state do not found. Start reading all directory");
+        LOG.info("File Tailer state was not found; start reading all logs from the directory from the beginning");
         runWithOutRestore();
       } else {
         runFromSaveState(fileTailerState);
@@ -169,8 +169,8 @@ public class LogTailer extends BaseWorker {
   }
 
   /**
-   *  Method start reading log directory from current log file and
-   *  current RandomAccessReader position
+   *  Starts reading in the log directory using the current log file
+   *  and the current RandomAccessReader position.
    *
    *  @param reader opened RandomAccessReader stream
    *  @param currentLogFile log file, from which reading is started
@@ -181,7 +181,7 @@ public class LogTailer extends BaseWorker {
     long position;
     long modifyTime = currentLogFile.lastModified();
     try {
-      while (!Thread.currentThread().isInterrupted()) {
+      while (isRunning()) {
         String line = tryReadLine(reader, entrySeparator);
         if (line.length() > 0) {
           lineHash = line.hashCode();
@@ -333,9 +333,8 @@ public class LogTailer extends BaseWorker {
    *
    *  @throws LogDirNotFoundException if directory specified in log file not exist
    */
-  private void checkLogDir(String dir) throws LogDirNotFoundException {
-    File logdir = new File(dir);
-    if (!(logdir.exists())) {
+  private void checkLogDirExists(String dir) throws LogDirNotFoundException {
+    if (!(new File(dir).exists())) {
       throw new LogDirNotFoundException("Configured log directory not found");
     }
   }

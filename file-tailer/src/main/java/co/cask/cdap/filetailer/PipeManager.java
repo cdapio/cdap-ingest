@@ -103,7 +103,7 @@ public class PipeManager {
   }
 
   /**
-   * Start all pipes
+   * Start all pipes.
    */
   public void startPipes() {
     for (Pipe pipe : pipeList) {

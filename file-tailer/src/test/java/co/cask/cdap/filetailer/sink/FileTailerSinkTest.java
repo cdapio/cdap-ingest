@@ -33,7 +33,7 @@ import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by dev on 18.08.14.
+ * File Tailer Sink tests
  */
 public class FileTailerSinkTest {
 
@@ -52,7 +52,7 @@ public class FileTailerSinkTest {
     FileTailerSink sink = new FileTailerSink(queue, writerMock,
                                              SinkStrategy.LOADBALANCE, stateProcessor, metricsProcessor);
 
-    sink.startWorker();
+    sink.startAsync();
 
     for (int i = 0; i < TEST_EVENTS_SIZE; i++) {
       queue.put(new FileTailerEvent(new FileTailerState("file", 0L, 42, 0L), "test", Charset.defaultCharset()));
@@ -60,7 +60,7 @@ public class FileTailerSinkTest {
 
     Mockito.verify(writerMock, Mockito.timeout(10000).times(TEST_EVENTS_SIZE)).write("test", Charset.defaultCharset());
 
-    sink.stopWorker();
+    sink.stopAsync();
   }
 
   @Test
@@ -75,7 +75,7 @@ public class FileTailerSinkTest {
                                              SinkStrategy.LOADBALANCE, stateProcessor, metricsProcessor,
                                              CUSTOM_PACK_SIZE);
     try {
-      sink.startWorker();
+      sink.startAsync();
 
       for (int i = 0; i < TEST_EVENTS_SIZE; i++) {
         queue.put(new FileTailerEvent(new FileTailerState("file", 0L, 42, 0L), "test", Charset.defaultCharset()));
@@ -84,7 +84,7 @@ public class FileTailerSinkTest {
       Mockito.verify(writerMock,
                      Mockito.timeout(10000).times(TEST_EVENTS_SIZE)).write("test", Charset.defaultCharset());
     } finally {
-      sink.stopWorker();
+      sink.stopAsync();
     }
   }
 
@@ -105,7 +105,7 @@ public class FileTailerSinkTest {
     FileTailerSink sink = new FileTailerSink(queue, writers, SinkStrategy.LOADBALANCE,
                                              stateProcessor, metricsProcessor, CUSTOM_PACK_SIZE);
     try {
-      sink.startWorker();
+      sink.startAsync();
 
       for (int i = 0; i < TEST_EVENTS_SIZE; i++) {
         queue.put(new FileTailerEvent(new FileTailerState("file", 0L, 42, 0L), "test", Charset.defaultCharset()));
@@ -122,7 +122,7 @@ public class FileTailerSinkTest {
       }
 
     } finally {
-      sink.stopWorker();
+      sink.stopAsync();
     }
 
     org.junit.Assert.assertTrue(success);

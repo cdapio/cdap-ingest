@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * File Tailer read data from log file tests
  */
 public class EntryReaderTest {
   private static  final int LINE_SIZE = 10;
@@ -42,10 +42,12 @@ public class EntryReaderTest {
     TailerLogUtils.createTestDirIfNeed();
     TailerLogUtils.clearTestDir();
   }
+
   @After
   public void clean() throws IOException {
-TailerLogUtils.deleteTestDir();
+    TailerLogUtils.deleteTestDir();
   }
+
   @Test
   public void readLineTest() throws Exception {
     final  List<String>  lineList = new ArrayList<String>(LINE_SIZE);
@@ -63,8 +65,8 @@ TailerLogUtils.deleteTestDir();
 
     method.setAccessible(true);
     for (int i = 0; i < LINE_SIZE; i++) {
-     String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
-     lineList.add(currLine);
+      String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
+      lineList.add(currLine);
       TailerLogUtils.writeLineToFile(filePath, currLine);
     }
     for (String line: lineList) {

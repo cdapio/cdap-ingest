@@ -16,10 +16,6 @@
 
 package co.cask.cdap.filetailer.metrics;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.core.rolling.RollingFileAppender;
-import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import co.cask.cdap.filetailer.BaseWorker;
 import co.cask.cdap.filetailer.metrics.exception.FileTailerMetricsProcessorException;
 import org.slf4j.Logger;
@@ -74,14 +70,14 @@ public class FileTailerMetricsProcessor extends BaseWorker {
 
   @Override
   public void run() {
-    RollingFileAppender appender = null;
+    ch.qos.logback.core.rolling.RollingFileAppender appender = null;
     ch.qos.logback.classic.Logger logger = initLogger("metricsLogger");
     try {
       createDirs(stateDirPath);
       createFile(stateDirPath + "/" + metricsFileName);
       appender = initAppender(stateDirPath, metricsFileName);
       writeMetricsHeader(logger, appender);
-      while (!Thread.currentThread().isInterrupted()) {
+      while (isRunning()) {
         Thread.sleep(metricsSleepInterval);
         String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
         writeMetrics(logger, appender, currentDate);
@@ -96,6 +92,7 @@ public class FileTailerMetricsProcessor extends BaseWorker {
         appender.stop();
       }
     }
+    LOG.info("Metrics Processor stopped");
   }
 
   public void onReadEventMetric(int eventSize) {
@@ -164,7 +161,8 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     LOG.debug("All metrics reset successfully");
   }
 
-  private void writeMetricsHeader(ch.qos.logback.classic.Logger logger, RollingFileAppender appender) {
+  private void writeMetricsHeader(ch.qos.logback.classic.Logger logger,
+                                  ch.qos.logback.core.rolling.RollingFileAppender appender) {
     LOG.debug("Start writing header to file ..");
     String header = new StringBuilder("Current Date").append(",")
       .append("Flow Name").append(",")
@@ -181,7 +179,8 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     LOG.debug("Successfully write header");
   }
 
-  private void writeMetrics(ch.qos.logback.classic.Logger logger, RollingFileAppender appender, String currentDate) {
+  private void writeMetrics(ch.qos.logback.classic.Logger logger,
+                            ch.qos.logback.core.rolling.RollingFileAppender appender, String currentDate) {
     LOG.debug("Start writing metric with date {} to file ..", currentDate);
     String metric = new StringBuilder(currentDate).append(",")
       .append(flowName).append(",")
@@ -198,21 +197,25 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     LOG.debug("Successfully write metric with date: {}", currentDate);
   }
 
-  private RollingFileAppender initAppender(String path, String fileName) {
+  private ch.qos.logback.core.rolling.RollingFileAppender initAppender(String path, String fileName) {
     LOG.debug("Starting initialize rolling file appender");
-    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+    ch.qos.logback.classic.LoggerContext loggerContext =
+      (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
 
-    RollingFileAppender fileAppender = new RollingFileAppender();
+    ch.qos.logback.core.rolling.RollingFileAppender fileAppender =
+      new ch.qos.logback.core.rolling.RollingFileAppender();
     fileAppender.setContext(loggerContext);
     fileAppender.setFile(path + "/" + fileName);
     fileAppender.setAppend(true);
-    TimeBasedRollingPolicy rollingPolicy = new TimeBasedRollingPolicy();
+    ch.qos.logback.core.rolling.TimeBasedRollingPolicy rollingPolicy =
+      new ch.qos.logback.core.rolling.TimeBasedRollingPolicy();
     rollingPolicy.setContext(loggerContext);
     rollingPolicy.setParent(fileAppender);
     rollingPolicy.setFileNamePattern(path + "/" + fileName + ".%d");
     rollingPolicy.start();
     fileAppender.setRollingPolicy(rollingPolicy);
-    PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
+    ch.qos.logback.classic.encoder.PatternLayoutEncoder layoutEncoder =
+      new ch.qos.logback.classic.encoder.PatternLayoutEncoder();
     layoutEncoder.setContext(loggerContext);
     layoutEncoder.setPattern("%msg%n");
     layoutEncoder.start();
@@ -222,7 +225,8 @@ public class FileTailerMetricsProcessor extends BaseWorker {
   }
 
   private ch.qos.logback.classic.Logger initLogger(String name) {
-    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+    ch.qos.logback.classic.LoggerContext loggerContext =
+      (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
     return  loggerContext.getLogger(name);
   }
 

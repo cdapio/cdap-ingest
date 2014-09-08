@@ -33,14 +33,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * File Tailer test for size based rotation logs
  */
 public class SizeBasedRotationTest {
   private static final int LINE_SIZE = 20;
   private static final int ENTRY_WRITE_NUMBER = 7000;
   private static final String LOG_FILE_SIZE = "50KB";
   private static final int QUEUE_SIZE = 9000;
-  private static final int WRITING_INTERVAL = 1000;
 
   @Before
   public void prepare() throws IOException {
@@ -80,12 +79,12 @@ public class SizeBasedRotationTest {
          Thread.sleep(100);
       }
     }
-    tailer.startWorker();
+    tailer.startAsync();
     Thread.sleep(1000);
     for (int i = 0; i < logList.size(); i++) {
       Assert.assertEquals(true, queue.take().getEventData().contains(logList.get(i)));
     }
 
-    tailer.stopWorker();
+    tailer.stopAsync();
   }
 }

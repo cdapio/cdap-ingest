@@ -41,17 +41,17 @@ public class Pipe {
    * Start tailer and sink
    */
     public void start() {
-        metricsProcessor.startWorker();
-        logTailer.startWorker();
-        sink.startWorker();
+        metricsProcessor.startAsync();
+        logTailer.startAsync();
+        sink.startAsync();
     }
 
   /**
    * Stop tailer and sink
    */
     public void stop() {
-        metricsProcessor.stopWorker();
-        logTailer.stopWorker();
-        sink.stopWorker();
+        metricsProcessor.stopAsync();
+        logTailer.stopAsync();
+        sink.stopAsync();
     }
 }

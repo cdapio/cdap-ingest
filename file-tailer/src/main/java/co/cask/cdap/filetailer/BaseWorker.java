@@ -16,51 +16,28 @@
 
 package co.cask.cdap.filetailer;
 
+import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * BaseWorker for sink and tailer worker
  */
-public class BaseWorker implements Runnable {
+public class BaseWorker extends AbstractExecutionThreadService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BaseWorker.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BaseWorker.class);
 
-    private Thread worker;
+  @Override
+  public void run() {
+  }
 
-    @Override
-    public void run() {
-    }
+  @Override
+  protected void startUp() {
+    LOG.info("Starting service; service state: {}", state().toString());
+  }
 
-  /**
-   * Start worker thread
-   *
-   * @throws IllegalStateException if worker is already running
-   *
-   */
-    public void startWorker() {
-        if (worker == null) {
-            worker = new Thread(this);
-            worker.start();
-        } else {
-            LOG.warn("{} worker is already started!", this.getClass().getName());
-            throw new IllegalStateException(this.getClass().getName() + "  worker is already started!");
-        }
-    }
-
-  /**
-   * Stop worker thread
-   *
-   * @throws IllegalStateException if worker is not running
-   *
-   */
-    public void stopWorker() {
-        if (worker != null) {
-            worker.interrupt();
-            worker = null;
-        } else {
-            LOG.warn("{} worker was not started!", this.getClass().getName());
-            throw new IllegalStateException(this.getClass().getName() + "  worker is not running!");
-        }
-    }
+  @Override
+  protected void triggerShutdown() {
+    LOG.info("Stopping service; service state: {}", state().toString());
+  }
 }
