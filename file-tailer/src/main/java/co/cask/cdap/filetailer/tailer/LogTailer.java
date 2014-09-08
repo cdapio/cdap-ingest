@@ -16,7 +16,7 @@
 
 package co.cask.cdap.filetailer.tailer;
 
-import co.cask.cdap.filetailer.BaseWorker;
+import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
@@ -41,12 +41,12 @@ import java.util.TreeMap;
  * Tailer daemon
  */
 
-public class LogTailer extends BaseWorker {
+public class LogTailer extends AbstractWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(LogTailer.class);
   private static final String RAF_MODE = "r";
   private long sleepInterval;
-  private String logDirectory;
+  private File logDirectory;
   private String logFileName;
   private String charsetName;
   private Charset charset;
@@ -90,7 +90,7 @@ public class LogTailer extends BaseWorker {
     try {
       checkLogDirExists(logDirectory);
     } catch (LogDirNotFoundException e) {
-      LOG.error("Incorrect path to log directory; directory {} does not exist", logDirectory);
+      LOG.error("Incorrect path to log directory; directory {} does not exist", logDirectory.getAbsolutePath());
       return;
     }
     if (!charsetSetup()) {
@@ -151,7 +151,7 @@ public class LogTailer extends BaseWorker {
     long lastModifytime = fileTailerState.getLastModifyTime();
     String savedFilename = fileTailerState.getFileName();
     int hash = fileTailerState.getHash();
-    File currentLogFile = getNextLogFile(logDirectory, lastModifytime,
+    File currentLogFile = getNextLogFile(logDirectory.getAbsolutePath(), lastModifytime,
                                          true, new File(savedFilename));
     if (currentLogFile == null) {
       LOG.info("Saved log file not exist. Exiting");
@@ -197,7 +197,7 @@ public class LogTailer extends BaseWorker {
 
           metricsProcessor.onReadEventMetric(line.getBytes().length);
         } else {
-          File newLog = getNextLogFile(logDirectory, modifyTime, false, currentLogFile);
+          File newLog = getNextLogFile(logDirectory.getAbsolutePath(), modifyTime, false, currentLogFile);
           if (newLog == null) {
             LOG.debug("Waiting for new log data from file {}", currentLogFile);
             Thread.sleep(sleepInterval);
@@ -226,7 +226,7 @@ public class LogTailer extends BaseWorker {
     File logFile = null;
     FileChannel channel;
     while (logFile == null && !Thread.currentThread().isInterrupted()) {
-      logFile = getNextLogFile(logDirectory, 0L, false, new File(logFileName));
+      logFile = getNextLogFile(logDirectory.getAbsolutePath(), 0L, false, new File(logFileName));
       if (logFile == null) {
         try {
           Thread.sleep(sleepInterval);
@@ -333,8 +333,8 @@ public class LogTailer extends BaseWorker {
    *
    *  @throws LogDirNotFoundException if directory specified in log file not exist
    */
-  private void checkLogDirExists(String dir) throws LogDirNotFoundException {
-    if (!(new File(dir).exists())) {
+  private void checkLogDirExists(File dir) throws LogDirNotFoundException {
+    if (!(dir.exists())) {
       throw new LogDirNotFoundException("Configured log directory not found");
     }
   }

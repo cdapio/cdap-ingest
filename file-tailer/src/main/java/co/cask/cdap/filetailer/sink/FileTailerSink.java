@@ -17,7 +17,7 @@
 package co.cask.cdap.filetailer.sink;
 
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.filetailer.BaseWorker;
+import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -35,7 +35,7 @@ import java.util.Random;
 /**
  * Sink daemon
  */
-public class FileTailerSink extends BaseWorker {
+public class FileTailerSink extends AbstractWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerSink.class);
 

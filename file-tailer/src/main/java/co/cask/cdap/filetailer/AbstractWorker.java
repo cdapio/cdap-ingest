@@ -21,15 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * BaseWorker for sink and tailer worker
+ * AbstractWorker for sink, tailer worker and metrics processor
  */
-public class BaseWorker extends AbstractExecutionThreadService {
+public abstract class AbstractWorker extends AbstractExecutionThreadService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(BaseWorker.class);
-
-  @Override
-  public void run() {
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractWorker.class);
 
   @Override
   protected void startUp() {

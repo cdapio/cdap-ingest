@@ -30,6 +30,9 @@ import co.cask.cdap.filetailer.sink.SinkStrategy;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
+import com.google.common.util.concurrent.AbstractIdleService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,18 +43,25 @@ import java.util.List;
 /**
  * Creates and manage pipes.
  */
-public class PipeManager {
+public class PipeManager extends AbstractIdleService {
+  private static final Logger LOG = LoggerFactory.getLogger(PipeManager.class);
 
   private final List<Pipe> pipeList = new ArrayList<Pipe>();
+
+  private final File confFile;
+
+  PipeManager(File confFile) {
+    this.confFile = confFile;
+  }
 
   /**
    * Pipes setup
    *
    * @throws IOException if can not create client stream
    */
-  public void setupPipes(File confFile) throws IOException {
+  public void setupPipes() throws IOException {
     try {
-      List<PipeConfiguration> pipeConfList = getPipeConfigList(confFile);
+      List<PipeConfiguration> pipeConfList = getPipeConfigList();
       for (PipeConfiguration pipeConf : pipeConfList) {
         FileTailerQueue queue = new FileTailerQueue(pipeConf.getQueueSize());
         StreamWriter writer = getStreamWriterForPipe(pipeConf);
@@ -79,7 +89,7 @@ public class PipeManager {
    * @return the pipes configuration read from the configuration file
    * @throws ConfigurationLoadingException if can not load configuration
    */
-  private List<PipeConfiguration> getPipeConfigList(File confFile) throws ConfigurationLoadingException {
+  private List<PipeConfiguration> getPipeConfigList() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Configuration configuration = loader.load(confFile);
     return configuration.getPipesConfiguration();
@@ -98,25 +108,26 @@ public class PipeManager {
       client.create(streamName);
       return client.createWriter(streamName);
     } catch (IOException e) {
+      client.close();
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }
 
-  /**
-   * Start all pipes.
-   */
-  public void startPipes() {
+  @Override
+  public void startUp() {
     for (Pipe pipe : pipeList) {
-      pipe.start();
+      pipe.startUp();
     }
   }
 
-  /**
-   * Stop all pipes.
-   */
-  public void stopPipes() {
+  @Override
+  public void shutDown() {
     for (Pipe pipe : pipeList) {
-      pipe.stop();
+      try {
+        pipe.shutDown();
+      } catch (Exception e) {
+        LOG.warn("Cannot stop pipe: {}", e);
+      }
     }
   }
 }

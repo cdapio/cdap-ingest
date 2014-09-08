@@ -19,11 +19,12 @@ package co.cask.cdap.filetailer;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.tailer.LogTailer;
+import com.google.common.util.concurrent.AbstractIdleService;
 
 /**
  * Contains the sink and tailer instances for one Pipe.
  */
-public class Pipe {
+public class Pipe extends AbstractIdleService {
 
     private LogTailer logTailer;
 
@@ -37,19 +38,16 @@ public class Pipe {
         this.metricsProcessor = metricsProcessor;
     }
 
-  /**
-   * Start tailer and sink
-   */
-    public void start() {
+
+    @Override
+    public void startUp() {
         metricsProcessor.startAsync();
         logTailer.startAsync();
         sink.startAsync();
     }
 
-  /**
-   * Stop tailer and sink
-   */
-    public void stop() {
+    @Override
+    public void shutDown() {
         metricsProcessor.stopAsync();
         logTailer.stopAsync();
         sink.stopAsync();

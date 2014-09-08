@@ -34,14 +34,6 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(PipeConfigurationImpl.class);
 
-  private Properties properties;
-
-  private String key;
-  private String keyPath;
-
-  private SourceConfiguration sourceConfiguration;
-  private SinkConfiguration sinkConfiguration;
-
   private static final String DEFAULT_DAEMON_DIR = "/var/run/file-tailer/state_dir";
 
   private static final String DEFAULT_QUEUE_SIZE = "1000";
@@ -51,6 +43,14 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   private static final String DEFAULT_STATE_FILE = "state";
 
   private static final String DEFAULT_STATISTICS_FILE = "stats";
+
+  private final Properties properties;
+
+  private final String key;
+  private final String keyPath;
+
+  private final SourceConfiguration sourceConfiguration;
+  private final SinkConfiguration sinkConfiguration;
 
   public PipeConfigurationImpl(Properties properties, String key) {
     this.properties = properties;
@@ -66,9 +66,9 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   }
 
   @Override
-  public String getDaemonDir() {
-    return getProperty("daemon_dir", DEFAULT_DAEMON_DIR) +
-      "/" + keyPath.substring(0, keyPath.length() - 1).replace('.', '/');
+  public File getDaemonDir() {
+    return new File(getProperty("daemon_dir", DEFAULT_DAEMON_DIR),
+                    keyPath.substring(0, keyPath.length() - 1).replace('.', '/'));
   }
 
   @Override
@@ -126,8 +126,6 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
   private class SourceConfigurationImpl implements SourceConfiguration {
 
-    private String key;
-
     private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "(.*)";
 
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";
@@ -140,13 +138,15 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
 
+    private final String key;
+
     public SourceConfigurationImpl(String key) {
       this.key = "pipes." + key + ".source.";
     }
 
     @Override
-    public String getWorkDir() {
-      return getRequiredProperty(this.key + "work_dir");
+    public File getWorkDir() {
+      return new File(getRequiredProperty(this.key + "work_dir"));
     }
 
     @Override
@@ -187,8 +187,6 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
   private class SinkConfigurationImpl implements SinkConfiguration {
 
-    private String key;
-
     private static final String DEFAULT_SSL = "false";
 
     private static final String DEFAULT_WRITER_POOL_SIZE = "10";
@@ -206,6 +204,8 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
     private static final String DEFAULT_AUTH_CLIENT_PROPERTIES = "/etc/file-tailer/conf/auth-client.properties";
 
+    private final String key;
+
     public SinkConfigurationImpl(String key) {
       this.key = "pipes." + key + ".sink.";
     }
@@ -219,7 +219,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     public StreamClient getStreamClient() {
       String host = getRequiredProperty(this.key + "host");
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
-      Boolean ssl = Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL));
+      boolean ssl = Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL));
 
       RestStreamClient.Builder builder = RestStreamClient.builder(host, port).ssl(ssl);
 
@@ -236,7 +236,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
         LOG.error("Can not resolve class {}: {}", authClientClassPath, e.getMessage());
       } catch (ConfigurationLoadingException e) {
         LOG.error("Can not load Authentication Client properties file {}: {}",
-                  authClientPropertiesPath, e.getMessage());
+                  authClientPropertiesPath, e);
       }
 
       String apiKey = getProperty(this.key + "apiKey");

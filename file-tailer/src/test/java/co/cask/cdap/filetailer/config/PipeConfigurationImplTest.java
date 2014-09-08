@@ -41,8 +41,6 @@ public class PipeConfigurationImplTest {
 
     Assert.assertEquals("logEventStream", pipeConfiguration.getSinkConfiguration().getStreamName());
 
-    Assert.assertEquals("work_dir", pipeConfiguration.getSourceConfiguration().getWorkDir());
-
     Assert.assertEquals(60000, pipeConfiguration.getSourceConfiguration().getFailureSleepInterval());
   }
 

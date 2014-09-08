@@ -16,17 +16,19 @@
 
 package co.cask.cdap.filetailer.config;
 
+import java.io.File;
+
 /**
  * SourceConfiguration is design for getting source properties of the some pipe
  */
 public interface SourceConfiguration {
 
   /**
-   * Returns the path to work directory (directory with logs) for File Tailer (loaded from configuration file)
+   * Returns the work directory (directory with logs) for File Tailer (loaded from configuration file)
    *
-   * @return the work directory path
+   * @return the work directory
    */
-  String getWorkDir();
+  File getWorkDir();
 
   /**
    * Returns the name of work file (loaded from configuration file)

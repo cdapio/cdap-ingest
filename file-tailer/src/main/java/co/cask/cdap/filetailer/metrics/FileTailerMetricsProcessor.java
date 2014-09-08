@@ -16,7 +16,7 @@
 
 package co.cask.cdap.filetailer.metrics;
 
-import co.cask.cdap.filetailer.BaseWorker;
+import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.metrics.exception.FileTailerMetricsProcessorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Default implementation of FileTailerMetricsProcessor
  */
-public class FileTailerMetricsProcessor extends BaseWorker {
+public class FileTailerMetricsProcessor extends AbstractWorker {
 
   private AtomicInteger totalEventsReadPerFile;
   private AtomicInteger totalEventsIngestedPerFile;
@@ -49,7 +49,7 @@ public class FileTailerMetricsProcessor extends BaseWorker {
 
   private final String loggerClass = ch.qos.logback.classic.Logger.class.getName();
 
-  private String stateDirPath;
+  private File stateDirPath;
 
   private String metricsFileName;
 
@@ -58,7 +58,7 @@ public class FileTailerMetricsProcessor extends BaseWorker {
   private String flowName;
   private String fileName;
 
-  public FileTailerMetricsProcessor(String stateDirPath, String metricsFileName, long metricsSleepInterval,
+  public FileTailerMetricsProcessor(File stateDirPath, String metricsFileName, long metricsSleepInterval,
                                     String flowName, String fileName) {
     this.stateDirPath = stateDirPath;
     this.metricsFileName = metricsFileName;
@@ -75,7 +75,7 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     try {
       createDirs(stateDirPath);
       createFile(stateDirPath + "/" + metricsFileName);
-      appender = initAppender(stateDirPath, metricsFileName);
+      appender = initAppender(stateDirPath.getAbsolutePath(), metricsFileName);
       writeMetricsHeader(logger, appender);
       while (isRunning()) {
         Thread.sleep(metricsSleepInterval);
@@ -249,9 +249,8 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     }
   }
 
-  private void createDirs(String path) {
-    LOG.debug("Starting create directory with path: {}", path);
-    File directory = new File(path);
+  private void createDirs(File directory) {
+    LOG.debug("Starting create directory with path: {}", directory.getAbsolutePath());
     if (!directory.exists()) {
       boolean result = directory.mkdirs();
       LOG.debug("Creating directory result: {}", result);
@@ -259,7 +258,7 @@ public class FileTailerMetricsProcessor extends BaseWorker {
         throw new FileTailerMetricsProcessorException("Can not create File Tailer state directory");
       }
     } else {
-      LOG.debug("Directory/File with path: {} already exist", path);
+      LOG.debug("Directory/File with path: {} already exist", directory.getAbsolutePath());
     }
   }
 }

@@ -17,6 +17,7 @@
 package co.cask.cdap.filetailer.config;
 
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
+import com.google.common.io.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,22 +38,17 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
   public Configuration load(File file) throws ConfigurationLoadingException {
     LOG.debug("Start initializing loader with file: {}", file.getAbsolutePath());
     Properties properties = new Properties();
-    InputStream is = null;
     try {
-      is = new FileInputStream(file);
-      properties.load(is);
-      LOG.debug("Loader successfully initialized with file: {}", file.getAbsolutePath());
-    } catch (IOException e) {
-      LOG.error("Can not load properties: {}", e.getMessage());
-      throw new ConfigurationLoadingException(e.getMessage());
-    } finally {
+      InputStream is = new FileInputStream(file);
       try {
-        if (is != null) {
-          is.close();
-        }
-      } catch (IOException e) {
-        LOG.error("Can not close input stream for file {}: {}", file.getAbsolutePath(), e.getMessage());
+        properties.load(is);
+        LOG.debug("Loader successfully initialized with file: {}", file.getAbsolutePath());
+      } finally {
+        Closeables.closeQuietly(is);
       }
+    } catch (IOException e) {
+      LOG.error("Cannot load properties", e);
+      throw new ConfigurationLoadingException("Cannot load properties: " + e.getMessage());
     }
     return new ConfigurationImpl(properties);
   }

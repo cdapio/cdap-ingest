@@ -67,7 +67,7 @@ public class RunFromSaveStateTest {
       new FileTailerMetricsProcessor(flowConfig.getDaemonDir(), flowConfig.getStatisticsFile(),
                                      flowConfig.getStatisticsSleepInterval(), flowConfig.getPipeName(),
                                      flowConfig.getSourceConfiguration().getFileName());
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
 
     List<String> logList = new ArrayList<String>(ENTRY_WRITE_NUMBER);

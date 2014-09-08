@@ -35,11 +35,11 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerStateProcessorImpl.class);
 
-  private String stateDirPath;
+  private File stateDirPath;
 
   private String stateFileName;
 
-  public FileTailerStateProcessorImpl(String stateDirPath, String stateFileName) {
+  public FileTailerStateProcessorImpl(File stateDirPath, String stateFileName) {
     this.stateDirPath = stateDirPath;
     this.stateFileName = stateFileName;
   }
@@ -63,7 +63,7 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
       jsonWriter.endObject();
       LOG.debug("File Tailer state saved successfully");
     } catch (IOException e) {
-      LOG.error("Can not save File Tailer state: {}", e.getMessage());
+      LOG.error("Can not save File Tailer state: {}", e);
       throw new FileTailerStateProcessorException(e.getMessage());
     } finally {
       try {
@@ -71,7 +71,7 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
           jsonWriter.close();
         }
       } catch (IOException e) {
-        LOG.error("Can not close JSON Writer for file {}: {}", stateDirPath + "/" + stateFileName, e.getMessage());
+        LOG.error("Can not close JSON Writer for file {}: {}", stateDirPath + "/" + stateFileName, e);
       }
     }
   }
@@ -94,15 +94,14 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
       state = new FileTailerState(fileName, position, hash, lastModifyTime);
       LOG.debug("File Tailer state loaded successfully");
     } catch (IOException e) {
-      LOG.error("Can not load File Tailer state: {}", e.getMessage());
+      LOG.error("Can not load File Tailer state: {}", e);
       throw new FileTailerStateProcessorException(e.getMessage());
     }
     return state;
   }
 
-  private void createDirs(String path) throws FileTailerStateProcessorException {
-    LOG.debug("Starting create directory with path: {}", path);
-    File directory = new File(path);
+  private void createDirs(File directory) throws FileTailerStateProcessorException {
+    LOG.debug("Starting create directory with path: {}", directory.getAbsolutePath());
     if (!directory.exists()) {
       boolean result = directory.mkdirs();
       LOG.debug("Creating directory result: {}", result);
@@ -110,7 +109,7 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
         throw new FileTailerStateProcessorException("Can not create File Tailer state directory");
       }
     } else {
-      LOG.debug("Directory/File with path: {} already exist", path);
+      LOG.debug("Directory/File with path: {} already exist", directory.getAbsolutePath());
     }
   }
 }

@@ -31,8 +31,6 @@ class PipeShutdownTask implements Runnable {
 
   @Override
   public void run() {
-    LOG.info("Kill signal recieved, trying to shutdown tailer gracefully");
-    manager.stopPipes();
-
+    manager.shutDown();
   }
 }

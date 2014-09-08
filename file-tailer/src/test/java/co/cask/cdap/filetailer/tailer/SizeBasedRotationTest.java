@@ -64,7 +64,7 @@ public class SizeBasedRotationTest {
                                      flowConfig.getSourceConfiguration().getFileName());
 
     LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
 
     List<String> logList = new ArrayList<String>(ENTRY_WRITE_NUMBER);

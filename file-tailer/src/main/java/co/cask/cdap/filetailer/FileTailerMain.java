@@ -45,15 +45,15 @@ public class FileTailerMain {
       LOG.info("Too many arguments: {}. Requirement: 0 or 1", args.length);
       return;
     }
-    PipeManager manager = new PipeManager();
+    PipeManager manager = new PipeManager(configurationFile);
     try {
-      manager.setupPipes(configurationFile);
+      manager.setupPipes();
     } catch (IOException e) {
-      LOG.error("Error during flows: {} setup", e.getMessage());
+      LOG.error("Error during flows: {} setup", e);
       return;
     }
     LOG.info("Staring flows");
-    manager.startPipes();
+    manager.startUp();
     Runtime.getRuntime().addShutdownHook(new Thread(new PipeShutdownTask(manager)));
 
   }

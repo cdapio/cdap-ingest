@@ -16,6 +16,8 @@
 
 package co.cask.cdap.filetailer.config;
 
+import java.io.File;
+
 /**
  * Retrieves general properties of a pipe.
  */
@@ -29,12 +31,12 @@ public interface PipeConfiguration {
   String getPipeName();
 
   /**
-   * Returns the path to directory, intended like storage for File Tailer state and metrics
+   * Returns the directory, intended like storage for File Tailer state and metrics
    * (loaded from configuration file)
    *
-   * @return the File Tailer home (to save state and metrics) directory path
+   * @return the File Tailer home (to save state and metrics) directory
    */
-  String getDaemonDir();
+  File getDaemonDir();
 
   /**
    * Returns the name of state file (loaded from configuration file)

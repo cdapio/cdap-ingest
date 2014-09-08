@@ -58,7 +58,7 @@ public class BaseTailerTest {
     FileTailerQueue queue = new FileTailerQueue(1);
     PipeConfiguration flowConfig = TailerLogUtils.loadConfig();
     LogTailer tailer = TailerLogUtils.createTailer(queue, flowConfig);
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
     ch.qos.logback.classic.Logger logger =  TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
     RandomStringUtils randomUtils = new RandomStringUtils();
@@ -84,7 +84,7 @@ public class BaseTailerTest {
     FileTailerQueue queue = new FileTailerQueue(QUEUE_SIZE);
     PipeConfiguration flowConfig = TailerLogUtils.loadConfig();
     LogTailer tailer = TailerLogUtils.createTailer(queue, flowConfig);
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
     ch.qos.logback.classic.Logger logger =  TailerLogUtils.getTimeLogger(filePath);
     RandomStringUtils randomUtils = new RandomStringUtils();

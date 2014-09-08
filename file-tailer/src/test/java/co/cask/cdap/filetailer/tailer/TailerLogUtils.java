@@ -58,23 +58,22 @@ public class  TailerLogUtils {
 
   public static void createTestDirIfNeed() throws ConfigurationLoadingException {
     PipeConfiguration flowConf = loadConfig();
-    String dir = flowConf.getSourceConfiguration().getWorkDir();
-    File dirFile = new File(dir);
-    if (!dirFile.exists()) {
-      dirFile.mkdir();
+    File dir = flowConf.getSourceConfiguration().getWorkDir();
+    if (!dir.exists()) {
+      dir.mkdir();
     }
   }
 
   public static void clearTestDir() throws IOException {
     PipeConfiguration flowConf = loadConfig();
-    String dir = flowConf.getSourceConfiguration().getWorkDir();
-    FileUtils.cleanDirectory(new File(dir));
+    File dir = flowConf.getSourceConfiguration().getWorkDir();
+    FileUtils.cleanDirectory(dir);
   }
 
   public static void deleteTestDir() throws IOException {
     PipeConfiguration flowConf = loadConfig();
-    String dir = flowConf.getSourceConfiguration().getWorkDir();
-    FileUtils.deleteDirectory(new File(dir));
+    File dir = flowConf.getSourceConfiguration().getWorkDir();
+    FileUtils.deleteDirectory(dir);
   }
 
   public static ch.qos.logback.classic.Logger getSizeLogger(String file, String fileSize) {

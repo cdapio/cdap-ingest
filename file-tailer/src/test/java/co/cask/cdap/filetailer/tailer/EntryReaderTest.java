@@ -56,7 +56,7 @@ public class EntryReaderTest {
     final  List<String>  lineList = new ArrayList<String>(LINE_SIZE);
     RandomStringUtils randomUtils = new RandomStringUtils();
     PipeConfiguration flowConfig = TailerLogUtils.loadConfig();
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
         + flowConfig.getSourceConfiguration().getFileName();
 
     LogTailer tailer = new LogTailer(flowConfig, null, null, null);
@@ -82,7 +82,7 @@ public class EntryReaderTest {
   @Test
   public void readEmptyTest() throws Exception {
     PipeConfiguration flowConfig = TailerLogUtils.loadConfig();
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
 
     LogTailer tailer = new LogTailer(flowConfig, null, null, null);
