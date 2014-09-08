@@ -109,15 +109,15 @@ public class StreamSink extends AbstractSink implements Configurable {
   }
 
 
-  private void tryReopenClientConnection() throws IOException {
+  private void tryReopenClientConnection() throws Throwable {
     if (writer == null) {
       LOG.debug("Trying to reopen stream writer {} ", streamName);
       try {
         createStreamClient();
-      } catch (IOException e) {
+      } catch (Throwable t) {
         LOG.error("Error during reopening client by name: {} for host: {}, port: {}. Reason: {} ",
-                  new Object[]{streamName, host, port, e.getMessage(), e});
-        throw new IOException(e);
+                  new Object[]{streamName, host, port, t.getMessage(), t});
+        throw t;
       }
     }
   }
@@ -150,8 +150,8 @@ public class StreamSink extends AbstractSink implements Configurable {
     if (streamClient != null) {
       try {
         streamClient.close();
-      } catch (IOException e) {
-        LOG.error("Error closing stream client. {}", e.getMessage(), e);
+      } catch (Throwable t) {
+        LOG.error("Error closing stream client. {}", t.getMessage(), t);
       }
       streamClient = null;
     }
@@ -162,8 +162,8 @@ public class StreamSink extends AbstractSink implements Configurable {
       if (writer != null) {
         writer.close();
       }
-    } catch (IOException e) {
-      LOG.error("Error closing writer. {}", e.getMessage(), e);
+    } catch (Throwable t) {
+      LOG.error("Error closing writer. {}", t.getMessage(), t);
     }
     writer = null;
   }
@@ -172,9 +172,9 @@ public class StreamSink extends AbstractSink implements Configurable {
     super.start();
     try {
       createStreamClient();
-    } catch (Exception e) {
+    } catch (Throwable t) {
       LOG.error("Unable to create Stream client by name: {} for host: {}, port: {}. Reason: {} ",
-                new Object[]{streamName, host, port, e.getMessage(), e});
+                new Object[]{streamName, host, port, t.getMessage(), t});
       closeWriterQuietly();
       closeClientQuietly();
     }
