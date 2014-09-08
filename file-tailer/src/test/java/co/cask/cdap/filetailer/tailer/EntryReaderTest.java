@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,10 +45,12 @@ public class EntryReaderTest {
     TailerLogUtils.createTestDirIfNeed();
     TailerLogUtils.clearTestDir();
   }
+
   @After
   public void clean() throws IOException {
 TailerLogUtils.deleteTestDir();
   }
+
   @Test
   public void readLineTest() throws Exception {
     final  List<String>  lineList = new ArrayList<String>(LINE_SIZE);
@@ -59,22 +62,23 @@ TailerLogUtils.deleteTestDir();
     LogTailer tailer = new LogTailer(flowConfig, null, null, null);
     File file = new File(filePath);
     file.createNewFile();
-    RandomAccessFile reader = new RandomAccessFile(filePath, "r");
+    FileChannel channel =  (new RandomAccessFile(filePath, "r")).getChannel();
     Class params[] = {String.class, byte.class};
-    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", RandomAccessFile.class, char.class);
+    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", FileChannel.class, char.class);
     method.setAccessible(true);
     Field field = tailer.getClass().getDeclaredField("charset");
     field.setAccessible(true);
     field.set(tailer, Charset.defaultCharset());
     for (int i = 0; i < LINE_SIZE; i++) {
-     String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
-     lineList.add(currLine);
+      String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
+      lineList.add(currLine);
       TailerLogUtils.writeLineToFile(filePath, currLine);
     }
     for (String line: lineList) {
-      Assert.assertEquals(line, method.invoke(tailer, reader, '\n'));
+      Assert.assertEquals(line, method.invoke(tailer, channel, '\n'));
     }
   }
+
   @Test
   public void readEmptyTest() throws Exception {
     PipeConfiguration flowConfig = TailerLogUtils.loadConfig();
@@ -85,14 +89,14 @@ TailerLogUtils.deleteTestDir();
     File file = new File(filePath);
     file.createNewFile();
 
-    RandomAccessFile reader = new RandomAccessFile(filePath, "r");
+    FileChannel channel =  (new RandomAccessFile(filePath, "r")).getChannel();
     Class params[] = {String.class, byte.class};
-    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", RandomAccessFile.class, char.class);
+    Method method = tailer.getClass().getDeclaredMethod("tryReadLine", FileChannel.class, char.class);
     method.setAccessible(true);
     Field field = tailer.getClass().getDeclaredField("charset");
     field.setAccessible(true);
     field.set(tailer, Charset.defaultCharset());
-    String str = (String) method.invoke(tailer, reader, '\n');
+    String str = (String) method.invoke(tailer, channel, '\n');
       Assert.assertEquals(0, str.length());
     }
   }

@@ -41,7 +41,7 @@ public class BaseTailerTest {
   private static final String LOG_FILE_SIZE = "1KB";
   private static final int QUEUE_SIZE = 200;
   private static final int WRITING_INTERVAL = 1000;
-
+  private static final int SLEEP_TIME = 5000;
   @Before
   public void prepare() throws IOException {
     TailerLogUtils.createTestDirIfNeed();
@@ -66,11 +66,11 @@ public class BaseTailerTest {
 
     for (int i = 0; i < ENTRY_NUMBER; i++) {
       String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
-    logger.debug(currLine);
-    logList.add(currLine);
+      logger.debug(currLine);
+      logList.add(currLine);
     }
     tailer.startWorker();
-    Thread.sleep(3000);
+    Thread.currentThread().sleep(SLEEP_TIME);
     for (String str:logList)  {
     Assert.assertEquals(true, queue.take().getEventData().contains(str));
     }
@@ -88,21 +88,17 @@ public class BaseTailerTest {
     ch.qos.logback.classic.Logger logger =  TailerLogUtils.getTimeLogger(filePath);
     RandomStringUtils randomUtils = new RandomStringUtils();
     List<String> logList = new ArrayList<String>(ENTRY_NUMBER);
-    List<String> queueReturnList = new ArrayList<String>(ENTRY_NUMBER);
       tailer.startWorker();
     for (int i = 0; i < ENTRY_NUMBER; i++) {
       String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
-         logger.debug(currLine);
+      logger.debug(currLine);
       logList.add(currLine);
-
-         Thread.sleep(WRITING_INTERVAL);
+      Thread.currentThread().sleep(WRITING_INTERVAL);
     }
-    Thread.sleep(2000);
+    Thread.currentThread().sleep(SLEEP_TIME);
+    tailer.stopWorker();
     for (String str:logList) {
       Assert.assertEquals(true, queue.take().getEventData().contains(str));
     }
-
-    tailer.stopWorker();
   }
-
  }

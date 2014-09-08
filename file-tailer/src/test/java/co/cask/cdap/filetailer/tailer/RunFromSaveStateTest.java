@@ -47,7 +47,7 @@ public class RunFromSaveStateTest {
   private static final int ENTRY_WRITE_NUMBER = 400;
   private static final String LOG_FILE_SIZE = "10KB";
   private static final int QUEUE_SIZE = 2000;
-  private static final int SLEEP_TIME = 7000;
+  private static final int SLEEP_TIME = 5000;
 
   @Before
   public void prepare() throws IOException {
@@ -85,7 +85,7 @@ public class RunFromSaveStateTest {
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
 
     tailer.startWorker();
-    Thread.sleep(SLEEP_TIME);
+    Thread.currentThread().sleep(SLEEP_TIME);
     saveState(intQueue, queue, readLogList, stateProcessor);
 
     tailer.stopWorker();
@@ -95,7 +95,7 @@ public class RunFromSaveStateTest {
 
     tailer.startWorker();
 
-    Thread.sleep(SLEEP_TIME);
+    Thread.currentThread().sleep(SLEEP_TIME);
     saveState(intQueue, queue, readLogList, stateProcessor);
 
     tailer.stopWorker();
@@ -103,7 +103,7 @@ public class RunFromSaveStateTest {
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
     tailer.startWorker();
 
-    Thread.sleep(SLEEP_TIME);
+    Thread.currentThread().sleep(SLEEP_TIME);
 
     tailer.stopWorker();
     saveState(intQueue, queue, readLogList, stateProcessor);
