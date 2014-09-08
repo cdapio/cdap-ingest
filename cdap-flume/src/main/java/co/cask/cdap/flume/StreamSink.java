@@ -139,9 +139,9 @@ public class StreamSink extends AbstractSink implements Configurable {
         if (writer == null) {
           writer = streamClient.createWriter(streamName);
         }
-      } catch (IOException e) {
+      } catch (Throwable t) {
         closeWriterQuietly();
-        throw new IOException("Can not create stream writer by name: " + streamName, e);
+        throw new IOException("Can not create stream writer by name: " + streamName, t);
       }
     }
   }
