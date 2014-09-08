@@ -109,15 +109,15 @@ public class StreamSink extends AbstractSink implements Configurable {
   }
 
 
-  private void tryReopenClientConnection() throws Throwable {
+  private void tryReopenClientConnection() throws IOException {
     if (writer == null) {
       LOG.debug("Trying to reopen stream writer {} ", streamName);
       try {
         createStreamClient();
-      } catch (Throwable t) {
+      } catch (IOException e) {
         LOG.error("Error during reopening client by name: {} for host: {}, port: {}. Reason: {} ",
-                  new Object[]{streamName, host, port, t.getMessage(), t});
-        throw t;
+                  new Object[]{streamName, host, port, e.getMessage(), e});
+        throw e;
       }
     }
   }
@@ -169,7 +169,6 @@ public class StreamSink extends AbstractSink implements Configurable {
   }
 
   public synchronized void start() {
-    super.start();
     try {
       createStreamClient();
     } catch (Throwable t) {
@@ -177,7 +176,9 @@ public class StreamSink extends AbstractSink implements Configurable {
                 new Object[]{streamName, host, port, t.getMessage(), t});
       closeWriterQuietly();
       closeClientQuietly();
+      return;
     }
+    super.start();
     LOG.info("StreamSink {} started.", getName());
   }
 
