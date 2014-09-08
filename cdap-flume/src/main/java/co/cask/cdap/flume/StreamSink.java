@@ -132,26 +132,17 @@ public class StreamSink extends AbstractSink implements Configurable {
       if (authToken != null && !authToken.equals("")) {
         builder.authToken(authToken);
       }
-
       builder.writerPoolSize(writerPoolSize);
-
       builder.version(version);
+      streamClient = builder.build();
       try {
-        streamClient = builder.build();
-        streamClient.create(streamName);
-
+        if (writer == null) {
+          writer = streamClient.createWriter(streamName);
+        }
       } catch (IOException e) {
-        closeClientQuietly();
-        throw new IOException("Can not create client stream by name: " + streamName, e);
+        closeWriterQuietly();
+        throw new IOException("Can not create stream writer by name: " + streamName, e);
       }
-    }
-    try {
-      if (writer == null) {
-        writer = streamClient.createWriter(streamName);
-      }
-    } catch (IOException e) {
-      closeWriterQuietly();
-      throw new IOException("Can not create stream writer by name: " + streamName, e);
     }
   }
 
