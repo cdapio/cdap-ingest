@@ -22,7 +22,7 @@
 
   <groupId>co.cask.cdap</groupId>
   <artifactId>cdap-ingest</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>CDAP ingest</name>
 
@@ -33,6 +33,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <cdap.clients.version>1.0.0-SNAPSHOT</cdap.clients.version>
     <guava.version>17.0</guava.version>
     <http.component.version>4.3.1</http.component.version>
     <commons.lang.version>2.5</commons.lang.version>
@@ -45,8 +46,48 @@
     <log4j.over.slf4j.version>1.7.7</log4j.over.slf4j.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>continuuity-public</id>
+      <url>https://repository.continuuity.com/content/repositories/public</url>
+    </repository>
+    <repository>
+      <id>smartifacts</id>
+      <url>https://repository.continuuity.com/content/repositories/smartifacts</url>
+    </repository>
+    <repository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>continuuity</id>
+      <url>https://repository.continuuity.com/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>nexus</id>
+      <name>continuuity-internal</name>
+      <url>https://repository.continuuity.com/service/local/staging/deploy/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>continuuity</id>
+      <url>https://repository.continuuity.com/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <site>
+      <id>continuuity</id>
+      <url>http://continuuity.com</url>
+    </site>
+  </distributionManagement>
+
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>co.cask.cdap</groupId>
+        <artifactId>authentication-client-java</artifactId>
+        <version>${cdap.clients.version}</version>
+      </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
@@ -196,6 +237,10 @@
                   <exclude>**/*.avsc</exclude>
                   <!-- Excludes examples by default, include it in the examples profile -->
                   <exclude>examples/**</exclude>
+                  <exclude>**/*.yml</exclude>
+                  <exclude>stream-client-ruby/spec/fixtures/1MB</exclude>
+                  <exclude>stream-client-ruby/Gemfile.lock</exclude>
+                  <exclude>stream-client-ruby/README.md</exclude>
                 </excludes>
               </configuration>
             </execution>
