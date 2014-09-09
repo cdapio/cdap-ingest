@@ -240,6 +240,11 @@
                   <exclude>stream-client-ruby/spec/fixtures/1MB</exclude>
                   <exclude>stream-client-ruby/Gemfile.lock</exclude>
                   <exclude>stream-client-ruby/README.md</exclude>
+                  <exclude>stream-client-python/v2/test/*</exclude>
+                  <exclude>stream-client-python/v2/config.json</exclude>
+                  <exclude>stream-client-python/v3/test/*</exclude>
+                  <exclude>stream-client-python/v3/config.json</exclude>
+                  <exclude>stream-client-python/README.md</exclude>
                 </excludes>
               </configuration>
             </execution>
