@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +46,6 @@ public class PipeManager extends AbstractIdleService {
   private static final Logger LOG = LoggerFactory.getLogger(PipeManager.class);
 
   private final List<Pipe> pipeList = new ArrayList<Pipe>();
-
   private final File confFile;
 
   PipeManager(File confFile) {
@@ -57,14 +55,18 @@ public class PipeManager extends AbstractIdleService {
   /**
    * Pipes setup
    *
-   * @throws IOException if can not create client stream
+   * @throws IOException in case a client stream cannot be created
    */
   public void setupPipes() throws IOException {
+    StreamClient client = null;
+    StreamWriter writer = null;
     try {
-      List<PipeConfiguration> pipeConfList = getPipeConfigList();
+      List<PipeConfiguration> pipeConfList = getPipeConfigs();
       for (PipeConfiguration pipeConf : pipeConfList) {
         FileTailerQueue queue = new FileTailerQueue(pipeConf.getQueueSize());
-        StreamWriter writer = getStreamWriterForPipe(pipeConf);
+        client = pipeConf.getSinkConfiguration().getStreamClient();
+        String streamName = pipeConf.getSinkConfiguration().getStreamName();
+        writer = getStreamWriterForPipe(client, streamName);
         FileTailerStateProcessor stateProcessor =
           new FileTailerStateProcessorImpl(pipeConf.getDaemonDir(), pipeConf.getStateFile());
         FileTailerMetricsProcessor metricsProcessor =
@@ -76,10 +78,19 @@ public class PipeManager extends AbstractIdleService {
                                                   stateProcessor, metricsProcessor,
                                                   pipeConf.getSinkConfiguration().getPackSize()),
                                metricsProcessor));
+        client = null;
+        writer = null;
       }
     } catch (ConfigurationLoadingException e) {
       throw new ConfigurationLoadingException("Error during loading configuration from file: "
                                                 + confFile.getAbsolutePath() + e.getMessage());
+    } finally {
+      if (client != null) {
+        client.close();
+      }
+      if (writer != null) {
+        writer.close();
+      }
     }
   }
 
@@ -87,12 +98,12 @@ public class PipeManager extends AbstractIdleService {
    * Get pipes configuration
    *
    * @return the pipes configuration read from the configuration file
-   * @throws ConfigurationLoadingException if can not load configuration
+   * @throws ConfigurationLoadingException in case can not load configuration
    */
-  private List<PipeConfiguration> getPipeConfigList() throws ConfigurationLoadingException {
+  private List<PipeConfiguration> getPipeConfigs() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Configuration configuration = loader.load(confFile);
-    return configuration.getPipesConfiguration();
+    return configuration.getPipeConfigurations();
   }
 
   /**
@@ -101,22 +112,25 @@ public class PipeManager extends AbstractIdleService {
    * @return the pipe's streamWriter
    * @throws IOException streamWriter creation failed
    */
-  private StreamWriter getStreamWriterForPipe(PipeConfiguration pipeConf) throws IOException {
-    StreamClient client = pipeConf.getSinkConfiguration().getStreamClient();
-    String streamName = pipeConf.getSinkConfiguration().getStreamName();
+  private StreamWriter getStreamWriterForPipe(StreamClient client,  String streamName) throws IOException {
     try {
       client.create(streamName);
       return client.createWriter(streamName);
     } catch (IOException e) {
-      client.close();
       throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
     }
   }
 
   @Override
   public void startUp() {
+    try {
+      setupPipes();
+    } catch (IOException e) {
+      LOG.error("Error during pipes: {} setup", e);
+      return;
+    }
     for (Pipe pipe : pipeList) {
-      pipe.startUp();
+      pipe.startAsync();
     }
   }
 
@@ -124,7 +138,7 @@ public class PipeManager extends AbstractIdleService {
   public void shutDown() {
     for (Pipe pipe : pipeList) {
       try {
-        pipe.shutDown();
+        pipe.stopAsync();
       } catch (Exception e) {
         LOG.warn("Cannot stop pipe: {}", e);
       }

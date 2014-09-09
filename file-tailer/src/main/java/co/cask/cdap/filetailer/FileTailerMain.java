@@ -46,15 +46,8 @@ public class FileTailerMain {
       return;
     }
     PipeManager manager = new PipeManager(configurationFile);
-    try {
-      manager.setupPipes();
-    } catch (IOException e) {
-      LOG.error("Error during flows: {} setup", e);
-      return;
-    }
-    LOG.info("Staring flows");
-    manager.startUp();
+    LOG.info("Staring pipes");
+    manager.startAsync();
     Runtime.getRuntime().addShutdownHook(new Thread(new PipeShutdownTask(manager)));
-
   }
 }

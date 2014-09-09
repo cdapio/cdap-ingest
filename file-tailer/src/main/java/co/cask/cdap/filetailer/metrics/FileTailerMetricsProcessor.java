@@ -32,31 +32,24 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class FileTailerMetricsProcessor extends AbstractWorker {
 
-  private AtomicInteger totalEventsReadPerFile;
-  private AtomicInteger totalEventsIngestedPerFile;
-
-  private AtomicInteger minEventSizePerFile;
-  private AtomicInteger maxEventSizePerFile;
-  private AtomicInteger totalEventSizePerFile;
-  private AtomicInteger eventsPerFile;
-
-  private AtomicInteger minWriteLatencyPerStream;
-  private AtomicInteger maxWriteLatencyPerStream;
-  private AtomicInteger totalWriteLatencyPerStream;
-  private AtomicInteger writesPerStream;
-
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerMetricsProcessor.class);
 
   private final String loggerClass = ch.qos.logback.classic.Logger.class.getName();
-
-  private File stateDirPath;
-
-  private String metricsFileName;
-
-  private long metricsSleepInterval;
-
-  private String flowName;
-  private String fileName;
+  private final File stateDirPath;
+  private final String metricsFileName;
+  private final long metricsSleepInterval;
+  private final String flowName;
+  private final String fileName;
+  private final AtomicInteger totalEventsReadPerFile;
+  private final AtomicInteger totalEventsIngestedPerFile;
+  private final AtomicInteger minEventSizePerFile;
+  private final AtomicInteger maxEventSizePerFile;
+  private final AtomicInteger totalEventSizePerFile;
+  private final AtomicInteger eventsPerFile;
+  private final AtomicInteger minWriteLatencyPerStream;
+  private final AtomicInteger maxWriteLatencyPerStream;
+  private final AtomicInteger totalWriteLatencyPerStream;
+  private final AtomicInteger writesPerStream;
 
   public FileTailerMetricsProcessor(File stateDirPath, String metricsFileName, long metricsSleepInterval,
                                     String flowName, String fileName) {
@@ -65,7 +58,17 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     this.metricsSleepInterval = metricsSleepInterval;
     this.flowName = flowName;
     this.fileName = fileName;
-    initMetrics();
+
+    totalEventsReadPerFile = new AtomicInteger(0);
+    totalEventsIngestedPerFile = new AtomicInteger(0);
+    minEventSizePerFile = new AtomicInteger(0);
+    maxEventSizePerFile = new AtomicInteger(0);
+    totalEventSizePerFile = new AtomicInteger(0);
+    eventsPerFile = new AtomicInteger(0);
+    minWriteLatencyPerStream = new AtomicInteger(0);
+    maxWriteLatencyPerStream = new AtomicInteger(0);
+    totalWriteLatencyPerStream = new AtomicInteger(0);
+    writesPerStream = new AtomicInteger(0);
   }
 
   @Override
@@ -125,23 +128,6 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
 
   private double calculateAverage(int total, int count) {
     return Math.round(total / (double) count * 1000) / 1000.0;
-  }
-
-  private void initMetrics() {
-    LOG.debug("Start initializing metrics ..");
-    totalEventsReadPerFile = new AtomicInteger(0);
-    totalEventsIngestedPerFile = new AtomicInteger(0);
-
-    minEventSizePerFile = new AtomicInteger(0);
-    maxEventSizePerFile = new AtomicInteger(0);
-    totalEventSizePerFile = new AtomicInteger(0);
-    eventsPerFile = new AtomicInteger(0);
-
-    minWriteLatencyPerStream = new AtomicInteger(0);
-    maxWriteLatencyPerStream = new AtomicInteger(0);
-    totalWriteLatencyPerStream = new AtomicInteger(0);
-    writesPerStream = new AtomicInteger(0);
-    LOG.debug("All metrics initialized successfully");
   }
 
   private void resetMetrics() {

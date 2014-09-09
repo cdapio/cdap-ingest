@@ -20,10 +20,12 @@ import co.cask.cdap.filetailer.event.FileTailerEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by dev on 15.08.14.
+ * File Tailer Queue presentation
  */
 public class FileTailerQueue {
 
@@ -46,5 +48,13 @@ public class FileTailerQueue {
     FileTailerEvent event = queue.take();
     LOG.trace("Attempt to take event {} from queue was successful", event);
     return event;
+  }
+
+  public List<FileTailerEvent> drainTo(int maxElements) throws InterruptedException {
+    LOG.trace("Attempt to take {} events from queue", maxElements);
+    List<FileTailerEvent> events = new ArrayList<FileTailerEvent>(maxElements);
+    queue.drainTo(events, maxElements);
+    LOG.trace("{} events taken from queue was successfully", events.size());
+    return events;
   }
 }

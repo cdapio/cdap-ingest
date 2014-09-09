@@ -35,7 +35,7 @@ public class ConfigurationImplTest {
 
     Configuration configuration = loader.load(new File(path));
 
-    List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
+    List<PipeConfiguration> pipesConfiguration = configuration.getPipeConfigurations();
 
     Assert.assertEquals(3, pipesConfiguration.size());
   }
@@ -49,6 +49,6 @@ public class ConfigurationImplTest {
 
     Configuration configuration = loader.load(new File(path));
 
-    configuration.getPipesConfiguration();
+    configuration.getPipeConfigurations();
   }
 }

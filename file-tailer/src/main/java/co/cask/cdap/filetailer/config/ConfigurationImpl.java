@@ -31,7 +31,7 @@ public class ConfigurationImpl implements Configuration {
 
   private static final Logger LOG = LoggerFactory.getLogger(ConfigurationImpl.class);
 
-  private Properties properties;
+  private final Properties properties;
 
   public ConfigurationImpl(Properties properties) {
     this.properties = properties;
@@ -43,7 +43,7 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
-  public List<PipeConfiguration> getPipesConfiguration() {
+  public List<PipeConfiguration> getPipeConfigurations() {
     String[] pipes = getRequiredProperty("pipes").split(",");
     List<PipeConfiguration> pipesConfiguration = new ArrayList<PipeConfiguration>(pipes.length);
     for (String pipe : pipes) {

@@ -19,16 +19,13 @@ package co.cask.cdap.filetailer.state;
 import java.io.Serializable;
 
 /**
- * Created by dev on 15.08.14.
+ * File Tailer State presentation
  */
 public class FileTailerState implements Serializable {
 
   private final String fileName;
-
   private final long position;
-
   private final int hash;
-
   private final long lastModifyTime;
 
   public FileTailerState(String fileName, long position, int hash, long lastModifyTime) {

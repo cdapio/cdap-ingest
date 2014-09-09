@@ -45,16 +45,39 @@ class EventPack {
     }
   }
 
+  boolean addAll(List<FileTailerEvent> events) {
+    boolean result = true;
+    for (FileTailerEvent event : events) {
+      result = result & add(event);
+    }
+    return result;
+  }
+
   boolean isFull() {
     return capacity == events.size();
   }
 
+  int getFreeSize() {
+    return capacity - events.size();
+  }
+
+  /**
+   * Retrieves the state of this pack.
+   * State of pack it is a state of some event from pack with the highest values:
+   * last time modified and position
+   *
+   * @return state of this pack or null in case pack is empty
+   */
   FileTailerState getState() {
+    if (events.isEmpty()) {
+      return null;
+    }
     FileTailerState finalState = events.get(0).getState();
     for (FileTailerEvent event : events) {
       FileTailerState tmpState = event.getState();
-      if (tmpState.getLastModifyTime() >= finalState.getLastModifyTime() &&
-        tmpState.getPosition() > finalState.getPosition()) {
+      if (tmpState.getLastModifyTime() > finalState.getLastModifyTime() ||
+        tmpState.getLastModifyTime() == finalState.getLastModifyTime() &&
+          tmpState.getPosition() > finalState.getPosition()) {
         finalState = tmpState;
       }
     }

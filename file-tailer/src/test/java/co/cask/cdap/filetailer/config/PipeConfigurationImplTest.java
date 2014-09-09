@@ -35,7 +35,7 @@ public class PipeConfigurationImplTest {
 
     Configuration configuration = loader.load(new File(path));
 
-    List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
+    List<PipeConfiguration> pipesConfiguration = configuration.getPipeConfigurations();
 
     PipeConfiguration pipeConfiguration = pipesConfiguration.get(0);
 
@@ -53,7 +53,7 @@ public class PipeConfigurationImplTest {
 
     Configuration configuration = loader.load(new File(path));
 
-    List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
+    List<PipeConfiguration> pipesConfiguration = configuration.getPipeConfigurations();
 
     PipeConfiguration pipeConfiguration = pipesConfiguration.get(0);
 

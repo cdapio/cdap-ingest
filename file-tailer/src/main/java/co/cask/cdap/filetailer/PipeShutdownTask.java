@@ -16,21 +16,18 @@
 
 package co.cask.cdap.filetailer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Shutdowns all Flows.
  */
 class PipeShutdownTask implements Runnable {
-  private static final Logger LOG = LoggerFactory.getLogger(FileTailerMain.class);
+  private final PipeManager manager;
+
   PipeShutdownTask(PipeManager manager) {
     this.manager = manager;
   }
-  private final PipeManager manager;
 
   @Override
   public void run() {
-    manager.shutDown();
+    manager.stopAsync();
   }
 }

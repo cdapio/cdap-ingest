@@ -26,18 +26,15 @@ import com.google.common.util.concurrent.AbstractIdleService;
  */
 public class Pipe extends AbstractIdleService {
 
-    private LogTailer logTailer;
-
-    private FileTailerSink sink;
-
-    private FileTailerMetricsProcessor metricsProcessor;
+    private final LogTailer logTailer;
+    private final FileTailerSink sink;
+    private final FileTailerMetricsProcessor metricsProcessor;
 
     public Pipe(LogTailer tailer, FileTailerSink sink, FileTailerMetricsProcessor metricsProcessor) {
         this.logTailer = tailer;
         this.sink = sink;
         this.metricsProcessor = metricsProcessor;
     }
-
 
     @Override
     public void startUp() {

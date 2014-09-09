@@ -51,7 +51,7 @@ class UploadLatch {
   }
 
   boolean isSuccessful() {
-    return isComplete() && failedEvents.size() == 0;
+    return isComplete() && failedEvents.isEmpty();
   }
 
   boolean isComplete() {

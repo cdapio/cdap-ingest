@@ -45,21 +45,22 @@ public class LogTailer extends AbstractWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(LogTailer.class);
   private static final String RAF_MODE = "r";
-  private long sleepInterval;
-  private File logDirectory;
-  private String logFileName;
-  private String charsetName;
-  private Charset charset;
-  private int failureRetryLimit;
-  private long failureSleepInterval;
   private static final int DEFAULT_BUFSIZE = 4096;
-  private FileTailerQueue queue;
-  private char entrySeparator = '\n';
-  private PipeConfiguration confLoader;
-  private FileTailerStateProcessor fileTailerStateProcessor;
-  private FileTailerMetricsProcessor metricsProcessor;
+
+  private final long sleepInterval;
+  private final File logDirectory;
+  private final String logFileName;
+  private final String charsetName;
+  private Charset charset;
+  private final int failureRetryLimit;
+  private final long failureSleepInterval;
+  private final FileTailerQueue queue;
+  private final char entrySeparator;
+  private final PipeConfiguration confLoader;
+  private final FileTailerStateProcessor fileTailerStateProcessor;
+  private final FileTailerMetricsProcessor metricsProcessor;
   private final ByteBuffer buffer;
-  private String rotationPattern;
+  private final String rotationPattern;
 
 
   public LogTailer(PipeConfiguration loader, FileTailerQueue queue,
@@ -293,28 +294,27 @@ public class LogTailer extends AbstractWorker {
     }
     if (fromSaveState && logFilesTimesMap.containsKey(new LogFileTime(currentTime, currFile.getName()))) {
       return logFilesTimesMap.get(new LogFileTime(currentTime, currFile.getName()));
-    } else {
-      boolean currentFileChanged = true;
-      for (LogFileTime logFileTime : logFilesTimesMap.keySet()) {
-        if (logFileTime.getModificationTime().equals(currentTime)) {
-          currentFileChanged = false;
-          break;
-        }
-      }
-      if (currentFileChanged && logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName())) == null) {
-        return null;
-      }
-      LogFileTime key = logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName()));
-
-      return key == null ? null : logFilesTimesMap.get(key);
     }
+    boolean currentFileChanged = true;
+    for (LogFileTime logFileTime : logFilesTimesMap.keySet()) {
+      if (logFileTime.getModificationTime().equals(currentTime)) {
+        currentFileChanged = false;
+        break;
+      }
+    }
+    if (currentFileChanged && logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName())) == null) {
+      return null;
+    }
+    LogFileTime key = logFilesTimesMap.higherKey(new LogFileTime(currentTime, currFile.getName()));
+
+    return key == null ? null : logFilesTimesMap.get(key);
   }
 
   class LogFileTime {
-    private Long modificationTime;
-    private String fileName;
+    private final long modificationTime;
+    private final String fileName;
 
-    LogFileTime(Long modificationTime, String fileName) {
+    LogFileTime(long modificationTime, String fileName) {
       this.modificationTime = modificationTime;
       this.fileName = fileName;
     }
@@ -368,12 +368,12 @@ public class LogTailer extends AbstractWorker {
   }
 
   /**
-   *  Method try read  log entry from log file
+   *  Method try read log entry from log file
    *
-   *  @param channel RandomAccessReader steam
+   *  @param channel FileChannel steam
    *  @param separator  log entry separator
-   *  @throws IOException if could not read entry after failureRetryLimit attempts
-   *  @throws InterruptedException if thread was interrupted
+   *  @throws IOException in case could not read entry after failureRetryLimit attempts
+   *  @throws InterruptedException in case thread was interrupted
    */
   private String tryReadLine(FileChannel channel, char separator) throws IOException, InterruptedException {
     int retryNumber = 0;
@@ -397,9 +397,9 @@ public class LogTailer extends AbstractWorker {
 
             if (ch != separator) {
               sb.append(ch);
-              rePos++;
+              rePos += ((Character) ch).toString().getBytes(charset).length;
             } else {
-              rePos++;
+              rePos += ((Character) separator).toString().getBytes(charset).length;
               end = true;
               break;
             }
@@ -421,8 +421,7 @@ public class LogTailer extends AbstractWorker {
       try {
         channel.close();
       } catch (IOException e) {
-        LOG.warn("Exception during closing", e.getMessage());
-
+        LOG.warn("Exception during closing: {}", e.getMessage(), e);
       }
     }
   }

@@ -36,5 +36,5 @@ public interface Configuration {
    *
    * @return configurations of each pipe
    */
-  List<PipeConfiguration> getPipesConfiguration();
+  List<PipeConfiguration> getPipeConfigurations();
 }

@@ -35,9 +35,8 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerStateProcessorImpl.class);
 
-  private File stateDirPath;
-
-  private String stateFileName;
+  private final File stateDirPath;
+  private final String stateFileName;
 
   public FileTailerStateProcessorImpl(File stateDirPath, String stateFileName) {
     this.stateDirPath = stateDirPath;
@@ -46,6 +45,10 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
 
   @Override
   public void saveState(FileTailerState state) throws FileTailerStateProcessorException {
+    if (state == null) {
+      LOG.info("Cannot save null state");
+      return;
+    }
     createDirs(stateDirPath);
     LOG.debug("Start saving File Tailer state ..");
     JsonWriter jsonWriter = null;

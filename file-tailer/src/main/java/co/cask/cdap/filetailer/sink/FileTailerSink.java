@@ -47,7 +47,6 @@ public class FileTailerSink extends AbstractWorker {
   private final StreamWriter writer;
   private final int packSize;
   private final Random random;
-
   private final FileTailerStateProcessor stateProcessor;
   private final FileTailerMetricsProcessor metricsProcessor;
 
@@ -60,9 +59,6 @@ public class FileTailerSink extends AbstractWorker {
   public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
                         FileTailerStateProcessor stateProcessor,
                         FileTailerMetricsProcessor metricsProcessor, int packSize) {
-    if (writer == null) {
-      throw new IllegalArgumentException("Writer can't be empty!");
-    }
     this.stateProcessor = stateProcessor;
     this.metricsProcessor = metricsProcessor;
     this.queue = queue;
@@ -72,16 +68,15 @@ public class FileTailerSink extends AbstractWorker {
     this.random = new Random();
   }
 
-
   @Override
   public void run() {
     LOG.debug("Creating new event pack");
     EventPack pack = new EventPack(packSize);
     while (isRunning()) {
       try {
-        FileTailerEvent event = queue.take();
+        List<FileTailerEvent> events = queue.drainTo(pack.getFreeSize());
 
-        pack.add(event);
+        pack.addAll(events);
 
         if (pack.isFull()) {
           LOG.debug("Event pack is full");
@@ -95,7 +90,7 @@ public class FileTailerSink extends AbstractWorker {
         LOG.info("Sink was interrupted");
         break;
       } catch (IOException e) {
-        LOG.info("Exception while sending events", e);
+        LOG.warn("Exception while sending events", e);
         break;
       }
     }

@@ -21,6 +21,7 @@ import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
+import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,22 +34,16 @@ import java.util.Properties;
 public class PipeConfigurationImpl implements PipeConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(PipeConfigurationImpl.class);
-
   private static final String DEFAULT_DAEMON_DIR = "/var/run/file-tailer/state_dir";
-
   private static final String DEFAULT_QUEUE_SIZE = "1000";
-
   private static final String DEFAULT_STATISTICS_SLEEP_INTERVAL = "60000";
-
   private static final String DEFAULT_STATE_FILE = "state";
-
   private static final String DEFAULT_STATISTICS_FILE = "stats";
+  private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
 
   private final Properties properties;
-
   private final String key;
   private final String keyPath;
-
   private final SourceConfiguration sourceConfiguration;
   private final SinkConfiguration sinkConfiguration;
 
@@ -127,15 +122,10 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   private class SourceConfigurationImpl implements SourceConfiguration {
 
     private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "(.*)";
-
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";
-
     private static final String DEFAULT_RECORD_SEPARATOR = "\n";
-
     private static final String DEFAULT_SLEEP_INTERVAL = "3000";
-
     private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
-
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
 
     private final String key;
@@ -188,20 +178,11 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   private class SinkConfigurationImpl implements SinkConfiguration {
 
     private static final String DEFAULT_SSL = "false";
-
     private static final String DEFAULT_WRITER_POOL_SIZE = "10";
-
     private static final String DEFAULT_VERSION = "v2";
-
     private static final String DEFAULT_PACK_SIZE = "1";
-
     private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
-
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
-
-    private static final String DEFAULT_AUTH_CLIENT =
-      "co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient";
-
     private static final String DEFAULT_AUTH_CLIENT_PROPERTIES = "/etc/file-tailer/conf/auth-client.properties";
 
     private final String key;
