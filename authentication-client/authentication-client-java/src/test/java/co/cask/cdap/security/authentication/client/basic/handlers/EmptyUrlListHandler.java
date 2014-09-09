@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,7 +14,8 @@
  * the License.
  */
 
-package co.cask.cdap.client.auth.rest.handlers;
+
+package co.cask.cdap.security.authentication.client.basic.handlers;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -29,12 +30,10 @@ import java.io.IOException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 
-public class BaseHandler implements HttpRequestHandler {
-  private String authHost;
-  private int authPort;
+public class EmptyUrlListHandler implements HttpRequestHandler {
 
   @Override
-  public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
+  public void handle(HttpRequest httpRequest, HttpResponse response, HttpContext httpContext)
     throws HttpException, IOException {
 
     RequestLine requestLine = httpRequest.getRequestLine();
@@ -42,20 +41,12 @@ public class BaseHandler implements HttpRequestHandler {
     int statusCode;
     if (HttpMethod.GET.equals(method)) {
       statusCode = HttpStatus.SC_UNAUTHORIZED;
-      StringEntity entity = new StringEntity(String.format("{'auth_uri':['http://%s:%d/token']}", authHost, authPort));
+      StringEntity entity = new StringEntity("{'auth_uri':[]}");
       entity.setContentType(MediaType.APPLICATION_JSON);
-      httpResponse.setEntity(entity);
+      response.setEntity(entity);
     } else {
       statusCode = HttpStatus.SC_NOT_IMPLEMENTED;
     }
-    httpResponse.setStatusCode(statusCode);
-  }
-
-  public void setAuthHost(String authHost) {
-    this.authHost = authHost;
-  }
-
-  public void setAuthPort(int authPort) {
-    this.authPort = authPort;
+    response.setStatusCode(statusCode);
   }
 }

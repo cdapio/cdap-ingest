@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,11 +14,11 @@
  * the License.
  */
 
-package co.cask.cdap.client;
+package co.cask.cdap.security.authentication.client.basic;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
@@ -47,34 +47,6 @@ public final class RestClientUtils {
   private static final Logger LOG = LoggerFactory.getLogger(RestClientUtils.class);
 
   private RestClientUtils() {
-  }
-
-  /**
-   * Utility method for converting {@link org.apache.http.HttpEntity} HTTP entity content to JsonObject.
-   *
-   * @param httpEntity {@link org.apache.http.HttpEntity}
-   * @return {@link com.google.gson.JsonObject} generated from input content stream
-   * @throws java.io.IOException if entity content is not available
-   */
-  public static JsonObject toJsonObject(HttpEntity httpEntity) throws IOException {
-    if (httpEntity == null || httpEntity.getContent() == null) {
-      throw new IOException("Empty HttpEntity is received.");
-    }
-    Charset charset = Charsets.UTF_8;
-    ContentType contentType = ContentType.get(httpEntity);
-    if (contentType != null && contentType.getCharset() != null) {
-      charset = contentType.getCharset();
-    }
-    Reader reader = new InputStreamReader(httpEntity.getContent(), charset);
-    try {
-      String content = CharStreams.toString(reader);
-      if (StringUtils.isEmpty(content)) {
-        throw new IOException("Failed to write entity content.");
-      }
-      return new JsonParser().parse(content).getAsJsonObject();
-    } finally {
-      reader.close();
-    }
   }
 
   /**

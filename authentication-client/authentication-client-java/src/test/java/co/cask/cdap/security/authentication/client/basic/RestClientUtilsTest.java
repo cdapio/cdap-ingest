@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,12 +14,8 @@
  * the License.
  */
 
-package co.cask.cdap.client;
+package co.cask.cdap.security.authentication.client.basic;
 
-import com.google.common.base.Charsets;
-import com.google.gson.JsonObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
@@ -28,9 +24,6 @@ import org.apache.http.message.BasicStatusLine;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.InternalServerErrorException;
@@ -39,20 +32,16 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.NotSupportedException;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RestClientUtilsTest {
   private HttpResponse response;
-  private HttpEntity httpEntity;
 
   @Before
   public void setUp() {
     response = mock(HttpResponse.class);
-    httpEntity = mock(HttpEntity.class);
   }
 
   @Test
@@ -158,42 +147,5 @@ public class RestClientUtilsTest {
     RestClientUtils.verifyResponseCode(response);
 
     verify(response).getStatusLine();
-  }
-
-  @Test
-  public void testGetEntityAsJsonObject() throws IOException {
-
-    InputStream inputStream = new ByteArrayInputStream("{'test': 'Hello World'}".getBytes(Charsets.UTF_8));
-    when(httpEntity.getContent()).thenReturn(inputStream);
-
-    JsonObject jsonObject = RestClientUtils.toJsonObject(httpEntity);
-
-    assertEquals("Hello World", jsonObject.get("test").getAsString());
-    verify(httpEntity, times(2)).getContent();
-  }
-
-  @Test(expected = IOException.class)
-  public void testNullEntityGetEntityAsJsonObject() throws IOException {
-    RestClientUtils.toJsonObject(null);
-  }
-
-  @Test(expected = IOException.class)
-  public void testNullContentGetEntityAsJsonObject() throws IOException {
-
-    when(httpEntity.getContent()).thenReturn(null);
-
-    RestClientUtils.toJsonObject(httpEntity);
-
-    verify(httpEntity).getContent();
-  }
-
-  @Test(expected = IOException.class)
-  public void testEmptyContentGetEntityAsJsonObject() throws IOException {
-    InputStream inputStream = new ByteArrayInputStream(StringUtils.EMPTY.getBytes(Charsets.UTF_8));
-    when(httpEntity.getContent()).thenReturn(inputStream);
-
-    RestClientUtils.toJsonObject(httpEntity);
-
-    verify(httpEntity).getContent();
   }
 }

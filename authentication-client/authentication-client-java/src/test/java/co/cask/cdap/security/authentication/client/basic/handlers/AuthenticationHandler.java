@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask, Inc.
+ * Copyright 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,9 +14,9 @@
  * the License.
  */
 
-package co.cask.cdap.client.auth.rest.handlers;
+package co.cask.cdap.security.authentication.client.basic.handlers;
 
-import co.cask.cdap.client.auth.rest.BasicAuthenticationClientTest;
+import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClientTest;
 import com.google.common.base.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -35,10 +35,12 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 
 public class AuthenticationHandler implements HttpRequestHandler {
+  private int requestsCounter = 0;
+
   @Override
   public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext)
     throws HttpException, IOException {
-
+    requestsCounter++;
     RequestLine requestLine = httpRequest.getRequestLine();
     String method = requestLine.getMethod();
     int statusCode;
@@ -50,10 +52,31 @@ public class AuthenticationHandler implements HttpRequestHandler {
         String[] credentials = credentialsStr.split(":");
         String username = credentials[0];
         String password = credentials[1];
-        if (BasicAuthenticationClientTest.AUTHENTICATED_USERNAME.equals(username) &&
-          BasicAuthenticationClientTest.AUTHENTICATED_PASSWORD.equals(password)) {
-          StringEntity entity = new StringEntity("{'access_token':'" + BasicAuthenticationClientTest.TOKEN +
-                                                   "','token_type':'Bearer','expires_in':86400}");
+        if (BasicAuthenticationClientTest.USERNAME.equals(username) &&
+          BasicAuthenticationClientTest.PASSWORD.equals(password)) {
+          StringEntity entity = new StringEntity(createEntityBody(BasicAuthenticationClientTest.TOKEN,
+                                                                  BasicAuthenticationClientTest.TOKEN_TYPE,
+                                                                  BasicAuthenticationClientTest.TOKEN_LIFE_TIME));
+          entity.setContentType(MediaType.APPLICATION_JSON);
+          httpResponse.setEntity(entity);
+          statusCode = HttpStatus.SC_OK;
+        } else if (BasicAuthenticationClientTest.EMPTY_TOKEN_USERNAME.equals(username)) {
+          StringEntity entity = new StringEntity(createEntityBody(StringUtils.EMPTY,
+                                                                  BasicAuthenticationClientTest.TOKEN_TYPE,
+                                                                  BasicAuthenticationClientTest.TOKEN_LIFE_TIME));
+          entity.setContentType(MediaType.APPLICATION_JSON);
+          httpResponse.setEntity(entity);
+          statusCode = HttpStatus.SC_OK;
+        } else if (BasicAuthenticationClientTest.EXPIRED_TOKEN_USERNAME.equals(username)) {
+          StringEntity entity;
+          if (requestsCounter == 1) {
+            entity = new StringEntity(createEntityBody(BasicAuthenticationClientTest.TOKEN,
+                                                       BasicAuthenticationClientTest.TOKEN_TYPE, 5L));
+          } else {
+            entity = new StringEntity(createEntityBody(BasicAuthenticationClientTest.NEW_TOKEN,
+                                                       BasicAuthenticationClientTest.TOKEN_TYPE,
+                                                       BasicAuthenticationClientTest.TOKEN_LIFE_TIME));
+          }
           entity.setContentType(MediaType.APPLICATION_JSON);
           httpResponse.setEntity(entity);
           statusCode = HttpStatus.SC_OK;
@@ -67,5 +90,9 @@ public class AuthenticationHandler implements HttpRequestHandler {
       statusCode = HttpStatus.SC_NOT_IMPLEMENTED;
     }
     httpResponse.setStatusCode(statusCode);
+  }
+
+  private static String createEntityBody(String value, String type, Long expiresIn) {
+    return "{'access_token':'" + value + "','token_type':'" + type + "','expires_in':" + expiresIn + "}";
   }
 }

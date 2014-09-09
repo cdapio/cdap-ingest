@@ -14,12 +14,8 @@
  * the License.
  */
 
-
-package co.cask.cdap.client.auth;
-
 /**
- * Interface for marking classes which contain credentials required for the enabled authentication provider in the
- * authentication server.
+ * This package contains the authentication client implementation for the authentication provider based on the base
+ * authentication mechanism with username and password.
  */
-public interface Credentials {
-}
+package co.cask.cdap.security.authentication.client.basic;

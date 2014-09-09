@@ -31,7 +31,7 @@
   </modules>
 
   <properties>
-    <http.component.version>4.3.1</http.component.version>
+    <http.component.version>4.2.5</http.component.version>
     <commons.lang.version>2.5</commons.lang.version>
     <logback.version>1.0.9</logback.version>
     <log4j.over.slf4j.version>1.7.7</log4j.over.slf4j.version>
