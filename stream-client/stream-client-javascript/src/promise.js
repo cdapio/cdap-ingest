@@ -94,7 +94,7 @@
             },
 
             /**
-             * Syntax sugar for 'then(null, errror_handler)'
+             * Syntax sugar for 'then(null, error_handler)'
              *
              * @param {function} handler
              */
