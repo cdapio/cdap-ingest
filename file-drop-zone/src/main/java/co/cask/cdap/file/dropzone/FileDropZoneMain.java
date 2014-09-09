@@ -31,17 +31,14 @@ public class FileDropZoneMain {
 
   public static void main(String[] args) throws Exception {
 
-    LOG.info("Application started");
-
     File configurationFile;
     if (args.length == 0) {
+      LOG.info("Application started using default file: \"file-drop-zone.properties\"");
       configurationFile =
         new File(FileDropZoneMain.class.getClassLoader().getResource("file-drop-zone.properties").getPath());
-    } else if (args.length == 1) {
-      configurationFile = new File(args[0]);
     } else {
-      LOG.error("Too many arguments: {}", args.length);
-      return;
+      LOG.info("Application started using file: {}", args[0]);
+      configurationFile = new File(args[0]);
     }
 
     PollingServiceManager pollingServiceManager = new PollingServiceManager(configurationFile);
@@ -49,7 +46,7 @@ public class FileDropZoneMain {
       pollingServiceManager.initManager();
       pollingServiceManager.initObservers();
     } catch (IOException e) {
-      LOG.error("Error during manager setup: {}", e.getMessage());
+      LOG.error("Error during manager setup: {}", e);
       return;
     }
     LOG.info("Starting monitor");

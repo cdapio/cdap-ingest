@@ -39,7 +39,7 @@ class FileDropZoneShutdownTask implements Runnable {
     try {
       manager.stopMonitor();
     } catch (Exception e) {
-      LOG.error("Can not stop polling service: {}", e.getMessage());
+      LOG.error("Cannot stop polling service: {}", e);
     }
 
   }

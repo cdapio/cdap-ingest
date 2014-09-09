@@ -29,7 +29,7 @@ source /usr/lib/file-drop-zone/bin/config
 function printUsage()
 {
   echo
-  echo "Usage: file-drop-zone start"
+  echo "Usage: file-drop-zone {start|load|set_work_dir}"
   echo
 }
 

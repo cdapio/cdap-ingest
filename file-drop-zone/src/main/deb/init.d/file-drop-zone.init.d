@@ -91,8 +91,9 @@ start() {
       mkdir -p ${FDZ_LOG_DIR}
   fi
 
+  FDZ_ARGS=$1
   log_success_msg "Starting $desc ($NAME): "
-  /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ > $FDZ_PID_FILE && exec ${EXEC_PATH} start >>${FDZ_LOG_DIR}/${NAME}.init.log 2>&1' &" $FDZ_USER
+  /bin/su -s /bin/bash -c "/bin/bash -c 'echo \$\$ > $FDZ_PID_FILE && exec ${EXEC_PATH} start $FDZ_ARGS $2 >>${FDZ_LOG_DIR}/${NAME}.init.log 2>&1' &" $FDZ_USER
   RETVAL=$?
   [ $RETVAL -eq 0 ] && touch $LOCKFILE
   return $RETVAL
@@ -153,7 +154,7 @@ condrestart(){
 
 case "$1" in
   start)
-    start
+    start $2 $3
     ;;
   stop)
     stop

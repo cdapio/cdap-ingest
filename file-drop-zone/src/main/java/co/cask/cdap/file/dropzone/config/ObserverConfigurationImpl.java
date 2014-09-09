@@ -17,15 +17,11 @@
 package co.cask.cdap.file.dropzone.config;
 
 import co.cask.cdap.filetailer.config.PipeConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * ObserverConfiguration default implementation
  */
 public class ObserverConfigurationImpl implements ObserverConfiguration {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ObserverConfigurationImpl.class);
 
   private String name;
 

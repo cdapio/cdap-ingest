@@ -43,14 +43,7 @@ public interface PollingService {
    * @param dir the observed directory
    * @param listener the listener for listen create new file event
    */
-  void startDirMonitor(File dir, PollingListener listener);
-
-  /**
-   * Stop to observe specified directory and remove the directory Observer from the Polling Service
-   *
-   * @param dir the observed directory
-   */
-  void stopDirMonitor(File dir);
+  void registerDirMonitor(File dir, PollingListener listener);
 
   /**
    * Remove processed File from the observed directory

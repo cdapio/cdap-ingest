@@ -32,9 +32,7 @@ import java.util.Properties;
 public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements FileDropZoneConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileDropZoneConfigurationImpl.class);
-
   private static final String DEFAULT_POLLING_INTERVAL = "5000";
-
   private static final String DEFAULT_WORK_DIR = "/var/file-drop-zone/";
 
   public FileDropZoneConfigurationImpl(Properties properties) {
@@ -79,13 +77,13 @@ public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements 
   /**
    * Return property value
    *
-   * @param key          The property key
+   * @param key The property key
    * @param defaultValue The default value of property
    * @return property value
    */
   private String getProperty(String key, String defaultValue) {
     String value = getProperty(key);
-    return value != null && !value.equals("") ? value : defaultValue;
+    return value != null && !value.trim().equals("") ? value : defaultValue;
   }
 
   /**

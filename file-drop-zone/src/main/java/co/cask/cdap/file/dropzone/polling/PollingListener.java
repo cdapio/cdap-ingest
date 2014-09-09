@@ -17,6 +17,7 @@
 package co.cask.cdap.file.dropzone.polling;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Interface to listen create new file event
@@ -28,7 +29,7 @@ public interface PollingListener {
    *
    * @param file The file created
    */
-  void onFileCreate(final File file);
+  void onFileCreate(final File file) throws IOException;
 
   /**
    * Exception throw event

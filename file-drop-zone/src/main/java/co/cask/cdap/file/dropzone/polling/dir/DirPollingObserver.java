@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,7 +52,7 @@ public class DirPollingObserver {
   /**
    * Construct an observer for the specified directory, file filter and file comparator.
    *
-   * @param rootFile   the root directory to observe
+   * @param rootFile   The root directory to observe
    * @param fileFilter The file filter or null if none
    */
   protected DirPollingObserver(File rootFile, PollingListener listener, FileFilter fileFilter) {
@@ -62,15 +63,6 @@ public class DirPollingObserver {
     this.fileFilter = fileFilter;
     this.processedFiles = new HashSet<String>();
     this.listener = listener;
-  }
-
-  /**
-   * Return the directory being observed.
-   *
-   * @return the directory being observed
-   */
-  public File getDirectory() {
-    return rootFile;
   }
 
   /**
@@ -105,8 +97,13 @@ public class DirPollingObserver {
    */
   private synchronized void checkFile(File file) {
     if (!processedFiles.contains(file.getAbsolutePath())) {
-      processedFiles.add(file.getAbsolutePath());
-      listener.onFileCreate(file);
+      try {
+        LOG.debug("Start processing file {}", file);
+        listener.onFileCreate(file);
+        processedFiles.add(file.getAbsolutePath());
+      } catch (IOException e) {
+        LOG.error("File has been processed with error {}", e);
+      }
     } else {
       LOG.info("File already processed {}.", file);
     }

@@ -58,26 +58,18 @@ public class PollingListenerImpl implements PollingListener {
   }
 
   @Override
-  public void onFileCreate(File file) {
+  public void onFileCreate(File file) throws IOException {
     LOG.info("File Added: {}", file.getAbsolutePath());
-    Pipe pipe;
-    try {
-      LOG.debug("Start configure pipe for file: {}", file.getAbsolutePath());
-      pipe = setupPipe(file);
-      LOG.debug("Pipe for file {} successfully configured", file.getAbsolutePath());
-    } catch (IOException e) {
-      LOG.error("Error during pipe setup: {}", e.getMessage());
-      return;
-    }
+    LOG.debug("Start configure pipe for file: {}", file.getAbsolutePath());
+    Pipe pipe = setupPipe(file);
+    LOG.debug("Pipe for file {} successfully configured", file.getAbsolutePath());
     LOG.info("Start processing file: {}", file.getAbsolutePath());
     pipe.startWithoutMetrics();
   }
 
   @Override
   public void onException(Exception exception) {
-    LOG.warn("Error", exception);
-    metricsProcessor.stopWorker();
-    monitor.stopDirMonitor(new File(observerConf.getPipeConf().getSourceConfiguration().getWorkDir()));
+    LOG.error("Error", exception);
   }
 
   /**
@@ -116,11 +108,10 @@ public class PollingListenerImpl implements PollingListener {
     String streamName = pipeConf.getSinkConfiguration().getStreamName();
     try {
       client.create(streamName);
-      StreamWriter writer = null;
-      writer = client.createWriter(streamName);
+      StreamWriter writer = client.createWriter(streamName);
       return writer;
     } catch (IOException e) {
-      throw new IOException("Can not create/get client stream by name:" + streamName + ": " + e.getMessage());
+      throw new IOException(String.format("Cannot create/get client stream by name: %s: %s", streamName, e));
     }
   }
 

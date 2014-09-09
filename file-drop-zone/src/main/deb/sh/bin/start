@@ -14,9 +14,27 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 #
+. /lib/lsb/init-functions
+
+
+function printUsage()
+{
+  echo
+  echo "To start application using default configuration file \"file-drop-zone.properties\" use command:"
+  log_daemon_msg "file-drop-zone start"
+  echo "To start application using non-default configuration file use command:"
+  log_daemon_msg "file-drop-zone start <file-path>"
+}
 
 function start()
 {
+  if [ $# -gt 1 ]; then
+      echo
+      log_failure_msg "wrong number of args $#"
+      printUsage
+      exit 0
+  fi
+
 	if [ -z $FDZ_LOG_DIR ]; then
 	    FDZ_LOG_DIR=/var/log/file-drop-zone
 	fi
@@ -29,8 +47,18 @@ function start()
 	      mkdir -p ${FDZ_LOG_DIR}
 	fi
 
+  FDZ_ARGS=$1
+  if [ -n $FDZ_ARGS ]; then
+  	    if [ ! -e $FDZ_ARGS ]; then
+          	    log_failure_msg "Property file $FDZ_ARGS does not exists"
+          	    printUsage
+                exit 0
+        fi
+  fi
+
     echo "java -cp "$CONF:$LIB/*" $JAVA_OPTIONS $FDZ_MAIN_CLASS $FDZ_ARGS >>${FDZ_LOG_DIR}/${FDZ_NAME}.out 2>&1"
 	exec java -cp "$CONF:$LIB/*" $JAVA_OPTIONS $FDZ_MAIN_CLASS $FDZ_ARGS >>${FDZ_LOG_DIR}/${FDZ_NAME}.out 2>&1
 }
 
-start
+start $1 $2
+
