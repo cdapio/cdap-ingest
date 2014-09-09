@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
 /**
@@ -55,7 +54,6 @@ public class StreamSink extends AbstractSink implements Configurable {
   private Integer port;
   private boolean sslEnabled;
   private int writerPoolSize;
-  private String authToken;
   private String version;
   private String streamName;
   private StreamWriter writer;
@@ -66,7 +64,6 @@ public class StreamSink extends AbstractSink implements Configurable {
     host = context.getString("host");
     port = context.getInteger("port", DEFAULT_PORT);
     sslEnabled = context.getBoolean("sslEnabled", DEFAULT_SSL);
-    authToken = context.getString("authToken");
     version = context.getString("version", DEFAULT_VERSION);
     writerPoolSize = context.getInteger("writerPoolSize", DEFAULT_WRITER_POOL_SIZE);
     streamName = context.getString("streamName");
@@ -129,9 +126,6 @@ public class StreamSink extends AbstractSink implements Configurable {
 
       builder.ssl(sslEnabled);
 
-      if (authToken != null && !authToken.equals("")) {
-        builder.authToken(authToken);
-      }
       builder.writerPoolSize(writerPoolSize);
       builder.version(version);
       streamClient = builder.build();
