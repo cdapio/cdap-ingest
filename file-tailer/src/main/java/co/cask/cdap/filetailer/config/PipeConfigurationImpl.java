@@ -214,10 +214,10 @@ public class PipeConfigurationImpl implements PipeConfiguration {
         authClient.configure(new ConfigurationLoaderImpl().load(new File(authClientPropertiesPath)).getProperties());
         builder.authClient(authClient);
       } catch (ReflectiveOperationException e) {
-        LOG.error("Can not resolve class {}: {}", authClientClassPath, e.getMessage());
+        LOG.error("Can not resolve class {}: {}", authClientClassPath, e.getMessage(), e);
       } catch (ConfigurationLoadingException e) {
         LOG.error("Can not load Authentication Client properties file {}: {}",
-                  authClientPropertiesPath, e);
+                  authClientPropertiesPath, e.getMessage(), e);
       }
 
       String apiKey = getProperty(this.key + "apiKey");

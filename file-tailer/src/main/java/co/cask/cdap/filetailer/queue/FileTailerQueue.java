@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -50,11 +51,10 @@ public class FileTailerQueue {
     return event;
   }
 
-  public List<FileTailerEvent> drainTo(int maxElements) throws InterruptedException {
-    LOG.trace("Attempt to take {} events from queue", maxElements);
-    List<FileTailerEvent> events = new ArrayList<FileTailerEvent>(maxElements);
-    queue.drainTo(events, maxElements);
-    LOG.trace("{} events taken from queue was successfully", events.size());
-    return events;
+  public void drainTo(Collection<? super FileTailerEvent> collection,
+                                       int max) throws InterruptedException {
+    LOG.trace("Attempt to take {} events from queue", max);
+    queue.drainTo(collection, max);
+    LOG.trace("{} events taken from queue was successfully", collection.size());
   }
 }

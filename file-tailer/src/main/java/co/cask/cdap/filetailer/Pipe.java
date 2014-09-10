@@ -26,6 +26,8 @@ import com.google.common.util.concurrent.AbstractIdleService;
  */
 public class Pipe extends AbstractIdleService {
 
+    private static final int WAIT_FOR_START_INTERVAL = 1000;
+
     private final LogTailer logTailer;
     private final FileTailerSink sink;
     private final FileTailerMetricsProcessor metricsProcessor;
@@ -41,6 +43,13 @@ public class Pipe extends AbstractIdleService {
         metricsProcessor.startAsync();
         logTailer.startAsync();
         sink.startAsync();
+        try {
+          Thread.sleep(WAIT_FOR_START_INTERVAL);
+        } catch (InterruptedException ignored) {
+        }
+        if (!(metricsProcessor.isRunning() && logTailer.isRunning() && sink.isRunning())) {
+          stopAsync();
+        }
     }
 
     @Override

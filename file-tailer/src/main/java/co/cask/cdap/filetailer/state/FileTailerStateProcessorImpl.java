@@ -17,6 +17,9 @@
 package co.cask.cdap.filetailer.state;
 
 import co.cask.cdap.filetailer.state.exception.FileTailerStateProcessorException;
+import com.google.common.base.Preconditions;
+import com.google.common.io.Files;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
@@ -24,49 +27,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
- * Created by root on 8/18/14.
+ * File Tailer state processor
  */
 public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerStateProcessorImpl.class);
+  private static final Charset UTF_8 = Charset.forName("UTF-8");
+  private static final Gson GSON = new Gson();
 
-  private final File stateDirPath;
-  private final String stateFileName;
+  private final File stateDir;
+  private final File stateFile;
 
-  public FileTailerStateProcessorImpl(File stateDirPath, String stateFileName) {
-    this.stateDirPath = stateDirPath;
-    this.stateFileName = stateFileName;
+  public FileTailerStateProcessorImpl(File stateDir, String stateFileName) {
+    this.stateDir = stateDir;
+    stateFile = new File(stateDir, stateFileName);
   }
 
   @Override
   public void saveState(FileTailerState state) throws FileTailerStateProcessorException {
-    if (state == null) {
+    try {
+      Preconditions.checkNotNull(state);
+    } catch (NullPointerException e) {
       LOG.info("Cannot save null state");
       return;
     }
-    createDirs(stateDirPath);
+    createDirs(stateDir);
     LOG.debug("Start saving File Tailer state ..");
     JsonWriter jsonWriter = null;
     try {
-      jsonWriter = new JsonWriter(new FileWriter(stateDirPath + "/" + stateFileName));
-      jsonWriter.beginObject();
-      jsonWriter.name("fileName");
-      jsonWriter.value(state.getFileName());
-      jsonWriter.name("position");
-      jsonWriter.value(state.getPosition());
-      jsonWriter.name("hash");
-      jsonWriter.value(state.getHash());
-      jsonWriter.name("lastModifyTime");
-      jsonWriter.value(state.getLastModifyTime());
-      jsonWriter.endObject();
+      jsonWriter = new JsonWriter(Files.newWriter(stateFile, UTF_8));
+      GSON.toJson(state, FileTailerState.class, jsonWriter);
       LOG.debug("File Tailer state saved successfully");
     } catch (IOException e) {
-      LOG.error("Can not save File Tailer state: {}", e);
+      LOG.error("Cannot save File Tailer state: {}", e.getMessage(), e);
       throw new FileTailerStateProcessorException(e.getMessage());
     } finally {
       try {
@@ -74,33 +71,26 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
           jsonWriter.close();
         }
       } catch (IOException e) {
-        LOG.error("Can not close JSON Writer for file {}: {}", stateDirPath + "/" + stateFileName, e);
+        LOG.error("Cannot close JSON Writer for file {}: {}", stateFile.getAbsolutePath(), e.getMessage(), e);
       }
     }
   }
 
   @Override
   public FileTailerState loadState() throws FileTailerStateProcessorException {
-    if (!new File(stateDirPath + "/" + stateFileName).exists()) {
-      LOG.info("Not found state file: {}", stateDirPath + "/" + stateFileName);
+    if (!stateFile.exists()) {
+      LOG.info("Not found state file: {}", stateFile.getAbsolutePath());
       return null;
     }
-    FileTailerState state;
     LOG.debug("Start loading File Tailer state ..");
-    JsonParser parser = new JsonParser();
     try {
-      JsonObject jsonObject = (JsonObject) parser.parse(new FileReader(stateDirPath + "/" + stateFileName));
-      String fileName = jsonObject.get("fileName").getAsString();
-      long position = jsonObject.get("position").getAsLong();
-      int hash = jsonObject.get("hash").getAsInt();
-      long lastModifyTime = jsonObject.get("lastModifyTime").getAsLong();
-      state = new FileTailerState(fileName, position, hash, lastModifyTime);
+      FileTailerState state = GSON.fromJson(Files.newReader(stateFile, UTF_8), FileTailerState.class);
       LOG.debug("File Tailer state loaded successfully");
+      return state;
     } catch (IOException e) {
       LOG.error("Can not load File Tailer state: {}", e);
       throw new FileTailerStateProcessorException(e.getMessage());
     }
-    return state;
   }
 
   private void createDirs(File directory) throws FileTailerStateProcessorException {

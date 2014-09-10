@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -72,12 +73,12 @@ public class FileTailerSink extends AbstractWorker {
   public void run() {
     LOG.debug("Creating new event pack");
     EventPack pack = new EventPack(packSize);
+    List<FileTailerEvent> events = new ArrayList<FileTailerEvent>(packSize);
     while (isRunning()) {
       try {
-        List<FileTailerEvent> events = queue.drainTo(pack.getFreeSize());
-
+        queue.drainTo(events, pack.getFreeSize());
         pack.addAll(events);
-
+        events.clear();
         if (pack.isFull()) {
           LOG.debug("Event pack is full");
           uploadEventPack(pack);

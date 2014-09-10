@@ -21,7 +21,7 @@ import java.io.Serializable;
 /**
  * File Tailer State presentation
  */
-public class FileTailerState implements Serializable {
+public class FileTailerState {
 
   private final String fileName;
   private final long position;

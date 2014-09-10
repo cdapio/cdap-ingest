@@ -40,7 +40,6 @@ import java.util.TreeMap;
 /**
  * Tailer daemon
  */
-
 public class LogTailer extends AbstractWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(LogTailer.class);
@@ -78,10 +77,6 @@ public class LogTailer extends AbstractWorker {
     this.failureRetryLimit = confLoader.getSourceConfiguration().getFailureRetryLimit();
     this.failureSleepInterval = confLoader.getSourceConfiguration().getFailureSleepInterval();
     this.rotationPattern = confLoader.getSourceConfiguration().getRotationPattern();
-  }
-
-  public FileTailerMetricsProcessor getMetricsProcessor() {
-    return metricsProcessor;
   }
 
   /**
@@ -163,10 +158,9 @@ public class LogTailer extends AbstractWorker {
       if (!checkLine(channel, position, hash)) {
         LOG.error("Can not find line from saved state. Exiting.. ");
         return;
-      } else {
-        LOG.info("Saved log entry was found. Start reading log from save state");
-        startReadingFromFile(channel, currentLogFile);
       }
+      LOG.info("Saved log entry was found. Start reading log from save state");
+      startReadingFromFile(channel, currentLogFile);
     } catch (IOException e) {
       return;
     }
@@ -226,7 +220,7 @@ public class LogTailer extends AbstractWorker {
   private void runWithOutRestore() throws InterruptedException {
     File logFile = null;
     FileChannel channel;
-    while (logFile == null && !Thread.currentThread().isInterrupted()) {
+    while (logFile == null && isRunning()) {
       logFile = getNextLogFile(logDirectory.getAbsolutePath(), 0L, false, new File(logFileName));
       if (logFile == null) {
         try {
@@ -350,7 +344,7 @@ public class LogTailer extends AbstractWorker {
     int retryNumber = 0;
     RandomAccessFile reader = null;
     FileChannel channel = null;
-    while (!Thread.currentThread().isInterrupted()) {
+    while (isRunning()) {
       if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
         LOG.error("fail to open file after {} attempts", retryNumber);
         throw new IOException();
@@ -379,7 +373,7 @@ public class LogTailer extends AbstractWorker {
     int retryNumber = 0;
     long rePos = 0;
     StringBuilder sb = new StringBuilder();
-    while (!Thread.currentThread().isInterrupted()) {
+    while (isRunning()) {
       if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
         LOG.error("fail to read line  after {} attempts", retryNumber);
         throw new IOException();

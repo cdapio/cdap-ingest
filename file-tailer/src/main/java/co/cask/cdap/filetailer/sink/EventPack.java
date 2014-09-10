@@ -37,20 +37,8 @@ class EventPack {
     this.events = new ArrayList<FileTailerEvent>(capacity);
   }
 
-  boolean add(FileTailerEvent event) {
-    if (events.size() < capacity) {
-      return events.add(event);
-    } else {
-      return false;
-    }
-  }
-
   boolean addAll(List<FileTailerEvent> events) {
-    boolean result = true;
-    for (FileTailerEvent event : events) {
-      result = result & add(event);
-    }
-    return result;
+    return this.events.size() + events.size() <= capacity && this.events.addAll(events);
   }
 
   boolean isFull() {
