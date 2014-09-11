@@ -82,11 +82,7 @@ public class SizeBasedRotationTest {
     }
     Thread.currentThread().sleep(SLEEP_TIME);
 
-    int p = 0;
     for (int i = 0; i < logList.size(); i++) {
-      System.out.println(logList.size());
-      System.out.println(queue.size());
-      System.out.println(++p);
       Assert.assertEquals(true, queue.take().getEventData().contains(logList.get(i)));
     }
     tailer.stopAsync();
