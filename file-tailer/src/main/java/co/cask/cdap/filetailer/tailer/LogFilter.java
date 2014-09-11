@@ -18,21 +18,23 @@ package co.cask.cdap.filetailer.tailer;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.regex.Pattern;
 
 /**
  * Filters the log files returned from the log directory.
  */
 public class LogFilter implements FilenameFilter {
-  private final String logPattern;
-  private final String baseLogfile;
 
-  public LogFilter(String logfile, String logPattern) {
-    this.baseLogfile = logfile;
-    this.logPattern = logPattern;
+  private final Pattern logPattern;
+  private final String baseLogFile;
+
+  public LogFilter(String logFile, String logPattern) {
+    this.logPattern = Pattern.compile(logPattern);
+    this.baseLogFile = logFile;
   }
 
   @Override
   public boolean accept(File dir, String name) {
-    return name.contains(baseLogfile) || name.matches(logPattern);
+    return name.contains(baseLogFile) || logPattern.matcher(name).matches();
   }
 }

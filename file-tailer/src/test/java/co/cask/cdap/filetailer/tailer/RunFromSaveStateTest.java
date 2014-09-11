@@ -16,6 +16,7 @@
 
 package co.cask.cdap.filetailer.tailer;
 
+import ch.qos.logback.classic.Logger;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
@@ -72,7 +73,7 @@ public class RunFromSaveStateTest {
 
     List<String> logList = new ArrayList<String>(ENTRY_WRITE_NUMBER);
     List<String> readLogList = new ArrayList<String>(ENTRY_WRITE_NUMBER);
-    ch.qos.logback.classic.Logger logger = TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
+    Logger logger = TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
 
     Field queueField = queue.getClass().getDeclaredField("queue");
     queueField.setAccessible(true);
@@ -83,7 +84,6 @@ public class RunFromSaveStateTest {
     Thread.sleep(SLEEP_TIME);
     tailer.stopAsync();
     saveState(intQueue, queue, readLogList, stateProcessor);
-    saveState(intQueue, queue, readLogList, stateProcessor);
     write_log(ENTRY_WRITE_NUMBER, logger, logList);
     tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
     tailer.startAsync();
@@ -95,7 +95,6 @@ public class RunFromSaveStateTest {
     tailer.startAsync();
     Thread.sleep(SLEEP_TIME);
     tailer.stopAsync();
-    saveState(intQueue, queue, readLogList, stateProcessor);
     for (int i = 0; i < logList.size(); i++) {
       Assert.assertEquals(true, readLogList.get(i).contains(logList.get(i)));
     }
@@ -111,7 +110,7 @@ public class RunFromSaveStateTest {
     }
   }
 
-  private void write_log(int entryNumber, ch.qos.logback.classic.Logger logger, List<String> logList) {
+  private void write_log(int entryNumber, Logger logger, List<String> logList) {
     for (int i = 0; i < entryNumber; i++) {
       RandomStringUtils randomUtils = new RandomStringUtils();
       String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);

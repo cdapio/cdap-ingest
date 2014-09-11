@@ -17,6 +17,7 @@
 
 package co.cask.cdap.filetailer.tailer;
 
+import ch.qos.logback.classic.Logger;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -60,7 +61,7 @@ public class BaseTailerTest {
     LogTailer tailer = TailerLogUtils.createTailer(queue, flowConfig);
     String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
-    ch.qos.logback.classic.Logger logger =  TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
+    Logger logger =  TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
     RandomStringUtils randomUtils = new RandomStringUtils();
     List<String> logList = new ArrayList<String>(ENTRY_NUMBER);
 
@@ -86,7 +87,7 @@ public class BaseTailerTest {
     LogTailer tailer = TailerLogUtils.createTailer(queue, flowConfig);
     String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
-    ch.qos.logback.classic.Logger logger =  TailerLogUtils.getTimeLogger(filePath);
+    Logger logger =  TailerLogUtils.getTimeLogger(filePath);
     RandomStringUtils randomUtils = new RandomStringUtils();
     List<String> logList = new ArrayList<String>(ENTRY_NUMBER);
     tailer.startAsync();

@@ -16,6 +16,7 @@
 
 package co.cask.cdap.filetailer.tailer;
 
+import ch.qos.logback.classic.Logger;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
@@ -69,7 +70,7 @@ public class SizeBasedRotationTest {
 
     List<String> logList = new ArrayList<String>(ENTRY_WRITE_NUMBER);
     RandomStringUtils randomUtils = new RandomStringUtils();
-    ch.qos.logback.classic.Logger logger = TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
+    Logger logger = TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
     tailer.startAsync();
     for (int i = 0; i < ENTRY_WRITE_NUMBER; i++) {
       String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
@@ -80,9 +81,14 @@ public class SizeBasedRotationTest {
       }
     }
     Thread.currentThread().sleep(SLEEP_TIME);
-    tailer.stopAsync();
+
+    int p = 0;
     for (int i = 0; i < logList.size(); i++) {
+      System.out.println(logList.size());
+      System.out.println(queue.size());
+      System.out.println(++p);
       Assert.assertEquals(true, queue.take().getEventData().contains(logList.get(i)));
     }
+    tailer.stopAsync();
   }
 }

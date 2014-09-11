@@ -20,42 +20,28 @@ import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.tailer.LogTailer;
 import com.google.common.util.concurrent.AbstractIdleService;
+import com.google.common.util.concurrent.ServiceManager;
+
+import java.util.Arrays;
 
 /**
  * Contains the sink and tailer instances for one Pipe.
  */
 public class Pipe extends AbstractIdleService {
 
-    private static final int WAIT_FOR_START_INTERVAL = 1000;
-
-    private final LogTailer logTailer;
-    private final FileTailerSink sink;
-    private final FileTailerMetricsProcessor metricsProcessor;
+    private final ServiceManager serviceManager;
 
     public Pipe(LogTailer tailer, FileTailerSink sink, FileTailerMetricsProcessor metricsProcessor) {
-        this.logTailer = tailer;
-        this.sink = sink;
-        this.metricsProcessor = metricsProcessor;
+        serviceManager = new ServiceManager(Arrays.asList(metricsProcessor, tailer, sink));
     }
 
     @Override
     public void startUp() {
-        metricsProcessor.startAsync();
-        logTailer.startAsync();
-        sink.startAsync();
-        try {
-          Thread.sleep(WAIT_FOR_START_INTERVAL);
-        } catch (InterruptedException ignored) {
-        }
-        if (!(metricsProcessor.isRunning() && logTailer.isRunning() && sink.isRunning())) {
-          stopAsync();
-        }
+        serviceManager.startAsync().awaitHealthy();
     }
 
     @Override
     public void shutDown() {
-        metricsProcessor.stopAsync();
-        logTailer.stopAsync();
-        sink.stopAsync();
+        serviceManager.stopAsync().awaitStopped();
     }
 }

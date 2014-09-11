@@ -44,6 +44,10 @@ public class FileTailerQueue {
     LOG.trace("Attempt to put event {} to queue was successful", event);
   }
 
+  public int size() {
+    return queue.size();
+  }
+
   public FileTailerEvent take() throws InterruptedException {
     LOG.trace("Attempt to take event from queue");
     FileTailerEvent event = queue.take();

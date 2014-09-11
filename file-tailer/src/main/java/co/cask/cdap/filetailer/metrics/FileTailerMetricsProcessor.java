@@ -16,6 +16,11 @@
 
 package co.cask.cdap.filetailer.metrics;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.metrics.exception.FileTailerMetricsProcessorException;
 import org.slf4j.Logger;
@@ -73,7 +78,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
 
   @Override
   public void run() {
-    ch.qos.logback.core.rolling.RollingFileAppender appender = null;
+    RollingFileAppender appender = null;
     ch.qos.logback.classic.Logger logger = initLogger("metricsLogger");
     try {
       createDirs(stateDirPath);
@@ -147,8 +152,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     LOG.debug("All metrics reset successfully");
   }
 
-  private void writeMetricsHeader(ch.qos.logback.classic.Logger logger,
-                                  ch.qos.logback.core.rolling.RollingFileAppender appender) {
+  private void writeMetricsHeader(ch.qos.logback.classic.Logger logger, RollingFileAppender appender) {
     LOG.debug("Start writing header to file ..");
     String header = new StringBuilder("Current Date").append(",")
       .append("Flow Name").append(",")
@@ -161,12 +165,11 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       .append("Min Write Latency Per Stream").append(",")
       .append("Average Write Latency Per Stream").append(",")
       .append("Max Write Latency Per Stream").append("\n").toString();
-    appender.doAppend(new ch.qos.logback.classic.spi.LoggingEvent(loggerClass, logger, null, header, null, null));
+    appender.doAppend(new LoggingEvent(loggerClass, logger, null, header, null, null));
     LOG.debug("Successfully write header");
   }
 
-  private void writeMetrics(ch.qos.logback.classic.Logger logger,
-                            ch.qos.logback.core.rolling.RollingFileAppender appender, String currentDate) {
+  private void writeMetrics(ch.qos.logback.classic.Logger logger, RollingFileAppender appender, String currentDate) {
     LOG.debug("Start writing metric with date {} to file ..", currentDate);
     String metric = new StringBuilder(currentDate).append(",")
       .append(flowName).append(",")
@@ -179,29 +182,26 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       .append(minWriteLatencyPerStream.get()).append(",")
       .append(calculateAverage(totalWriteLatencyPerStream.get(), writesPerStream.get())).append(",")
       .append(maxWriteLatencyPerStream.get()).toString();
-    appender.doAppend(new ch.qos.logback.classic.spi.LoggingEvent(loggerClass, logger, null, metric, null, null));
+    appender.doAppend(new LoggingEvent(loggerClass, logger, null, metric, null, null));
     LOG.debug("Successfully write metric with date: {}", currentDate);
   }
 
-  private ch.qos.logback.core.rolling.RollingFileAppender initAppender(String path, String fileName) {
+  private RollingFileAppender initAppender(String path, String fileName) {
     LOG.debug("Starting initialize rolling file appender");
-    ch.qos.logback.classic.LoggerContext loggerContext =
-      (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
+    LoggerContext loggerContext =
+      (LoggerContext) LoggerFactory.getILoggerFactory();
 
-    ch.qos.logback.core.rolling.RollingFileAppender fileAppender =
-      new ch.qos.logback.core.rolling.RollingFileAppender();
+    RollingFileAppender fileAppender = new RollingFileAppender();
     fileAppender.setContext(loggerContext);
     fileAppender.setFile(path + "/" + fileName);
     fileAppender.setAppend(true);
-    ch.qos.logback.core.rolling.TimeBasedRollingPolicy rollingPolicy =
-      new ch.qos.logback.core.rolling.TimeBasedRollingPolicy();
+    TimeBasedRollingPolicy rollingPolicy = new TimeBasedRollingPolicy();
     rollingPolicy.setContext(loggerContext);
     rollingPolicy.setParent(fileAppender);
     rollingPolicy.setFileNamePattern(path + "/" + fileName + ".%d");
     rollingPolicy.start();
     fileAppender.setRollingPolicy(rollingPolicy);
-    ch.qos.logback.classic.encoder.PatternLayoutEncoder layoutEncoder =
-      new ch.qos.logback.classic.encoder.PatternLayoutEncoder();
+    PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
     layoutEncoder.setContext(loggerContext);
     layoutEncoder.setPattern("%msg%n");
     layoutEncoder.start();
@@ -211,9 +211,8 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   }
 
   private ch.qos.logback.classic.Logger initLogger(String name) {
-    ch.qos.logback.classic.LoggerContext loggerContext =
-      (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
-    return  loggerContext.getLogger(name);
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+    return loggerContext.getLogger(name);
   }
 
   private void createFile(String path) {

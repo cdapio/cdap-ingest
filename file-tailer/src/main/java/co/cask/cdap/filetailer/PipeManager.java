@@ -31,6 +31,7 @@ import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
 import com.google.common.util.concurrent.AbstractIdleService;
+import com.google.common.util.concurrent.ServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Creates and manage pipes.
@@ -47,9 +50,11 @@ public class PipeManager extends AbstractIdleService {
 
   private final List<Pipe> pipeList = new ArrayList<Pipe>();
   private final File confFile;
+  private final ServiceManager serviceManager;
 
   PipeManager(File confFile) {
     this.confFile = confFile;
+    serviceManager = createManager();
   }
 
   /**
@@ -57,7 +62,7 @@ public class PipeManager extends AbstractIdleService {
    *
    * @throws IOException in case a client stream cannot be created
    */
-  public void setupPipes() throws IOException {
+  private ServiceManager setupPipes() throws IOException {
     StreamClient client = null;
     StreamWriter writer = null;
     try {
@@ -81,6 +86,7 @@ public class PipeManager extends AbstractIdleService {
         client = null;
         writer = null;
       }
+      return new ServiceManager(pipeList);
     } catch (ConfigurationLoadingException e) {
       throw new ConfigurationLoadingException("Error during loading configuration from file: "
                                                 + confFile.getAbsolutePath() + e.getMessage());
@@ -91,6 +97,15 @@ public class PipeManager extends AbstractIdleService {
       if (writer != null) {
         writer.close();
       }
+    }
+  }
+
+  private ServiceManager createManager() {
+    try {
+      return setupPipes();
+    } catch (IOException e) {
+      LOG.error("Error during pipes: {} setup", e);
+      throw new RuntimeException("Error during pipes setup. Cannot start daemon.");
     }
   }
 
@@ -123,25 +138,15 @@ public class PipeManager extends AbstractIdleService {
 
   @Override
   public void startUp() {
-    try {
-      setupPipes();
-    } catch (IOException e) {
-      LOG.error("Error during pipes: {} setup", e);
-      return;
-    }
-    for (Pipe pipe : pipeList) {
-      pipe.startAsync();
-    }
+    serviceManager.startAsync().awaitHealthy();
   }
 
   @Override
   public void shutDown() {
-    for (Pipe pipe : pipeList) {
-      try {
-        pipe.stopAsync();
-      } catch (Exception e) {
-        LOG.warn("Cannot stop pipe: {}", e);
-      }
+    try {
+      serviceManager.stopAsync().awaitHealthy(5, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      LOG.warn("Cannot stop pipes: {}", e);
     }
   }
 }

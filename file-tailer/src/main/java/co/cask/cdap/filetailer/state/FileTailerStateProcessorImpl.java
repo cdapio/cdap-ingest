@@ -18,14 +18,14 @@ package co.cask.cdap.filetailer.state;
 
 import co.cask.cdap.filetailer.state.exception.FileTailerStateProcessorException;
 import com.google.common.base.Preconditions;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -57,22 +57,20 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
     }
     createDirs(stateDir);
     LOG.debug("Start saving File Tailer state ..");
-    JsonWriter jsonWriter = null;
     try {
-      jsonWriter = new JsonWriter(Files.newWriter(stateFile, UTF_8));
-      GSON.toJson(state, FileTailerState.class, jsonWriter);
-      LOG.debug("File Tailer state saved successfully");
-    } catch (IOException e) {
-      LOG.error("Cannot save File Tailer state: {}", e.getMessage(), e);
-      throw new FileTailerStateProcessorException(e.getMessage());
-    } finally {
+      JsonWriter jsonWriter = new JsonWriter(Files.newWriter(stateFile, UTF_8));
       try {
-        if (jsonWriter != null) {
+        GSON.toJson(state, FileTailerState.class, jsonWriter);
+        LOG.debug("File Tailer state saved successfully");
+      } finally {
+        try {
           jsonWriter.close();
+        } catch (IOException e) {
+          LOG.error("Cannot close JSON Writer for file {}: {}", stateFile.getAbsolutePath(), e.getMessage(), e);
         }
-      } catch (IOException e) {
-        LOG.error("Cannot close JSON Writer for file {}: {}", stateFile.getAbsolutePath(), e.getMessage(), e);
       }
+    } catch (IOException e) {
+      LOG.error("Cannot close JSON Writer for file {}: {}", stateFile.getAbsolutePath(), e.getMessage(), e);
     }
   }
 
@@ -84,9 +82,14 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
     }
     LOG.debug("Start loading File Tailer state ..");
     try {
-      FileTailerState state = GSON.fromJson(Files.newReader(stateFile, UTF_8), FileTailerState.class);
-      LOG.debug("File Tailer state loaded successfully");
-      return state;
+      BufferedReader reader = Files.newReader(stateFile, UTF_8);
+      try {
+        FileTailerState state = GSON.fromJson(reader, FileTailerState.class);
+        LOG.debug("File Tailer state loaded successfully");
+        return state;
+      } finally {
+        Closeables.closeQuietly(reader);
+      }
     } catch (IOException e) {
       LOG.error("Can not load File Tailer state: {}", e);
       throw new FileTailerStateProcessorException(e.getMessage());

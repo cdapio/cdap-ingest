@@ -17,6 +17,14 @@
 
 package co.cask.cdap.filetailer.tailer;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
@@ -76,32 +84,27 @@ public class  TailerLogUtils {
     FileUtils.deleteDirectory(dir);
   }
 
-  public static ch.qos.logback.classic.Logger getSizeLogger(String file, String fileSize) {
+  public static Logger getSizeLogger(String file, String fileSize) {
 
-    ch.qos.logback.classic.LoggerContext loggerContext =
-      (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-    ch.qos.logback.core.rolling.RollingFileAppender fileAppender =
-      new ch.qos.logback.core.rolling.RollingFileAppender();
+    RollingFileAppender fileAppender = new RollingFileAppender();
     fileAppender.setContext(loggerContext);
     fileAppender.setFile(file);
     fileAppender.setAppend(true);
-    ch.qos.logback.core.rolling.FixedWindowRollingPolicy rollingPolicy =
-      new  ch.qos.logback.core.rolling.FixedWindowRollingPolicy();
+    FixedWindowRollingPolicy rollingPolicy = new  FixedWindowRollingPolicy();
     rollingPolicy.setContext(loggerContext);
     rollingPolicy.setFileNamePattern(file + "%i");
     rollingPolicy.setParent(fileAppender);
     rollingPolicy.start();
     rollingPolicy.setMaxIndex(100);
     fileAppender.setRollingPolicy(rollingPolicy);
-    ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy triggeringPolicy =
-      new  ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy();
+    SizeBasedTriggeringPolicy triggeringPolicy = new  SizeBasedTriggeringPolicy();
     triggeringPolicy.setContext(loggerContext);
     triggeringPolicy.setMaxFileSize(fileSize);
     triggeringPolicy.start();
     fileAppender.setTriggeringPolicy(triggeringPolicy);
-    ch.qos.logback.classic.encoder.PatternLayoutEncoder layoutEncoder =
-      new ch.qos.logback.classic.encoder.PatternLayoutEncoder();
+    PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
     layoutEncoder.setContext(loggerContext);
     layoutEncoder.setPattern("[%d  %-5p %c{1}] %msg%n");
     layoutEncoder.start();
@@ -109,32 +112,28 @@ public class  TailerLogUtils {
     fileAppender.start();
 
     // configures  logger
-    ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(BaseTailerTest.class.getName() + "size");
-    rootLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+    Logger rootLogger = loggerContext.getLogger(BaseTailerTest.class.getName() + "size");
+    rootLogger.setLevel(Level.DEBUG);
     rootLogger.addAppender(fileAppender);
     return rootLogger;
 
   }
 
-  public static ch.qos.logback.classic.Logger getTimeLogger(String file) {
+  public static Logger getTimeLogger(String file) {
 
-    ch.qos.logback.classic.LoggerContext loggerContext =
-      (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-    ch.qos.logback.core.rolling.RollingFileAppender fileAppender =
-      new ch.qos.logback.core.rolling.RollingFileAppender();
+    RollingFileAppender fileAppender = new RollingFileAppender();
     fileAppender.setContext(loggerContext);
     fileAppender.setFile(file);
     fileAppender.setAppend(true);
-    ch.qos.logback.core.rolling.TimeBasedRollingPolicy rollingPolicy =
-      new  ch.qos.logback.core.rolling.TimeBasedRollingPolicy();
+    TimeBasedRollingPolicy rollingPolicy = new TimeBasedRollingPolicy();
     rollingPolicy.setContext(loggerContext);
     rollingPolicy.setParent(fileAppender);
     rollingPolicy.setFileNamePattern(file + "%d{yyyy-MM-dd_HH-mm}");
     rollingPolicy.start();
     fileAppender.setRollingPolicy(rollingPolicy);
-    ch.qos.logback.classic.encoder.PatternLayoutEncoder layoutEncoder =
-      new ch.qos.logback.classic.encoder.PatternLayoutEncoder();
+    PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
     layoutEncoder.setContext(loggerContext);
     layoutEncoder.setPattern("[%d  %-5p %c{1}] %msg%n");
     layoutEncoder.start();
@@ -143,9 +142,8 @@ public class  TailerLogUtils {
 
 
     // configures the root logger
-    ch.qos.logback.classic.Logger rootLogger =
-                    loggerContext.getLogger(BaseTailerTest.class.getName() + "time");
-    rootLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+    Logger rootLogger = loggerContext.getLogger(BaseTailerTest.class.getName() + "time");
+    rootLogger.setLevel(Level.DEBUG);
     rootLogger.addAppender(fileAppender);
     return rootLogger;
   }
