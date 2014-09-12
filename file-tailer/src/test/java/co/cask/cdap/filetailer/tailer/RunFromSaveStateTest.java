@@ -95,6 +95,7 @@ public class RunFromSaveStateTest {
     tailer.startAsync();
     Thread.sleep(SLEEP_TIME);
     tailer.stopAsync();
+    saveState(intQueue, queue, readLogList, stateProcessor);
     for (int i = 0; i < logList.size(); i++) {
       Assert.assertEquals(true, readLogList.get(i).contains(logList.get(i)));
     }

@@ -71,12 +71,12 @@ public class BaseTailerTest {
       logList.add(currLine);
     }
     tailer.startAsync();
-    Thread.sleep(3000);
     Thread.currentThread().sleep(SLEEP_TIME);
     for (String str:logList)  {
       Assert.assertEquals(true, queue.take().getEventData().contains(str));
     }
     tailer.stopAsync();
+    Thread.currentThread().sleep(1000);
   }
 
 
@@ -98,9 +98,9 @@ public class BaseTailerTest {
       Thread.currentThread().sleep(WRITING_INTERVAL);
     }
     Thread.currentThread().sleep(SLEEP_TIME);
+    tailer.stopAsync();
     for (String str:logList) {
       Assert.assertEquals(true, queue.take().getEventData().contains(str));
     }
-    tailer.stopAsync();
   }
  }

@@ -34,8 +34,10 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.Comparator;
 import java.util.TreeMap;
+import javax.ws.rs.NotSupportedException;
 
 /**
  * Tailer daemon
@@ -45,38 +47,58 @@ public class LogTailer extends AbstractWorker {
   private static final Logger LOG = LoggerFactory.getLogger(LogTailer.class);
   private static final String RAF_MODE = "r";
   private static final int DEFAULT_BUFSIZE = 4096;
+  private static final Comparator<LogFileTime> logFileComparator = new Comparator<LogFileTime>() {
+    @Override
+    public int compare(LogFileTime o1, LogFileTime o2) {
+      int res = o1.getModificationTime().compareTo(o2.getModificationTime());
+      if (res != 0) {
+        return res;
+      } else {
+        res = o2.getFileName().length() - o1.getFileName().length();
+      }
+      return (res != 0) ? res : o2.getFileName().compareTo(o1.getFileName());
+    }
+  };
 
   private final long sleepInterval;
   private final File logDirectory;
   private final String logFileName;
-  private final String charsetName;
-  private Charset charset;
+  private final Charset charset;
   private final int failureRetryLimit;
   private final long failureSleepInterval;
   private final FileTailerQueue queue;
   private final char entrySeparator;
-  private final PipeConfiguration confLoader;
+  private final int separatorByteLength;
   private final FileTailerStateProcessor fileTailerStateProcessor;
   private final FileTailerMetricsProcessor metricsProcessor;
-  private final ByteBuffer buffer;
   private final String rotationPattern;
+  private final CharsetDecoder decoder;
+  private final ByteBuffer readBuffer;
+  private final CharBuffer decoded;
 
 
   public LogTailer(PipeConfiguration loader, FileTailerQueue queue,
                    FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
-    buffer = ByteBuffer.allocate(DEFAULT_BUFSIZE);
+    String charsetName = loader.getSourceConfiguration().getCharsetName();
+    if (!Charset.isSupported(charsetName)) {
+      LOG.error("Charset {} is not supported", charsetName);
+      throw new NotSupportedException("Charset " + charsetName + " is not supported");
+    }
+    charset = Charset.forName(charsetName);
+    decoder = charset.newDecoder();
+    readBuffer = ByteBuffer.allocate(DEFAULT_BUFSIZE);
+    decoded = CharBuffer.allocate(DEFAULT_BUFSIZE);
     this.queue = queue;
-    this.confLoader = loader;
     this.fileTailerStateProcessor = stateProcessor;
     this.metricsProcessor = metricsProcessor;
-    this.sleepInterval = confLoader.getSourceConfiguration().getSleepInterval();
-    this.logDirectory = confLoader.getSourceConfiguration().getWorkDir();
-    this.logFileName = confLoader.getSourceConfiguration().getFileName();
-    this.entrySeparator = confLoader.getSourceConfiguration().getRecordSeparator();
-    this.charsetName = confLoader.getSourceConfiguration().getCharsetName();
-    this.failureRetryLimit = confLoader.getSourceConfiguration().getFailureRetryLimit();
-    this.failureSleepInterval = confLoader.getSourceConfiguration().getFailureSleepInterval();
-    this.rotationPattern = confLoader.getSourceConfiguration().getRotationPattern();
+    this.sleepInterval = loader.getSourceConfiguration().getSleepInterval();
+    this.logDirectory = loader.getSourceConfiguration().getWorkDir();
+    this.logFileName = loader.getSourceConfiguration().getFileName();
+    this.entrySeparator = loader.getSourceConfiguration().getRecordSeparator();
+    separatorByteLength = ((Character) entrySeparator).toString().getBytes(charset).length;
+    this.failureRetryLimit = loader.getSourceConfiguration().getFailureRetryLimit();
+    this.failureSleepInterval = loader.getSourceConfiguration().getFailureSleepInterval();
+    this.rotationPattern = loader.getSourceConfiguration().getRotationPattern();
   }
 
   /**
@@ -87,10 +109,6 @@ public class LogTailer extends AbstractWorker {
       checkLogDirExists(logDirectory);
     } catch (LogDirNotFoundException e) {
       LOG.error("Incorrect path to log directory; directory {} does not exist", logDirectory.getAbsolutePath());
-      return;
-    }
-    if (!charsetSetup()) {
-      LOG.error("Charset {} is not supported", charsetName);
       return;
     }
     FileTailerState fileTailerState = getSaveStateFromFile();
@@ -108,32 +126,17 @@ public class LogTailer extends AbstractWorker {
   }
 
   /**
-   *  Sets the charset using the name specified in the configuration file.
-   *
-   *  @return false if the charset with specified name does not exist; true if the charset was successfully setup
-   */
-  private boolean charsetSetup() {
-    if (!Charset.isSupported(charsetName)) {
-      return false;
-    }
-    charset = Charset.forName(charsetName);
-    return true;
-  }
-
-  /**
    *  Retrieves the saved state of the File Tailer.
    *
    *  @return the state; <code>null</code> if the save state file does not exist
    */
   private FileTailerState getSaveStateFromFile() {
-    FileTailerState fileTailerState;
     try {
-      fileTailerState = fileTailerStateProcessor.loadState();
+      return fileTailerStateProcessor.loadState();
     } catch (FileTailerStateProcessorException e) {
       LOG.info("Fail state do not exist. Start reading all directory");
       return null;
     }
-    return fileTailerState;
   }
 
   /**
@@ -175,35 +178,21 @@ public class LogTailer extends AbstractWorker {
    *  @throws  InterruptedException if thread was interrupted
    */
   private void startReadingFromFile(FileChannel channel, File currentLogFile) throws InterruptedException {
-    int lineHash;
-    long position;
     long modifyTime = currentLogFile.lastModified();
     try {
       while (isRunning()) {
-        String line = tryReadLine(channel, entrySeparator);
-        if (line.length() > 0) {
-          lineHash = line.hashCode();
-          LOG.debug("From log file {} readed entry: {}", currentLogFile, line);
-          position = channel.position() - line.length() - 1;
-          modifyTime = currentLogFile.lastModified();
-          queue.put(new FileTailerEvent(new FileTailerState(currentLogFile.toString(),
-                                                            position, lineHash, modifyTime),
-                                        line, charset));
-
-          metricsProcessor.onReadEventMetric(line.getBytes().length);
+        modifyTime = tryReadFromFile(channel, entrySeparator, currentLogFile, modifyTime);
+        File newLog = getNextLogFile(logDirectory.getAbsolutePath(), modifyTime, false, currentLogFile);
+        if (newLog == null) {
+          LOG.debug("Waiting for new log data from file {}", currentLogFile);
+          Thread.sleep(sleepInterval);
         } else {
-          File newLog = getNextLogFile(logDirectory.getAbsolutePath(), modifyTime, false, currentLogFile);
-          if (newLog == null) {
-            LOG.debug("Waiting for new log data from file {}", currentLogFile);
-            Thread.sleep(sleepInterval);
-          } else {
-            LOG.debug("Reading file {}", newLog);
-            currentLogFile = newLog;
-            closeQuietly(channel);
-            channel  = (new RandomAccessFile(currentLogFile, RAF_MODE)).getChannel();
-            modifyTime = currentLogFile.lastModified();
-          }
+          LOG.debug("Reading file {}", newLog);
+          currentLogFile = newLog;
+          closeQuietly(channel);
+          channel  = (new RandomAccessFile(currentLogFile, RAF_MODE)).getChannel();
         }
+//        }
       }
     } catch (IOException e) {
       LOG.error("Tailer daemon stopped due to IO exception while reading file: {}", e.getMessage());
@@ -215,7 +204,7 @@ public class LogTailer extends AbstractWorker {
   /**
    *  Method start reading log from all log directory
    *
-   *  @InterruptedException if thread was interrupted
+   *  @throws InterruptedException if thread was interrupted
    */
   private void runWithOutRestore() throws InterruptedException {
     File logFile = null;
@@ -246,12 +235,8 @@ public class LogTailer extends AbstractWorker {
    */
   private boolean checkLine(FileChannel channel, long position, int hash) throws IOException, InterruptedException {
     channel.position(position);
-    String line = tryReadLine(channel, entrySeparator).toString();
-    if (line.length() > 0 && line.hashCode() == hash) {
-      return true;
-    } else {
-      return false;
-    }
+    String line = tryReadLine(channel, entrySeparator);
+    return line.length() > 0 && line.hashCode() == hash;
   }
 
   /**
@@ -265,21 +250,7 @@ public class LogTailer extends AbstractWorker {
    */
   private File getNextLogFile(String logDir, Long currentTime, boolean fromSaveState, File currFile) {
     File[] dirFiles = new File(logDir).listFiles(new LogFilter(logFileName, rotationPattern));
-
-    Comparator logfileComparator = new Comparator<LogFileTime>() {
-      @Override
-      public int compare(LogFileTime o1, LogFileTime o2) {
-        int res = o1.getModificationTime().compareTo(o2.getModificationTime());
-        if (res != 0) {
-          return res;
-        } else {
-          res = o2.getFileName().length() - o1.getFileName().length();
-
-        }
-        return (res != 0) ? res : o2.getFileName().compareTo(o1.getFileName());
-      }
-    };
-    TreeMap<LogFileTime, File> logFilesTimesMap = new TreeMap<LogFileTime, File>(logfileComparator);
+    TreeMap<LogFileTime, File> logFilesTimesMap = new TreeMap<LogFileTime, File>(logFileComparator);
     for (File f : dirFiles) {
       logFilesTimesMap.put(new LogFileTime(f.lastModified(), f.getName()), f);
     }
@@ -362,16 +333,67 @@ public class LogTailer extends AbstractWorker {
   }
 
   /**
-   *  Method try read log entry from log file
+   *  Try read line from log file.
+   *  Used, when restoring from state
    *
    *  @param channel FileChannel steam
    *  @param separator  log entry separator
+   *  @return last modified time of current log file
    *  @throws IOException in case could not read entry after failureRetryLimit attempts
    *  @throws InterruptedException in case thread was interrupted
    */
   private String tryReadLine(FileChannel channel, char separator) throws IOException, InterruptedException {
     int retryNumber = 0;
-    long rePos = 0;
+    long position = channel.position();
+    StringBuilder sb = new StringBuilder();
+    boolean lineNotRead = true;
+    while (lineNotRead) {
+      if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
+        LOG.error("fail to read line  after {} attempts", retryNumber);
+        throw new IOException();
+      }
+      try {
+        readBuffer.clear();
+        decoded.clear();
+        int len = channel.read(readBuffer);
+        lineNotRead = false;
+        if (len >= 0) {
+          readBuffer.flip();
+          decoder.decode(readBuffer, decoded, false);
+          decoded.flip();
+          for (int i = 0; i < decoded.length(); i++) {
+            char ch = decoded.charAt(i);
+            if (ch != separator) {
+              sb.append(ch);
+            } else {
+              break;
+            }
+          }
+        }
+      } catch (IOException e) {
+        retryNumber++;
+        Thread.sleep(failureSleepInterval);
+      }
+    }
+    String line = sb.toString();
+    channel.position(position + line.getBytes(charset).length + separatorByteLength);
+    return line;
+  }
+
+  /**
+   *  Try read log file
+   *
+   *  @param channel FileChannel steam
+   *  @param separator  log entry separator
+   *  @param currentLogFile current log file
+   *  @return last modified time of current log file
+   *  @throws IOException in case could not read entry after failureRetryLimit attempts
+   *  @throws InterruptedException in case thread was interrupted
+   */
+  private long tryReadFromFile(FileChannel channel, char separator,
+                               File currentLogFile, long modifyTime) throws IOException, InterruptedException {
+    int retryNumber = 0;
+    long position = channel.position();
     StringBuilder sb = new StringBuilder();
     while (isRunning()) {
       if (retryNumber > failureRetryLimit && failureRetryLimit > 0) {
@@ -379,35 +401,39 @@ public class LogTailer extends AbstractWorker {
         throw new IOException();
       }
       try {
-        rePos = channel.position();
-        buffer.clear();
-        boolean end = false;
-        int num;
-        while (((num = channel.read(buffer)) != -1) && !end) {
-          buffer.flip();
-          CharBuffer charBuffer = charset.decode(buffer);
-          for (int i = 0; i < num; i++) {
-            char ch = charBuffer.charAt(i);
-
+        readBuffer.clear();
+        decoded.clear();
+        int len = channel.read(readBuffer);
+        if (len >= 0) {
+          readBuffer.flip();
+          decoder.decode(readBuffer, decoded, false);
+          decoded.flip();
+          for (int i = 0; i < decoded.length(); i++) {
+            char ch = decoded.charAt(i);
             if (ch != separator) {
               sb.append(ch);
-              rePos += ((Character) ch).toString().getBytes(charset).length;
             } else {
-              rePos += ((Character) separator).toString().getBytes(charset).length;
-              end = true;
-              break;
+              String line = sb.toString();
+              int lineHash = line.hashCode();
+              LOG.debug("From log file {} read entry: {}", currentLogFile, line);
+              modifyTime = currentLogFile.lastModified();
+              queue.put(new FileTailerEvent(new FileTailerState(currentLogFile.toString(),
+                                                                position, lineHash, modifyTime),
+                                            line, charset));
+              metricsProcessor.onReadEventMetric(line.getBytes(charset).length);
+              position += line.getBytes(charset).length + separatorByteLength;
+              sb.setLength(0);
             }
           }
-          buffer.clear();
+        } else {
+          break;
         }
-        break;
       } catch (IOException e) {
         retryNumber++;
         Thread.sleep(failureSleepInterval);
       }
     }
-    channel.position(rePos);
-    return sb.toString();
+    return modifyTime;
   }
 
   private void closeQuietly(FileChannel channel) {
