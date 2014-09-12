@@ -29,6 +29,7 @@
   <modules>
     <module>stream-client</module>
     <module>cdap-flume</module>
+    <module>it</module>
   </modules>
 
   <properties>
@@ -208,6 +209,19 @@
           </dependencies>
         </plugin>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>2.17</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>org.apache.rat</groupId>
           <artifactId>apache-rat-plugin</artifactId>
           <version>0.10</version>
@@ -246,6 +260,7 @@
                   <exclude>stream-client-python/v3/test/*.log</exclude>
                   <exclude>stream-client-python/v3/config.json</exclude>
                   <exclude>stream-client-python/README.md</exclude>
+                  <exclude>**/*.conf</exclude>
                 </excludes>
               </configuration>
             </execution>
