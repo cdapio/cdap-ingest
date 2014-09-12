@@ -17,36 +17,72 @@
 package co.cask.cdap.client;
 
 import co.cask.cdap.client.rest.RestStreamClient;
+import co.cask.cdap.security.authentication.client.AuthenticationClient;
+import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Properties;
 
 
 public class StreamClientIT {
 
   public static final String CONFIG_NAME = "stream_client_it_config";
+  public static final String TEST_STREAM = "testStream";
 
   @Test
-  public void testStreamCreate() throws IOException {
+  public void testStreamClient() throws IOException {
     StreamClient client = getTestClient();
-    client.create("testStream");
+    //Test that we are able to create a stream
+    client.create(TEST_STREAM);
 
+    //Test that we are able to get/set TTL
     long ttl = System.currentTimeMillis() + 1000 * 60 * 60 * 24;
-    client.setTTL("testStream", ttl);
-    Assert.assertEquals(ttl, client.getTTL("testStream"));
+    client.setTTL(TEST_STREAM, ttl);
+    Assert.assertEquals(ttl, client.getTTL(TEST_STREAM));
+
+    //Test that we are able to truncate stream
+    client.truncate(TEST_STREAM);
+  }
+
+  @Test
+  public void testStreamWriter() throws IOException {
+    StreamClient client = getTestClient();
+    //Test that we are able to create a stream
+    client.create(TEST_STREAM);
+    //Test that we are able to write to a stream
+    StreamWriter writer = client.createWriter(TEST_STREAM);
+    writer.write("test", Charset.forName("UTF8"), Collections.singletonMap("key", "value"));
+    writer.close();
   }
 
   private StreamClient getTestClient() throws IOException {
-    Properties properties = getProperties();
-    return RestStreamClient.builder(properties.getProperty("host"),
-                                    Integer.valueOf(properties.getProperty("port"))).build();
+    Properties properties = getProperties(System.getProperty(CONFIG_NAME));
+    RestStreamClient.Builder clientBuilder = RestStreamClient.builder(properties.getProperty("host"),
+                                                                      Integer.valueOf(properties.getProperty("port")));
+    clientBuilder.ssl(Boolean.valueOf(properties.getProperty("ssl", "false")));
+    clientBuilder.version(properties.getProperty("version", "v2"));
+    clientBuilder.writerPoolSize(Integer.valueOf(properties.getProperty("writerPoolSize", "10")));
+
+    if (properties.getProperty("auth_host") != null) {
+      AuthenticationClient client = new BasicAuthenticationClient();
+      client.setConnectionInfo(properties.getProperty("auth_host"),
+                               Integer.valueOf(properties.getProperty("auth_port")),
+                               Boolean.valueOf(properties.getProperty("auth_ssl", "false")));
+      Properties authClientProperties = getProperties(properties.getProperty("auth_properties"));
+      client.configure(authClientProperties);
+      clientBuilder.authClient(client);
+    }
+
+    return clientBuilder.build();
   }
 
-  private Properties getProperties() throws IOException {
+  private Properties getProperties(String fileName) throws IOException {
     Properties properties = new Properties();
-    properties.load(StreamClientIT.class.getClassLoader().getResourceAsStream(System.getProperty(CONFIG_NAME)));
+    properties.load(StreamClientIT.class.getClassLoader().getResourceAsStream(fileName));
     return properties;
   }
 }

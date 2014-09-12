@@ -54,6 +54,24 @@
       </build>
     </profile>
 
+    <!-- Profile to run IT over local cdap instance with auth turned ON -->
+    <profile>
+      <id>it-local-auth</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <stream_client_it_config>local_auth.conf</stream_client_it_config>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Profile to run IT over remote cdap instance -->
     <profile>
       <id>it-remote</id>
@@ -72,6 +90,22 @@
       </build>
     </profile>
 
+    <!-- Profile to run IT over remote cdap instance with auth turned ON-->
+    <profile>
+      <id>it-remote-auth</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <stream_client_it_config>remote_auth.conf</stream_client_it_config>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
-
 </project>
