@@ -101,7 +101,7 @@ public class FileTailerSink extends AbstractWorker {
   /**
    * This method blocks until all package is uploaded
    *
-   * @param pack
+   * @param pack the event pack
    */
   private void uploadEventPack(EventPack pack) throws InterruptedException, IOException {
     List<FileTailerEvent> events = pack.getEvents();
@@ -120,10 +120,25 @@ public class FileTailerSink extends AbstractWorker {
     }
   }
 
+  /**
+   * Uploads one event
+   *
+   * @param latch the latch
+   * @param event the event
+   * @throws IOException
+   */
   private void uploadEvent(UploadLatch latch, FileTailerEvent event) throws IOException {
     uploadEvent(latch, event, 0);
   }
 
+  /**
+   * Uploads one event
+   *
+   * @param latch the latch
+   * @param event the event
+   * @param retryCount the number of attempts to upload event
+   * @throws IOException
+   */
   private void uploadEvent(UploadLatch latch, FileTailerEvent event, int retryCount) throws IOException {
     LOG.debug("Uploading event {} with writer {}. Attempt {} out of {} ", event, writer, retryCount, MAX_RETRY_COUNT);
     long sendStartTime = System.currentTimeMillis();

@@ -17,7 +17,7 @@
 package co.cask.cdap.filetailer.sink;
 
 /**
- * Created by dev on 15.08.14.
+ * Enumeration for sink strategy
  */
 public enum SinkStrategy {
   FAILOVER, LOADBALANCE;

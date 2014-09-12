@@ -31,7 +31,7 @@ public interface PipeConfiguration {
   String getPipeName();
 
   /**
-   * Returns the directory, intended like storage for File Tailer state and metrics
+   * Retrieves the directory, intended like storage for File Tailer state and metrics
    * (loaded from configuration file)
    *
    * @return the File Tailer home (to save state and metrics) directory
@@ -39,42 +39,42 @@ public interface PipeConfiguration {
   File getDaemonDir();
 
   /**
-   * Returns the name of state file (loaded from configuration file)
+   * Retrieves the name of state file (loaded from configuration file)
    *
    * @return the state file name
    */
   String getStateFile();
 
   /**
-   * Returns the name of statistics file (loaded from configuration file)
+   * Retrieves the name of statistics file (loaded from configuration file)
    *
    * @return the state file name
    */
   String getStatisticsFile();
 
   /**
-   * Returns the sleep interval for writing statistics (loaded from configuration file)
+   * Retrieves the sleep interval for writing statistics (loaded from configuration file)
    *
    * @return the sleep interval for writing statistics
    */
   long getStatisticsSleepInterval();
 
   /**
-   * Returns the size of queue, intended for store events before push them to stream (loaded from configuration file)
+   * Retrieves the size of queue, intended for store events before push them to stream (loaded from configuration file)
    *
    * @return the queue size of temporary events queue
    */
   int getQueueSize();
 
   /**
-   * Returns the source configuration loader that return source configurations of this pipe
+   * Retrieves the source configuration loader that return source configurations of this pipe
    *
    * @return the source configuration loader of this pipe
    */
   SourceConfiguration getSourceConfiguration();
 
   /**
-   * Returns the sink configuration loader that return sink configurations of this pipe
+   * Retrieves the sink configuration loader that return sink configurations of this pipe
    *
    * @return the sink configuration loader of this pipe
    */

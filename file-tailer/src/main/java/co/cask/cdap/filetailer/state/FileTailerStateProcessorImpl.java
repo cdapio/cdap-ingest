@@ -96,6 +96,12 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
     }
   }
 
+  /**
+   * Creates all directories according to the {@link java.io.File} directory
+   *
+   * @param directory the directory
+   * @throws FileTailerStateProcessorException in case directories creating result where false
+   */
   private void createDirs(File directory) throws FileTailerStateProcessorException {
     LOG.debug("Starting create directory with path: {}", directory.getAbsolutePath());
     if (!directory.exists()) {

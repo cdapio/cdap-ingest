@@ -35,18 +35,38 @@ public class FileTailerState {
     this.lastModifyTime = lastModifyTime;
   }
 
+  /**
+   * Retrieves the name of log file
+   *
+   * @return the name of log file
+   */
   public String getFileName() {
     return fileName;
   }
 
+  /**
+   * Retrieves the position in log file
+   *
+   * @return the position in log file
+   */
   public long getPosition() {
     return position;
   }
 
+  /**
+   * Retrieves the hash of last read line
+   *
+   * @return the hash of last read line
+   */
   public int getHash() {
     return hash;
   }
 
+  /**
+   * Retrieves the last modified time of log file
+   *
+   * @return the last modified time of log file
+   */
   public long getLastModifyTime() {
     return lastModifyTime;
   }

@@ -18,7 +18,7 @@ package co.cask.cdap.filetailer.config.exception;
 
 /**
  * Thrown when an error occurs getting the property.
- * For example, if the configuration file does not exist.
+ * For example, in case the configuration file does not exist.
  */
 public class ConfigurationLoaderException extends RuntimeException {
 

@@ -284,10 +284,20 @@ public class LogTailer extends AbstractWorker {
       this.fileName = fileName;
     }
 
+    /**
+     * Retrieves the last modified time
+     *
+     * @return the last modified time
+     */
     public Long getModificationTime() {
       return modificationTime;
     }
 
+    /**
+     * Retrieves the file name
+     *
+     * @return the file name
+     */
     public String getFileName() {
       return fileName;
     }
@@ -436,6 +446,11 @@ public class LogTailer extends AbstractWorker {
     return modifyTime;
   }
 
+  /**
+   * Close the channel
+   *
+   * @param channel the channel
+   */
   private void closeQuietly(FileChannel channel) {
     if (channel != null) {
       try {

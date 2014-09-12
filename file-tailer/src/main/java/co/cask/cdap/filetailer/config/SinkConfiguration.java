@@ -19,33 +19,33 @@ package co.cask.cdap.filetailer.config;
 import co.cask.cdap.client.StreamClient;
 
 /**
- * SinkConfiguration is design for getting sink properties of the some pipe
+ * Retrieves sink properties of a pipe.
  */
 public interface SinkConfiguration {
 
   /**
-   * Returns the name of target stream (loaded from configuration file)
+   * Retrieves the name of target stream (loaded from configuration file)
    *
    * @return the target stream name
    */
   String getStreamName();
 
   /**
-   * Returns the Stream client (loaded from configuration file)
+   * Retrieves the Stream client (loaded from configuration file)
    *
    * @return the Stream client
    */
   StreamClient getStreamClient();
 
   /**
-   * Returns the size of events pack, which sends to stream (loaded from configuration file)
+   * Retrieves the size of events pack, which sends to stream (loaded from configuration file)
    *
    * @return the size of events pack
    */
   int getPackSize();
 
   /**
-   * Returns the failure retry limit (limit for the number of attempts to send event/events, if error occurred)
+   * Retrieves the failure retry limit (limit for the number of attempts to send event/events, if error occurred)
    * (loaded from configuration file)
    *
    * @return the failure retry limit
@@ -53,7 +53,7 @@ public interface SinkConfiguration {
   int getFailureRetryLimit();
 
   /**
-   * Returns the interval to wait, after occured error while sending event/events (loaded from configuration file)
+   * Retrieves the interval to wait, after occurred error while sending event/events (loaded from configuration file)
    *
    * @return the failure sleep interval
    */

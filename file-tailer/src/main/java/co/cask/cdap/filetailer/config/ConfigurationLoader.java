@@ -30,7 +30,7 @@ public interface ConfigurationLoader {
    *
    * @param file the configuration file
    * @return configuration loaded from file with specified path
-   * @throws co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException if error occurred
+   * @throws ConfigurationLoadingException in case an error occurred
    *                                      (for example, file not exists)
    */
   Configuration load(File file) throws ConfigurationLoadingException;

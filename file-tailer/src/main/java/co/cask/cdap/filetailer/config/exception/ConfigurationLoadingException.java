@@ -20,7 +20,7 @@ import java.io.IOException;
 
 /**
  * Thrown when an error occurs loading the configuration file.
- * For example, if the configuration file does not exist.
+ * For example, in case the configuration file does not exist.
  */
 public class ConfigurationLoadingException extends IOException {
 

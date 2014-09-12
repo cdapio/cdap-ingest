@@ -35,14 +35,29 @@ public class FileTailerEvent {
     this.charset = charset;
   }
 
+  /**
+   * Retrieves the FileTailer state of this event
+   *
+   * @return the FileTailer state
+   */
   public FileTailerState getState() {
     return state;
   }
 
+  /**
+   * Retrieves the FileTailer event data of this event
+   *
+   * @return the FileTailer event data
+   */
   public String getEventData() {
     return eventData;
   }
 
+  /**
+   * Retrieves the charset of this event
+   *
+   * @return the charset
+   */
   public Charset getCharset() {
     return charset;
   }

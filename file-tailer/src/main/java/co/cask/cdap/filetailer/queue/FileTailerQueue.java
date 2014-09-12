@@ -38,12 +38,24 @@ public class FileTailerQueue {
     this.queue = new LinkedBlockingQueue<FileTailerEvent>(size);
   }
 
+  /**
+   * Put event into queue
+   *
+   * @param event the event
+   * @throws InterruptedException in case interrupted while waiting
+   */
   public void put(FileTailerEvent event) throws InterruptedException {
     LOG.trace("Attempt to put event {} to queue", event);
     queue.put(event);
     LOG.trace("Attempt to put event {} to queue was successful", event);
   }
 
+  /**
+   * Takes event from queue
+   *
+   * @return taken event
+   * @throws InterruptedException in case interrupted while waiting
+   */
   public FileTailerEvent take() throws InterruptedException {
     LOG.trace("Attempt to take event from queue");
     FileTailerEvent event = queue.take();
@@ -51,6 +63,13 @@ public class FileTailerQueue {
     return event;
   }
 
+  /**
+   * Drains events from this queue to specific collection
+   *
+   * @param collection the collection to which drain events
+   * @param max the maximum value to drain
+   * @throws InterruptedException in case interrupted while waiting
+   */
   public void drainTo(Collection<? super FileTailerEvent> collection,
                                        int max) throws InterruptedException {
     LOG.trace("Attempt to take {} events from queue", max);

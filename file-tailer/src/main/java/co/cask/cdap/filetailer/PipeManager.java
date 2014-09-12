@@ -100,6 +100,11 @@ public class PipeManager extends AbstractIdleService {
     }
   }
 
+  /**
+   * Retrieves {@link ServiceManager} for all pipes of this {@link PipeManager}
+   *
+   * @return the {@link ServiceManager}
+   */
   private ServiceManager createManager() {
     try {
       return setupPipes();

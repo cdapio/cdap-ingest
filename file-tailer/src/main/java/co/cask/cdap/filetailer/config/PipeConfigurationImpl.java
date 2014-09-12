@@ -96,11 +96,24 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return sinkConfiguration;
   }
 
+  /**
+   * Retrieves property by key or default value in case property not exists
+   *
+   * @param key the key
+   * @param defaultValue the default value
+   * @return property by key or default value
+   */
   private String getProperty(String key, String defaultValue) {
       String value = getProperty(key);
       return value != null && !value.equals("") ? value : defaultValue;
   }
 
+  /**
+   * Retrieves property by key
+   *
+   * @param key the key
+   * @return property by key
+   */
   private String getProperty(String key) {
     LOG.debug("Start returning property by keyPath: {}", key);
     if (properties == null) {
@@ -110,6 +123,12 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return properties.getProperty(key);
   }
 
+  /**
+   * Retrieves property by key or null in case property not exists
+   *
+   * @param key the key
+   * @return property by key or null
+   */
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
     if (property == null || property.equals("")) {
