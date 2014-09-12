@@ -1,4 +1,23 @@
+/**
+ * Copyright © 2014 Cask Data, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+
 (function (factory) {
+    'use strict';
+
     // Support three module loading scenarios
     if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
         // [1] CommonJS/Node.js
@@ -9,10 +28,12 @@
         define(['exports', 'Promise'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
-        window['Cask'] = window['Cask'] || {};
-        factory(window['Cask']);
+        window['CDAPTracker'] = window['CDAPTracker'] || {};
+        factory(window['CDAPTracker']);
     }
 }(function (target, require) {
+    'use strict';
+
     target['Promise'] = target['Promise'] || function () {
         var success_handlers_stack = [],
             error_handlers_stack = [],
@@ -23,31 +44,33 @@
             notify_value_stack = [];
 
         var fireResolve = function () {
-                if(null != resolve_value && success_handlers_stack.length) {
-                    while(success_handlers_stack.length) {
+                if (null != resolve_value && success_handlers_stack.length) {
+                    while (success_handlers_stack.length) {
                         success_handlers_stack.shift()(resolve_value);
                     }
 
                     error_handlers_stack = [];
+                    notification_handlers_stack = [];
                 }
             },
             fireReject = function () {
-                if(null != reject_reason && error_handlers_stack.length) {
-                    while(error_handlers_stack.length) {
+                if (null != reject_reason && error_handlers_stack.length) {
+                    while (error_handlers_stack.length) {
                         error_handlers_stack.shift()(reject_reason);
                     }
 
                     success_handlers_stack = [];
+                    notification_handlers_stack = [];
                 }
             },
             fireNotify = function () {
-                if(notify_value_stack.length && notification_handlers_stack.length) {
+                if (notify_value_stack.length && notification_handlers_stack.length) {
                     var message = null;
 
-                    while(notify_value_stack.length > 0) {
+                    while (notify_value_stack.length > 0) {
                         message = notify_value_stack.shift();
 
-                        while(notification_handlers_stack.length) {
+                        while (notification_handlers_stack.length) {
                             notification_handlers_stack.shift()(message);
                         }
                     }
@@ -133,11 +156,11 @@
             };
 
         return {
-            then: thenImpl,
-            catch: catchImpl,
-            resolve: resolveImpl,
-            reject: rejectImpl,
-            notify: notifyImpl
+            'then': thenImpl,
+            'catch': catchImpl,
+            'resolve': resolveImpl,
+            'reject': rejectImpl,
+            'notify': notifyImpl
         };
     };
 }));
