@@ -25,11 +25,18 @@ import org.apache.http.protocol.HttpRequestHandler;
 import org.junit.After;
 import org.junit.Before;
 
+/**
+ * Contains common fields for unit tests for the REST Stream Client API implementation.
+ */
 public class RestTest {
   public static final long STREAM_TTL = 86400;
   public static final String AUTH_TOKEN = "er4545556tfgbdsa9ddvgfgd9";
+  public static final String EXPECTED_WRITER_CONTENT = "Hello World!";
+  public static final String TEST_HEADER_NAME = "X-Continuuity-Test";
+  public static final String TEST_HEADER_VALUE = "Test";
 
-  protected LocalTestServer localTestServer;
+  private LocalTestServer localTestServer;
+
   protected String testServerHost;
   protected int testServerPort;
 
@@ -41,7 +48,6 @@ public class RestTest {
   @Before
   public void setUp() throws Exception {
     localTestServer = new LocalTestServer(null, null);
-//    localTestServer.register("*/streams/*", streamsHandler);
     localTestServer.register("*/config", configHandler);
     localTestServer.register("*/truncate", truncateHandler);
     localTestServer.register("*/info", infoHandler);

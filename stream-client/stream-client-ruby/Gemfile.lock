@@ -1,0 +1,84 @@
+PATH
+  remote: .
+  specs:
+    stream-client-ruby (0.0.1)
+      em-http-request
+      httparty
+      promise.rb
+      thread
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    addressable (2.3.6)
+    coderay (1.1.0)
+    cookiejar (0.3.2)
+    crack (0.4.2)
+      safe_yaml (~> 1.0.0)
+    diff-lcs (1.2.5)
+    docile (1.1.5)
+    em-http-request (1.1.2)
+      addressable (>= 2.3.4)
+      cookiejar
+      em-socksify (>= 0.3)
+      eventmachine (>= 1.0.3)
+      http_parser.rb (>= 0.6.0)
+    em-socksify (0.3.0)
+      eventmachine (>= 1.0.0.beta.4)
+    eventmachine (1.0.3)
+    http_parser.rb (0.6.0)
+    httparty (0.13.1)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
+    json (1.8.1)
+    method_source (0.8.2)
+    multi_json (1.10.1)
+    multi_xml (0.5.5)
+    promise.rb (0.6.1)
+    pry (0.10.1)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    rake (10.3.2)
+    rspec (3.0.0)
+      rspec-core (~> 3.0.0)
+      rspec-expectations (~> 3.0.0)
+      rspec-mocks (~> 3.0.0)
+    rspec-core (3.0.4)
+      rspec-support (~> 3.0.0)
+    rspec-expectations (3.0.4)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.0.0)
+    rspec-mocks (3.0.4)
+      rspec-support (~> 3.0.0)
+    rspec-support (3.0.4)
+    safe_yaml (1.0.3)
+    simplecov (0.9.0)
+      docile (~> 1.1.0)
+      multi_json
+      simplecov-html (~> 0.8.0)
+    simplecov-html (0.8.0)
+    simplecov-rcov (0.2.3)
+      simplecov (>= 0.4.1)
+    slop (3.6.0)
+    thread (0.1.4)
+    vcr (2.9.2)
+    webmock (1.18.0)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  httparty
+  promise.rb
+  pry
+  rake
+  rspec
+  simplecov
+  simplecov-rcov
+  stream-client-ruby!
+  thread
+  vcr
+  webmock

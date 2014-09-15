@@ -25,14 +25,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.ws.rs.core.HttpHeaders;
 
+/**
+ * Contains common utility methods for unit tests for the REST Stream Client API implementation.
+ */
 public final class TestUtils {
   public static final String SUCCESS_STREAM_NAME = "success";
   public static final String NOT_FOUND_STREAM_NAME = "notFound";
   public static final String BAD_REQUEST_STREAM_NAME = "badRequest";
   public static final String AUTH_STREAM_NAME = "auth";
   public static final String FORBIDDEN_STREAM_NAME = "forbidden";
-  public static final String NOT_ACCEPTABLE_STREAM_NAME = "notAcceptable";
+  public static final String NOT_ALLOWED_STREAM_NAME = "notAllowed";
   public static final String CONFLICT_STREAM_NAME = "conflict";
+  public static final String WRITER_TEST_STREAM_NAME_POSTFIX = "WriterTest";
+  public static final String FILE_STREAM_NAME = "file";
+  public static final String WITH_CUSTOM_HEADER_STREAM_NAME = "withHeader";
 
   private TestUtils() {
   }
@@ -54,7 +60,7 @@ public final class TestUtils {
     int code;
     if (StringUtils.isEmpty(streamName)) {
       code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-    } else if (SUCCESS_STREAM_NAME.equals(streamName)) {
+    } else if (SUCCESS_STREAM_NAME.equals(streamName) || TestUtils.FILE_STREAM_NAME.equals(streamName)) {
       code = HttpStatus.SC_OK;
     } else if (NOT_FOUND_STREAM_NAME.equals(streamName)) {
       code = HttpStatus.SC_NOT_FOUND;
@@ -62,8 +68,8 @@ public final class TestUtils {
       code = HttpStatus.SC_BAD_REQUEST;
     } else if (FORBIDDEN_STREAM_NAME.equals(streamName)) {
       code = HttpStatus.SC_FORBIDDEN;
-    } else if (NOT_ACCEPTABLE_STREAM_NAME.equals(streamName)) {
-      code = HttpStatus.SC_NOT_ACCEPTABLE;
+    } else if (NOT_ALLOWED_STREAM_NAME.equals(streamName)) {
+      code = HttpStatus.SC_METHOD_NOT_ALLOWED;
     } else if (CONFLICT_STREAM_NAME.equals(streamName)) {
       code = HttpStatus.SC_CONFLICT;
     } else {
