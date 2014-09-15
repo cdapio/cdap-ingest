@@ -33,7 +33,7 @@ class ConnectionErrorChecker(object):
 class ServiceConnector(object):
 
     __defaultHeaders = {
-        u'Authorization': u'Bearer '
+        u'Authorization': u'Bearer {0}'
     }
 
     def __init__(self, config=Config()):
@@ -62,6 +62,8 @@ class ServiceConnector(object):
         headersToSend = self.__defaultHeaders
         url = u'{0}{1}'.format(self.__base_url, uri)
 
+        headersToSend[u'Authorization'] % (self.__connectionConfig.auth_token)
+
         if headers is not None:
             headersToSend.update(headers)
 
@@ -70,6 +72,8 @@ class ServiceConnector(object):
     def send(self, uri, fields=None, headers=None):
         headersToSend = self.__defaultHeaders
         url = u'{0}{1}'.format(self.__base_url, uri)
+
+        headersToSend[u'Authorization'] % (self.__connectionConfig.auth_token)
 
         if headers is not None:
             headersToSend.update(headers)

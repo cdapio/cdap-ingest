@@ -1,6 +1,7 @@
 from __future__ import with_statement
 import json
 from io import open
+from caskauthclient.BasicAuthenticationClient import BasicAuthenticationClient
 
 
 class Config(object):
@@ -9,6 +10,7 @@ class Config(object):
         self.__host = u'localhost'
         self.__port = 10000
         self.__ssl = False
+        self.__authClient = BasicAuthenticationClient()
 
     @property
     def host(self):
@@ -34,6 +36,13 @@ class Config(object):
     def ssl(self, ssl):
         self.__ssl = ssl
 
+    @property
+    def auth_token(self):
+        try:
+            return self.__authClient.get_access_token()
+        except IOError:
+            return ''
+
     def read_from_file(filename):
         newConfig = Config()
         jsonConfig = None
@@ -44,5 +53,9 @@ class Config(object):
         newConfig.host = jsonConfig[u'hostname']
         newConfig.port = jsonConfig[u'port']
         newConfig.ssl = jsonConfig[u'SSL']
+
+        self.__authClient.set_connection_info(newConfig.host, newConfig.port,
+                                              newConfig.ssl)
+        self.__authClient.configure(filename)
 
         return newConfig
