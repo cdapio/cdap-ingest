@@ -1,5 +1,7 @@
 {
     hostname: 'localhost',
     port: 10000,
-    SSL: false
+    SSL: false,
+    username: 'admin',
+    password: 'admin_password'
 }
