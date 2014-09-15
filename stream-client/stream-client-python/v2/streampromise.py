@@ -1,3 +1,18 @@
+#  Copyright © 2014 Cask Data, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License"); you may not
+#  use this file except in compliance with the License. You may obtain a copy of
+#  the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#  License for the specific language governing permissions and limitations under
+#  the License.
+
+
 from os import path
 import mimetypes
 from threading import Thread, Lock
@@ -20,7 +35,7 @@ class StreamPromise(ConnectionErrorChecker):
         serviceConnector -- reference to connection pool to communicate with
                             gateway
         uri -- REST URL part to perform request.
-               Example: '/v2/strems/mystream'
+               Example: '/v2/streams/mystream'
         data -- data to proceed by worker thread.
                 Please read '__workerTarget' documentation.
         """
@@ -40,12 +55,12 @@ class StreamPromise(ConnectionErrorChecker):
 
     def __worker_target(self, uri, dataDict):
         u"""
-        Represents logic for performing requests and repsonses handling.
+        Represents logic for performing requests and response handling.
         This method should be invoked in a separate thread to reduce main
         thread locks.
 
         uri -- REST URL part to perform request.
-               Example: '/v2/strems/myStream'
+               Example: '/v2/streams/mystream'
         dataDict -- parameters that are to be passed to REST server:
         {
             'message': '',       Data to transmit to REST server.
@@ -159,7 +174,7 @@ class StreamPromise(ConnectionErrorChecker):
 
         def coolErrorHandler( httpResponseObject):
             ...
-            fooling around with response
+            Error handling response
             ...
         """
         if not isinstance(success_handler, FunctionType) or \
