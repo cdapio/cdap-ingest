@@ -22,6 +22,7 @@ import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -161,7 +162,7 @@ public class RestStreamClient implements StreamClient {
     private int writerPoolSize = DEFAULT_WRITER_POOL_SIZE;
     private String version = DEFAULT_VERSION;
 
-    private Builder(String host, int port) {
+    public Builder(String host, int port) {
       this.host = host;
       this.port = port;
     }
