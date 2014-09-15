@@ -1,0 +1,46 @@
+>>> Downloading 'ftp://ftp.spline.inf.fu-berlin.de/mirrors/gentoo/distfiles/push-1.6.tar.gz'
+pathconf: Permission denied
+--2014-08-12 13:21:02--  ftp://ftp.spline.inf.fu-berlin.de/mirrors/gentoo/distfiles/push-1.6.tar.gz
+           => ‘/usr/portage/distfiles/push-1.6.tar.gz’
+Resolving ftp.spline.inf.fu-berlin.de... 130.133.110.66
+Connecting to ftp.spline.inf.fu-berlin.de|130.133.110.66|:21... connected.
+Logging in as anonymous ... Logged in!
+==> SYST ... done.    ==> PWD ... done.
+==> TYPE I ... done.  ==> CWD (1) /mirrors/gentoo/distfiles ... done.
+==> SIZE push-1.6.tar.gz ... 1955
+==> PASV ... done.    ==> RETR push-1.6.tar.gz ... done.
+Length: 1955 (1,9K) (unauthoritative)
+
+     0K .                                                     100%  583K=0,003s
+
+2014-08-12 13:21:02 (583 KB/s) - ‘/usr/portage/distfiles/push-1.6.tar.gz’ saved [1955]
+
+ * push-1.6.tar.gz SHA256 SHA512 WHIRLPOOL size ;-) ...                  [ ok ]
+>>> Downloading 'ftp://ftp.spline.inf.fu-berlin.de/mirrors/gentoo/distfiles/eix-0.30.2.tar.xz'
+pathconf: Permission denied
+--2014-08-12 13:21:02--  ftp://ftp.spline.inf.fu-berlin.de/mirrors/gentoo/distfiles/eix-0.30.2.tar.xz
+           => ‘/usr/portage/distfiles/eix-0.30.2.tar.xz’
+Resolving ftp.spline.inf.fu-berlin.de... 130.133.110.66
+Connecting to ftp.spline.inf.fu-berlin.de|130.133.110.66|:21... connected.
+Logging in as anonymous ... Logged in!
+==> SYST ... done.    ==> PWD ... done.
+==> TYPE I ... done.  ==> CWD (1) /mirrors/gentoo/distfiles ... done.
+==> SIZE eix-0.30.2.tar.xz ... 555544
+==> PASV ... done.    ==> RETR eix-0.30.2.tar.xz ... done.
+Length: 555544 (543K) (unauthoritative)
+
+     0K .......... .......... .......... .......... ..........  9%  494K 1s
+    50K .......... .......... .......... .......... .......... 18% 1,11M 1s
+   100K .......... .......... .......... .......... .......... 27% 1,18M 0s
+   150K .......... .......... .......... .......... .......... 36% 10,2M 0s
+   200K .......... .......... .......... .......... .......... 46% 10,9M 0s
+   250K .......... .......... .......... .......... .......... 55% 1,30M 0s
+   300K .......... .......... .......... .......... .......... 64% 10,6M 0s
+   350K .......... .......... .......... .......... .......... 73% 11,2M 0s
+   400K .......... .......... .......... .......... .......... 82% 1,53M 0s
+   450K .......... .......... .......... .......... .......... 92% 11,0M 0s
+   500K .......... .......... .......... .......... ..        100% 8,03M=0,3s
+
+2014-08-12 13:21:03 (1,86 MB/s) - ‘/usr/portage/distfiles/eix-0.30.2.tar.xz’ saved [555544]
+
+ * eix-0.30.2.tar.xz SHA256 SHA512 WHIRLPOOL size ;-) ...                [ ok ]
