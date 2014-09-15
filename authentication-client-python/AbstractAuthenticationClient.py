@@ -5,7 +5,6 @@ from random import randint
 import time
 import datetime
 import requests
-import six
 from AccessToken import AccessToken
 
 from AuthenticationClient import AuthenticationClient
@@ -75,6 +74,7 @@ class AbstractAuthenticationClient(AuthenticationClient):
         headers = response.headers
 
         RestClientUtils.verify_response_code(status_code)
+        t= response.content
         token_value = response.json()[self.ACCESS_TOKEN_KEY]
         token_type = response.json()[self.TOKEN_TYPE_KEY]
         expires_in_str = response.json()[self.EXPIRES_IN_KEY]

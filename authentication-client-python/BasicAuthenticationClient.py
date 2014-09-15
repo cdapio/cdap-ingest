@@ -1,7 +1,6 @@
 import base64
 import logging
-import urllib2
-from flask import json
+import json
 from AbstractAuthenticationClient import AbstractAuthenticationClient
 from Config import Config
 from Credential import Credential
@@ -11,8 +10,8 @@ LOG = logging.getLogger(__name__)
 
 class BasicAuthenticationClient(AbstractAuthenticationClient):
 
-    USERNAME_PROP_NAME = u'security.auth.client.username'
-    PASSWORD_PROP_NAME = u'security.auth.client.password'
+    USERNAME_PROP_NAME = u'security_auth_client_username'
+    PASSWORD_PROP_NAME = u'security_auth_client_password'
 
     def __init__(self):
         super(BasicAuthenticationClient, self).__init__()
@@ -20,6 +19,22 @@ class BasicAuthenticationClient(AbstractAuthenticationClient):
         self.__password = None
         self.__credentials = (Credential(self.USERNAME_PROP_NAME, u'Username for basic authentication.', False),
                               Credential(self.PASSWORD_PROP_NAME, u'Password for basic authentication.', True))
+
+    @property
+    def username(self):
+        return self.__username
+
+    @username.setter
+    def username(self, username):
+        self.__username = username
+
+    @property
+    def password(self):
+        return self.__password
+
+    @password.setter
+    def password(self, password):
+        self.__password = password
 
     def get_required_credentials(self):
         return self.__credentials
@@ -29,7 +44,7 @@ class BasicAuthenticationClient(AbstractAuthenticationClient):
             raise ValueError(u'Base authentication client is not configured!')
         LOG.debug(u'Authentication is enabled in the gateway server. Authentication URI {}.', self.auth_url)
 
-        base64string = base64.encodestring('%s:%s' % (self.__username, self.__password)).replace('\n', '')
+        base64string = base64.encodestring(u'%s:%s' % (self.__username, self.__password)).replace('\n', '')
         auth_header = json.dumps( {u"Authorization": u"Basic %s" % base64string })
 
         return self.execute(auth_header)
@@ -38,10 +53,10 @@ class BasicAuthenticationClient(AbstractAuthenticationClient):
         if self.__username or self.__password:
             raise ValueError(u'Client is already configured!')
         config = Config().read_from_file(config_file)
-        self.__username = config.username
+        self.__username = config.security_auth_client_username
         if not self.__username:
             raise ValueError(u'The username property cannot be empty.')
 
-        self.__password = config.password
+        self.__password = config.security_auth_client_password
         if not self.__password:
             raise ValueError(u'The password property cannot be empty.')

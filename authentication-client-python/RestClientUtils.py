@@ -13,7 +13,7 @@ class RestClientUtils:
 
     @staticmethod
     def check_status(status):
-        return {
+        raise {
             httplib.OK: LOG.debug("Success operation result code."),
             httplib.NOT_FOUND: RestClientUtils.raise_not_found_error(status),
             httplib.BAD_REQUEST: RestClientUtils.raise_base_request_eror(status),
@@ -73,32 +73,40 @@ class BaseHttpError(Exception):
         return u"Code: %s \nMessage: %s" % (self.__errorCode, self.__errorMsg)
 
 class BadRequestError(BaseHttpError):
-    pass
+
+    def __init__(self, code, msg):
+        super(BadRequestError,self).__init__(code, msg)
 
 class NotFoundError(BaseHttpError):
-    pass
+    def __init__(self, code, msg):
+        super(NotFoundError, self).__init__(code, msg)
+
+class ConflictError(BaseHttpError):
+    def __init__(self, code, msg):
+        super(ConflictError, self).__init__(code, msg)
 
 
-class ConflictError(BadRequestError):
-    pass
+class UnauthorizedError(BaseHttpError):
+    def __init__(self, code, msg):
+        super(UnauthorizedError, self).__init__(code, msg)
 
 
-class UnauthorizedError(BadRequestError):
-    pass
+class ForbiddenError(BaseHttpError):
+    def __init__(self, code, msg):
+        super(ForbiddenError, self).__init__(code, msg)
 
 
-class ForbiddenError(BadRequestError):
-    pass
+class MethodNotAllowed(BaseHttpError):
+    def __init__(self, code, msg):
+        super(MethodNotAllowed, self).__init__(code, msg)
 
 
-class MethodNotAllowed(BadRequestError):
-    pass
+class InternalServerError(BaseHttpError):
+    def __init__(self, code, msg):
+        super(InternalServerError, self).__init__(code, msg)
 
 
-class InternalServerError(BadRequestError):
-    pass
-
-
-class NotSupportedError(BadRequestError):
-    pass
+class NotSupportedError(BaseHttpError):
+    def __init__(self, code, msg):
+        super(NotSupportedError, self).__init__(code, msg)
 
