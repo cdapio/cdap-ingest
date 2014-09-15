@@ -29,6 +29,7 @@
   <modules>
     <module>stream-client</module>
     <module>cdap-flume</module>
+    <module>file-tailer</module>
     <module>it</module>
   </modules>
 
@@ -261,6 +262,7 @@
                   <exclude>stream-client-python/v3/config.json</exclude>
                   <exclude>stream-client-python/README.md</exclude>
                   <exclude>**/*.conf</exclude>
+                  <exclude>**/testlogs/**</exclude>
                 </excludes>
               </configuration>
             </execution>
