@@ -6,50 +6,60 @@ LOG = logging.getLogger(__name__)
 
 
 class RestClientUtils:
-    def verifyResponseCode(self, response):
-        status = response.getcode()
-        self.check_status(status)
 
-    def check_status(self, status):
+    @staticmethod
+    def verify_response_code(response_code):
+        RestClientUtils.check_status(response_code)
+
+    @staticmethod
+    def check_status(status):
         return {
             httplib.OK: LOG.debug("Success operation result code."),
-            httplib.NOT_FOUND: self.raise_not_found_error(status),
-            httplib.BAD_REQUEST: self.raise_base_request_eror(status),
-            httplib.CONFLICT: self.raise_conflict_error(status),
-            httplib.UNAUTHORIZED: self.raise_unauthorized_error(status),
-            httplib.FORBIDDEN: self.raise_forbidden_error(status),
-            httplib.METHOD_NOT_ALLOWED: self.raise_method_not_allowed(status),
-            httplib.INTERNAL_SERVER_ERROR: self.raise_internal_server_error(status)
-        }[self.raise_not_supported_error(status)]
+            httplib.NOT_FOUND: RestClientUtils.raise_not_found_error(status),
+            httplib.BAD_REQUEST: RestClientUtils.raise_base_request_eror(status),
+            httplib.CONFLICT: RestClientUtils.raise_conflict_error(status),
+            httplib.UNAUTHORIZED: RestClientUtils.raise_unauthorized_error(status),
+            httplib.FORBIDDEN: RestClientUtils.raise_forbidden_error(status),
+            httplib.METHOD_NOT_ALLOWED: RestClientUtils.raise_method_not_allowed(status),
+            httplib.INTERNAL_SERVER_ERROR: RestClientUtils.raise_internal_server_error(status)
+        }.get(status, RestClientUtils.raise_not_supported_error(status))
 
-    def raise_not_found_error(self, status):
-        return NotFoundError(status, 'Not found HTTP code was received from gateway server.')
+    @staticmethod
+    def raise_not_found_error(status):
+        return NotFoundError(status, u'Not found HTTP code was received from gateway server.')
 
-    def raise_base_request_eror(self, status):
-        return BadRequestError(status, 'Bad request HTTP code was received from gateway server.')
+    @staticmethod
+    def raise_base_request_eror(status):
+        return BadRequestError(status, u'Bad request HTTP code was received from gateway server.')
 
-    def raise_conflict_error(self, status):
-        return ConflictError(status, 'Conflict HTTP code was received from gateway server.')
+    @staticmethod
+    def raise_conflict_error(status):
+        return ConflictError(status, u'Conflict HTTP code was received from gateway server.')
 
-    def raise_unauthorized_error(self, status):
-        return UnauthorizedError(status, 'Authorization error code was received from server. ')
+    @staticmethod
+    def raise_unauthorized_error(status):
+        return UnauthorizedError(status, u'Authorization error code was received from server. ')
 
-    def raise_forbidden_error(self, status):
-        return ForbiddenError(status, 'Forbidden HTTP code was received from gateway server')
+    @staticmethod
+    def raise_forbidden_error(status):
+        return ForbiddenError(status, u'Forbidden HTTP code was received from gateway server')
 
-    def raise_method_not_allowed(self, status):
-        return MethodNotAllowed(status, 'Method not allowed code was received from gateway server')
+    @staticmethod
+    def raise_method_not_allowed(status):
+        return MethodNotAllowed(status, u'Method not allowed code was received from gateway server')
 
-    def raise_internal_server_error(self, status):
-        return InternalServerError(status, 'Internal server exception during operation process. ')
+    @staticmethod
+    def raise_internal_server_error(status):
+        return InternalServerError(status, u'Internal server exception during operation process. ')
 
-    def raise_not_supported_error(self, status):
-        return NotSupportedError(status, 'Operation is not supported by gateway server')
+    @staticmethod
+    def raise_not_supported_error(status):
+        return NotSupportedError(status, u'Operation is not supported by gateway server')
 
 
 class BaseHttpError(Exception):
     def __init__(self, code, msg):
-        super(self.__class__, self).__init__()
+
         self.__errorCode = code
         self.__errorMsg = msg
 
