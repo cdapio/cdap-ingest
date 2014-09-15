@@ -2,7 +2,7 @@ import httplib
 from BaseHTTPServer import BaseHTTPRequestHandler
 
 
-class BaseAuthHandler (BaseHTTPRequestHandler):
+class BaseHandler (BaseHTTPRequestHandler):
     AUTH_PORT = None
     AUTH_HOST = None
 
@@ -25,9 +25,9 @@ class BaseAuthHandler (BaseHTTPRequestHandler):
 
     def do_GET(self):
         status_code = httplib.UNAUTHORIZED
-        auth_uri = '{"auth_uri":["http://%s:%d/token"]}' % ( self.AUTH_HOST, self.AUTH_PORT)
+        auth_uri = u'{"auth_uri":["http://%s:%d/token"]}' % ( self.AUTH_HOST, self.AUTH_PORT)
         self.send_response(status_code)
-        self.send_header("Content-type", "application/json")
+        self.send_header(u"Content-type", u"application/json")
         self.end_headers()
         self.wfile.write(auth_uri)
 
