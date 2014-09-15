@@ -27,7 +27,7 @@
   </parent>
 
   <artifactId>stream-client</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Stream Client API</name>
 
