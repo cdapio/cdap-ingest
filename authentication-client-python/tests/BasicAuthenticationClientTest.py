@@ -1,6 +1,9 @@
 import SocketServer
+import httplib
 import socket
 import threading
+from RestClientUtils import UnauthorizedError
+
 try:
     import unittest2 as unittest
 except ImportError:
@@ -19,7 +22,8 @@ class BasicAuthenticationClientTest(unittest.TestCase):
         self.__local_test_server.allow_reuse_address = True
         self.__server_thread = threading.Thread(target=self.__local_test_server.serve_forever)
         self.__server_thread.start()
-        self.__authentication_client .set_connection_info(u'localhost', TestConstants.SERVER_PORT, False)
+        # self.__authentication_client.set_connection_info(u'localhost', TestConstants.SERVER_PORT, False)
+        self.__authentication_client.set_connection_info(u'localhost', 10000, False)
         AuthenticationHandler.AUTH_HOST =u'localhost'
         AuthenticationHandler.AUTH_PORT = TestConstants.SERVER_PORT
         # BaseHandler.auth_host = self.SERVER_PORT
@@ -43,9 +47,13 @@ class BasicAuthenticationClientTest(unittest.TestCase):
         self.assertEqual(TestConstants.TOKEN_LIFE_TIME, access_token.expires_in)
         self.__local_test_server.server_close()
 
+    def test_not_authorization_get_access_token(self):
+        self.__authentication_client.username = u"fail"
+        self.__authentication_client.password = u"fail"
+        self.assertRaises( UnauthorizedError,  self.__authentication_client.get_access_token())
+
 class MyTCPServer(SocketServer.TCPServer):
     def server_bind(self):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(self.server_address)
-
 

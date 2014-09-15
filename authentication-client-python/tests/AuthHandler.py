@@ -71,10 +71,12 @@ class AuthenticationHandler(BaseHTTPRequestHandler):
                 else:
                     status_code = httplib.UNAUTHORIZED
                     self.send_response(status_code)
+                    self.send_header(u"Content-type", u"application/json")
                     self.end_headers()
             else:
                 status_code = httplib.BAD_REQUEST
                 self.send_response(status_code)
+                self.send_header(u"Content-type", u"application/json")
                 self.end_headers()
 
 
