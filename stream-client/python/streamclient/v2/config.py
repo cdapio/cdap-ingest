@@ -6,11 +6,15 @@ from caskauthclient.BasicAuthenticationClient import BasicAuthenticationClient
 
 class Config(object):
 
+
     def __init__(self):
         self.__host = u'localhost'
         self.__port = 10000
         self.__ssl = False
-        self.__authClient = BasicAuthenticationClient()
+        self.__authClient = None
+
+    def set_auth_client(self, client):
+        self.__authClient = client
 
     @property
     def host(self):
@@ -41,21 +45,25 @@ class Config(object):
         try:
             return self.__authClient.get_access_token()
         except IOError:
-            return ''
+            return u''
 
+    @staticmethod
     def read_from_file(filename):
         newConfig = Config()
         jsonConfig = None
 
-        with open(file) as configFile:
+        with open(filename) as configFile:
             jsonConfig = json.loads(configFile.read())
 
         newConfig.host = jsonConfig[u'hostname']
         newConfig.port = jsonConfig[u'port']
         newConfig.ssl = jsonConfig[u'SSL']
 
-        self.__authClient.set_connection_info(newConfig.host, newConfig.port,
+        authClient = BasicAuthenticationClient()
+        authClient.set_connection_info(newConfig.host, newConfig.port,
                                               newConfig.ssl)
-        self.__authClient.configure(filename)
+        authClient.configure(filename)
+
+        newConfig.set_auth_client(authClient)
 
         return newConfig
