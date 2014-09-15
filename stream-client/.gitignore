@@ -1,0 +1,9 @@
+# Python
+stream-client/python/streamclient/v2/__*
+stream-client/python/streamclient/v3/__*
+stream-client/python/streamclient/v2/test/__*
+stream-client/python/streamclient/v3/test/__*
+stream-client/python/streamclient/v2/*.pyc
+stream-client/python/streamclient/v3/*.pyc
+stream-client/python/streamclient/v2/test/*.pyc
+stream-client/python/streamclient/v3/test/*.pyc
