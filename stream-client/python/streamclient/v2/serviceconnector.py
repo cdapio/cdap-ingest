@@ -47,11 +47,12 @@ class ConnectionErrorChecker(object):
 
 class ServiceConnector(object):
 
+    __DEFAULT_CONFIG = u'config.json'
     __defaultHeaders = {
         u'Authorization': u'Bearer {0}'
     }
 
-    def __init__(self, config=Config()):
+    def __init__(self, config=Config.read_from_file(__DEFAULT_CONFIG)):
         self.__base_url = u'{0}://{1}:{2}'
 
         if not isinstance(config, Config):
@@ -70,14 +71,12 @@ class ServiceConnector(object):
             self.__connectionConfig.port
         )
 
-    def set_authorization_token(self, token):
-        self.__defaultHeaders[u'Authorization'] = u'Bearer ' + token
-
     def request(self, method, uri, body=None, headers=None):
         headersToSend = self.__defaultHeaders
         url = u'{0}{1}'.format(self.__base_url, uri)
 
-        headersToSend[u'Authorization'] % (self.__connectionConfig.auth_token)
+        headersToSend[u'Authorization'] = headersToSend[u'Authorization']\
+            .format(self.__connectionConfig.auth_token)
 
         if headers is not None:
             headersToSend.update(headers)
@@ -88,7 +87,8 @@ class ServiceConnector(object):
         headersToSend = self.__defaultHeaders
         url = u'{0}{1}'.format(self.__base_url, uri)
 
-        headersToSend[u'Authorization'] % (self.__connectionConfig.auth_token)
+        headersToSend[u'Authorization'] = headersToSend[u'Authorization']\
+            .format(self.__connectionConfig.auth_token)
 
         if headers is not None:
             headersToSend.update(headers)
