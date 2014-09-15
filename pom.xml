@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2014 Cask, Inc.
+  ~ Copyright 2014 Cask Data, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not
   ~ use this file except in compliance with the License. You may obtain a copy of
@@ -21,72 +21,30 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>co.cask.cdap</groupId>
-  <artifactId>cdap-ingest</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <artifactId>cdap-clients</artifactId>
+  <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>CDAP ingest</name>
+  <name>CDAP clients</name>
 
   <modules>
-    <module>stream-client</module>
+    <module>authentication-client</module>
   </modules>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <cdap.clients.version>1.0.0-SNAPSHOT</cdap.clients.version>
-    <guava.version>17.0</guava.version>
-    <http.component.version>4.3.1</http.component.version>
+    <http.component.version>4.2.5</http.component.version>
     <commons.lang.version>2.5</commons.lang.version>
+    <logback.version>1.0.9</logback.version>
+    <log4j.over.slf4j.version>1.7.7</log4j.over.slf4j.version>
     <gson.version>2.2.4</gson.version>
+    <guava.version>17.0</guava.version>
     <rs-api.version>2.0</rs-api.version>
     <jersey.version>2.4.1</jersey.version>
-    <logback.version>1.0.9</logback.version>
     <mockito.version>1.9.5</mockito.version>
     <junit.version>4.11</junit.version>
-    <log4j.over.slf4j.version>1.7.7</log4j.over.slf4j.version>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>continuuity-public</id>
-      <url>https://repository.continuuity.com/content/repositories/public</url>
-    </repository>
-    <repository>
-      <id>smartifacts</id>
-      <url>https://repository.continuuity.com/content/repositories/smartifacts</url>
-    </repository>
-    <repository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/groups/public/</url>
-    </repository>
-    <repository>
-      <id>continuuity</id>
-      <url>https://repository.continuuity.com/content/repositories/snapshots</url>
-    </repository>
-  </repositories>
-
-  <distributionManagement>
-    <repository>
-      <id>nexus</id>
-      <name>continuuity-internal</name>
-      <url>https://repository.continuuity.com/service/local/staging/deploy/maven2</url>
-    </repository>
-    <snapshotRepository>
-      <id>continuuity</id>
-      <url>https://repository.continuuity.com/content/repositories/snapshots/</url>
-    </snapshotRepository>
-    <site>
-      <id>continuuity</id>
-      <url>http://continuuity.com</url>
-    </site>
-  </distributionManagement>
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>co.cask.cdap</groupId>
-        <artifactId>authentication-client-java</artifactId>
-        <version>${cdap.clients.version}</version>
-      </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
@@ -98,9 +56,44 @@
         <version>${logback.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${http.component.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+        <version>${http.component.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${commons.lang.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>${log4j.over.slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>${gson.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>${rs-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-common</artifactId>
+        <version>${jersey.version}</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
@@ -118,48 +111,8 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${http.component.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${http.component.version}</version>
         <classifier>tests</classifier>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpmime</artifactId>
-        <version>${http.component.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcore</artifactId>
-        <version>${http.component.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>${commons.lang.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>${gson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.ws.rs</groupId>
-        <artifactId>javax.ws.rs-api</artifactId>
-        <version>${rs-api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.jersey.core</groupId>
-        <artifactId>jersey-common</artifactId>
-        <version>${jersey.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>log4j-over-slf4j</artifactId>
-        <version>${log4j.over.slf4j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -236,10 +189,7 @@
                   <exclude>**/*.avsc</exclude>
                   <!-- Excludes examples by default, include it in the examples profile -->
                   <exclude>examples/**</exclude>
-                  <exclude>**/*.yml</exclude>
-                  <exclude>stream-client-ruby/spec/fixtures/1MB</exclude>
-                  <exclude>stream-client-ruby/Gemfile.lock</exclude>
-                  <exclude>stream-client-ruby/README.md</exclude>
+                  <exclude>**/testlogs/**</exclude>
                 </excludes>
               </configuration>
             </execution>
