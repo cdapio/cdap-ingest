@@ -19,7 +19,7 @@ package co.cask.cdap.filetailer.tailer;
 import java.io.IOException;
 
 /**
- * Thrown LogDirNotFoundException in case the log directory for the File Tailer is not found.
+ * Thrown when the log directory for the File Tailer is not found.
  */
 public class LogDirNotFoundException extends IOException {
   public LogDirNotFoundException(String massage) {

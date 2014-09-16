@@ -285,7 +285,7 @@ public class LogTailer extends AbstractWorker {
     }
 
     /**
-     * Retrieves the last modified time
+     * Retrieves the last modified time.
      *
      * @return the last modified time
      */
@@ -294,7 +294,7 @@ public class LogTailer extends AbstractWorker {
     }
 
     /**
-     * Retrieves the file name
+     * Retrieves the file name.
      *
      * @return the file name
      */
@@ -447,9 +447,9 @@ public class LogTailer extends AbstractWorker {
   }
 
   /**
-   * Close the channel
+   * Closes the channel.
    *
-   * @param channel the channel
+   * @param channel the channel to be closed
    */
   private void closeQuietly(FileChannel channel) {
     if (channel != null) {
