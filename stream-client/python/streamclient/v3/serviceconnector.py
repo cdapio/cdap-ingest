@@ -47,14 +47,13 @@ class ConnectionErrorChecker:
 
 class ServiceConnector:
 
-    __protocol = ''
+    __DEFAULT_CONFIG = u'config.json'
     __base_url = '{0}://{1}:{2}'
-    __connectionConfig = None
     __defaultHeaders = {
         'Authorization': 'Bearer '
     }
 
-    def __init__(self, config=Config()):
+    def __init__(self, config=Config.read_from_file(__DEFAULT_CONFIG)):
         if not isinstance(config, Config):
             raise TypeError('parameter should be of type Config')
 
@@ -71,12 +70,12 @@ class ServiceConnector:
             self.__connectionConfig.port
         )
 
-    def set_authorization_token(self, token):
-        self.__defaultHeaders['Authorization'] = 'Bearer ' + token
-
     def request(self, method, uri, body=None, headers=None):
         headersToSend = self.__defaultHeaders
         url = '{0}{1}'.format(self.__base_url, uri)
+
+        headersToSend['Authorization'] = headersToSend['Authorization']\
+            .format(self.__connectionConfig.auth_token)
 
         if headers is not None:
             headersToSend.update(headers)
@@ -86,6 +85,9 @@ class ServiceConnector:
     def send(self, uri, fields=None, headers=None):
         headersToSend = self.__defaultHeaders
         url = '{0}{1}'.format(self.__base_url, uri)
+
+        headersToSend['Authorization'] = headersToSend['Authorization']\
+            .format(self.__connectionConfig.auth_token)
 
         if headers is not None:
             headersToSend.update(headers)
