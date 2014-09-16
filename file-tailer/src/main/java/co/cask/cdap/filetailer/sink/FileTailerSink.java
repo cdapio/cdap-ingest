@@ -99,7 +99,7 @@ public class FileTailerSink extends AbstractWorker {
   }
 
   /**
-   * This method blocks until all package is uploaded
+   * Uploads all events in the pack; this method blocks until the entire package is uploaded.
    *
    * @param pack the event pack
    */
@@ -121,7 +121,7 @@ public class FileTailerSink extends AbstractWorker {
   }
 
   /**
-   * Uploads one event
+   * Uploads one event to the pack.
    *
    * @param latch the latch
    * @param event the event
@@ -132,7 +132,7 @@ public class FileTailerSink extends AbstractWorker {
   }
 
   /**
-   * Uploads one event
+   * Uploads one event from the pack, with multiple attempts made if necessary, up to the specified retry count.
    *
    * @param latch the latch
    * @param event the event

@@ -38,10 +38,10 @@ class EventPack {
   }
 
   /**
-   * Adds all events from specific list to this pack
+   * Adds all events from a specified list to this pack.
    *
    * @param events the list of events
-   * @return result of adding
+   * @return the result of adding the list
    */
   boolean addAll(List<FileTailerEvent> events) {
     return this.events.size() + events.size() <= capacity && this.events.addAll(events);
@@ -50,14 +50,14 @@ class EventPack {
   /**
    * Retrieves is this pack is full [true|false]
    *
-   * @return is this pack is full [true|false]
+   * @return <code>true</code> if this pack is full; <code>false</code> otherwise
    */
   boolean isFull() {
     return capacity == events.size();
   }
 
   /**
-   * Retrieves the free size of this pack
+   * Retrieves the free size of this pack.
    *
    * @return the free size of this pack
    */
@@ -89,16 +89,16 @@ class EventPack {
   }
 
   /**
-   * Clear event pack
+   * Clears the event pack.
    */
   void clear() {
     events.clear();
   }
 
   /**
-   * Retrieves all events from this pack
+   * Retrieves all events from this pack.
    *
-   * @return all events from this pack
+   * @return the events from this pack
    */
   List<FileTailerEvent> getEvents() {
     return Collections.unmodifiableList(events);

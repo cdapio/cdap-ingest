@@ -97,7 +97,7 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
   }
 
   /**
-   * Creates all directories according to the {@link java.io.File} directory
+   * Creates all directories according to the {@link java.io.File directory}.
    *
    * @param directory the directory
    * @throws FileTailerStateProcessorException in case directories creating result where false

@@ -104,7 +104,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   }
 
   /**
-   * Invokes in case read log event happens
+   * Invoked when a read log event occurs.
    *
    * @param eventSize the size of log
    */
@@ -123,7 +123,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   }
 
   /**
-   * Invokes in case ingest log event happens
+   * Invokes when an ingest log event occurs.
    *
    * @param latency the latency of sending log
    */
@@ -142,18 +142,18 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   }
 
   /**
-   * Calculates average value accurate to three decimal places
+   * Calculates an average value, accurate to three decimal places.
    *
    * @param total the sum of values
    * @param count the number of values
-   * @return average value
+   * @return the average value
    */
   private double calculateAverage(int total, int count) {
     return Math.round(total / (double) count * 1000) / 1000.0;
   }
 
   /**
-   * Reset all metrics.
+   * Resets all metrics.
    */
   private void resetMetrics() {
     LOG.debug("Starting reset metrics ..");
@@ -173,7 +173,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   }
 
   /**
-   * Writes header to file with metrics
+   * Writes header to metrics file.
    *
    * @param logger the logger
    * @param appender the file appender
@@ -192,11 +192,11 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       .append("Average Write Latency Per Stream").append(",")
       .append("Max Write Latency Per Stream").append("\n").toString();
     appender.doAppend(new LoggingEvent(loggerClass, logger, null, header, null, null));
-    LOG.debug("Successfully write header");
+    LOG.debug("Successfully wrote header");
   }
 
   /**
-   * Writes metric to file with metrics
+   * Writes metric to metrics file.
    *
    * @param logger the logger
    * @param appender the file appender
@@ -216,15 +216,15 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       .append(calculateAverage(totalWriteLatencyPerStream.get(), writesPerStream.get())).append(",")
       .append(maxWriteLatencyPerStream.get()).toString();
     appender.doAppend(new LoggingEvent(loggerClass, logger, null, metric, null, null));
-    LOG.debug("Successfully write metric with date: {}", currentDate);
+    LOG.debug("Successfully wrote metric with date: {}", currentDate);
   }
 
   /**
-   * Initialize file appender
+   * Initializes the file appender.
    *
-   * @param path the path to directory where write metrics
-   * @param fileName the file to which write metrics
-   * @return initialized file appender
+   * @param path the path to the directory for the metrics file
+   * @param fileName the name of the metrics file
+   * @return the initialized file appender
    */
   private RollingFileAppender initAppender(String path, String fileName) {
     LOG.debug("Starting initialize rolling file appender");
@@ -251,10 +251,10 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   }
 
   /**
-   * Initialize logger
+   * Initializes the logger.
    *
    * @param name the name of logger
-   * @return initialized logger
+   * @return the initialized logger
    */
   private ch.qos.logback.classic.Logger initLogger(String name) {
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -262,7 +262,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   }
 
   /**
-   * Creates file with specific path
+   * Creates a file with a specific path.
    *
    * @param path the path to file
    */
@@ -286,7 +286,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
   }
 
   /**
-   * Creates all directories according to the {@link java.io.File} directory
+   * Creates all directories according to the {@link java.io.File directory}.
    *
    * @param directory the directory
    */

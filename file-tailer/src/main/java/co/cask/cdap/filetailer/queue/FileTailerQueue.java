@@ -39,7 +39,7 @@ public class FileTailerQueue {
   }
 
   /**
-   * Put event into queue
+   * Puts an event into the queue.
    *
    * @param event the event
    * @throws InterruptedException in case interrupted while waiting
@@ -51,7 +51,7 @@ public class FileTailerQueue {
   }
 
   /**
-   * Takes event from queue
+   * Takes an event out from the queue.
    *
    * @return taken event
    * @throws InterruptedException in case interrupted while waiting
@@ -64,10 +64,10 @@ public class FileTailerQueue {
   }
 
   /**
-   * Drains events from this queue to specific collection
+   * Drains events from the queue to a specified collection.
    *
-   * @param collection the collection to which drain events
-   * @param max the maximum value to drain
+   * @param collection the collection for the drained events
+   * @param max the maximum number of events to drain
    * @throws InterruptedException in case interrupted while waiting
    */
   public void drainTo(Collection<? super FileTailerEvent> collection,

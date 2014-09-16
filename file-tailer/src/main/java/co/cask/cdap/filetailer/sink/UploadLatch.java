@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * UploadLatch is a wrapper around {@link CountDownLatch}
+ * A wrapper around {@link CountDownLatch}.
  */
 class UploadLatch {
   private final CountDownLatch latch;

@@ -19,7 +19,7 @@ package co.cask.cdap.filetailer.state.exception;
 import java.io.IOException;
 
 /**
- * FileTailerStateProcessorException is exception that throws in case FileTailerStateProcessor error occurred.
+ * FileTailerStateProcessorException is the exception thrown when a FileTailerStateProcessor error occurs.
  */
 public class FileTailerStateProcessorException extends IOException {
 

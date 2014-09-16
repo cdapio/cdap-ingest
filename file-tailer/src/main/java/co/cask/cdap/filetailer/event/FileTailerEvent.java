@@ -36,7 +36,7 @@ public class FileTailerEvent {
   }
 
   /**
-   * Retrieves the FileTailer state of this event
+   * Retrieves the event's FileTailer state.
    *
    * @return the FileTailer state
    */
@@ -45,7 +45,7 @@ public class FileTailerEvent {
   }
 
   /**
-   * Retrieves the FileTailer event data of this event
+   * Retrieves the event's FileTailer event data.
    *
    * @return the FileTailer event data
    */
@@ -54,7 +54,7 @@ public class FileTailerEvent {
   }
 
   /**
-   * Retrieves the charset of this event
+   * Retrieves the event's charset.
    *
    * @return the charset
    */

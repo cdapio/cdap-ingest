@@ -97,11 +97,11 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   }
 
   /**
-   * Retrieves property by key or default value in case property not exists
+   * Retrieves either a property by key or, if a property does not exist, a default value.
    *
    * @param key the key
    * @param defaultValue the default value
-   * @return property by key or default value
+   * @return the property by key or the default value parameter, if the property value is null or an empty string.
    */
   private String getProperty(String key, String defaultValue) {
       String value = getProperty(key);
@@ -109,7 +109,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   }
 
   /**
-   * Retrieves property by key
+   * Retrieves a property by key.
    *
    * @param key the key
    * @return property by key
@@ -124,7 +124,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   }
 
   /**
-   * Retrieves property by key or null in case property not exists
+   * Retrieves a property by key or null in the case where a property does not exist.
    *
    * @param key the key
    * @return property by key or null

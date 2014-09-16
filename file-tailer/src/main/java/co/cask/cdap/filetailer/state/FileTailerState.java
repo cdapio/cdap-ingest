@@ -36,7 +36,7 @@ public class FileTailerState {
   }
 
   /**
-   * Retrieves the name of log file
+   * Retrieves the name of log file.
    *
    * @return the name of log file
    */
@@ -45,7 +45,7 @@ public class FileTailerState {
   }
 
   /**
-   * Retrieves the position in log file
+   * Retrieves the position in the log file.
    *
    * @return the position in log file
    */
@@ -54,7 +54,7 @@ public class FileTailerState {
   }
 
   /**
-   * Retrieves the hash of last read line
+   * Retrieves the hash of the last read line.
    *
    * @return the hash of last read line
    */
@@ -63,7 +63,7 @@ public class FileTailerState {
   }
 
   /**
-   * Retrieves the last modified time of log file
+   * Retrieves the last modified time of the log file.
    *
    * @return the last modified time of log file
    */

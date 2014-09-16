@@ -17,7 +17,7 @@
 package co.cask.cdap.filetailer.metrics.exception;
 
 /**
- * FileTailerMetricsProcessorException is exception that throws in case FileTailerMetricsProcessor error occurred.
+ * FileTailerMetricsProcessorException is the exception thrown when a FileTailerMetricsProcessor error occurs.
  */
 public class FileTailerMetricsProcessorException extends RuntimeException {
 
