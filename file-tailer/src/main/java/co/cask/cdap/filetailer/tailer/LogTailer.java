@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -284,10 +284,20 @@ public class LogTailer extends AbstractWorker {
       this.fileName = fileName;
     }
 
+    /**
+     * Retrieves the last modified time.
+     *
+     * @return the last modified time
+     */
     public Long getModificationTime() {
       return modificationTime;
     }
 
+    /**
+     * Retrieves the file name.
+     *
+     * @return the file name
+     */
     public String getFileName() {
       return fileName;
     }
@@ -436,6 +446,11 @@ public class LogTailer extends AbstractWorker {
     return modifyTime;
   }
 
+  /**
+   * Closes the channel.
+   *
+   * @param channel the channel to be closed
+   */
   private void closeQuietly(FileChannel channel) {
     if (channel != null) {
       try {

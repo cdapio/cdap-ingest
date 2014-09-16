@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -97,11 +97,24 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return sinkConfiguration;
   }
 
+  /**
+   * Retrieves either a property by key or, if a property does not exist, a default value.
+   *
+   * @param key the key
+   * @param defaultValue the default value
+   * @return the property by key or the default value parameter, if the property value is null or an empty string.
+   */
   private String getProperty(String key, String defaultValue) {
       String value = getProperty(key);
       return value != null && !value.equals("") ? value : defaultValue;
   }
 
+  /**
+   * Retrieves a property by key.
+   *
+   * @param key the key
+   * @return property by key
+   */
   private String getProperty(String key) {
     LOG.debug("Start returning property by keyPath: {}", key);
     if (properties == null) {
@@ -111,6 +124,12 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return properties.getProperty(key);
   }
 
+  /**
+   * Retrieves a property by key or null in the case where a property does not exist.
+   *
+   * @param key the key
+   * @return property by key or null
+   */
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
     if (property == null || property.equals("")) {

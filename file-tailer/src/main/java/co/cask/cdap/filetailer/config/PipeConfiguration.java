@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -31,50 +31,50 @@ public interface PipeConfiguration {
   String getPipeName();
 
   /**
-   * Returns the directory, intended like storage for File Tailer state and metrics
-   * (loaded from configuration file)
+   * Retrieves the directory, loaded from the configuration file, for the storage of File Tailer state and metrics.
    *
-   * @return the File Tailer home (to save state and metrics) directory
+   * @return the File Tailer home directory for saved state and metrics
    */
   File getDaemonDir();
 
   /**
-   * Returns the name of state file (loaded from configuration file)
+   * Retrieves the state file name loaded from the configuration file.
    *
    * @return the state file name
    */
   String getStateFile();
 
   /**
-   * Returns the name of statistics file (loaded from configuration file)
+   * Retrieves the statistics file name loaded from the configuration file.
    *
-   * @return the state file name
+   * @return the statistics file name
    */
   String getStatisticsFile();
 
   /**
-   * Returns the sleep interval for writing statistics (loaded from configuration file)
+   * Retrieves the sleep interval for writing statistics, loaded from the configuration file.
    *
    * @return the sleep interval for writing statistics
    */
   long getStatisticsSleepInterval();
 
   /**
-   * Returns the size of queue, intended for store events before push them to stream (loaded from configuration file)
+   * Retrieves the size of the queue used for storing events before pushing them to the Stream,
+   * as loaded from the configuration file.
    *
-   * @return the queue size of temporary events queue
+   * @return the size of the temporary events queue
    */
   int getQueueSize();
 
   /**
-   * Returns the source configuration loader that return source configurations of this pipe
+   * Retrieves the source configuration loader of this pipe.
    *
    * @return the source configuration loader of this pipe
    */
   SourceConfiguration getSourceConfiguration();
 
   /**
-   * Returns the sink configuration loader that return sink configurations of this pipe
+   * Retrieves the sink configuration loader of this pipe.
    *
    * @return the sink configuration loader of this pipe
    */
