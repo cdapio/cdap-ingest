@@ -68,11 +68,11 @@ public class StreamClientIT {
     clientBuilder.version(properties.getProperty("version", "v2"));
     clientBuilder.writerPoolSize(Integer.valueOf(properties.getProperty("writerPoolSize", "10")));
 
-    if (properties.getProperty("auth_host") != null) {
+    if (properties.getProperty("host") != null) {
       AuthenticationClient client = new BasicAuthenticationClient();
-      client.setConnectionInfo(properties.getProperty("auth_host"),
-                               Integer.valueOf(properties.getProperty("auth_port")),
-                               Boolean.valueOf(properties.getProperty("auth_ssl", "false")));
+      client.setConnectionInfo(properties.getProperty("host"),
+                               Integer.valueOf(properties.getProperty("port")),
+                               Boolean.valueOf(properties.getProperty("ssl", "false")));
       Properties authClientProperties = getProperties(properties.getProperty("auth_properties"));
       client.configure(authClientProperties);
       clientBuilder.authClient(client);
