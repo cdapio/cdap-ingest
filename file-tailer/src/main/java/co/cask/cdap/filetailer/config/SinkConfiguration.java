@@ -24,21 +24,21 @@ import co.cask.cdap.client.StreamClient;
 public interface SinkConfiguration {
 
   /**
-   * Retrieves the name of target stream (loaded from configuration file)
+   * Retrieves the name of target stream
    *
    * @return the target stream name
    */
   String getStreamName();
 
   /**
-   * Retrieves the Stream client (loaded from configuration file)
+   * Retrieves the Stream client
    *
    * @return the Stream client
    */
   StreamClient getStreamClient();
 
   /**
-   * Retrieves the size of events pack, which sends to stream (loaded from configuration file)
+   * Retrieves the size of events pack, which sends to stream
    *
    * @return the size of events pack
    */
@@ -46,14 +46,13 @@ public interface SinkConfiguration {
 
   /**
    * Retrieves the failure retry limit (limit for the number of attempts to send event/events, if error occurred)
-   * (loaded from configuration file)
    *
    * @return the failure retry limit
    */
   int getFailureRetryLimit();
 
   /**
-   * Retrieves the interval to wait, after occurred error while sending event/events (loaded from configuration file)
+   * Retrieves the interval to wait, after occurred error while sending event/events
    *
    * @return the failure sleep interval
    */

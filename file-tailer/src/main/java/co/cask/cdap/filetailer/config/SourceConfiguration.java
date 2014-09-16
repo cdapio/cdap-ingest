@@ -24,50 +24,49 @@ import java.io.File;
 public interface SourceConfiguration {
 
   /**
-   * Retrieves the work directory (directory with logs) for File Tailer (loaded from configuration file)
+   * Retrieves the work directory (directory with logs) for File Tailer
    *
    * @return the work directory
    */
   File getWorkDir();
 
   /**
-   * Retrieves the name of work file (loaded from configuration file)
+   * Retrieves the name of work file
    *
    * @return the work file name
    */
   String getFileName();
 
   /**
-   * Retrieves the pattern of rotates files (loaded from configuration file)
+   * Retrieves the pattern of rotates files
    *
    * @return the rotated files pattern
    */
   String getRotationPattern();
 
   /**
-   * Retrieves the charset name (loaded from configuration file)
+   * Retrieves the charset name
    *
    * @return the charset name
    */
   String getCharsetName();
 
   /**
-   * Retrieves the separator between every record (loaded from configuration file)
+   * Retrieves the separator between every record
    *
    * @return the separator between records
    */
   char getRecordSeparator();
 
   /**
-   * Retrieves the interval for File Tailer to wait, after read all data of new file (loaded from configuration file)
+   * Retrieves the interval for File Tailer to wait, after read all data of new file
    *
    * @return the sleep interval for File Tailer
    */
   long getSleepInterval();
 
   /**
-   * Retrieves the failure retry limit (limit for the number of attempts to read record, if error occurred)
-   * (loaded from configuration file)
+   * Retrieves the failure retry limit (limit for the number of attempts to read record, in case error occurred)
    *
    * @return the failure retry limit
    */
@@ -75,7 +74,6 @@ public interface SourceConfiguration {
 
   /**
    * Retrieves the interval for File Tailer to wait, after occurred error while reading file data
-   * (loaded from configuration file)
    *
    * @return the failure sleep interval for File Tailer
    */
