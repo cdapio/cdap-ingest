@@ -38,19 +38,21 @@
      * @constructor
      *
      * @param {string} url                  - url to request from a server
-     * @param {string} authKey              - server authorization key
      * @param {string} [host='localhost']   - hostname of a server we are going to connect to.
      * @param {number} [port=10000]         - port number of a service at the server we are going to connect to.
      * @param {boolean} [ssl=false]         - should be connection secured or not (true / false)
      */
-    target['ServiceConnector'] = target['ServiceConnector'] || function (url, authKey, host, port, ssl) {
+    target['ServiceConnector'] = target['ServiceConnector'] || function (url, host, port, ssl) {
+        if(null == url || 'string' !== typeof url) {
+            throw TypeError('"url" parameter have to be of type "string"');
+        }
+
         var server = {
                 path: url,
                 hostname: host ? host : 'localhost',
                 port: port ? port : 10000,
                 ssl: ssl ? ssl : false
-            },
-            authorizationKey = authKey;
+            };
 
         /**
          * @param {object} requestParams
@@ -95,7 +97,6 @@
                 };
 
                 httpCon.open('POST', request_url, true);
-                httpCon.setRequestHeader('Authorization', 'Bearer ' + authorizationKey);
                 httpCon.send(requestParams.data);
 
                 return promise;
@@ -108,10 +109,7 @@
              * @returns {CDAPTracker.Promise}
              */
             requestNode = function (requestParams) {
-                requestParams.method = 'POST',
-                requestParams.headers = {
-                    'Authorization': 'Bearer ' + authorizationKey
-                };
+                requestParams.method = 'POST';
 
                 var httpCon = server.ssl ? https : http,
                     promiseClass = require('promise.js'),
