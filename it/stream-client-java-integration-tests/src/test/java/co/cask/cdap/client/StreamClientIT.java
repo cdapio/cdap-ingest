@@ -26,11 +26,12 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 
 public class StreamClientIT {
 
-  public static final String CONFIG_NAME = "stream_client_it_config";
+  public static final String CONFIG_NAME = "streamClientITConfig";
   public static final String TEST_STREAM = "testStream";
 
   @Test
@@ -40,7 +41,7 @@ public class StreamClientIT {
     client.create(TEST_STREAM);
 
     //Test that we are able to get/set TTL
-    long ttl = System.currentTimeMillis() + 1000 * 60 * 60 * 24;
+    long ttl = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
     client.setTTL(TEST_STREAM, ttl);
     Assert.assertEquals(ttl, client.getTTL(TEST_STREAM));
 

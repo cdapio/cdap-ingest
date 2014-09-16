@@ -32,7 +32,7 @@
   <name>CDAP ingest integration tests</name>
 
   <modules>
-    <module>stream-client-java-it</module>
+    <module>stream-client-java-integration-tests</module>
   </modules>
 
   <profiles>
@@ -46,7 +46,7 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
               <systemPropertyVariables>
-                <stream_client_it_config>local.conf</stream_client_it_config>
+                <streamClientITConfig>local.conf</streamClientITConfig>
               </systemPropertyVariables>
             </configuration>
           </plugin>
@@ -64,7 +64,7 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
               <systemPropertyVariables>
-                <stream_client_it_config>local_auth.conf</stream_client_it_config>
+                <streamClientITConfig>local_auth.conf</streamClientITConfig>
               </systemPropertyVariables>
             </configuration>
           </plugin>
@@ -82,7 +82,7 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
               <systemPropertyVariables>
-                <stream_client_it_config>remote.conf</stream_client_it_config>
+                <streamClientITConfig>remote.conf</streamClientITConfig>
               </systemPropertyVariables>
             </configuration>
           </plugin>
@@ -100,7 +100,7 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
               <systemPropertyVariables>
-                <stream_client_it_config>remote_auth.conf</stream_client_it_config>
+                <streamClientITConfig>remote_auth.conf</streamClientITConfig>
               </systemPropertyVariables>
             </configuration>
           </plugin>
