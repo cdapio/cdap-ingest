@@ -65,6 +65,7 @@ public class StreamClientIT {
     RestStreamClient.Builder clientBuilder = RestStreamClient.builder(properties.getProperty("host"),
                                                                       Integer.valueOf(properties.getProperty("port")));
     clientBuilder.ssl(Boolean.valueOf(properties.getProperty("ssl", "false")));
+    clientBuilder.disableCertCheck(Boolean.valueOf(properties.getProperty("disableCertCheck", "false")));
     clientBuilder.version(properties.getProperty("version", "v2"));
     clientBuilder.writerPoolSize(Integer.valueOf(properties.getProperty("writerPoolSize", "10")));
 
