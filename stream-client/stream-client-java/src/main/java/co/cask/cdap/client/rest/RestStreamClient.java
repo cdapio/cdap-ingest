@@ -18,21 +18,25 @@ package co.cask.cdap.client.rest;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.security.authentication.client.AbstractAuthenticationClient;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.config.Registry;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -49,12 +53,23 @@ public class RestStreamClient implements StreamClient {
   private final RestClientConnectionConfig config;
   private final int writerPoolSize;
   private final RestClient restClient;
+  private Registry<ConnectionSocketFactory> connectionRegistry;
 
   private RestStreamClient(Builder builder) {
     writerPoolSize = builder.writerPoolSize;
     config = new RestClientConnectionConfig(builder.host, builder.port, builder.authClient, builder.apiKey,
                                             builder.ssl, builder.version);
-    restClient = new RestClient(config, new PoolingHttpClientConnectionManager());
+    if (builder.disableCertCheck) {
+      try {
+        connectionRegistry = AbstractAuthenticationClient.getRegistryWithDisabledCertCheck();
+      } catch (KeyManagementException e) {
+        LOG.error("Failed to init SSL context: {}", e);
+      } catch (NoSuchAlgorithmException e) {
+        LOG.error("Failed to get instance of SSL context: {}", e);
+      }
+    }
+
+    restClient = new RestClient(config, createConnectionManager());
   }
 
   @Override
@@ -124,7 +139,7 @@ public class RestStreamClient implements StreamClient {
     //get the Stream TTL for check does the requested Stream exist
     long ttl = getTTL(stream);
     LOG.debug("The Stream with id {} exists. Got the current Stream TTL value {} successfully.", stream, ttl);
-    PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+    PoolingHttpClientConnectionManager connectionManager = createConnectionManager();
     connectionManager.setMaxTotal(writerPoolSize);
     connectionManager.setDefaultMaxPerRoute(writerPoolSize);
     RestClient writerRestClient = new RestClient(config, connectionManager);
@@ -134,6 +149,14 @@ public class RestStreamClient implements StreamClient {
   @Override
   public void close() throws IOException {
     restClient.close();
+  }
+
+  private PoolingHttpClientConnectionManager createConnectionManager() {
+    if (connectionRegistry != null) {
+      return new PoolingHttpClientConnectionManager(connectionRegistry);
+    } else {
+      return new PoolingHttpClientConnectionManager();
+    }
   }
 
   /**
@@ -159,6 +182,7 @@ public class RestStreamClient implements StreamClient {
     private AuthenticationClient authClient;
     private String apiKey;
     private boolean ssl = false;
+    private boolean disableCertCheck = false;
     private int writerPoolSize = DEFAULT_WRITER_POOL_SIZE;
     private String version = DEFAULT_VERSION;
 
@@ -169,6 +193,11 @@ public class RestStreamClient implements StreamClient {
 
     public Builder ssl(boolean ssl) {
       this.ssl = ssl;
+      return this;
+    }
+
+    public Builder disableCertCheck(boolean disableCertCheck) {
+      this.disableCertCheck = disableCertCheck;
       return this;
     }
 
