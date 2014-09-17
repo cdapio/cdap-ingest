@@ -73,9 +73,12 @@ public class StreamClientIT {
       client.setConnectionInfo(properties.getProperty("host"),
                                Integer.valueOf(properties.getProperty("port")),
                                Boolean.valueOf(properties.getProperty("ssl", "false")));
-      Properties authClientProperties = getProperties(properties.getProperty("auth_properties"));
-      client.configure(authClientProperties);
-      clientBuilder.authClient(client);
+      String authProperties = properties.getProperty("auth_properties");
+      if (authProperties != null) {
+        Properties authClientProperties = getProperties(authProperties);
+        client.configure(authClientProperties);
+        clientBuilder.authClient(client);
+      }
     }
 
     return clientBuilder.build();

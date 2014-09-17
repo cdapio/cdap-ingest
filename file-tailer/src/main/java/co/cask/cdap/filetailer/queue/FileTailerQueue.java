@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -38,12 +38,24 @@ public class FileTailerQueue {
     this.queue = new LinkedBlockingQueue<FileTailerEvent>(size);
   }
 
+  /**
+   * Puts an event into the queue.
+   *
+   * @param event the event
+   * @throws InterruptedException in case interrupted while waiting
+   */
   public void put(FileTailerEvent event) throws InterruptedException {
     LOG.trace("Attempt to put event {} to queue", event);
     queue.put(event);
     LOG.trace("Attempt to put event {} to queue was successful", event);
   }
 
+  /**
+   * Takes an event out from the queue.
+   *
+   * @return taken event
+   * @throws InterruptedException in case interrupted while waiting
+   */
   public FileTailerEvent take() throws InterruptedException {
     LOG.trace("Attempt to take event from queue");
     FileTailerEvent event = queue.take();
@@ -51,6 +63,13 @@ public class FileTailerQueue {
     return event;
   }
 
+  /**
+   * Drains events from the queue to a specified collection.
+   *
+   * @param collection the collection for the drained events
+   * @param max the maximum number of events to drain
+   * @throws InterruptedException in case interrupted while waiting
+   */
   public void drainTo(Collection<? super FileTailerEvent> collection,
                                        int max) throws InterruptedException {
     LOG.trace("Attempt to take {} events from queue", max);
