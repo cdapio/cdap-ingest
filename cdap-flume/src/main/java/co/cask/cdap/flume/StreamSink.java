@@ -69,9 +69,11 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
   private String streamName;
   private StreamWriter writer;
   private StreamClient streamClient;
-  private String authClientClassPath;
+  private String authClientClassName;
   private String authClientPropertiesPath;
-
+  private String  securityAuthServerHost;
+  private String  securityAuthServerPort;
+  private boolean  authClientSslEnabled;
   private Channel channel;
   private String name;
   private LifecycleState lifecycleState;
@@ -92,7 +94,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
     version = context.getString("version", DEFAULT_VERSION);
     writerPoolSize = context.getInteger("writerPoolSize", DEFAULT_WRITER_POOL_SIZE);
     streamName = context.getString("streamName");
-    authClientClassPath = context.getString("authClientClass", DEFAULT_AUTH_CLIENT);
+    authClientClassName = context.getString("authClientClass", DEFAULT_AUTH_CLIENT);
     authClientPropertiesPath = context.getString("authClientProperties", "");
     Preconditions.checkState(host != null, "No hostname specified");
     Preconditions.checkState(streamName != null, "No stream name specified");
@@ -135,7 +137,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
             LOG.error("Error during writing event to stream {}", streamName, t);
           }
         });
-
+        future.get();
         if (writeStatus == EventWriteStatusCode.FAIL) {
           throw new EventDeliveryException("Failed to send events to stream: " + streamName);
         }
@@ -188,7 +190,8 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       AuthenticationClient authClient = null;
       InputStream inStream = null;
       try {
-        authClient = (AuthenticationClient) Class.forName(authClientClassPath).getConstructor().newInstance();
+        authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
+
         authClient.setConnectionInfo(host, port, sslEnabled);
         Properties properties = new Properties();
         inStream = new FileInputStream(authClientPropertiesPath);
@@ -196,7 +199,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
         authClient.configure(properties);
         builder.authClient(authClient);
       } catch (ReflectiveOperationException e) {
-        LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassPath, host, port, e.getMessage(), e});
+        LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassName, host, port, e.getMessage(), e});
       } catch (IOException e) {
         LOG.error("Cannot load properties", e);
       } finally {

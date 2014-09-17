@@ -41,9 +41,9 @@ The CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write eve
 
 ## Authentication Client
 
- If you want to use authentication,add authentication client configuration parameters to sink configuration:
+ If you want to use authentication, add authentication client configuration parameters to sink the configuration:
  
- Classpath of authentication client class:
+ Fully qualified class name of the client class:
  ````
  a1.sinks.sink1.authClientClass = co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient
  ````
@@ -55,15 +55,15 @@ The CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write eve
 ## Authentication Client Example Configuration
  
  ```
- 
+
      # User name
      security.auth.client.username=admin
      # User password
-     security.auth.client.password=realtime
+     security.auth.client.password=secret
      # Host name that is used by authentication client
-     security.auth.client.gateway.hostname=localhost
+     security.auth.server.hostname =localhost
      # Host port name that is used by authentication client
-     security.auth.client.gateway.port=10000
+     security.auth.server.port=10000
      # SSL mode [true|false]
      security.auth.client.gateway.ssl.enabled=false
  
