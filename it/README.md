@@ -1,9 +1,9 @@
-#Cask Data Application Platform (CDAP) Ingest Integration Tests
+# Cask Data Application Platform (CDAP) Ingest Integration Tests
 
 This project contains set of integration tests for various CDAP ingest project components.
 Tests are executed against running CDAP instance. Connection information is configured in properties files.
 These files are stored in the resource directory in each sub-module. You can launch the same integration tests with 
-different configuration file using maven profiles: it-local, it-local-auth, it-remote and it-remote-auth.
+different configuration files using maven profiles: it-local, it-local-auth, it-remote and it-remote-auth.
 
 ## Usage
 
