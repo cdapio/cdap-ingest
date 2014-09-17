@@ -21,6 +21,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Properties;
+
 /**
  * ObserverConfigurationImpl test class
  */
@@ -30,12 +35,22 @@ public class ObserverConfigurationImplTest {
   private static final String NEW_DAEMON_DIR = "/var/run/pipe/test/observers/obs2";
 
   @Test
-  public void getDaemonDirTest() {
+  public void getDaemonDirTest() throws NoSuchFieldException, IllegalAccessException {
+    Properties properties = Mockito.mock(Properties.class);
     PipeConfiguration pipeConfiguration = Mockito.mock(PipeConfiguration.class);
 
-    Mockito.when(pipeConfiguration.getDaemonDir()).thenReturn(OLD_DAEMON_DIR);
+    Mockito.when(pipeConfiguration.getDaemonDir()).thenReturn(new File(OLD_DAEMON_DIR));
 
-    ObserverConfiguration observerConfiguration = new ObserverConfigurationImpl("obs2", pipeConfiguration);
-    Assert.assertEquals(NEW_DAEMON_DIR, observerConfiguration.getDaemonDir());
+    ObserverConfiguration observerConfiguration = new ObserverConfigurationImpl("obs2", properties, "key");
+    Field field = observerConfiguration.getClass().getDeclaredField("pipeConfiguration");
+    field.setAccessible(true);
+
+    Field modifiersField = Field.class.getDeclaredField("modifiers");
+    modifiersField.setAccessible(true);
+    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+
+    field.set(observerConfiguration, pipeConfiguration);
+
+    Assert.assertEquals(new File(NEW_DAEMON_DIR), observerConfiguration.getDaemonDir());
   }
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2014 Cask, Inc.
+# Copyright © 2014 Cask Data, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -23,7 +23,7 @@
 # Should-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: File Tailer
+# Short-Description: File Tailer. Component of Cask DAP.
 ### END INIT INFO
 
 # Custom part

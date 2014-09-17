@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,6 +16,7 @@
 
 package co.cask.cdap.filetailer.tailer;
 
+import ch.qos.logback.classic.Logger;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
@@ -33,14 +34,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * File Tailer test for size based rotation logs
  */
 public class SizeBasedRotationTest {
   private static final int LINE_SIZE = 20;
   private static final int ENTRY_WRITE_NUMBER = 7000;
-  private static final String LOG_FILE_SIZE = "50KB";
+  private static final String LOG_FILE_SIZE = "100KB";
   private static final int QUEUE_SIZE = 9000;
-  private static final int WRITING_INTERVAL = 1000;
+  private static final int SLEEP_TIME = 5000;
 
   @Before
   public void prepare() throws IOException {
@@ -62,30 +63,27 @@ public class SizeBasedRotationTest {
       new FileTailerMetricsProcessor(flowConfig.getDaemonDir(), flowConfig.getStatisticsFile(),
                                      flowConfig.getStatisticsSleepInterval(), flowConfig.getPipeName(),
                                      flowConfig.getSourceConfiguration().getFileName());
-
     LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor, null);
-    String filePath = flowConfig.getSourceConfiguration().getWorkDir() + "/"
+    String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
 
     List<String> logList = new ArrayList<String>(ENTRY_WRITE_NUMBER);
-    List<String> readLogList = new ArrayList<String>(ENTRY_WRITE_NUMBER);
     RandomStringUtils randomUtils = new RandomStringUtils();
-    ch.qos.logback.classic.Logger logger = TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
-    //  tailer.startWorker();
+    Logger logger = TailerLogUtils.getSizeLogger(filePath, LOG_FILE_SIZE);
+    tailer.startAsync();
     for (int i = 0; i < ENTRY_WRITE_NUMBER; i++) {
       String currLine = randomUtils.randomAlphanumeric(LINE_SIZE);
       logger.debug(currLine);
       logList.add(currLine);
-      if (i % 100 == 0) {
-         Thread.sleep(100);
+      if (i % 50 == 0) {
+         Thread.currentThread().sleep(300);
       }
     }
-    tailer.startWorker();
-    Thread.sleep(1000);
+    Thread.currentThread().sleep(SLEEP_TIME);
+
     for (int i = 0; i < logList.size(); i++) {
       Assert.assertEquals(true, queue.take().getEventData().contains(logList.get(i)));
     }
-
-    tailer.stopWorker();
+    tailer.stopAsync();
   }
 }

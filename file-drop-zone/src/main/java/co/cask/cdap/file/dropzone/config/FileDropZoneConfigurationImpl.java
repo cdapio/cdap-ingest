@@ -52,10 +52,13 @@ public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements 
       String pipe = getRequiredProperty("observers." + observer + ".pipe");
       Properties newProperties = new Properties();
       newProperties.putAll(getProperties());
+      String property = newProperties.getProperty("daemon_dir");
+      if (property == null || property.equals("")) {
+        newProperties.put("daemon_dir", "/var/run/file-drop-zone/state_dir");
+      }
       newProperties.put("pipes." + pipe + ".source.work_dir", getWorkDir() + observer);
       newProperties.put("pipes." + pipe + ".source.read_rotated_files", "false");
-      observersConfiguration.add(new ObserverConfigurationImpl(observer,
-                                                               new PipeConfigurationImpl(newProperties, pipe)));
+      observersConfiguration.add(new ObserverConfigurationImpl(observer, newProperties, pipe));
     }
     return observersConfiguration;
   }

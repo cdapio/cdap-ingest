@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,9 +18,10 @@ package co.cask.cdap.filetailer.metrics;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
-import co.cask.cdap.filetailer.BaseWorker;
+import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.metrics.exception.FileTailerMetricsProcessorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,42 +35,46 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Default implementation of FileTailerMetricsProcessor
  */
-public class FileTailerMetricsProcessor extends BaseWorker {
-
-  private AtomicInteger totalEventsReadPerFile;
-  private AtomicInteger totalEventsIngestedPerFile;
-
-  private AtomicInteger minEventSizePerFile;
-  private AtomicInteger maxEventSizePerFile;
-  private AtomicInteger totalEventSizePerFile;
-  private AtomicInteger eventsPerFile;
-
-  private AtomicInteger minWriteLatencyPerStream;
-  private AtomicInteger maxWriteLatencyPerStream;
-  private AtomicInteger totalWriteLatencyPerStream;
-  private AtomicInteger writesPerStream;
+public class FileTailerMetricsProcessor extends AbstractWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerMetricsProcessor.class);
+  private static final int SLEEP_INTERVAL = 3000;
 
   private final String loggerClass = ch.qos.logback.classic.Logger.class.getName();
+  private final File stateDirPath;
+  private final String metricsFileName;
+  private final long metricsSleepInterval;
+  private final String flowName;
+  private final String fileName;
+  private final AtomicInteger totalEventsReadPerFile;
+  private final AtomicInteger totalEventsIngestedPerFile;
+  private final AtomicInteger minEventSizePerFile;
+  private final AtomicInteger maxEventSizePerFile;
+  private final AtomicInteger totalEventSizePerFile;
+  private final AtomicInteger eventsPerFile;
+  private final AtomicInteger minWriteLatencyPerStream;
+  private final AtomicInteger maxWriteLatencyPerStream;
+  private final AtomicInteger totalWriteLatencyPerStream;
+  private final AtomicInteger writesPerStream;
 
-  private String stateDirPath;
-
-  private String metricsFileName;
-
-  private long metricsSleepInterval;
-
-  private String flowName;
-  private String dirName;
-
-  public FileTailerMetricsProcessor(String stateDirPath, String metricsFileName, long metricsSleepInterval,
-                                    String flowName, String dirName) {
+  public FileTailerMetricsProcessor(File stateDirPath, String metricsFileName, long metricsSleepInterval,
+                                    String flowName, String fileName) {
     this.stateDirPath = stateDirPath;
     this.metricsFileName = metricsFileName;
     this.metricsSleepInterval = metricsSleepInterval;
     this.flowName = flowName;
-    this.dirName = dirName;
-    initMetrics();
+    this.fileName = fileName;
+
+    totalEventsReadPerFile = new AtomicInteger(0);
+    totalEventsIngestedPerFile = new AtomicInteger(0);
+    minEventSizePerFile = new AtomicInteger(0);
+    maxEventSizePerFile = new AtomicInteger(0);
+    totalEventSizePerFile = new AtomicInteger(0);
+    eventsPerFile = new AtomicInteger(0);
+    minWriteLatencyPerStream = new AtomicInteger(0);
+    maxWriteLatencyPerStream = new AtomicInteger(0);
+    totalWriteLatencyPerStream = new AtomicInteger(0);
+    writesPerStream = new AtomicInteger(0);
   }
 
   @Override
@@ -79,10 +84,15 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     try {
       createDirs(stateDirPath);
       createFile(stateDirPath + "/" + metricsFileName);
-      appender = initAppender(stateDirPath, metricsFileName);
+      appender = initAppender(stateDirPath.getAbsolutePath(), metricsFileName);
       writeMetricsHeader(logger, appender);
-      while (!Thread.currentThread().isInterrupted()) {
-        Thread.sleep(metricsSleepInterval);
+      while (isRunning()) {
+        for (long i = 0; i < metricsSleepInterval; i += SLEEP_INTERVAL) {
+          Thread.sleep(SLEEP_INTERVAL);
+          if (!isRunning()) {
+            throw new InterruptedException();
+          }
+        }
         String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
         writeMetrics(logger, appender, currentDate);
         resetMetrics();
@@ -96,8 +106,14 @@ public class FileTailerMetricsProcessor extends BaseWorker {
         appender.stop();
       }
     }
+    LOG.info("Metrics Processor stopped");
   }
 
+  /**
+   * Invoked when a read log event occurs.
+   *
+   * @param eventSize the size of log
+   */
   public void onReadEventMetric(int eventSize) {
     LOG.debug("On Read Event Metric received");
     totalEventsReadPerFile.incrementAndGet();
@@ -112,6 +128,11 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     }
   }
 
+  /**
+   * Invokes when an ingest log event occurs.
+   *
+   * @param latency the latency of sending log
+   */
   public void onIngestEventMetric(int latency) {
     LOG.debug("On Ingest Event Metric received");
     totalEventsIngestedPerFile.incrementAndGet();
@@ -126,27 +147,20 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     }
   }
 
+  /**
+   * Calculates an average value, accurate to three decimal places.
+   *
+   * @param total the sum of values
+   * @param count the number of values
+   * @return the average value
+   */
   private double calculateAverage(int total, int count) {
     return Math.round(total / (double) count * 1000) / 1000.0;
   }
 
-  private void initMetrics() {
-    LOG.debug("Start initializing metrics ..");
-    totalEventsReadPerFile = new AtomicInteger(0);
-    totalEventsIngestedPerFile = new AtomicInteger(0);
-
-    minEventSizePerFile = new AtomicInteger(0);
-    maxEventSizePerFile = new AtomicInteger(0);
-    totalEventSizePerFile = new AtomicInteger(0);
-    eventsPerFile = new AtomicInteger(0);
-
-    minWriteLatencyPerStream = new AtomicInteger(0);
-    maxWriteLatencyPerStream = new AtomicInteger(0);
-    totalWriteLatencyPerStream = new AtomicInteger(0);
-    writesPerStream = new AtomicInteger(0);
-    LOG.debug("All metrics initialized successfully");
-  }
-
+  /**
+   * Resets all metrics.
+   */
   private void resetMetrics() {
     LOG.debug("Starting reset metrics ..");
     totalEventsReadPerFile.set(0);
@@ -164,6 +178,12 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     LOG.debug("All metrics reset successfully");
   }
 
+  /**
+   * Writes header to metrics file.
+   *
+   * @param logger the logger
+   * @param appender the file appender
+   */
   private void writeMetricsHeader(ch.qos.logback.classic.Logger logger, RollingFileAppender appender) {
     LOG.debug("Start writing header to file ..");
     String header = new StringBuilder("Current Date").append(",")
@@ -177,15 +197,22 @@ public class FileTailerMetricsProcessor extends BaseWorker {
       .append("Min Write Latency Per Stream").append(",")
       .append("Average Write Latency Per Stream").append(",")
       .append("Max Write Latency Per Stream").append("\n").toString();
-    appender.doAppend(new ch.qos.logback.classic.spi.LoggingEvent(loggerClass, logger, null, header, null, null));
-    LOG.debug("Successfully write header");
+    appender.doAppend(new LoggingEvent(loggerClass, logger, null, header, null, null));
+    LOG.debug("Successfully wrote header");
   }
 
+  /**
+   * Writes metric to metrics file.
+   *
+   * @param logger the logger
+   * @param appender the file appender
+   * @param currentDate the date of creating this metric
+   */
   private void writeMetrics(ch.qos.logback.classic.Logger logger, RollingFileAppender appender, String currentDate) {
     LOG.debug("Start writing metric with date {} to file ..", currentDate);
     String metric = new StringBuilder(currentDate).append(",")
       .append(flowName).append(",")
-      .append(dirName).append(",")
+      .append(fileName).append(",")
       .append(totalEventsReadPerFile.get()).append(",")
       .append(totalEventsIngestedPerFile.get()).append(",")
       .append(minEventSizePerFile.get()).append(",")
@@ -194,13 +221,21 @@ public class FileTailerMetricsProcessor extends BaseWorker {
       .append(minWriteLatencyPerStream.get()).append(",")
       .append(calculateAverage(totalWriteLatencyPerStream.get(), writesPerStream.get())).append(",")
       .append(maxWriteLatencyPerStream.get()).toString();
-    appender.doAppend(new ch.qos.logback.classic.spi.LoggingEvent(loggerClass, logger, null, metric, null, null));
-    LOG.debug("Successfully write metric with date: {}", currentDate);
+    appender.doAppend(new LoggingEvent(loggerClass, logger, null, metric, null, null));
+    LOG.debug("Successfully wrote metric with date: {}", currentDate);
   }
 
+  /**
+   * Initializes the file appender.
+   *
+   * @param path the path to the directory for the metrics file
+   * @param fileName the name of the metrics file
+   * @return the initialized file appender
+   */
   private RollingFileAppender initAppender(String path, String fileName) {
     LOG.debug("Starting initialize rolling file appender");
-    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+    LoggerContext loggerContext =
+      (LoggerContext) LoggerFactory.getILoggerFactory();
 
     RollingFileAppender fileAppender = new RollingFileAppender();
     fileAppender.setContext(loggerContext);
@@ -221,11 +256,22 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     return fileAppender;
   }
 
+  /**
+   * Initializes the logger.
+   *
+   * @param name the name of logger
+   * @return the initialized logger
+   */
   private ch.qos.logback.classic.Logger initLogger(String name) {
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-    return  loggerContext.getLogger(name);
+    return loggerContext.getLogger(name);
   }
 
+  /**
+   * Creates a file with a specific path.
+   *
+   * @param path the path to file
+   */
   private void createFile(String path) {
     LOG.debug("Starting create file with path: {}", path);
     File file = new File(path);
@@ -245,9 +291,13 @@ public class FileTailerMetricsProcessor extends BaseWorker {
     }
   }
 
-  private void createDirs(String path) {
-    LOG.debug("Starting create directory with path: {}", path);
-    File directory = new File(path);
+  /**
+   * Creates all directories according to the {@link java.io.File directory}.
+   *
+   * @param directory the directory
+   */
+  private void createDirs(File directory) {
+    LOG.debug("Starting create directory with path: {}", directory.getAbsolutePath());
     if (!directory.exists()) {
       boolean result = directory.mkdirs();
       LOG.debug("Creating directory result: {}", result);
@@ -255,7 +305,7 @@ public class FileTailerMetricsProcessor extends BaseWorker {
         throw new FileTailerMetricsProcessorException("Can not create File Tailer state directory");
       }
     } else {
-      LOG.debug("Directory/File with path: {} already exist", path);
+      LOG.debug("Directory/File with path: {} already exist", directory.getAbsolutePath());
     }
   }
 }

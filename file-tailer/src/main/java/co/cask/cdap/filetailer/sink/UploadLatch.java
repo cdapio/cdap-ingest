@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Created by dev on 18.08.14.
+ * A wrapper around {@link CountDownLatch}.
  */
 class UploadLatch {
   private final CountDownLatch latch;
@@ -51,7 +51,7 @@ class UploadLatch {
   }
 
   boolean isSuccessful() {
-    return isComplete() && failedEvents.size() == 0;
+    return isComplete() && failedEvents.isEmpty();
   }
 
   boolean isComplete() {

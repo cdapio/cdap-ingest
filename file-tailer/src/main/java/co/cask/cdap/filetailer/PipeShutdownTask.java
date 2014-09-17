@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,23 +16,18 @@
 
 package co.cask.cdap.filetailer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * Class try shutdown flows correctly
+ * Shutdowns all Flows.
  */
 class PipeShutdownTask implements Runnable {
-  private static final Logger LOG = LoggerFactory.getLogger(FileTailerMain.class);
+  private final PipeManager manager;
+
   PipeShutdownTask(PipeManager manager) {
     this.manager = manager;
   }
-  private final PipeManager manager;
 
   @Override
   public void run() {
-    LOG.info("Kill signal recieved, trying to shutdown tailer gracefully");
-    manager.stopPipes();
-
+    manager.stopAsync();
   }
 }

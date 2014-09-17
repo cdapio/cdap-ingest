@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -35,14 +35,29 @@ public class FileTailerEvent {
     this.charset = charset;
   }
 
+  /**
+   * Retrieves the event's FileTailer state.
+   *
+   * @return the FileTailer state
+   */
   public FileTailerState getState() {
     return state;
   }
 
+  /**
+   * Retrieves the event's FileTailer event data.
+   *
+   * @return the FileTailer event data
+   */
   public String getEventData() {
     return eventData;
   }
 
+  /**
+   * Retrieves the event's charset.
+   *
+   * @return the charset
+   */
   public Charset getCharset() {
     return charset;
   }

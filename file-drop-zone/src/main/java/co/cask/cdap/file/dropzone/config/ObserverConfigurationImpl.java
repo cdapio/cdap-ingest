@@ -17,21 +17,37 @@
 package co.cask.cdap.file.dropzone.config;
 
 import co.cask.cdap.filetailer.config.PipeConfiguration;
+import co.cask.cdap.filetailer.config.PipeConfigurationImpl;
+
+import java.io.File;
+import java.util.Properties;
 
 /**
  * ObserverConfiguration default implementation
  */
 public class ObserverConfigurationImpl implements ObserverConfiguration {
 
-  private String name;
+  private final String name;
+  private final String key;
+  private final String keyPath;
+  private final Properties properties;
+  private final PipeConfiguration pipeConfiguration;
 
-  private PipeConfiguration pipeConfiguration;
-
-  public ObserverConfigurationImpl(String name, PipeConfiguration pipeConfiguration) {
+  public ObserverConfigurationImpl(String name, Properties properties, String key) {
     this.name = name;
-    this.pipeConfiguration = pipeConfiguration;
+    this.key = key;
+    this.keyPath = "pipes." + key + ".";
+    this.properties = properties;
+    this.pipeConfiguration = new PipeConfigurationImpl(properties, key);
   }
 
+  @Override
+  public PipeConfiguration getPipeConfiguration(String fileName) {
+    Properties newProperties = new Properties();
+    newProperties.putAll(properties);
+    newProperties.put(keyPath + "source.file_name", fileName);
+    return new PipeConfigurationImpl(newProperties, key);
+  }
 
   @Override
   public String getName() {
@@ -39,11 +55,11 @@ public class ObserverConfigurationImpl implements ObserverConfiguration {
   }
 
   @Override
-  public String getDaemonDir() {
-    String daemonDirectory = pipeConfiguration.getDaemonDir();
+  public File getDaemonDir() {
+    String daemonDirectory = pipeConfiguration.getDaemonDir().getAbsolutePath();
     int observersDirLength = "pipes/".length() + daemonDirectory.length() - daemonDirectory.lastIndexOf("pipe");
     daemonDirectory = daemonDirectory.substring(0, daemonDirectory.length() - observersDirLength);
-    return daemonDirectory + "observers/" + name;
+    return new File(daemonDirectory, "observers/" + name);
   }
 
   @Override

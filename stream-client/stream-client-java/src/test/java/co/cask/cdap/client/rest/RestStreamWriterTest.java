@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,12 +18,15 @@ package co.cask.cdap.client.rest;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.security.authentication.client.AccessToken;
+import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.base.Charsets;
 import com.google.common.net.MediaType;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -117,14 +120,25 @@ public class RestStreamWriterTest extends RestTest {
   @Test
   public void testSuccessAuthorizedStringWrite()
     throws IOException, InterruptedException, ExecutionException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(RestTest.AUTH_TOKEN).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(authClient.isAuthEnabled()).thenReturn(true);
+    Mockito.when(accessToken.getValue()).thenReturn(RestTest.AUTH_TOKEN);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
   }
 
   @Test
   public void testNotAuthorizedEmptyTokenStringWrite() throws IOException, InterruptedException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken(StringUtils.EMPTY).build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
@@ -135,7 +149,12 @@ public class RestStreamWriterTest extends RestTest {
 
   @Test
   public void testNotAuthorizedUnknownTokenStringWrite() throws IOException, InterruptedException {
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authToken("test").build();
+    AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
+    AccessToken accessToken = Mockito.mock(AccessToken.class);
+    Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
+    Mockito.when(accessToken.getValue()).thenReturn("test");
+    Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
+    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();

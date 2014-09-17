@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -35,13 +35,11 @@ public class PipeConfigurationImplTest {
 
     Configuration configuration = loader.load(new File(path));
 
-    List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
+    List<PipeConfiguration> pipesConfiguration = configuration.getPipeConfigurations();
 
     PipeConfiguration pipeConfiguration = pipesConfiguration.get(0);
 
     Assert.assertEquals("logEventStream", pipeConfiguration.getSinkConfiguration().getStreamName());
-
-    Assert.assertEquals("work_dir", pipeConfiguration.getSourceConfiguration().getWorkDir());
 
     Assert.assertEquals(60000, pipeConfiguration.getSourceConfiguration().getFailureSleepInterval());
   }
@@ -55,7 +53,7 @@ public class PipeConfigurationImplTest {
 
     Configuration configuration = loader.load(new File(path));
 
-    List<PipeConfiguration> pipesConfiguration = configuration.getPipesConfiguration();
+    List<PipeConfiguration> pipesConfiguration = configuration.getPipeConfigurations();
 
     PipeConfiguration pipeConfiguration = pipesConfiguration.get(0);
 

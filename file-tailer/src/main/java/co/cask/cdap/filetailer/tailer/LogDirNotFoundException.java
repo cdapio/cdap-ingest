@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,7 +19,7 @@ package co.cask.cdap.filetailer.tailer;
 import java.io.IOException;
 
 /**
- * LogDirNotFoundException is exception that throws when log directory for File Tailer not found.
+ * Thrown when the log directory for the File Tailer is not found.
  */
 public class LogDirNotFoundException extends IOException {
   public LogDirNotFoundException(String massage) {

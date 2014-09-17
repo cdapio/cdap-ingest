@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,13 +17,13 @@
 package co.cask.cdap.filetailer.config.exception;
 
 /**
- * ConfigurationLoadingException is exception that throws when ConfigurationLoader error occurred.
- * For example, configuration file does not exists.
+ * Thrown when an error occurs getting the property.
+ * For example, in case the configuration file does not exist.
  */
 public class ConfigurationLoaderException extends RuntimeException {
 
   /**
-   * Constructs an new ConfigurationLoadingException with the specified detail message.
+   * Constructs a new ConfigurationLoaderException with a detailed message.
    *
    * @param message the detail message
    */

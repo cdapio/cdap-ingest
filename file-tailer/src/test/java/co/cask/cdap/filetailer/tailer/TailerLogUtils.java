@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,9 +17,12 @@
 
 package co.cask.cdap.filetailer.tailer;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import co.cask.cdap.filetailer.config.Configuration;
@@ -41,7 +44,7 @@ import java.io.Writer;
 import java.util.List;
 
 /**
- *
+ * File Tailer log utils for tests
  */
 public class  TailerLogUtils {
 
@@ -57,54 +60,46 @@ public class  TailerLogUtils {
     Class<? extends Class> path1 = TailerLogUtils.class.getClass();
     String path = TailerLogUtils.class.getClassLoader().getResource("test4.properties").getFile();
     Configuration configuration = loader.load(new File(path));
-    List<PipeConfiguration> flowConfig = configuration.getPipesConfiguration();
+    List<PipeConfiguration> flowConfig = configuration.getPipeConfigurations();
     return flowConfig.get(0);
   }
 
   public static void createTestDirIfNeed() throws ConfigurationLoadingException {
     PipeConfiguration flowConf = loadConfig();
-    String dir = flowConf.getSourceConfiguration().getWorkDir();
-    File dirFile = new File(dir);
-    if (!dirFile.exists()) {
-      dirFile.mkdir();
+    File dir = flowConf.getSourceConfiguration().getWorkDir();
+    if (!dir.exists()) {
+      dir.mkdir();
     }
   }
 
   public static void clearTestDir() throws IOException {
     PipeConfiguration flowConf = loadConfig();
-    String dir = flowConf.getSourceConfiguration().getWorkDir();
-    FileUtils.cleanDirectory(new File(dir));
-  }
-
-  public static void clearStateDir() throws IOException {
-    PipeConfiguration flowConf = loadConfig();
-    String dir = flowConf.getDaemonDir();
-    FileUtils.cleanDirectory(new File(dir));
+    File dir = flowConf.getSourceConfiguration().getWorkDir();
+    FileUtils.cleanDirectory(dir);
   }
 
   public static void deleteTestDir() throws IOException {
     PipeConfiguration flowConf = loadConfig();
-    String dir = flowConf.getSourceConfiguration().getWorkDir();
-    FileUtils.deleteDirectory(new File(dir));
+    File dir = flowConf.getSourceConfiguration().getWorkDir();
+    FileUtils.deleteDirectory(dir);
   }
 
-  public static ch.qos.logback.classic.Logger getSizeLogger(String file, String fileSize) {
+  public static Logger getSizeLogger(String file, String fileSize) {
 
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-    ch.qos.logback.core.rolling.RollingFileAppender fileAppender =
-      new ch.qos.logback.core.rolling.RollingFileAppender();
+    RollingFileAppender fileAppender = new RollingFileAppender();
     fileAppender.setContext(loggerContext);
     fileAppender.setFile(file);
     fileAppender.setAppend(true);
-    FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
+    FixedWindowRollingPolicy rollingPolicy = new  FixedWindowRollingPolicy();
     rollingPolicy.setContext(loggerContext);
     rollingPolicy.setFileNamePattern(file + "%i");
     rollingPolicy.setParent(fileAppender);
     rollingPolicy.start();
     rollingPolicy.setMaxIndex(100);
     fileAppender.setRollingPolicy(rollingPolicy);
-    SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy();
+    SizeBasedTriggeringPolicy triggeringPolicy = new  SizeBasedTriggeringPolicy();
     triggeringPolicy.setContext(loggerContext);
     triggeringPolicy.setMaxFileSize(fileSize);
     triggeringPolicy.start();
@@ -117,19 +112,18 @@ public class  TailerLogUtils {
     fileAppender.start();
 
     // configures  logger
-    ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(BaseTailerTest.class.getName() + "size");
-    rootLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+    Logger rootLogger = loggerContext.getLogger(BaseTailerTest.class.getName() + "size");
+    rootLogger.setLevel(Level.DEBUG);
     rootLogger.addAppender(fileAppender);
     return rootLogger;
 
   }
 
-  public static ch.qos.logback.classic.Logger getTimeLogger(String file) {
+  public static Logger getTimeLogger(String file) {
 
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-    ch.qos.logback.core.rolling.RollingFileAppender fileAppender =
-      new ch.qos.logback.core.rolling.RollingFileAppender();
+    RollingFileAppender fileAppender = new RollingFileAppender();
     fileAppender.setContext(loggerContext);
     fileAppender.setFile(file);
     fileAppender.setAppend(true);
@@ -148,9 +142,8 @@ public class  TailerLogUtils {
 
 
     // configures the root logger
-    ch.qos.logback.classic.Logger rootLogger =
-                    loggerContext.getLogger(BaseTailerTest.class.getName() + "time");
-    rootLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+    Logger rootLogger = loggerContext.getLogger(BaseTailerTest.class.getName() + "time");
+    rootLogger.setLevel(Level.DEBUG);
     rootLogger.addAppender(fileAppender);
     return rootLogger;
   }

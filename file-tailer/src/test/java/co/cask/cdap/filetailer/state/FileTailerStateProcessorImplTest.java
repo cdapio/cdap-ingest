@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -27,11 +27,11 @@ public class FileTailerStateProcessorImplTest {
   @Test
   public void saveLoadStateTest() throws FileTailerStateProcessorException {
     FileTailerStateProcessor stateProcessor =
-      new FileTailerStateProcessorImpl(System.getProperty("user.home") + "/ft_state_dir", "ft.state");
+        new FileTailerStateProcessorImpl(new File("/tmp/ft_state_dir"), "ft.state");
 
     FileTailerState state = new FileTailerState("name", 101, "hash".hashCode(), 102);
 
-    File file = new File(System.getProperty("user.home") + "/ft_state_dir/ft.state");
+    File file = new File("/tmp/ft_state_dir/ft.state");
 
     stateProcessor.saveState(state);
 
@@ -44,7 +44,7 @@ public class FileTailerStateProcessorImplTest {
     Assert.assertEquals(state.getHash(), loadedState.getHash());
     Assert.assertEquals(state.getLastModifyTime(), loadedState.getLastModifyTime());
 
-    new File(System.getProperty("user.home") + "/ft_state_dir/ft.state").delete();
-    new File(System.getProperty("user.home") + "/ft_state_dir").delete();
+    new File("/tmp/ft_state_dir/ft.state").delete();
+    new File("/tmp/ft_state_dir").delete();
   }
 }

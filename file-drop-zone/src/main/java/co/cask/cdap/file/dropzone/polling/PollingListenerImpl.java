@@ -53,8 +53,8 @@ public class PollingListenerImpl implements PollingListener {
                                                       observerConf.getPipeConf().getStatisticsSleepInterval(),
                                                       observerConf.getPipeConf().getPipeName(),
                                                       observerConf.getPipeConf().
-                                                        getSourceConfiguration().getWorkDir());
-    metricsProcessor.startWorker();
+                                                        getSourceConfiguration().getWorkDir().getName());
+    metricsProcessor.startAsync().awaitRunning();
   }
 
   @Override
@@ -64,7 +64,7 @@ public class PollingListenerImpl implements PollingListener {
     Pipe pipe = setupPipe(file);
     LOG.debug("Pipe for file {} successfully configured", file.getAbsolutePath());
     LOG.info("Start processing file: {}", file.getAbsolutePath());
-    pipe.startWithoutMetrics();
+    pipe.startAsync();
   }
 
   @Override
@@ -78,7 +78,7 @@ public class PollingListenerImpl implements PollingListener {
    * @throws IOException if can not setup pipe
    */
   private Pipe setupPipe(File file) throws IOException {
-    PipeConfiguration pipeConfiguration = observerConf.getPipeConf().getPipeConfiguration(file.getName());
+    PipeConfiguration pipeConfiguration = observerConf.getPipeConfiguration(file.getName());
     FileTailerQueue queue = new FileTailerQueue(pipeConfiguration.getQueueSize());
     StreamWriter writer = getStreamWriterForPipe(pipeConfiguration);
     FileTailerStateProcessor stateProcessor =
@@ -89,11 +89,9 @@ public class PollingListenerImpl implements PollingListener {
     Pipe pipe = new Pipe(new LogTailer(pipeConfiguration, queue, stateProcessor, metricsProcessor, pipeListener),
                          new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
                                             stateProcessor, metricsProcessor, pipeListener,
-                                            pipeConfiguration.getSinkConfiguration().getPackSize()),
-                         metricsProcessor);
+                                            pipeConfiguration.getSinkConfiguration().getPackSize()));
     pipeListener.setPipe(pipe);
     return pipe;
-
   }
 
   /**
@@ -136,13 +134,13 @@ public class PollingListenerImpl implements PollingListener {
   private class PipeListenerImpl implements PipeListener {
 
     private boolean isRead = false;
-    private String directoryPath;
+    private File directory;
     private String filePath;
     private String stateFilePath;
     private Pipe pipe;
 
-    public PipeListenerImpl(String directoryPath, String filePath, String stateFilePath) {
-      this.directoryPath = directoryPath;
+    public PipeListenerImpl(File directory, String filePath, String stateFilePath) {
+      this.directory = directory;
       this.filePath = filePath;
       this.stateFilePath = stateFilePath;
     }
@@ -161,9 +159,9 @@ public class PollingListenerImpl implements PollingListener {
     @Override
     public void onIngest() {
       LOG.info("File {} already processed", filePath);
-      pipe.stopWithoutMetrics();
+      pipe.stopAsync();
       removeStateFile(stateFilePath);
-      monitor.removeFile(new File(directoryPath), new File(filePath));
+      monitor.removeFile(directory, new File(filePath));
     }
 
     @Override

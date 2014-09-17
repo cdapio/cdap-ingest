@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,10 +20,13 @@ import co.cask.cdap.filetailer.event.FileTailerEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by dev on 15.08.14.
+ * File Tailer Queue presentation
  */
 public class FileTailerQueue {
 
@@ -35,12 +38,24 @@ public class FileTailerQueue {
     this.queue = new LinkedBlockingQueue<FileTailerEvent>(size);
   }
 
+  /**
+   * Puts an event into the queue.
+   *
+   * @param event the event
+   * @throws InterruptedException in case interrupted while waiting
+   */
   public void put(FileTailerEvent event) throws InterruptedException {
     LOG.trace("Attempt to put event {} to queue", event);
     queue.put(event);
     LOG.trace("Attempt to put event {} to queue was successful", event);
   }
 
+  /**
+   * Takes an event out from the queue.
+   *
+   * @return taken event
+   * @throws InterruptedException in case interrupted while waiting
+   */
   public FileTailerEvent take() throws InterruptedException {
     LOG.trace("Attempt to take event from queue");
     FileTailerEvent event = queue.take();
@@ -53,5 +68,19 @@ public class FileTailerQueue {
     boolean isEmpty = queue.isEmpty();
     LOG.trace("Attempt to check queue for emptiness was successful");
     return isEmpty;
+  }
+
+  /**
+   * Drains events from the queue to a specified collection.
+   *
+   * @param collection the collection for the drained events
+   * @param max the maximum number of events to drain
+   * @throws InterruptedException in case interrupted while waiting
+   */
+  public void drainTo(Collection<? super FileTailerEvent> collection,
+                                       int max) throws InterruptedException {
+    LOG.trace("Attempt to take {} events from queue", max);
+    queue.drainTo(collection, max);
+    LOG.trace("{} events taken from queue was successfully", collection.size());
   }
 }

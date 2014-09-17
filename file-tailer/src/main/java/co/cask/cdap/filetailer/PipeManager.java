@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -30,31 +30,48 @@ import co.cask.cdap.filetailer.sink.SinkStrategy;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
+import com.google.common.util.concurrent.AbstractIdleService;
+import com.google.common.util.concurrent.ServiceManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
- * PipeManager creates and manage pipes
+ * Creates and manage pipes.
  */
-public class PipeManager {
+public class PipeManager extends AbstractIdleService {
+  private static final Logger LOG = LoggerFactory.getLogger(PipeManager.class);
 
   private final List<Pipe> pipeList = new ArrayList<Pipe>();
+  private final File confFile;
+  private final ServiceManager serviceManager;
+
+  PipeManager(File confFile) {
+    this.confFile = confFile;
+    serviceManager = createManager();
+  }
 
   /**
    * Pipes setup
    *
-   * @throws IOException if can not create client stream
+   * @throws IOException in case a client stream cannot be created
    */
-  public void setupPipes(File confFile) throws IOException {
+  private ServiceManager setupPipes() throws IOException {
+    StreamClient client = null;
+    StreamWriter writer = null;
     try {
-      List<PipeConfiguration> pipeConfList = getPipeConfigList(confFile);
+      List<PipeConfiguration> pipeConfList = getPipeConfigs();
       for (PipeConfiguration pipeConf : pipeConfList) {
         FileTailerQueue queue = new FileTailerQueue(pipeConf.getQueueSize());
-        StreamWriter writer = getStreamWriterForPipe(pipeConf);
+        client = pipeConf.getSinkConfiguration().getStreamClient();
+        String streamName = pipeConf.getSinkConfiguration().getStreamName();
+        writer = getStreamWriterForPipe(client, streamName);
         FileTailerStateProcessor stateProcessor =
           new FileTailerStateProcessorImpl(pipeConf.getDaemonDir(), pipeConf.getStateFile());
         FileTailerMetricsProcessor metricsProcessor =
@@ -66,32 +83,56 @@ public class PipeManager {
                                                   stateProcessor, metricsProcessor, null,
                                                   pipeConf.getSinkConfiguration().getPackSize()),
                                metricsProcessor));
+        client = null;
+        writer = null;
       }
+      return new ServiceManager(pipeList);
     } catch (ConfigurationLoadingException e) {
       throw new ConfigurationLoadingException("Error during loading configuration from file: "
                                                 + confFile.getAbsolutePath() + e.getMessage());
+    } finally {
+      if (client != null) {
+        client.close();
+      }
+      if (writer != null) {
+        writer.close();
+      }
+    }
+  }
+
+  /**
+   * Retrieves {@link ServiceManager} for all pipes of this {@link PipeManager}
+   *
+   * @return the {@link ServiceManager}
+   */
+  private ServiceManager createManager() {
+    try {
+      return setupPipes();
+    } catch (IOException e) {
+      LOG.error("Error during pipes: {} setup", e);
+      throw new RuntimeException("Error during pipes setup. Cannot start daemon.");
     }
   }
 
   /**
    * Get pipes configuration
-   * @return List of the  Pipes configuration read from configuration file
-   * @throws ConfigurationLoadingException if can not create client stream
+   *
+   * @return the pipes configuration read from the configuration file
+   * @throws ConfigurationLoadingException in case can not load configuration
    */
-  private List<PipeConfiguration> getPipeConfigList(File confFile) throws ConfigurationLoadingException {
+  private List<PipeConfiguration> getPipeConfigs() throws ConfigurationLoadingException {
     ConfigurationLoader loader = new ConfigurationLoaderImpl();
     Configuration configuration = loader.load(confFile);
-    return configuration.getPipesConfiguration();
+    return configuration.getPipeConfigurations();
   }
 
   /**
-   * create StreamWriter for pipe
-   * @return  streamWriter
+   * Create StreamWriter for pipe
+   *
+   * @return the pipe's streamWriter
    * @throws IOException streamWriter creation failed
    */
-  private StreamWriter getStreamWriterForPipe(PipeConfiguration pipeConf) throws IOException {
-    StreamClient client = pipeConf.getSinkConfiguration().getStreamClient();
-    String streamName = pipeConf.getSinkConfiguration().getStreamName();
+  private StreamWriter getStreamWriterForPipe(StreamClient client,  String streamName) throws IOException {
     try {
       client.create(streamName);
       return client.createWriter(streamName);
@@ -100,21 +141,17 @@ public class PipeManager {
     }
   }
 
-  /**
-   * Start all pipes
-   */
-  public void startPipes() {
-    for (Pipe pipe : pipeList) {
-      pipe.start();
-    }
+  @Override
+  public void startUp() {
+    serviceManager.startAsync().awaitHealthy();
   }
 
-  /**
-   * Start all pipes
-   */
-  public void stopPipes() {
-    for (Pipe pipe : pipeList) {
-      pipe.stop();
+  @Override
+  public void shutDown() {
+    try {
+      serviceManager.stopAsync().awaitStopped(5, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      LOG.warn("Cannot stop pipes: {}", e);
     }
   }
 }

@@ -56,7 +56,7 @@ public class PollingServiceManager {
   public void initObservers() {
     List<ObserverConfiguration> observerConfList = configuration.getObserverConfiguration();
     for (ObserverConfiguration observerConf : observerConfList) {
-      monitor.registerDirMonitor(new File(observerConf.getPipeConf().getSourceConfiguration().getWorkDir()),
+      monitor.registerDirMonitor(observerConf.getPipeConf().getSourceConfiguration().getWorkDir(),
                                  new PollingListenerImpl(monitor, observerConf));
     }
   }

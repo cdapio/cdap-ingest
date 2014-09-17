@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -31,14 +31,19 @@ public class ConfigurationImpl implements Configuration {
 
   private static final Logger LOG = LoggerFactory.getLogger(ConfigurationImpl.class);
 
-  private Properties properties;
+  private final Properties properties;
 
   public ConfigurationImpl(Properties properties) {
     this.properties = properties;
   }
 
   @Override
-  public List<PipeConfiguration> getPipesConfiguration() {
+  public Properties getProperties() {
+    return properties;
+  }
+
+  @Override
+  public List<PipeConfiguration> getPipeConfigurations() {
     String[] pipes = getRequiredProperty("pipes").split(",");
     List<PipeConfiguration> pipesConfiguration = new ArrayList<PipeConfiguration>(pipes.length);
     for (String pipe : pipes) {
@@ -47,11 +52,12 @@ public class ConfigurationImpl implements Configuration {
     return pipesConfiguration;
   }
 
-  @Override
-  public Properties getProperties() {
-    return properties;
-  }
-
+  /**
+   * Retrieves property by key
+   *
+   * @param key the key
+   * @return property by key
+   */
   private String getProperty(String key) {
     LOG.debug("Start returning property by key: {}", key);
     if (properties == null) {
@@ -61,6 +67,12 @@ public class ConfigurationImpl implements Configuration {
     return properties.getProperty(key);
   }
 
+  /**
+   * Retrieves property by key or null in case property not exists
+   *
+   * @param key the key
+   * @return property by key or null
+   */
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
     if (property == null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,7 +16,6 @@
 
 package co.cask.cdap.filetailer;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,9 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Main class
+ * File Tailer performs tailing of sets of local files.
+ * Once a new record has been appended to the end of a file that the File Tailer's daemon is monitoring,
+ * it sends it to a Stream via the REST API.
  */
 public class FileTailerMain {
 
@@ -43,16 +44,9 @@ public class FileTailerMain {
       LOG.info("Too many arguments: {}. Requirement: 0 or 1", args.length);
       return;
     }
-    PipeManager manager = new PipeManager();
-    try {
-      manager.setupPipes(configurationFile);
-    } catch (IOException e) {
-      LOG.error("Error during flows: {} setup", e.getMessage());
-      return;
-    }
-    LOG.info("Staring flows");
-    manager.startPipes();
+    PipeManager manager = new PipeManager(configurationFile);
+    LOG.info("Staring pipes");
+    manager.startAsync();
     Runtime.getRuntime().addShutdownHook(new Thread(new PipeShutdownTask(manager)));
-
   }
 }

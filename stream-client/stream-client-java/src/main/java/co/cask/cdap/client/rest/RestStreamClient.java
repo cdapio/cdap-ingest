@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,6 +18,7 @@ package co.cask.cdap.client.rest;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -51,7 +52,7 @@ public class RestStreamClient implements StreamClient {
 
   private RestStreamClient(Builder builder) {
     writerPoolSize = builder.writerPoolSize;
-    config = new RestClientConnectionConfig(builder.host, builder.port, builder.authToken, builder.apiKey,
+    config = new RestClientConnectionConfig(builder.host, builder.port, builder.authClient, builder.apiKey,
                                             builder.ssl, builder.version);
     restClient = new RestClient(config, new PoolingHttpClientConnectionManager());
   }
@@ -155,13 +156,13 @@ public class RestStreamClient implements StreamClient {
     private final String host;
 
     //optional
-    private String authToken;
+    private AuthenticationClient authClient;
     private String apiKey;
     private boolean ssl = false;
     private int writerPoolSize = DEFAULT_WRITER_POOL_SIZE;
     private String version = DEFAULT_VERSION;
 
-    private Builder(String host, int port) {
+    public Builder(String host, int port) {
       this.host = host;
       this.port = port;
     }
@@ -171,8 +172,8 @@ public class RestStreamClient implements StreamClient {
       return this;
     }
 
-    public Builder authToken(String authToken) {
-      this.authToken = authToken;
+    public Builder authClient(AuthenticationClient authClient) {
+      this.authClient = authClient;
       return this;
     }
 

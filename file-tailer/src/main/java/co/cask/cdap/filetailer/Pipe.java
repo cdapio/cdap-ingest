@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,55 +19,33 @@ package co.cask.cdap.filetailer;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.sink.FileTailerSink;
 import co.cask.cdap.filetailer.tailer.LogTailer;
+import com.google.common.util.concurrent.AbstractIdleService;
+import com.google.common.util.concurrent.ServiceManager;
+
+import java.util.Arrays;
 
 /**
- * Flow class contain sink and tailer instances for one flow
+ * Contains the sink and tailer instances for one Pipe.
  */
-public class Pipe {
+public class Pipe extends AbstractIdleService {
 
-    private LogTailer logTailer;
+    private final ServiceManager serviceManager;
 
-    private FileTailerSink sink;
-
-    private FileTailerMetricsProcessor metricsProcessor;
+    public Pipe(LogTailer tailer, FileTailerSink sink) {
+        serviceManager = new ServiceManager(Arrays.asList(tailer, sink));
+    }
 
     public Pipe(LogTailer tailer, FileTailerSink sink, FileTailerMetricsProcessor metricsProcessor) {
-        this.logTailer = tailer;
-        this.sink = sink;
-        this.metricsProcessor = metricsProcessor;
+        serviceManager = new ServiceManager(Arrays.asList(metricsProcessor, tailer, sink));
     }
 
-  /**
-   * Start metrics processor, tailer and sink
-   */
-    public void start() {
-        metricsProcessor.startWorker();
-        logTailer.startWorker();
-        sink.startWorker();
+    @Override
+    public void startUp() {
+        serviceManager.startAsync().awaitHealthy();
     }
 
-  /**
-   * Start tailer and sink
-   */
-  public void startWithoutMetrics() {
-    logTailer.startWorker();
-    sink.startWorker();
-  }
-
-  /**
-   * Stop metrics processor, tailer and sink
-   */
-    public void stop() {
-        metricsProcessor.stopWorker();
-        logTailer.stopWorker();
-        sink.stopWorker();
+    @Override
+    public void shutDown() {
+        serviceManager.stopAsync().awaitStopped();
     }
-
-  /**
-   * Stop tailer and sink
-   */
-  public void stopWithoutMetrics() {
-    logTailer.stopWorker();
-    sink.stopWorker();
-  }
 }

@@ -1,5 +1,5 @@
 #
-# Copyright 2014 Cask, Inc.
+# Copyright © 2014 Cask Data, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -16,9 +16,11 @@
 Package: [[artifactId]]
 Version: [[version]]
 Section: misc
+License: Copyright ${package.build.year} Cask Data, Inc. Licensed under the Apache License, Version 2.0.
 Priority: optional
 Architecture: all
+Url: http://cask.co
 Depends:
-Maintainer: cask
-Description: File Tailer
+Maintainer: support@cask.co
+Description: Component of Cask DAP
 Distribution: development

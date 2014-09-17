@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,10 +19,14 @@ package co.cask.cdap.filetailer.config;
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoaderException;
+import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
+import co.cask.cdap.security.authentication.client.AuthenticationClient;
+import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 /**
@@ -31,24 +35,18 @@ import java.util.Properties;
 public class PipeConfigurationImpl implements PipeConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(PipeConfigurationImpl.class);
-
-  private Properties properties;
-
-  private String key;
-  private String keyPath;
-
-  private SourceConfiguration sourceConfiguration;
-  private SinkConfiguration sinkConfiguration;
-
-  private static final String DEFAULT_DAEMON_DIR = "/var/run/file-drop-zone/state_dir";
-
+  private static final String DEFAULT_DAEMON_DIR = "/var/run/file-tailer/state_dir";
   private static final String DEFAULT_QUEUE_SIZE = "1000";
-
   private static final String DEFAULT_STATISTICS_SLEEP_INTERVAL = "60000";
-
   private static final String DEFAULT_STATE_FILE = "state";
-
   private static final String DEFAULT_STATISTICS_FILE = "stats";
+  private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
+
+  private final Properties properties;
+  private final String key;
+  private final String keyPath;
+  private final SourceConfiguration sourceConfiguration;
+  private final SinkConfiguration sinkConfiguration;
 
   public PipeConfigurationImpl(Properties properties, String key) {
     this.properties = properties;
@@ -64,14 +62,14 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   }
 
   @Override
-  public String getDaemonDir() {
-    return getProperty("daemon_dir", DEFAULT_DAEMON_DIR) +
-      "/" + keyPath.substring(0, keyPath.length() - 1).replace('.', '/');
+  public File getDaemonDir() {
+    return new File(getProperty("daemon_dir", DEFAULT_DAEMON_DIR),
+                    keyPath.substring(0, keyPath.length() - 1).replace('.', '/'));
   }
 
   @Override
   public String getStateFile() {
-    return getProperty(this.keyPath + "state_file", getSourceConfiguration().getFileName() + "." + DEFAULT_STATE_FILE);
+    return getProperty(this.keyPath + "state_file", sourceConfiguration.getFileName() + "." + DEFAULT_STATE_FILE);
   }
 
   @Override
@@ -99,19 +97,24 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return sinkConfiguration;
   }
 
-  @Override
-  public PipeConfiguration getPipeConfiguration(String fileName) {
-    Properties newProperties = new Properties();
-    newProperties.putAll(properties);
-    newProperties.put(keyPath + "source.file_name", fileName);
-    return new PipeConfigurationImpl(newProperties, key);
-  }
-
+  /**
+   * Retrieves either a property by key or, if a property does not exist, a default value.
+   *
+   * @param key the key
+   * @param defaultValue the default value
+   * @return the property by key or the default value parameter, if the property value is null or an empty string.
+   */
   private String getProperty(String key, String defaultValue) {
       String value = getProperty(key);
       return value != null && !value.equals("") ? value : defaultValue;
   }
 
+  /**
+   * Retrieves a property by key.
+   *
+   * @param key the key
+   * @return property by key
+   */
   private String getProperty(String key) {
     LOG.debug("Start returning property by keyPath: {}", key);
     if (properties == null) {
@@ -121,6 +124,12 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return properties.getProperty(key);
   }
 
+  /**
+   * Retrieves a property by key or null in the case where a property does not exist.
+   *
+   * @param key the key
+   * @return property by key or null
+   */
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
     if (property == null || property.equals("")) {
@@ -132,29 +141,23 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
   private class SourceConfigurationImpl implements SourceConfiguration {
 
-    private String key;
-
     private static final String DEFAULT_ROTATED_FILE_NAME_PATTERN = "(.*)";
-
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";
-
     private static final String DEFAULT_RECORD_SEPARATOR = "\n";
-
     private static final String DEFAULT_SLEEP_INTERVAL = "3000";
-
     private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
-
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
-
     private static final String DEFAULT_READ_ROTATED_FILES = "true";
+
+    private final String key;
 
     public SourceConfigurationImpl(String key) {
       this.key = "pipes." + key + ".source.";
     }
 
     @Override
-    public String getWorkDir() {
-      return getRequiredProperty(this.key + "work_dir");
+    public File getWorkDir() {
+      return new File(getRequiredProperty(this.key + "work_dir"));
     }
 
     @Override
@@ -173,8 +176,8 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     }
 
     @Override
-    public byte getRecordSeparator() {
-      return getProperty(this.key + "record_separator", DEFAULT_RECORD_SEPARATOR).getBytes()[0];
+    public char getRecordSeparator() {
+      return getProperty(this.key + "record_separator", DEFAULT_RECORD_SEPARATOR).charAt(0);
     }
 
     @Override
@@ -200,19 +203,15 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
   private class SinkConfigurationImpl implements SinkConfiguration {
 
-    private String key;
-
     private static final String DEFAULT_SSL = "false";
-
     private static final String DEFAULT_WRITER_POOL_SIZE = "10";
-
     private static final String DEFAULT_VERSION = "v2";
-
     private static final String DEFAULT_PACK_SIZE = "1";
-
     private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
-
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
+    private static final String DEFAULT_AUTH_CLIENT_PROPERTIES = "/etc/file-tailer/conf/auth-client.properties";
+
+    private final String key;
 
     public SinkConfigurationImpl(String key) {
       this.key = "pipes." + key + ".sink.";
@@ -227,14 +226,32 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     public StreamClient getStreamClient() {
       String host = getRequiredProperty(this.key + "host");
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
+      boolean ssl = Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL));
 
-      RestStreamClient.Builder builder = RestStreamClient.builder(host, port);
+      RestStreamClient.Builder builder = RestStreamClient.builder(host, port).ssl(ssl);
 
-      builder.ssl(Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL)));
-
-      String authToken = getProperty(this.key + "authToken");
-      if (authToken != null && !authToken.equals("")) {
-        builder.authToken(authToken);
+      String authClientClassPath = getProperty(this.key + "auth_client", DEFAULT_AUTH_CLIENT);
+      String authClientPropertiesPath = getProperty(this.key + "auth_client_properties",
+                                                    DEFAULT_AUTH_CLIENT_PROPERTIES);
+      try {
+        AuthenticationClient authClient =
+          (AuthenticationClient) Class.forName(authClientClassPath).getConstructor().newInstance();
+        authClient.setConnectionInfo(host, port, ssl);
+        authClient.configure(new ConfigurationLoaderImpl().load(new File(authClientPropertiesPath)).getProperties());
+        builder.authClient(authClient);
+      } catch (ClassNotFoundException e) {
+        LOG.error("Can not resolve class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (NoSuchMethodException e) {
+        LOG.error("Can not find default constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (IllegalAccessException e) {
+        LOG.error("Can not access constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (InstantiationException e) {
+        LOG.error("Can not create instance for class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (InvocationTargetException e) {
+        LOG.error("Can not invoke constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (ConfigurationLoadingException e) {
+        LOG.error("Can not load Authentication Client properties file {}: {}",
+                  authClientPropertiesPath, e.getMessage(), e);
       }
 
       String apiKey = getProperty(this.key + "apiKey");

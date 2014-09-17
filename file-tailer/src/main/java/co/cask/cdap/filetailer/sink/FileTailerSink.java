@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,7 +17,7 @@
 package co.cask.cdap.filetailer.sink;
 
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.filetailer.BaseWorker;
+import co.cask.cdap.filetailer.AbstractWorker;
 import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
@@ -30,13 +30,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 /**
- * Created by dev on 15.08.14.
+ * Sink daemon
  */
-public class FileTailerSink extends BaseWorker {
+public class FileTailerSink extends AbstractWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerSink.class);
 
@@ -47,7 +48,6 @@ public class FileTailerSink extends BaseWorker {
   private final StreamWriter writer;
   private final int packSize;
   private final Random random;
-
   private final FileTailerStateProcessor stateProcessor;
   private final FileTailerMetricsProcessor metricsProcessor;
 
@@ -63,9 +63,6 @@ public class FileTailerSink extends BaseWorker {
   public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
                         FileTailerStateProcessor stateProcessor,
                         FileTailerMetricsProcessor metricsProcessor, PipeListener pipeListener, int packSize) {
-    if (writer == null) {
-      throw new IllegalArgumentException("Writer can't be empty!");
-    }
     this.stateProcessor = stateProcessor;
     this.metricsProcessor = metricsProcessor;
     this.queue = queue;
@@ -76,12 +73,12 @@ public class FileTailerSink extends BaseWorker {
     this.pipeListener = pipeListener;
   }
 
-
   @Override
   public void run() {
     LOG.debug("Creating new event pack");
     EventPack pack = new EventPack(packSize);
-    while (!Thread.currentThread().isInterrupted()) {
+    List<FileTailerEvent> events = new ArrayList<FileTailerEvent>(packSize);
+    while (isRunning()) {
       try {
         if (pipeListener != null && pipeListener.isRead() && queue.isEmpty()) {
           if (!pack.isEmpty()) {
@@ -94,10 +91,9 @@ public class FileTailerSink extends BaseWorker {
           pipeListener.onIngest();
           break;
         }
-        FileTailerEvent event = queue.take();
-
-        pack.add(event);
-
+        queue.drainTo(events, pack.getFreeSize());
+        pack.addAll(events);
+        events.clear();
         if (pack.isFull()) {
           LOG.debug("Event pack is full");
           uploadEventPack(pack);
@@ -110,7 +106,7 @@ public class FileTailerSink extends BaseWorker {
         LOG.info("Sink was interrupted");
         break;
       } catch (IOException e) {
-        LOG.info("Exception while sending events", e);
+        LOG.warn("Exception while sending events", e);
         break;
       }
     }
@@ -118,9 +114,9 @@ public class FileTailerSink extends BaseWorker {
   }
 
   /**
-   * This method blocks until all package is uploaded
+   * Uploads all events in the pack; this method blocks until the entire package is uploaded.
    *
-   * @param pack
+   * @param pack the event pack
    */
   private void uploadEventPack(EventPack pack) throws InterruptedException, IOException {
     List<FileTailerEvent> events = pack.getEvents();
@@ -139,10 +135,25 @@ public class FileTailerSink extends BaseWorker {
     }
   }
 
+  /**
+   * Uploads one event to the pack.
+   *
+   * @param latch the latch
+   * @param event the event
+   * @throws IOException
+   */
   private void uploadEvent(UploadLatch latch, FileTailerEvent event) throws IOException {
     uploadEvent(latch, event, 0);
   }
 
+  /**
+   * Uploads one event from the pack, with multiple attempts made if necessary, up to the specified retry count.
+   *
+   * @param latch the latch
+   * @param event the event
+   * @param retryCount the number of attempts to upload event
+   * @throws IOException
+   */
   private void uploadEvent(UploadLatch latch, FileTailerEvent event, int retryCount) throws IOException {
     LOG.debug("Uploading event {} with writer {}. Attempt {} out of {} ", event, writer, retryCount, MAX_RETRY_COUNT);
     long sendStartTime = System.currentTimeMillis();
