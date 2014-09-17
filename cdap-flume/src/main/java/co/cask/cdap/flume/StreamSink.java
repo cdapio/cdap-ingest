@@ -14,41 +14,52 @@
  * the License.
  */
 
-
 package co.cask.cdap.flume;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.client.rest.RestStreamClient;
+import co.cask.cdap.security.authentication.client.AuthenticationClient;
+import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.apache.flume.Channel;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.EventDeliveryException;
+import org.apache.flume.Sink;
 import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
-import org.apache.flume.sink.AbstractSink;
+import org.apache.flume.lifecycle.LifecycleAware;
+import org.apache.flume.lifecycle.LifecycleState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Properties;
 
 /**
  * CDAP Sink, a Flume sink implementation.
  */
-public class StreamSink extends AbstractSink implements Configurable {
+public class StreamSink implements Sink, LifecycleAware, Configurable {
 
   private static final Logger LOG = LoggerFactory.getLogger(StreamSink.class);
 
-  private static final int DEFAULT_WRITER_POOL_SIZE = 10;
+  private static final int DEFAULT_WRITER_POOL_SIZE = 1;
 
   private static final boolean DEFAULT_SSL = false;
 
   private static final String DEFAULT_VERSION = "v2";
 
   private static final int DEFAULT_PORT = 10000;
+
+  private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
 
   private String host;
   private Integer port;
@@ -58,6 +69,20 @@ public class StreamSink extends AbstractSink implements Configurable {
   private String streamName;
   private StreamWriter writer;
   private StreamClient streamClient;
+  private String authClientClassPath;
+  private String authClientPropertiesPath;
+
+  private Channel channel;
+  private String name;
+  private LifecycleState lifecycleState;
+  private EventWriteStatusCode writeStatus;
+
+  /**
+   * Stream writer result status code
+   */
+  public static enum EventWriteStatusCode {
+    OK, FAIL
+  }
 
   @Override
   public void configure(Context context) {
@@ -67,8 +92,21 @@ public class StreamSink extends AbstractSink implements Configurable {
     version = context.getString("version", DEFAULT_VERSION);
     writerPoolSize = context.getInteger("writerPoolSize", DEFAULT_WRITER_POOL_SIZE);
     streamName = context.getString("streamName");
+    authClientClassPath = context.getString("authClientClass", DEFAULT_AUTH_CLIENT);
+    authClientPropertiesPath = context.getString("authClientProperties", "");
     Preconditions.checkState(host != null, "No hostname specified");
     Preconditions.checkState(streamName != null, "No stream name specified");
+
+  }
+
+  @Override
+  public void setChannel(Channel channel) {
+    this.channel = channel;
+  }
+
+  @Override
+  public Channel getChannel() {
+    return channel;
   }
 
   @Override
@@ -83,7 +121,24 @@ public class StreamSink extends AbstractSink implements Configurable {
       transaction.begin();
       Event event = channel.take();
       if (event != null) {
-        writer.write(ByteBuffer.wrap(event.getBody()), event.getHeaders());
+        ListenableFuture future = writer.write(ByteBuffer.wrap(event.getBody()), event.getHeaders());
+        Futures.addCallback(future, new FutureCallback<Void>() {
+          @Override
+          public void onSuccess(Void result) {
+            writeStatus = EventWriteStatusCode.OK;
+            LOG.info("Success write to stream {}", streamName);
+          }
+
+          @Override
+          public void onFailure(Throwable t) {
+            writeStatus = EventWriteStatusCode.FAIL;
+            LOG.error("Error during writing event to stream {}", streamName, t);
+          }
+        });
+
+        if (writeStatus == EventWriteStatusCode.FAIL) {
+          throw new EventDeliveryException("Failed to send events to stream: " + streamName);
+        }
       }
       transaction.commit();
 
@@ -95,9 +150,10 @@ public class StreamSink extends AbstractSink implements Configurable {
         LOG.error("Stream Sink {}: Unable to get event from channel {} ", getName(), channel.getName());
         status = Status.BACKOFF;
       } else {
+        LOG.debug("Closing writer due to stream error ", t);
         closeClientQuietly();
         closeWriterQuietly();
-        throw new EventDeliveryException("Failed to send events", t);
+        throw new EventDeliveryException("Sink event sending error", t);
       }
     } finally {
       transaction.close();
@@ -112,6 +168,7 @@ public class StreamSink extends AbstractSink implements Configurable {
       try {
         createStreamClient();
       } catch (IOException e) {
+        writer = null;
         LOG.error("Error during reopening client by name: {} for host: {}, port: {}. Reason: {} ",
                   new Object[]{streamName, host, port, e.getMessage(), e});
         throw e;
@@ -128,7 +185,31 @@ public class StreamSink extends AbstractSink implements Configurable {
 
       builder.writerPoolSize(writerPoolSize);
       builder.version(version);
+      AuthenticationClient authClient = null;
+      InputStream inStream = null;
+      try {
+        authClient = (AuthenticationClient) Class.forName(authClientClassPath).getConstructor().newInstance();
+        authClient.setConnectionInfo(host, port, sslEnabled);
+        Properties properties = new Properties();
+        inStream = new FileInputStream(authClientPropertiesPath);
+        properties.load(inStream);
+        authClient.configure(properties);
+        builder.authClient(authClient);
+      } catch (ReflectiveOperationException e) {
+        LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassPath, host, port, e.getMessage(), e});
+      } catch (IOException e) {
+        LOG.error("Cannot load properties", e);
+      } finally {
+        try {
+          if (inStream != null) {
+            inStream.close();
+          }
+        } catch (IOException e) {
+          LOG.warn("Error during closing input stream. {}", e.getMessage(), e);
+        }
+      }
       streamClient = builder.build();
+    }
       try {
         if (writer == null) {
           writer = streamClient.createWriter(streamName);
@@ -137,7 +218,7 @@ public class StreamSink extends AbstractSink implements Configurable {
         closeWriterQuietly();
         throw new IOException("Can not create stream writer by name: " + streamName, t);
       }
-    }
+
   }
 
   private void closeClientQuietly() {
@@ -163,6 +244,8 @@ public class StreamSink extends AbstractSink implements Configurable {
   }
 
   public synchronized void start() {
+
+    Preconditions.checkState(channel != null, "No channel configured");
     try {
       createStreamClient();
     } catch (Throwable t) {
@@ -170,17 +253,32 @@ public class StreamSink extends AbstractSink implements Configurable {
                 new Object[]{streamName, host, port, t.getMessage(), t});
       closeWriterQuietly();
       closeClientQuietly();
+      lifecycleState = LifecycleState.ERROR;
       return;
     }
-    super.start();
     LOG.info("StreamSink {} started.", getName());
+    lifecycleState = LifecycleState.START;
   }
 
   public synchronized void stop() {
     LOG.info("StreamSink {} stopping...", getName());
     closeWriterQuietly();
     closeClientQuietly();
-    super.stop();
+  }
+
+  @Override
+  public LifecycleState getLifecycleState() {
+    return lifecycleState;
+  }
+
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 }
 
