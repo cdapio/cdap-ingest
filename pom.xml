@@ -28,8 +28,8 @@
 
   <modules>
     <module>stream-client</module>
-    <module>cdap-flume</module>
     <module>file-tailer</module>
+    <module>cdap-flume</module>
   </modules>
 
   <properties>
@@ -238,6 +238,7 @@
                   <exclude>**/*.avsc</exclude>
                   <!-- Excludes examples by default, include it in the examples profile -->
                   <exclude>examples/**</exclude>
+                  <exclude>**/testlogs/**</exclude>
                   <exclude>**/*.yml</exclude>
                   <exclude>stream-client-ruby/spec/fixtures/1MB</exclude>
                   <exclude>stream-client-ruby/Gemfile.lock</exclude>
@@ -247,7 +248,6 @@
                   <exclude>stream-client-python/v3/test/*.log</exclude>
                   <exclude>stream-client-python/v3/config.json</exclude>
                   <exclude>stream-client-python/README.md</exclude>
-                  <exclude>**/testlogs/**</exclude>
                 </excludes>
               </configuration>
             </execution>
