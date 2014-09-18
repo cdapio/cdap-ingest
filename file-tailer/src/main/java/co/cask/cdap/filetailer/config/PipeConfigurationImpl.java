@@ -234,17 +234,17 @@ public class PipeConfigurationImpl implements PipeConfiguration {
         authClient.configure(new ConfigurationLoaderImpl().load(new File(authClientPropertiesPath)).getProperties());
         builder.authClient(authClient);
       } catch (ClassNotFoundException e) {
-        LOG.error("Can not resolve class {}: {}", authClientClassPath, e.getMessage(), e);
+        LOG.warn("Can not resolve class {}: {}", authClientClassPath, e.getMessage(), e);
       } catch (NoSuchMethodException e) {
-        LOG.error("Can not find default constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
+        LOG.warn("Can not find default constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
       } catch (IllegalAccessException e) {
-        LOG.error("Can not access constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
+        LOG.warn("Can not access constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
       } catch (InstantiationException e) {
-        LOG.error("Can not create instance for class {}: {}", authClientClassPath, e.getMessage(), e);
+        LOG.warn("Can not create instance for class {}: {}", authClientClassPath, e.getMessage(), e);
       } catch (InvocationTargetException e) {
-        LOG.error("Can not invoke constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
+        LOG.warn("Can not invoke constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
       } catch (ConfigurationLoadingException e) {
-        LOG.error("Can not load Authentication Client properties file {}: {}",
+        LOG.warn("Can not load Authentication Client properties file {}: {}",
                   authClientPropertiesPath, e.getMessage(), e);
       }
 

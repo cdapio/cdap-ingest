@@ -52,7 +52,7 @@ public class PipeManager extends AbstractIdleService {
   private final File confFile;
   private final ServiceManager serviceManager;
 
-  PipeManager(File confFile) {
+  public PipeManager(File confFile) {
     this.confFile = confFile;
     serviceManager = createManager();
   }
@@ -149,7 +149,7 @@ public class PipeManager extends AbstractIdleService {
   @Override
   public void shutDown() {
     try {
-      serviceManager.stopAsync().awaitHealthy(5, TimeUnit.SECONDS);
+      serviceManager.stopAsync().awaitStopped(5, TimeUnit.SECONDS);
     } catch (TimeoutException e) {
       LOG.warn("Cannot stop pipes: {}", e);
     }
