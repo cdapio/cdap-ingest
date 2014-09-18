@@ -4,12 +4,12 @@ Stream Client Python API for managing Streams via external Python applications.
 
 ## Supported Actions
 
-- create a Stream with a specified "*stream-id*";
-- update TTL for an existing Stream with a specified "*stream-id*";
-- retrieve the current Stream TTL for a specified "*stream-id*";
+- create a Stream with a specified *stream-id*;
+- update TTL for an existing Stream with a specified *stream-id*;
+- retrieve the current Stream TTL for a specified *stream-id*;
 - truncate an existing Stream (the deletion of all events that were written to the Stream);
-- write an event to an existing Stream specified by "*stream-id*";
-- send a File to an existing Stream specififed by "*stream-id*".
+- write an event to an existing Stream specified by *stream-id*;
+- send a File to an existing Stream specififed by *stream-id*.
 
 ## Usage
 
@@ -61,7 +61,7 @@ Config file structure in JSON format:
 
  Notes:
 
-  - The "*stream-id*" can only contain ASCII letters, digits and hyphens.
+  - The *stream-id* can only contain ASCII letters, digits and hyphens.
   - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
 
