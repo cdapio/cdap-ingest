@@ -65,8 +65,8 @@ public class FileTailerIT {
   private static final int ENTRY_NUMBER = 1;
   private static final int WRITING_INTERVAL = 1000;
   private static final int SLEEP_TIME = 5000;
-  private static final String LOG_MESSAGE = "165.225.156.91 - - [09/Jan/2014:21:28:53 -0400]" +
-    " \"GET /index.html HTTP/1.1\" 200 225 \"http://continuuity.com\" \"Mozilla/4.08 [en] (Win98; I ;Nav)\"";
+  private static final String LOG_MESSAGE = "127.0.0.1 - - [01/Jan/2014:21:28:53 -0400]" +
+    " \"GET /index.html HTTP/1.1\" 200 225 \"http://example.com\" \"Mozilla/4.08 [en] (Win98; I ;Nav)\"";
   private static final AtomicInteger read = new AtomicInteger();
   private static final  AtomicInteger ingest = new AtomicInteger();
 

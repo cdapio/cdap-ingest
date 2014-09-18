@@ -15,13 +15,13 @@
   the License.
   -->
 
-<!--                                                                         -->
-<!-- Stream Client Java API Example Configuration                            -->
-<!--                                                                         -->
-<!-- We use the LogBack project for logging in the Stream Client Java API    -->
-<!-- Example.                                                                -->
-<!-- The manual for Logback can be found here: http://logback.qos.ch/manual  -->
-<!--                                                                         -->
+<!--
+  Stream Client Java API Example Configuration
+
+  We use the LogBack project for logging in the Stream Client Java API
+  Example.
+  The manual for Logback can be found here: http://logback.qos.ch/manual
+                                                                         -->
 <configuration>
 
   <logger name="org.apache.http" level="DEBUG"/>
