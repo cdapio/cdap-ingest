@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -35,18 +35,38 @@ public class FileTailerState {
     this.lastModifyTime = lastModifyTime;
   }
 
+  /**
+   * Retrieves the name of log file.
+   *
+   * @return the name of log file
+   */
   public String getFileName() {
     return fileName;
   }
 
+  /**
+   * Retrieves the position in the log file.
+   *
+   * @return the position in log file
+   */
   public long getPosition() {
     return position;
   }
 
+  /**
+   * Retrieves the hash of the last read line.
+   *
+   * @return the hash of last read line
+   */
   public int getHash() {
     return hash;
   }
 
+  /**
+   * Retrieves the last modified time of the log file.
+   *
+   * @return the last modified time of log file
+   */
   public long getLastModifyTime() {
     return lastModifyTime;
   }
