@@ -24,8 +24,6 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.filetailer.Pipe;
-import co.cask.cdap.filetailer.PipeManager;
 import co.cask.cdap.filetailer.config.Configuration;
 import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
@@ -43,22 +41,16 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.String;
-import java.lang.System;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -81,6 +73,8 @@ public class FileTailerIT {
   @Before
   public void prepare() throws Exception {
     deleteTestDir();
+    read.set(0);
+    ingest.set(0);
   }
 
   @After
@@ -90,8 +84,6 @@ public class FileTailerIT {
 
   @Test
   public void fileTailerBasicIT() throws Exception {
-    read.set(0);
-    ingest.set(0);
     File configFile = getConfigFile();
     PipeConfiguration pipeConfig = loadConfig(configFile);
 
@@ -114,8 +106,6 @@ public class FileTailerIT {
 
   @Test
   public void fileTailerNoLogsBeforeStartIT() throws Exception {
-    read.set(0);
-    ingest.set(0);
     File configFile = getConfigFile();
     PipeConfiguration pipeConfig = loadConfig(configFile);
 
@@ -136,7 +126,7 @@ public class FileTailerIT {
     Assert.assertEquals(read.get(), ingest.get());
   }
 
-  private File getConfigFile() throws URISyntaxException{
+  private File getConfigFile() throws URISyntaxException {
     String configFileName = System.getProperty(CONFIG_NAME);
     return new File(FileTailerIT.class.getClassLoader().getResource(configFileName).toURI());
   }
