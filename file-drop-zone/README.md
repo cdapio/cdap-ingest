@@ -5,11 +5,11 @@ File DropZone is to support user easily perform bulk ingestion using local files
 
 ## Features
 
- - distributed as debian and rpm packages;
- - loads properties from configuration file;
- - support multiple observers/topics
- - able to survive restart and resume sending from the first unsent record of each of the existing files.
- - cleanup files that are completely sent
+ - Distributed as debian and rpm packages;
+ - Loads properties from a configuration file;
+ - Supports multiple observers/topics;
+ - Able to survive restart and resumes sending from the first unsent record of each of the existing files; and
+ - Removes files that are completely sent.
 
 ## Usage
 
