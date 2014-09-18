@@ -61,7 +61,7 @@ File DropZone is to support user easily perform bulk ingestion using local files
  
 ## File uploading
 
-  To start the daemon, execute the command:
+  To upload the file, execute the command:
   
   ```
      file-drop-zone load <file-path> <observer>
