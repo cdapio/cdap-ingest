@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #  Copyright © 2014 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -20,12 +22,16 @@ from caskauthclient.BasicAuthenticationClient import BasicAuthenticationClient
 
 class Config(object):
 
-
-    def __init__(self):
-        self.__host = u'localhost'
-        self.__port = 10000
-        self.__ssl = False
-        self.__authClient = None
+    def __init__(self, host=u'localhost', port=10000, ssl=False,
+                 filename=u''):
+        self.__host = host
+        self.__port = port
+        self.__ssl = ssl
+        self.__authClient = BasicAuthenticationClient()
+        self.__authClient.set_connection_info(self.__host,
+                                              self.__port, self.__ssl)
+        if filename:
+            self.__authClient.configure(filename)
 
     def set_auth_client(self, client):
         self.__authClient = client
@@ -63,21 +69,13 @@ class Config(object):
 
     @staticmethod
     def read_from_file(filename):
-        newConfig = Config()
+        newConfig = None
         jsonConfig = None
 
         with open(filename) as configFile:
             jsonConfig = json.loads(configFile.read())
 
-        newConfig.host = jsonConfig[u'hostname']
-        newConfig.port = jsonConfig[u'port']
-        newConfig.ssl = jsonConfig[u'SSL']
-
-        authClient = BasicAuthenticationClient()
-        authClient.set_connection_info(newConfig.host, newConfig.port,
-                                              newConfig.ssl)
-        authClient.configure(filename)
-
-        newConfig.set_auth_client(authClient)
+        newConfig = Config(jsonConfig[u'hostname'],
+                           jsonConfig[u'port'], jsonConfig[u'SSL'])
 
         return newConfig

@@ -1,7 +1,7 @@
 {
-    "hostname": "localhost",
-    "port": 10000,
-    "SSL": false,
-    "security_auth_client_username": "admin",
-    "security_auth_client_password": "realtime"
+    "hostname": "198.61.160.4",
+    "port": 10443,
+    "SSL": true,
+    "security_auth_client_username": "kpovetkin",
+    "security_auth_client_password": "RhtcE808"
 }

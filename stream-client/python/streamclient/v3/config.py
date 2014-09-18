@@ -23,6 +23,13 @@ class Config:
         self.__ssl = False
         self.__authClient = None
 
+    def __init__(self, host, port, ssl):
+        self.__host = host
+        self.__port = port
+        self.__ssl = ssl
+        self.__authClient = BasicAuthenticationClient(self.__host,
+                                                      self.__port, self.__ssl)
+
     def set_auth_client(self, client):
         self.__authClient = client
 
@@ -58,21 +65,13 @@ class Config:
             return u''
 
     def read_from_file(filename):
-        newConfig = Config()
+        newConfig = None
         jsonConfig = None
 
         with open(file) as configFile:
             jsonConfig = json.loads(configFile.read())
 
-        newConfig.host = jsonConfig['hostname']
-        newConfig.port = jsonConfig['port']
-        newConfig.ssl = jsonConfig['SSL']
-
-        authClient = BasicAuthenticationClient()
-        authClient.set_connection_info(newConfig.host, newConfig.port,
-                                              newConfig.ssl)
-        authClient.configure(filename)
-
-        newConfig.set_auth_client(authClient)
+        newConfig = Config(jsonConfig['hostname'],
+                           jsonConfig['port'], jsonConfig['SSL'])
 
         return newConfig

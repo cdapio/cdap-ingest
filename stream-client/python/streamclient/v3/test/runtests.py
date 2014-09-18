@@ -41,8 +41,8 @@ class TestStreamClient(unittest.TestCase):
     __REQUEST_PLACEHOLDERS = {
         'streamid': '<streamid>'
     }
-    __REQUESTS = {'streams': __BASE_URL + '/streams'}
-    __REQUESTS['stream'] = '{0}/{1}'.format(__REQUESTS['streams'],
+    __REQUESTS = {'base_stream_path': __BASE_URL + '/streams'}
+    __REQUESTS['stream'] = '{0}/{1}'.format(__REQUESTS['base_stream_path'],
                                             __REQUEST_PLACEHOLDERS['streamid'])
     __REQUESTS['consumerid'] = '{0}/{1}'.format(__REQUESTS['stream'],
                                                 'consumer-id')
@@ -119,7 +119,7 @@ class TestStreamClient(unittest.TestCase):
         try:
             self.sc.set_ttl(self.validStream, ttl)
         except NotFoundErrorn:
-            self.fail('StreamClient.setTTL() failed')
+            self.fail('StreamClient.set_ttl() failed')
 
     @httpretty.activate
     def test_set_ttl_invalid_stream(self):
