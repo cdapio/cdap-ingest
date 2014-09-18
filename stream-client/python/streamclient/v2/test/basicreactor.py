@@ -13,6 +13,7 @@ from serviceconnector import NotFoundError
 from streamwriter import StreamWriter
 from streamclient import StreamClient
 from caskauthclient.BasicAuthenticationClient import BasicAuthenticationClient
+from caskauthclient.Config import Config as AuthConfig
 
 # Should be used as parent class for integration tests.
 # In children __host, __port, __ssl properties have to be set.
@@ -74,9 +75,11 @@ class BasicReactor(object):
         self.__REQUESTS[u'truncate'] = u'{0}/{1}'.format(
             self.__REQUESTS[u'stream'], u'truncate')
 
+        authConfig = AuthConfig().read_from_file(u'config.json')
+
         authClient = BasicAuthenticationClient()
         authClient.set_connection_info(self.host, self.port, self.ssl)
-        authClient.configure(u'config.json')
+        authClient.configure(authConfig)
 
         config = Config(self.host, self.port, self.ssl)
         config.set_auth_client(authClient)

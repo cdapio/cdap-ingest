@@ -23,10 +23,11 @@ from caskauthclient.BasicAuthenticationClient import BasicAuthenticationClient
 class Config(object):
 
     def __init__(self, host=u'localhost', port=10000, ssl=False,
-                 filename=u''):
+                 ssl_disable_check=True, filename=u''):
         self.__host = host
         self.__port = port
         self.__ssl = ssl
+        self.__ssl_disable_check = ssl_disable_check
         self.__authClient = BasicAuthenticationClient()
         self.__authClient.set_connection_info(self.__host,
                                               self.__port, self.__ssl)
@@ -61,6 +62,14 @@ class Config(object):
         self.__ssl = ssl
 
     @property
+    def ssl_cert_check(self):
+        return self.__ssl_disable_check
+
+    @ssl_cert_check.setter
+    def ssl_cert_check(self, state):
+        self.__ssl_disable_check = state
+
+    @property
     def auth_token(self):
         try:
             return self.__authClient.get_access_token()
@@ -76,6 +85,7 @@ class Config(object):
             jsonConfig = json.loads(configFile.read())
 
         newConfig = Config(jsonConfig[u'hostname'],
-                           jsonConfig[u'port'], jsonConfig[u'SSL'])
+                           jsonConfig[u'port'], jsonConfig[u'SSL'],
+                           jsonConfig[u'security_ssl_cert_check'])
 
         return newConfig
