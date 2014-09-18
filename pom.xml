@@ -30,7 +30,7 @@
     <module>stream-client</module>
     <module>file-tailer</module>
     <module>cdap-flume</module>
-    <module>it</module>
+    <module>integration-tests</module>
   </modules>
 
   <properties>
