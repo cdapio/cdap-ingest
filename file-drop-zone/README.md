@@ -59,6 +59,19 @@ File DropZone is to support user easily perform bulk ingestion using local files
  File DropZone stores log files in the /var/log/file-drop-zone directory.
  PID, states and statistics are stored in the /var/run/file-drop-zone directory
  
+## File uploading
+
+  To start the daemon, execute the command:
+  
+  ```
+     file-drop-zone load <file-path> <observer>
+  ```
+  
+  In case if only one observer is configured, parameter <observer> is not mandatory:
+  
+  ```
+     file-drop-zone load <file-path>
+  ```
   
 ## Example Configuration
  

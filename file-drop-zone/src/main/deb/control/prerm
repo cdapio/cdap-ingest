@@ -16,10 +16,11 @@
 #
 
 set -e
+
 if [ -x "/etc/init.d/file-drop-zone" ]; then
-    if ! service_loc="$(type -p "service")" || [ -z "$service_loc" ]; then
-	invoke-rc.d file-drop-zone stop || exit $?
-    else
-	service file-drop-zone stop || exit $?
-    fi
+  if ! service_loc="$(type -p "service")" || [ -z "$service_loc" ]; then
+	  invoke-rc.d file-drop-zone stop || exit $?
+  else
+	  service file-drop-zone stop || exit $?
+  fi
 fi

@@ -17,20 +17,20 @@
 
 function scriptDir()
 {
-    SOURCE="${BASH_SOURCE[0]}"
-    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  SOURCE="${BASH_SOURCE[0]}"
+  while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
 	DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 	SOURCE="$(readlink "$SOURCE")"
 	[[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
-    done
-    DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-    echo $DIR
+  done
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  echo $DIR
 }
 
 function homeDir()
 {
-    DIR="$( cd -P "$( scriptDir )/.." && pwd )"
-    echo $DIR
+  DIR="$( cd -P "$( scriptDir )/.." && pwd )"
+  echo $DIR
 }
 
 export FDZ_HOME="$( homeDir )"
