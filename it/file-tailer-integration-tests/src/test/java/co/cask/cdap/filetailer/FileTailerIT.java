@@ -51,10 +51,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.String;
+import java.lang.System;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +68,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class FileTailerIT {
 
-  private static final int ENTRY_NUMBER = 139;
+  public static final String CONFIG_NAME = "fileTailerITConfig";
+
+  private static final int ENTRY_NUMBER = 1;
   private static final int WRITING_INTERVAL = 1000;
   private static final int SLEEP_TIME = 5000;
   private static final String LOG_MESSAGE = "165.225.156.91 - - [09/Jan/2014:21:28:53 -0400]" +
@@ -74,42 +79,20 @@ public class FileTailerIT {
   private static final  AtomicInteger ingest = new AtomicInteger();
 
   @Before
-  public void prepare() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    new File("/tmp/testITAuth.properties").delete();
+  public void prepare() throws Exception {
     deleteTestDir();
-    CharBuffer buffer = CharBuffer.allocate(4096);
-    FileReader reader =
-      new FileReader(FileTailerIT.class.getClassLoader().getResource("testITAuth.properties").getPath());
-    try {
-      reader.read(buffer);
-    } finally {
-      reader.close();
-    }
-    int position = buffer.position();
-    buffer.position(0);
-    Method method = buffer.getClass().getDeclaredMethod("toString", int.class, int.class);
-    method.setAccessible(true);
-    String authData = (String) method.invoke(buffer, 0, position);
-    FileWriter writer = new FileWriter("/tmp/testITAuth.properties");
-    try {
-      writer.write(authData);
-    } finally {
-      writer.close();
-    }
   }
 
   @After
-  public void clean() throws IOException {
-    new File("/tmp/testITAuth.properties").delete();
+  public void clean() throws Exception {
     deleteTestDir();
   }
 
   @Test
-  public void fileTailerBasicIT() throws InterruptedException, IOException,
-    InvocationTargetException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException {
+  public void fileTailerBasicIT() throws Exception {
     read.set(0);
     ingest.set(0);
-    File configFile = new File(FileTailerIT.class.getClassLoader().getResource("testIT.properties").getPath());
+    File configFile = getConfigFile();
     PipeConfiguration pipeConfig = loadConfig(configFile);
 
     String logFilePath = pipeConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
@@ -130,11 +113,10 @@ public class FileTailerIT {
   }
 
   @Test
-  public void fileTailerNoLogsBeforeStartIT() throws InterruptedException, IOException,
-    InvocationTargetException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException {
+  public void fileTailerNoLogsBeforeStartIT() throws Exception {
     read.set(0);
     ingest.set(0);
-    File configFile = new File(FileTailerIT.class.getClassLoader().getResource("testIT.properties").getPath());
+    File configFile = getConfigFile();
     PipeConfiguration pipeConfig = loadConfig(configFile);
 
     String logFilePath = pipeConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
@@ -154,8 +136,13 @@ public class FileTailerIT {
     Assert.assertEquals(read.get(), ingest.get());
   }
 
-  private void deleteTestDir() throws IOException {
-    File configFile = new File(FileTailerIT.class.getClassLoader().getResource("testIT.properties").getPath());
+  private File getConfigFile() throws URISyntaxException{
+    String configFileName = System.getProperty(CONFIG_NAME);
+    return new File(FileTailerIT.class.getClassLoader().getResource(configFileName).toURI());
+  }
+
+  private void deleteTestDir() throws Exception {
+    File configFile = getConfigFile();
     PipeConfiguration pipeConfig = loadConfig(configFile);
     File workDir = pipeConfig.getSourceConfiguration().getWorkDir();
     FileUtils.deleteDirectory(workDir);

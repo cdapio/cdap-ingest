@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -198,6 +200,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   private class SinkConfigurationImpl implements SinkConfiguration {
 
     private static final String DEFAULT_SSL = "false";
+    private static final String DEFAULT_DISABLE_CERT_CHECK = "false";
     private static final String DEFAULT_WRITER_POOL_SIZE = "10";
     private static final String DEFAULT_VERSION = "v2";
     private static final String DEFAULT_PACK_SIZE = "1";
@@ -221,8 +224,11 @@ public class PipeConfigurationImpl implements PipeConfiguration {
       String host = getRequiredProperty(this.key + "host");
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
       boolean ssl = Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL));
+      boolean disableCertCheck = Boolean.valueOf(getProperty(this.key + "disableCertCheck",
+                                                             DEFAULT_DISABLE_CERT_CHECK));
 
-      RestStreamClient.Builder builder = RestStreamClient.builder(host, port).ssl(ssl);
+      RestStreamClient.Builder builder = RestStreamClient.builder(host, port).ssl(ssl)
+        .disableCertCheck(disableCertCheck);
 
       String authClientClassPath = getProperty(this.key + "auth_client", DEFAULT_AUTH_CLIENT);
       String authClientPropertiesPath = getProperty(this.key + "auth_client_properties",
@@ -231,7 +237,14 @@ public class PipeConfigurationImpl implements PipeConfiguration {
         AuthenticationClient authClient =
           (AuthenticationClient) Class.forName(authClientClassPath).getConstructor().newInstance();
         authClient.setConnectionInfo(host, port, ssl);
-        authClient.configure(new ConfigurationLoaderImpl().load(new File(authClientPropertiesPath)).getProperties());
+        File authClientProperties = new File(authClientPropertiesPath);
+        if (!authClientProperties.exists()) {
+          URL authFileUrl = PipeConfigurationImpl.class.getClassLoader().getResource(authClientPropertiesPath);
+          if (authFileUrl != null) {
+            authClientProperties = new File(authFileUrl.toURI());
+          }
+        }
+        authClient.configure(new ConfigurationLoaderImpl().load(authClientProperties).getProperties());
         builder.authClient(authClient);
       } catch (ClassNotFoundException e) {
         LOG.warn("Can not resolve class {}: {}", authClientClassPath, e.getMessage(), e);
@@ -243,6 +256,9 @@ public class PipeConfigurationImpl implements PipeConfiguration {
         LOG.warn("Can not create instance for class {}: {}", authClientClassPath, e.getMessage(), e);
       } catch (InvocationTargetException e) {
         LOG.warn("Can not invoke constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (URISyntaxException e) {
+        LOG.warn("Can not load Authentication Client properties file {}: {}",
+                 authClientPropertiesPath, e.getMessage(), e);
       } catch (ConfigurationLoadingException e) {
         LOG.warn("Can not load Authentication Client properties file {}: {}",
                   authClientPropertiesPath, e.getMessage(), e);

@@ -33,6 +33,7 @@
 
   <modules>
     <module>stream-client-java-integration-tests</module>
+    <module>file-tailer-integration-tests</module>
   </modules>
 
   <profiles>
@@ -47,6 +48,7 @@
             <configuration>
               <systemPropertyVariables>
                 <streamClientITConfig>local.conf</streamClientITConfig>
+                <fileTailerITConfig>local.conf</fileTailerITConfig>
               </systemPropertyVariables>
             </configuration>
           </plugin>
@@ -65,6 +67,7 @@
             <configuration>
               <systemPropertyVariables>
                 <streamClientITConfig>local_auth.conf</streamClientITConfig>
+                <fileTailerITConfig>local_auth.conf</fileTailerITConfig>
               </systemPropertyVariables>
             </configuration>
           </plugin>
@@ -83,6 +86,7 @@
             <configuration>
               <systemPropertyVariables>
                 <streamClientITConfig>remote.conf</streamClientITConfig>
+                <fileTailerITConfig>remote.conf</fileTailerITConfig>
               </systemPropertyVariables>
             </configuration>
           </plugin>
@@ -101,6 +105,7 @@
             <configuration>
               <systemPropertyVariables>
                 <streamClientITConfig>remote_auth.conf</streamClientITConfig>
+                <fileTailerITConfig>remote_auth.conf</fileTailerITConfig>
               </systemPropertyVariables>
             </configuration>
           </plugin>
