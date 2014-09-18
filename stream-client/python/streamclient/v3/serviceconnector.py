@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #  Copyright © 2014 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -50,7 +52,7 @@ class ServiceConnector:
     __DEFAULT_CONFIG = u'config.json'
     __base_url = '{0}://{1}:{2}'
     __defaultHeaders = {
-        'Authorization': 'Bearer '
+        'Authorization': '{0} {1}'
     }
 
     def __init__(self, config=Config.read_from_file(__DEFAULT_CONFIG)):
@@ -74,8 +76,10 @@ class ServiceConnector:
         headersToSend = self.__defaultHeaders
         url = '{0}{1}'.format(self.__base_url, uri)
 
-        headersToSend['Authorization'] = headersToSend['Authorization']\
-            .format(self.__connectionConfig.auth_token)
+        if self.__connectionConfig.is_auth_enabled:
+            headersToSend['Authorization'] = headersToSend['Authorization']\
+                .format(self.__connectionConfig.auth_token.token_type,
+                        self.__connectionConfig.auth_token.value)
 
         if headers is not None:
             headersToSend.update(headers)
@@ -86,8 +90,10 @@ class ServiceConnector:
         headersToSend = self.__defaultHeaders
         url = '{0}{1}'.format(self.__base_url, uri)
 
-        headersToSend['Authorization'] = headersToSend['Authorization']\
-            .format(self.__connectionConfig.auth_token)
+        if self.__connectionConfig.is_auth_enabled:
+            headersToSend['Authorization'] = headersToSend['Authorization']\
+                .format(self.__connectionConfig.auth_token.token_type,
+                        self.__connectionConfig.auth_token.value)
 
         if headers is not None:
             headersToSend.update(headers)

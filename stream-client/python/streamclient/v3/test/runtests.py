@@ -15,7 +15,7 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-import unittest
+import unittest as unittest
 import httpretty
 import requests
 
@@ -62,9 +62,7 @@ class TestStreamClient(unittest.TestCase):
     exit_code = 404
 
     def setUp(self):
-        config = Config()
-        config.host = self.__dummy_host
-        config.port = self.__dummy_port
+        config = Config(self.__dummy_host, self.__dummy_port, false)
 
         self.sc = StreamClient(config)
 
@@ -118,7 +116,7 @@ class TestStreamClient(unittest.TestCase):
 
         try:
             self.sc.set_ttl(self.validStream, ttl)
-        except NotFoundErrorn:
+        except NotFoundError:
             self.fail('StreamClient.set_ttl() failed')
 
     @httpretty.activate
@@ -159,7 +157,7 @@ class TestStreamClient(unittest.TestCase):
         try:
             self.sc.get_ttl(self.validStream)
         except NotFoundError:
-            self.fail('StreamClient.getTTL() failed')
+            self.fail('StreamClient.get_ttl() failed')
 
     @httpretty.activate
     def test_get_ttl_invalid_stream(self):
@@ -281,13 +279,13 @@ class TestStreamClient(unittest.TestCase):
 
         sw = self.sc.create_writer(self.validStream)
 
-        def onResponse(response):
+        def on_response(response):
             self.exit_code = response.status_code
 
         q = sw.write(self.messageToWrite)
-        q.on_response(onResponse)
+        q.on_response(on_response)
 
         self.assertEqual(self.exit_code, 200)
 
 if '__main__' == __name__:
-    unittest.main(warnings='ignore')
+    unittest.main()
