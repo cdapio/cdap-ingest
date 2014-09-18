@@ -45,6 +45,9 @@ class StreamPromise(ConnectionErrorChecker):
             raise TypeError(u'"serviceConnector" parameter \
                             should be of type ServiceConnector')
 
+        self.__onOkHandler = None
+        self.__onErrorHandler = None
+
         self.__serviceConnector = serviceConnector
 
         self.__handlersLock = Lock()

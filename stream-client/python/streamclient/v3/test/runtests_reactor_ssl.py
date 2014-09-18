@@ -17,4 +17,4 @@ class TestStreamClient(unittest.TestCase, BasicReactor):
         self.set_up()
 
 if u'__main__' == __name__:
-    unittest.main()
+    unittest.main(warnings='ignore')

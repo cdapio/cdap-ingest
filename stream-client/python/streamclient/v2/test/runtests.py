@@ -21,6 +21,8 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest as unittest
+import mock
+
 import httpretty
 import requests
 
@@ -37,260 +39,270 @@ from serviceconnector import NotFoundError
 from streamwriter import StreamWriter
 from streamclient import StreamClient
 
+with mock.patch('__main__.Config.is_auth_enabled',
+                        new_callable=mock.PropertyMock) \
+    as mock_auth_enabled:
 
-class TestStreamClient(unittest.TestCase):
+    mock_auth_enabled.return_value = False
 
-    __dummy_host = u'dummy.host'
-    __dummy_port = 65000
-    __BASE_URL = u'http://{0}:{1}/v2'.format(__dummy_host, __dummy_port)
-    __REQUEST_PLACEHOLDERS = {
-        u'streamid': u'<streamid>'
-    }
-    __REQUESTS = {u'base_stream_path': __BASE_URL + u'/streams'}
-    __REQUESTS[u'stream'] = u'{0}/{1}'.format(__REQUESTS[u'base_stream_path'],
-                                            __REQUEST_PLACEHOLDERS[u'streamid'])
-    __REQUESTS[u'consumerid'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
-                                                u'consumer-id')
-    __REQUESTS[u'dequeue'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'dequeue')
-    __REQUESTS[u'config'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'config')
-    __REQUESTS[u'info'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'info')
-    __REQUESTS[u'truncate'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'truncate')
 
-    validStream = u'validStream'
-    invalidStream = u'invalidStream'
+    class TestStreamClient(unittest.TestCase):
 
-    validFile = u'some.log'
-    invalidFile = u'invalid.file'
+        __dummy_host = u'dummy.host'
+        __dummy_port = 65000
+        __BASE_URL = u'http://{0}:{1}/v2'.format(__dummy_host, __dummy_port)
+        __REQUEST_PLACEHOLDERS = {
+            u'streamid': u'<streamid>'
+        }
+        __REQUESTS = {u'base_stream_path': __BASE_URL + u'/streams'}
+        __REQUESTS[u'stream'] = u'{0}/{1}'.format(
+            __REQUESTS[u'base_stream_path'],
+            __REQUEST_PLACEHOLDERS[u'streamid'])
+        __REQUESTS[u'consumerid'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
+                                                      u'consumer-id')
+        __REQUESTS[u'dequeue'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
+                                                   u'dequeue')
+        __REQUESTS[u'config'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
+                                                  u'config')
+        __REQUESTS[u'info'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'info')
+        __REQUESTS[u'truncate'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
+                                                    u'truncate')
 
-    messageToWrite = u'some message'
+        validStream = u'validStream'
+        invalidStream = u'invalidStream'
 
-    exit_code = 404
+        validFile = u'some.log'
+        invalidFile = u'invalid.file'
 
-    def setUp(self):
-        config = Config(self.__dummy_host, self.__dummy_port, false)
+        messageToWrite = u'some message'
 
-        self.sc = StreamClient(config)
+        exit_code = 404
 
-    @httpretty.activate
-    def test_create(self):
-        url = self.__REQUESTS[u'stream'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.validStream
-        )
+        def setUp(self):
+            config = Config(self.__dummy_host, self.__dummy_port, False, False)
 
-        httpretty.register_uri(
-            httpretty.PUT,
-            url,
-            status=200
-        )
+            self.sc = StreamClient(config)
 
-        response = requests.put(url)
+        @httpretty.activate
+        def test_create(self):
+            url = self.__REQUESTS[u'stream'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.validStream
+            )
 
-        self.assertEqual(response.status_code, 200)
+            httpretty.register_uri(
+                httpretty.PUT,
+                url,
+                status=200
+            )
 
-    @httpretty.activate
-    def test_create_fail(self):
-        url = self.__REQUESTS[u'stream'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.validStream
-        )
+            response = requests.put(url)
 
-        httpretty.register_uri(
-            httpretty.PUT,
-            url,
-            status=404
-        )
+            self.assertEqual(response.status_code, 200)
 
-        response = requests.put(url)
+        @httpretty.activate
+        def test_create_fail(self):
+            url = self.__REQUESTS[u'stream'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.validStream
+            )
 
-        self.assertNotEqual(response.status_code, 200)
+            httpretty.register_uri(
+                httpretty.PUT,
+                url,
+                status=404
+            )
 
-    @httpretty.activate
-    def test_set_ttl_valid_stream(self):
-        url = self.__REQUESTS[u'config'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.validStream
-        )
-        ttl = 88888
+            response = requests.put(url)
 
-        httpretty.register_uri(
-            httpretty.PUT,
-            url,
-            status=200
-        )
+            self.assertNotEqual(response.status_code, 200)
 
-        try:
-            self.sc.set_ttl(self.validStream, ttl)
-        except NotFoundError:
-            self.fail(u'StreamClient.set_ttl() failed')
+        @httpretty.activate
+        def test_set_ttl_valid_stream(self):
+            url = self.__REQUESTS[u'config'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.validStream
+            )
+            ttl = 88888
 
-    @httpretty.activate
-    def test_set_ttl_invalid_stream(self):
-        url = self.__REQUESTS[u'config'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.invalidStream
-        )
-        ttl = 88888
+            httpretty.register_uri(
+                httpretty.PUT,
+                url,
+                status=200
+            )
 
-        httpretty.register_uri(
-            httpretty.PUT,
-            url,
-            status=404
-        )
+            try:
+                self.sc.set_ttl(self.validStream, ttl)
+            except NotFoundError:
+                self.fail(u'StreamClient.set_ttl() failed')
 
-        self.assertRaises(
-            NotFoundError,
-            self.sc.set_ttl,
-            self.invalidStream,
-            ttl
-        )
+        @httpretty.activate
+        def test_set_ttl_invalid_stream(self):
+            url = self.__REQUESTS[u'config'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.invalidStream
+            )
+            ttl = 88888
 
-    @httpretty.activate
-    def test_get_ttl_valid_stream(self):
-        url = self.__REQUESTS[u'info'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.validStream
-        )
+            httpretty.register_uri(
+                httpretty.PUT,
+                url,
+                status=404
+            )
 
-        httpretty.register_uri(
-            httpretty.GET,
-            url,
-            status=200,
-            body=u'{"ttl": 88888}'
-        )
+            self.assertRaises(
+                NotFoundError,
+                self.sc.set_ttl,
+                self.invalidStream,
+                ttl
+            )
 
-        try:
-            self.sc.get_ttl(self.validStream)
-        except NotFoundError:
-            self.fail(u'StreamClient.getTTL() failed')
+        @httpretty.activate
+        def test_get_ttl_valid_stream(self):
+            url = self.__REQUESTS[u'info'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.validStream
+            )
 
-    @httpretty.activate
-    def test_get_ttl_invalid_stream(self):
-        url = self.__REQUESTS[u'info'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.invalidStream
-        )
+            httpretty.register_uri(
+                httpretty.GET,
+                url,
+                status=200,
+                body=u'{"ttl": 88888}'
+            )
 
-        httpretty.register_uri(
-            httpretty.GET,
-            url,
-            status=404,
-            body=u'{"ttl": 88888}'
-        )
+            try:
+                self.sc.get_ttl(self.validStream)
+            except NotFoundError:
+                self.fail(u'StreamClient.getTTL() failed')
 
-        self.assertRaises(
-            NotFoundError,
-            self.sc.get_ttl,
-            self.invalidStream
-        )
+        @httpretty.activate
+        def test_get_ttl_invalid_stream(self):
+            url = self.__REQUESTS[u'info'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.invalidStream
+            )
 
-    @httpretty.activate
-    def test_create_writer_successful(self):
-        url = self.__REQUESTS[u'info'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.validStream
-        )
+            httpretty.register_uri(
+                httpretty.GET,
+                url,
+                status=404,
+                body=u'{"ttl": 88888}'
+            )
 
-        httpretty.register_uri(
-            httpretty.GET,
-            url,
-            status=200,
-            body=u'{"ttl": 88888}'
-        )
+            self.assertRaises(
+                NotFoundError,
+                self.sc.get_ttl,
+                self.invalidStream
+            )
 
-        self.assertIsInstance(
-            self.sc.create_writer(self.validStream),
-            StreamWriter
-        )
+        @httpretty.activate
+        def test_create_writer_successful(self):
+            url = self.__REQUESTS[u'info'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.validStream
+            )
 
-    @httpretty.activate
-    def test_create_writer_invalid_stream(self):
-        url = self.__REQUESTS[u'info'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.invalidStream
-        )
+            httpretty.register_uri(
+                httpretty.GET,
+                url,
+                status=200,
+                body=u'{"ttl": 88888}'
+            )
 
-        httpretty.register_uri(
-            httpretty.GET,
-            url,
-            status=404,
-            body=u'{"ttl": 88888}'
-        )
+            self.assertIsInstance(
+                self.sc.create_writer(self.validStream),
+                StreamWriter
+            )
 
-        self.assertRaises(
-            NotFoundError,
-            self.sc.create_writer,
-            self.invalidStream)
+        @httpretty.activate
+        def test_create_writer_invalid_stream(self):
+            url = self.__REQUESTS[u'info'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.invalidStream
+            )
 
-    @httpretty.activate
-    def test_stream_writer_successful_sending(self):
-        url = self.__REQUESTS[u'stream'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.validStream
-        )
+            httpretty.register_uri(
+                httpretty.GET,
+                url,
+                status=404,
+                body=u'{"ttl": 88888}'
+            )
 
-        urlInfo = self.__REQUESTS[u'info'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.validStream
-        )
+            self.assertRaises(
+                NotFoundError,
+                self.sc.create_writer,
+                self.invalidStream)
 
-        httpretty.register_uri(
-            httpretty.GET,
-            urlInfo,
-            status=200,
-            body=u'{"ttl": 88888}'
-        )
+        @httpretty.activate
+        def test_stream_writer_successful_sending(self):
+            url = self.__REQUESTS[u'stream'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.validStream
+            )
 
-        httpretty.register_uri(
-            httpretty.POST,
-            url,
-            status=200
-        )
+            urlInfo = self.__REQUESTS[u'info'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.validStream
+            )
 
-        sw = self.sc.create_writer(self.validStream)
+            httpretty.register_uri(
+                httpretty.GET,
+                urlInfo,
+                status=200,
+                body=u'{"ttl": 88888}'
+            )
 
-        def on_response(response):
-            self.exit_code = response.status_code
+            httpretty.register_uri(
+                httpretty.POST,
+                url,
+                status=200
+            )
 
-        q = sw.send(self.validFile)
-        q.on_response(on_response)
+            sw = self.sc.create_writer(self.validStream)
 
-        self.assertEqual(self.exit_code, 200)
+            def on_response(response):
+                self.exit_code = response.status_code
 
-    @httpretty.activate
-    def test_stream_writer_successful_writing(self):
-        url = self.__REQUESTS[u'stream'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.validStream
-        )
+            q = sw.send(self.validFile)
+            q.on_response(on_response)
 
-        urlInfo = self.__REQUESTS[u'info'].replace(
-            self.__REQUEST_PLACEHOLDERS[u'streamid'],
-            self.validStream
-        )
+            self.assertEqual(self.exit_code, 200)
 
-        httpretty.register_uri(
-            httpretty.GET,
-            urlInfo,
-            status=200,
-            body=u'{"ttl": 88888}'
-        )
+        @httpretty.activate
+        def test_stream_writer_successful_writing(self):
+            url = self.__REQUESTS[u'stream'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.validStream
+            )
 
-        httpretty.register_uri(
-            httpretty.POST,
-            url,
-            status=200
-        )
+            urlInfo = self.__REQUESTS[u'info'].replace(
+                self.__REQUEST_PLACEHOLDERS[u'streamid'],
+                self.validStream
+            )
 
-        sw = self.sc.create_writer(self.validStream)
+            httpretty.register_uri(
+                httpretty.GET,
+                urlInfo,
+                status=200,
+                body=u'{"ttl": 88888}'
+            )
 
-        def on_response(response):
-            self.exit_code = response.status_code
+            httpretty.register_uri(
+                httpretty.POST,
+                url,
+                status=200
+            )
 
-        q = sw.write(self.messageToWrite)
-        q.on_response(on_response)
+            sw = self.sc.create_writer(self.validStream)
 
-        self.assertEqual(self.exit_code, 200)
+            def on_response(response):
+                self.exit_code = response.status_code
 
-if u'__main__' == __name__:
-    unittest.main()
+            q = sw.write(self.messageToWrite)
+            q.on_response(on_response)
+
+            self.assertEqual(self.exit_code, 200)
+
+    if u'__main__' == __name__:
+        unittest.main()

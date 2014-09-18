@@ -74,7 +74,7 @@ class Config:
         newConfig = None
         jsonConfig = None
 
-        with open(file) as configFile:
+        with open(filename) as configFile:
             jsonConfig = json.loads(configFile.read())
 
         newConfig = Config(jsonConfig['hostname'],
