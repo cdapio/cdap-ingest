@@ -55,6 +55,14 @@ class BasicReactor(object):
     def ssl(self, ssl):
         self.__ssl = ssl
 
+    @property
+    def ssl_cert_check(self):
+        return self.__ssl_cert_check
+
+    @ssl_cert_check.setter
+    def ssl_cert_check(self, state):
+        self.__ssl_cert_check = state
+
     def set_up(self):
         self.__BASE_URL = u'http://{0}:{1}/v2'.format(self.host, self.port)
         self.__REQUEST_PLACEHOLDERS = {
@@ -81,7 +89,7 @@ class BasicReactor(object):
         authClient.set_connection_info(self.host, self.port, self.ssl)
         authClient.configure(authConfig)
 
-        config = Config(self.host, self.port, self.ssl)
+        config = Config(self.host, self.port, self.ssl, self.ssl_cert_check)
         config.set_auth_client(authClient)
 
         self.sc = StreamClient(config)

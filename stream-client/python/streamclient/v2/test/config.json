@@ -4,5 +4,5 @@
     "SSL": true,
     "security_auth_client_username": "kpovetkin",
     "security_auth_client_password": "RhtcE808",
-    "security_ssl_cert_check": "false"
+    "security_ssl_cert_check": false
 }

@@ -76,6 +76,10 @@ class Config(object):
         except IOError:
             return u''
 
+    @property
+    def is_auth_enabled(self):
+        return self.__authClient.is_auth_enabled()
+
     @staticmethod
     def read_from_file(filename):
         newConfig = None

@@ -51,7 +51,7 @@ class ServiceConnector(object):
 
     __DEFAULT_CONFIG = u'config.json'
     __defaultHeaders = {
-        u'Authorization': u'Bearer {0}'
+        u'Authorization': u'{0} {1}'
     }
 
     def __init__(self, config=Config.read_from_file(__DEFAULT_CONFIG)):
@@ -77,8 +77,10 @@ class ServiceConnector(object):
         headersToSend = self.__defaultHeaders
         url = u'{0}{1}'.format(self.__base_url, uri)
 
-        headersToSend[u'Authorization'] = headersToSend[u'Authorization']\
-            .format(self.__connectionConfig.auth_token)
+        if self.__connectionConfig.is_auth_enabled:
+            headersToSend[u'Authorization'] = headersToSend[u'Authorization']\
+                .format(self.__connectionConfig.auth_token.token_type,
+                        self.__connectionConfig.auth_token.value)
 
         if headers is not None:
             headersToSend.update(headers)
@@ -90,8 +92,10 @@ class ServiceConnector(object):
         headersToSend = self.__defaultHeaders
         url = u'{0}{1}'.format(self.__base_url, uri)
 
-        headersToSend[u'Authorization'] = headersToSend[u'Authorization']\
-            .format(self.__connectionConfig.auth_token)
+        if self.__connectionConfig.is_auth_enabled:
+            headersToSend[u'Authorization'] = headersToSend[u'Authorization']\
+                .format(self.__connectionConfig.auth_token.token_type,
+                        self.__connectionConfig.auth_token.value)
 
         if headers is not None:
             headersToSend.update(headers)

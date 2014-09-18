@@ -18,6 +18,7 @@ class TestStreamClient(unittest.TestCase, BasicReactor):
         self.host = u'198.61.160.4'
         self.port = 10443
         self.ssl = True
+        self.ssl_cert_check = False
         self.set_up()
 
 if u'__main__' == __name__:
