@@ -1,9 +1,9 @@
-File-Tailer
+File Tailer
 ==================
 
 File Tailer is a daemon process that performs tailing of sets of local files. 
 As soon as a new record has been appended to the end of a file that the daemon is monitoring, 
-it will send it to a Stream via the REST API.
+it sends it to a Stream via the CDAP REST API.
 
 ## Features
 
@@ -38,15 +38,15 @@ it will send it to a Stream via the REST API.
  
  These parameters must be specified:
 
-  - pipes
-  - pipes.pipe1.source.work_dir
-  - pipes.pipe1.source.file_name
-  - pipes.pipe1.sink.stream_name
-  - pipes.pipe1.sink.host
-  - pipes.pipe1.sink.port
+  - pipes=<pipe1-name, pipe2-name, ...>
+  - pipes.<pipe1-name>.source.work_dir=<source-work-directory>
+  - pipes.<pipe1-name>.source.file_name=<source-file-name>
+  - pipes.<pipe1-name>.sink.stream_name=<stream-name>
+  - pipes.<pipe1-name>.sink.host=<host-name>
+  - pipes.<pipe1-name>.sink.port=<port-number>
  
- Please note that the target file must be accessible to the file-tailer user.
- To check this, you can use the more command with the file-tailer user:
+ Please note that the target file must be accessible to the File Tailer user.
+ To check, you can use the more command with the File Tailer user:
  
  ``` 
     sudo -u file-tailer more path_to_target_file
@@ -70,14 +70,14 @@ it will send it to a Stream via the REST API.
   
 ## Example Configuration
  
- This configuration file will have the file-tailer application monitor two different directories for target log files.
+ This configuration file will have the File Tailer application monitor two different directories for target log files.
  Logs from each directory will be sent to two separate streams.
  
  ```
  
+     # General pipe properties 
      # Comma-separated list of pipes to be configured
      pipes=app1pipe,app2pipe
-     # General pipe properties
      
      # Pipe 1 source properties
      # Working directory (where to monitor files)
@@ -89,7 +89,7 @@ it will send it to a Stream via the REST API.
      # Name of the stream
      pipes.app1pipe.sink.stream_name=app1Stream
      # Host name that is used by stream client
-     pipes.app1pipe.sink.host=cdap_host
+     pipes.app1pipe.sink.host=cdap_host.example.com
      # Host port that is used by stream client
      pipes.app1pipe.sink.port=10000
      
@@ -103,7 +103,7 @@ it will send it to a Stream via the REST API.
      # Name of the stream
      pipes.app2pipe.sink.stream_name=app1Stream
      # Host name that is used by stream client
-     pipes.app2pipe.sink.host=cdap_host
+     pipes.app2pipe.sink.host=cdap_host.example.com
      # Host port that is used by stream client
      pipes.app2pipe.sink.port=10000
 
@@ -112,13 +112,13 @@ it will send it to a Stream via the REST API.
 
 ## Authentication Client
 
- Once File Tailer installed, configure the Authentication Client by editing the file:
+ Once File Tailer is installed, configure the Authentication Client by editing the properties file:
  
  ```
     /etc/file-tailer/conf/auth-client.properties
  ```
  
- Description of Authentication Client configuration parameters:
+ Authentication Client configuration parameters:
  
  - pipes.<pipe-name>.sink.auth_client - classpath of authentication client class
  - pipes.<pipe-name>.sink.auth_client_properties - path to authentication client properties file

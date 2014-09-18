@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -103,6 +103,11 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     LOG.info("Metrics Processor stopped");
   }
 
+  /**
+   * Invoked when a read log event occurs.
+   *
+   * @param eventSize the size of log
+   */
   public void onReadEventMetric(int eventSize) {
     LOG.debug("On Read Event Metric received");
     totalEventsReadPerFile.incrementAndGet();
@@ -117,6 +122,11 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     }
   }
 
+  /**
+   * Invokes when an ingest log event occurs.
+   *
+   * @param latency the latency of sending log
+   */
   public void onIngestEventMetric(int latency) {
     LOG.debug("On Ingest Event Metric received");
     totalEventsIngestedPerFile.incrementAndGet();
@@ -131,10 +141,20 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     }
   }
 
+  /**
+   * Calculates an average value, accurate to three decimal places.
+   *
+   * @param total the sum of values
+   * @param count the number of values
+   * @return the average value
+   */
   private double calculateAverage(int total, int count) {
     return Math.round(total / (double) count * 1000) / 1000.0;
   }
 
+  /**
+   * Resets all metrics.
+   */
   private void resetMetrics() {
     LOG.debug("Starting reset metrics ..");
     totalEventsReadPerFile.set(0);
@@ -152,6 +172,12 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     LOG.debug("All metrics reset successfully");
   }
 
+  /**
+   * Writes header to metrics file.
+   *
+   * @param logger the logger
+   * @param appender the file appender
+   */
   private void writeMetricsHeader(ch.qos.logback.classic.Logger logger, RollingFileAppender appender) {
     LOG.debug("Start writing header to file ..");
     String header = new StringBuilder("Current Date").append(",")
@@ -166,9 +192,16 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       .append("Average Write Latency Per Stream").append(",")
       .append("Max Write Latency Per Stream").append("\n").toString();
     appender.doAppend(new LoggingEvent(loggerClass, logger, null, header, null, null));
-    LOG.debug("Successfully write header");
+    LOG.debug("Successfully wrote header");
   }
 
+  /**
+   * Writes metric to metrics file.
+   *
+   * @param logger the logger
+   * @param appender the file appender
+   * @param currentDate the date of creating this metric
+   */
   private void writeMetrics(ch.qos.logback.classic.Logger logger, RollingFileAppender appender, String currentDate) {
     LOG.debug("Start writing metric with date {} to file ..", currentDate);
     String metric = new StringBuilder(currentDate).append(",")
@@ -183,9 +216,16 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       .append(calculateAverage(totalWriteLatencyPerStream.get(), writesPerStream.get())).append(",")
       .append(maxWriteLatencyPerStream.get()).toString();
     appender.doAppend(new LoggingEvent(loggerClass, logger, null, metric, null, null));
-    LOG.debug("Successfully write metric with date: {}", currentDate);
+    LOG.debug("Successfully wrote metric with date: {}", currentDate);
   }
 
+  /**
+   * Initializes the file appender.
+   *
+   * @param path the path to the directory for the metrics file
+   * @param fileName the name of the metrics file
+   * @return the initialized file appender
+   */
   private RollingFileAppender initAppender(String path, String fileName) {
     LOG.debug("Starting initialize rolling file appender");
     LoggerContext loggerContext =
@@ -210,11 +250,22 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     return fileAppender;
   }
 
+  /**
+   * Initializes the logger.
+   *
+   * @param name the name of logger
+   * @return the initialized logger
+   */
   private ch.qos.logback.classic.Logger initLogger(String name) {
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
     return loggerContext.getLogger(name);
   }
 
+  /**
+   * Creates a file with a specific path.
+   *
+   * @param path the path to file
+   */
   private void createFile(String path) {
     LOG.debug("Starting create file with path: {}", path);
     File file = new File(path);
@@ -234,6 +285,11 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     }
   }
 
+  /**
+   * Creates all directories according to the {@link java.io.File directory}.
+   *
+   * @param directory the directory
+   */
   private void createDirs(File directory) {
     LOG.debug("Starting create directory with path: {}", directory.getAbsolutePath());
     if (!directory.exists()) {
