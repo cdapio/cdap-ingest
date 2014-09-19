@@ -17,6 +17,8 @@
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.client.rest.RestStreamWriter;
 import co.cask.cdap.flume.StreamSink;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.apache.flume.Channel;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.Transaction;
@@ -46,7 +48,6 @@ public class StreamSinkTest {
     sink.process();
   }
 
-
   public StreamWriter getFailMockWriter() {
     RestStreamWriter mockWriter = Mockito.mock(RestStreamWriter.class);
     Mockito.doThrow(new RuntimeException()).when(mockWriter).write(
@@ -56,7 +57,7 @@ public class StreamSinkTest {
 
   public StreamWriter getPassMockWriter() {
     RestStreamWriter mockWriter = Mockito.mock(RestStreamWriter.class);
-    Mockito.doReturn(null).when(mockWriter).write(
+    Mockito.doReturn(Futures.immediateFuture((Void) null)).when(mockWriter).write(
       org.mockito.Matchers.any(ByteBuffer.class), org.mockito.Matchers.anyMap());
     return mockWriter;
   }
