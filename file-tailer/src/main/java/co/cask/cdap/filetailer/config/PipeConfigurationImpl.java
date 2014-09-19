@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 /**
@@ -96,11 +97,24 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return sinkConfiguration;
   }
 
+  /**
+   * Retrieves either a property by key or, if a property does not exist, a default value.
+   *
+   * @param key the key
+   * @param defaultValue the default value
+   * @return the property by key or the default value parameter, if the property value is null or an empty string.
+   */
   private String getProperty(String key, String defaultValue) {
       String value = getProperty(key);
       return value != null && !value.equals("") ? value : defaultValue;
   }
 
+  /**
+   * Retrieves a property by key.
+   *
+   * @param key the key
+   * @return property by key
+   */
   private String getProperty(String key) {
     LOG.debug("Start returning property by keyPath: {}", key);
     if (properties == null) {
@@ -110,6 +124,12 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     return properties.getProperty(key);
   }
 
+  /**
+   * Retrieves a property by key or null in the case where a property does not exist.
+   *
+   * @param key the key
+   * @return property by key or null
+   */
   private String getRequiredProperty(String key) {
     String property = getProperty(key);
     if (property == null || property.equals("")) {
@@ -213,8 +233,16 @@ public class PipeConfigurationImpl implements PipeConfiguration {
         authClient.setConnectionInfo(host, port, ssl);
         authClient.configure(new ConfigurationLoaderImpl().load(new File(authClientPropertiesPath)).getProperties());
         builder.authClient(authClient);
-      } catch (ReflectiveOperationException e) {
+      } catch (ClassNotFoundException e) {
         LOG.error("Can not resolve class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (NoSuchMethodException e) {
+        LOG.error("Can not find default constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (IllegalAccessException e) {
+        LOG.error("Can not access constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (InstantiationException e) {
+        LOG.error("Can not create instance for class {}: {}", authClientClassPath, e.getMessage(), e);
+      } catch (InvocationTargetException e) {
+        LOG.error("Can not invoke constructor for class {}: {}", authClientClassPath, e.getMessage(), e);
       } catch (ConfigurationLoadingException e) {
         LOG.error("Can not load Authentication Client properties file {}: {}",
                   authClientPropertiesPath, e.getMessage(), e);

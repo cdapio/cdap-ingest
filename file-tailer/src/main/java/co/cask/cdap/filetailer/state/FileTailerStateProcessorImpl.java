@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -96,6 +96,12 @@ public class FileTailerStateProcessorImpl implements FileTailerStateProcessor {
     }
   }
 
+  /**
+   * Creates all directories according to the {@link java.io.File directory}.
+   *
+   * @param directory the directory
+   * @throws FileTailerStateProcessorException in case directories creating result where false
+   */
   private void createDirs(File directory) throws FileTailerStateProcessorException {
     LOG.debug("Starting create directory with path: {}", directory.getAbsolutePath());
     if (!directory.exists()) {

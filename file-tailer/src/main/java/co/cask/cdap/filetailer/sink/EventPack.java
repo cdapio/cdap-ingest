@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -37,14 +37,30 @@ class EventPack {
     this.events = new ArrayList<FileTailerEvent>(capacity);
   }
 
+  /**
+   * Adds all events from a specified list to this pack.
+   *
+   * @param events the list of events
+   * @return the result of adding the list
+   */
   boolean addAll(List<FileTailerEvent> events) {
     return this.events.size() + events.size() <= capacity && this.events.addAll(events);
   }
 
+  /**
+   * Retrieves is this pack is full [true|false]
+   *
+   * @return <code>true</code> if this pack is full; <code>false</code> otherwise
+   */
   boolean isFull() {
     return capacity == events.size();
   }
 
+  /**
+   * Retrieves the free size of this pack.
+   *
+   * @return the free size of this pack
+   */
   int getFreeSize() {
     return capacity - events.size();
   }
@@ -72,10 +88,18 @@ class EventPack {
     return finalState;
   }
 
+  /**
+   * Clears the event pack.
+   */
   void clear() {
     events.clear();
   }
 
+  /**
+   * Retrieves all events from this pack.
+   *
+   * @return the events from this pack
+   */
   List<FileTailerEvent> getEvents() {
     return Collections.unmodifiableList(events);
   }

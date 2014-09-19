@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -99,9 +99,9 @@ public class FileTailerSink extends AbstractWorker {
   }
 
   /**
-   * This method blocks until all package is uploaded
+   * Uploads all events in the pack; this method blocks until the entire package is uploaded.
    *
-   * @param pack
+   * @param pack the event pack
    */
   private void uploadEventPack(EventPack pack) throws InterruptedException, IOException {
     List<FileTailerEvent> events = pack.getEvents();
@@ -120,10 +120,25 @@ public class FileTailerSink extends AbstractWorker {
     }
   }
 
+  /**
+   * Uploads one event to the pack.
+   *
+   * @param latch the latch
+   * @param event the event
+   * @throws IOException
+   */
   private void uploadEvent(UploadLatch latch, FileTailerEvent event) throws IOException {
     uploadEvent(latch, event, 0);
   }
 
+  /**
+   * Uploads one event from the pack, with multiple attempts made if necessary, up to the specified retry count.
+   *
+   * @param latch the latch
+   * @param event the event
+   * @param retryCount the number of attempts to upload event
+   * @throws IOException
+   */
   private void uploadEvent(UploadLatch latch, FileTailerEvent event, int retryCount) throws IOException {
     LOG.debug("Uploading event {} with writer {}. Attempt {} out of {} ", event, writer, retryCount, MAX_RETRY_COUNT);
     long sendStartTime = System.currentTimeMillis();
