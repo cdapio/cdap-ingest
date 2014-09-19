@@ -52,7 +52,7 @@ public class PipeManager extends AbstractIdleService {
   private final File confFile;
   private final ServiceManager serviceManager;
 
-  PipeManager(File confFile) {
+  public PipeManager(File confFile) {
     this.confFile = confFile;
     serviceManager = createManager();
   }
