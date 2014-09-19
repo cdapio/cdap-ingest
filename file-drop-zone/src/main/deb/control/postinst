@@ -18,27 +18,27 @@
 set -e
 
 if [ -h /usr/bin/file-drop-zone ]; then
-    rm -f /usr/bin/file-drop-zone
+  rm -f /usr/bin/file-drop-zone
 fi
 
 if [ -h /etc/file-drop-zone/conf ]; then
-    rm -f /etc/file-drop-zone/conf
+  rm -f /etc/file-drop-zone/conf
 fi
 
 if [ ! -d /etc/file-drop-zone ]; then
-    mkdir -p /etc/file-drop-zone
+  mkdir -p /etc/file-drop-zone
 fi
 
 if [ ! -d /var/log/file-drop-zone ]; then
-    mkdir -p /var/log/file-drop-zone
+  mkdir -p /var/log/file-drop-zone
 fi
 
 if [ ! -d /var/file-drop-zone ]; then
-    mkdir -p /var/file-drop-zone
+  mkdir -p /var/file-drop-zone
 fi
 
 if [ ! -d /tmp/file-drop-zone ]; then
-    mkdir -p /tmp/file-drop-zone
+  mkdir -p /tmp/file-drop-zone
 fi
 
 chown -R file-drop-zone:file-drop-zone /var/log/file-drop-zone
@@ -54,19 +54,19 @@ ln -s /usr/lib/file-drop-zone/bin/file-drop-zone /usr/bin/file-drop-zone
 ln -s /usr/lib/file-drop-zone/conf /etc/file-drop-zone/conf
 
 if [ -f /usr/lib/file-drop-zone/bin/file-drop-zone.default ]; then
-    mv /usr/lib/file-drop-zone/bin/file-drop-zone.default /etc/default/file-drop-zone
+  mv /usr/lib/file-drop-zone/bin/file-drop-zone.default /etc/default/file-drop-zone
 fi
 
 if [ -f /usr/lib/file-drop-zone/bin/file-drop-zone.init.d ]; then
-    mv /usr/lib/file-drop-zone/bin/file-drop-zone.init.d /etc/init.d/file-drop-zone
+  mv /usr/lib/file-drop-zone/bin/file-drop-zone.init.d /etc/init.d/file-drop-zone
 fi
 
 if [ -x "/etc/init.d/file-drop-zone" ]; then
 	if [ ! -e "/etc/init/file-drop-zone.conf" ]; then
 		if ! chkconfig_loc="$(type -p "chkconfig")" || [ -z "$chkconfig_loc" ]; then
-		    update-rc.d -f file-drop-zone defaults >/dev/null
+      update-rc.d -f file-drop-zone defaults >/dev/null
 		else
-		    chkconfig --add file-drop-zone >/dev/null
+      chkconfig --add file-drop-zone >/dev/null
 		fi
 	fi
 fi

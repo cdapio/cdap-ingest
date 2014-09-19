@@ -1,15 +1,15 @@
 File DropZone
 ==================
 
-File DropZone is to support user easily perform bulk ingestion using local files.
+File DropZone allows users to easily perform the bulk ingestion of local files.
 
 ## Features
 
- - distributed as debian and rpm packages;
- - loads properties from configuration file;
- - support multiple observers/topics
- - able to survive restart and resume sending from the first unsent record of each of the existing files.
- - cleanup files that are completely sent
+ - Distributed as debian and rpm packages;
+ - Loads properties from a configuration file;
+ - Supports multiple observers/topics;
+ - Able to survive restart and resumes sending from the first unsent record of each of the existing files; and
+ - Removes files that are completely sent.
 
 ## Usage
 
@@ -59,6 +59,42 @@ File DropZone is to support user easily perform bulk ingestion using local files
  File DropZone stores log files in the /var/log/file-drop-zone directory.
  PID, states and statistics are stored in the /var/run/file-drop-zone directory
  
+## File uploading
+
+  To upload the file, execute the command:
+  
+  ```
+     file-drop-zone load <file-path> <observer>
+  ```
+  
+  If only one observer is configured, the *observer* parameter is not required:
+  
+  ```
+     file-drop-zone load <file-path>
+  ```
+  
+## Authentication Client
+
+ Once File DropZone is installed, configure the Authentication Client by editing the properties file:
+ 
+ ```
+    /etc/file-drop-zone/conf/auth-client.properties
+ ```
+ 
+ Authentication Client configuration parameters:
+ 
+ - pipes.<pipe-name>.sink.auth_client - classpath of authentication client class
+ - pipes.<pipe-name>.sink.auth_client_properties - path to authentication client properties file
+ 
+## Authentication Client Example Configuration
+ 
+ ```
+ 
+     # User name
+     security.auth.client.username=admin
+     # User password
+     security.auth.client.password=realtime
+ ```
   
 ## Example Configuration
  

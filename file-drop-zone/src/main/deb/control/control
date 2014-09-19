@@ -19,6 +19,6 @@ Section: misc
 Priority: optional
 Architecture: all
 Depends:
-Maintainer: cask
+Maintainer: support@cask.co
 Description: File Drop Zone
 Distribution: development

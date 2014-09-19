@@ -64,7 +64,7 @@ fi
 
 
 if [ -f "$DEFAULT" ]; then
-    . "$DEFAULT"
+  . "$DEFAULT"
 fi
 
 
@@ -88,7 +88,7 @@ start() {
   fi
 
   if [ ! -d ${FDZ_LOG_DIR} ]; then
-      mkdir -p ${FDZ_LOG_DIR}
+    mkdir -p ${FDZ_LOG_DIR}
   fi
 
   FDZ_ARGS=$1

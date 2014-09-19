@@ -31,7 +31,7 @@
     <module>file-tailer</module>
     <module>file-drop-zone</module>
     <module>cdap-flume</module>
-    <module>it</module>
+    <module>integration-tests</module>
   </modules>
 
   <properties>
