@@ -22,9 +22,6 @@ import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import org.apache.flume.Channel;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Context;
@@ -43,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 /**
  * CDAP Sink, a Flume sink implementation.
@@ -71,21 +69,14 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
   private StreamClient streamClient;
   private String authClientClassName;
   private String authClientPropertiesPath;
-  private String  securityAuthServerHost;
-  private String  securityAuthServerPort;
-  private boolean  authClientSslEnabled;
   private Channel channel;
   private String name;
   private LifecycleState lifecycleState;
-  private EventWriteStatusCode writeStatus;
+  AuthenticationClient authClient;
 
   /**
    * Stream writer result status code
    */
-  public static enum EventWriteStatusCode {
-    OK, FAIL
-  }
-
   @Override
   public void configure(Context context) {
     host = context.getString("host");
@@ -98,7 +89,6 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
     authClientPropertiesPath = context.getString("authClientProperties", "");
     Preconditions.checkState(host != null, "No hostname specified");
     Preconditions.checkState(streamName != null, "No stream name specified");
-
   }
 
   @Override
@@ -123,23 +113,15 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       transaction.begin();
       Event event = channel.take();
       if (event != null) {
-        ListenableFuture future = writer.write(ByteBuffer.wrap(event.getBody()), event.getHeaders());
-        Futures.addCallback(future, new FutureCallback<Void>() {
-          @Override
-          public void onSuccess(Void result) {
-            writeStatus = EventWriteStatusCode.OK;
-            LOG.info("Success write to stream {}", streamName);
-          }
-
-          @Override
-          public void onFailure(Throwable t) {
-            writeStatus = EventWriteStatusCode.FAIL;
-            LOG.error("Error during writing event to stream {}", streamName, t);
-          }
-        });
-        future.get();
-        if (writeStatus == EventWriteStatusCode.FAIL) {
-          throw new EventDeliveryException("Failed to send events to stream: " + streamName);
+        try {
+          writer.write(ByteBuffer.wrap(event.getBody()), event.getHeaders()).get();
+          LOG.debug("Success write to stream: {} ", streamName);
+        } catch (Throwable t) {
+          if (t instanceof ExecutionException) {
+            t = t.getCause();
+        }
+          LOG.error("Error during writing event to stream {}", streamName, t);
+          throw new EventDeliveryException("Failed to send events to stream: " + streamName, t);
         }
       }
       transaction.commit();
@@ -162,7 +144,6 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
     }
     return status;
   }
-
 
   private void tryReopenClientConnection() throws IOException {
     if (writer == null) {
@@ -187,16 +168,15 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
 
       builder.writerPoolSize(writerPoolSize);
       builder.version(version);
-      AuthenticationClient authClient = null;
       InputStream inStream = null;
       try {
         authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
 
-        authClient.setConnectionInfo(host, port, sslEnabled);
         Properties properties = new Properties();
         inStream = new FileInputStream(authClientPropertiesPath);
         properties.load(inStream);
         authClient.configure(properties);
+        authClient.setConnectionInfo(host, port, sslEnabled);
         builder.authClient(authClient);
       } catch (ReflectiveOperationException e) {
         LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassName, host, port, e.getMessage(), e});
@@ -232,6 +212,11 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
         LOG.error("Error closing stream client. {}", t.getMessage(), t);
       }
       streamClient = null;
+    }
+
+    if (authClient != null) {
+      authClient.close();
+      authClient = null;
     }
   }
 

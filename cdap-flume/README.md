@@ -60,12 +60,6 @@ The CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write eve
      security.auth.client.username=admin
      # User password
      security.auth.client.password=secret
-     # Host name that is used by authentication client
-     security.auth.server.hostname =localhost
-     # Host port name that is used by authentication client
-     security.auth.server.port=10000
-     # SSL mode [true|false]
-     security.auth.client.gateway.ssl.enabled=false
  
 ## Example
    
