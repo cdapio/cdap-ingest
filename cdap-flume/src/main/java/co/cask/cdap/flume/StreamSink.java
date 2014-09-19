@@ -178,10 +178,10 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
         authClient.configure(properties);
         authClient.setConnectionInfo(host, port, sslEnabled);
         builder.authClient(authClient);
-      } catch (ReflectiveOperationException e) {
-        LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassName, host, port, e.getMessage(), e});
       } catch (IOException e) {
         LOG.error("Cannot load properties", e);
+      } catch (Exception e) {
+        LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassName, e.getMessage(), e});
       } finally {
         try {
           if (inStream != null) {
@@ -193,14 +193,14 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       }
       streamClient = builder.build();
     }
-      try {
-        if (writer == null) {
-          writer = streamClient.createWriter(streamName);
-        }
-      } catch (Throwable t) {
-        closeWriterQuietly();
-        throw new IOException("Can not create stream writer by name: " + streamName, t);
+    try {
+      if (writer == null) {
+        writer = streamClient.createWriter(streamName);
       }
+    } catch (Throwable t) {
+      closeWriterQuietly();
+      throw new IOException("Can not create stream writer by name: " + streamName, t);
+    }
 
   }
 
