@@ -1,7 +1,7 @@
 File DropZone
 ==================
 
-File DropZone is to support user easily perform bulk ingestion using local files.
+File DropZone allows users to easily perform the bulk ingestion of local files.
 
 ## Features
 
@@ -67,7 +67,7 @@ File DropZone is to support user easily perform bulk ingestion using local files
      file-drop-zone load <file-path> <observer>
   ```
   
-  In case if only one observer is configured, parameter <observer> is not mandatory:
+  If only one observer is configured, the *observer* parameter is not required:
   
   ```
      file-drop-zone load <file-path>
