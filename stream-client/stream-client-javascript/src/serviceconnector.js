@@ -43,16 +43,40 @@
      * @param {boolean} [ssl=false]         - should be connection secured or not (true / false)
      */
     target['ServiceConnector'] = target['ServiceConnector'] || function (url, host, port, ssl) {
-        if(null == url || 'string' !== typeof url) {
+        if (null == url || 'string' !== typeof url) {
             throw TypeError('"url" parameter have to be of type "string"');
         }
 
         var server = {
-            path: url,
-            hostname: host ? host : 'localhost',
-            port: port ? port : 10000,
-            ssl: ssl ? ssl : false
-        };
+                path: url,
+                hostname: host ? host : 'localhost',
+                port: port ? port : 10000,
+                ssl: ssl ? ssl : false
+            };
+
+        var copyObject = function(src1, src2) {
+                var result = {};
+
+                var addToResult = function(src) {
+                    var srcKeys = Object.keys(src),
+                        prop = '';
+
+                    while(srcKeys.length) {
+                        prop = srcKeys.shift();
+                        result[prop] = src[prop];
+                    }
+                };
+
+                addToResult(src1);
+                addToResult(src2);
+
+                return result;
+            },
+
+            baseUrl = function() {
+                return ['', (server.ssl ? 'https' : 'http'), '://',
+                    server.hostname, ':', server.port].join('');
+            },
 
         /**
          * @param {object} requestParams
@@ -62,76 +86,77 @@
          *
          * @returns {CDAPTracker.Promise}
          */
-        var requestBrowser = function (requestParams) {
-            var httpCon = new XMLHttpRequest(),
-            promise = target['Promise'](),
-            request_url = '' + (server.ssl ? 'https' : 'http') + '://'
-                + server.hostname + ':' + server.port + server.path;
+            requestBrowser = function (requestParams) {
+                var httpCon = new XMLHttpRequest(),
+                    promise = target['Promise'](),
+                    request_url = baseUrl() + server.path;
 
-            httpCon.onreadystatechange = function (response) {
-                var readyStates = [
-                    'Request not initialized',
-                    'Server connection established',
-                    'Request received',
-                    'Processing request',
-                    'Request finished and response is ready'
-                ];
+                httpCon.onreadystatechange = function (response) {
+                    var readyStates = [
+                        'Request not initialized',
+                        'Server connection established',
+                        'Request received',
+                        'Processing request',
+                        'Request finished and response is ready'
+                    ];
 
-                promise.notify(readyStates[httpCon.readyState]);
+                    promise.notify(readyStates[httpCon.readyState]);
 
-                if (httpCon.readyState === 4) {
-                    if (httpCon.status === 200) {
-                        promise.resolve(httpCon.responseText);
-                    } else {
-                        promise.reject(httpCon.status);
+                    if (httpCon.readyState === 4) {
+                        if (httpCon.status === 200) {
+                            promise.resolve(httpCon.responseText);
+                        } else {
+                            promise.reject(httpCon.status);
+                        }
                     }
+                };
+
+                httpCon.open('POST', request_url, true);
+                httpCon.send(requestParams.data);
+
+                return promise;
+            },
+
+            requestNode = function (requestParams) {
+                requestParams.method = 'POST';
+
+                var http = require('http'),
+                    https = require('https'),
+                    httpCon = server.ssl ? https : http,
+                    promiseModule = require('./promise'),
+                    promise = new promiseModule.Promise(),
+                    request = httpCon.request(copyObject(server, requestParams), function (response) {
+                            response.setEncoding('utf-8');
+
+                            promise.notify('HTTP status: ' + response.statusCode);
+
+                            if (200 !== response.statusCode) {
+                                promise.reject(response.statusCode);
+                            } else {
+                                response.on('data', function (content) {
+                                    promise.resolve(content);
+                                });
+                            }
+                        }
+                    );
+
+                request.write(requestParams.data);
+                request.end();
+
+                return promise;
+            },
+
+            request = ('undefined' != typeof window) ? requestBrowser : requestNode,
+
+            trackImpl = function (data) {
+                if (!(data instanceof Object)) {
+                    throw TypeError('"data" parameter has to be of type "Object"');
                 }
+
+                return request({
+                    data: JSON.stringify(data)
+                });
             };
-
-            httpCon.open('POST', request_url, true);
-            httpCon.send(requestParams.data);
-
-            return promise;
-        },
-
-        requestNode = function (requestParams) {
-            requestParams.method = 'POST';
-
-            var httpCon = server.ssl ? https : http,
-            promiseClass = require('promise.js'),
-            promise = new promiseClass(),
-            request = httpCon.request(Object.create(server, requestParams), function (response) {
-                response.setEncoding('utf-8');
-
-                promise.notify('HTTP status: ' + response.statusCode);
-
-                if (200 !== response.statusCode) {
-                    promise.reject(response.statusCode);
-                } else {
-                    response.on('data', function (content) {
-                        promise.resolve(content);
-                    });
-                }
-            }
-                                     );
-
-            request.write(requestParams.data);
-            request.end();
-
-            return promise;
-        },
-
-        request = window ? requestBrowser : requestNode,
-
-        trackImpl = function (data) {
-            if (!(data instanceof Object)) {
-                throw TypeError('"data" parameter has to be of type "Object"');
-            }
-
-            return request({
-                data: JSON.stringify(data)
-            });
-        };
 
         return {
             track: trackImpl
