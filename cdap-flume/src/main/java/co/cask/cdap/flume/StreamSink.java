@@ -115,11 +115,11 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       if (event != null) {
         try {
           writer.write(ByteBuffer.wrap(event.getBody()), event.getHeaders()).get();
-          LOG.debug("Success write to stream: {} ", streamName);
+          LOG.trace("Success write to stream: {} ", streamName);
         } catch (Throwable t) {
           if (t instanceof ExecutionException) {
             t = t.getCause();
-        }
+          }
           LOG.error("Error during writing event to stream {}", streamName, t);
           throw new EventDeliveryException("Failed to send events to stream: " + streamName, t);
         }
