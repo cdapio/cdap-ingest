@@ -73,6 +73,29 @@ File DropZone allows users to easily perform the bulk ingestion of local files.
      file-drop-zone load <file-path>
   ```
   
+## Authentication Client
+
+ Once File DropZone is installed, configure the Authentication Client by editing the properties file:
+ 
+ ```
+    /etc/file-drop-zone/conf/auth-client.properties
+ ```
+ 
+ Authentication Client configuration parameters:
+ 
+ - pipes.<pipe-name>.sink.auth_client - classpath of authentication client class
+ - pipes.<pipe-name>.sink.auth_client_properties - path to authentication client properties file
+ 
+## Authentication Client Example Configuration
+ 
+ ```
+ 
+     # User name
+     security.auth.client.username=admin
+     # User password
+     security.auth.client.password=realtime
+ ```
+  
 ## Example Configuration
  
  Following configuration file will force file-drop-zone application to observe 2 directories using 2 Pipes.

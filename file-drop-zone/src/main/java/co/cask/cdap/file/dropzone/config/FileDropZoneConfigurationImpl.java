@@ -52,9 +52,14 @@ public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements 
       String pipe = getRequiredProperty("observers." + observer + ".pipe");
       Properties newProperties = new Properties();
       newProperties.putAll(getProperties());
-      String property = newProperties.getProperty("daemon_dir");
-      if (property == null || property.equals("")) {
+      String daemonDir = newProperties.getProperty("daemon_dir");
+      if (daemonDir == null || daemonDir.equals("")) {
         newProperties.put("daemon_dir", "/var/run/file-drop-zone/state_dir");
+      }
+      String authClientPath = newProperties.getProperty("pipes." + pipe + ".sink.auth_client_properties");
+      if (authClientPath == null || authClientPath.equals("")) {
+        newProperties.put("pipes." + pipe + ".sink.auth_client_properties",
+                          "/etc/file-drop-zone/conf/auth-client.properties");
       }
       newProperties.put("pipes." + pipe + ".source.work_dir", getWorkDir() + observer);
       newProperties.put("pipes." + pipe + ".source.read_rotated_files", "false");

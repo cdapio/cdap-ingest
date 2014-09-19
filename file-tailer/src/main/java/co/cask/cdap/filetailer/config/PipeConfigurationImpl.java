@@ -250,6 +250,10 @@ public class PipeConfigurationImpl implements PipeConfiguration {
             authClientProperties = new File(authFileUrl.toURI());
           }
         }
+        if (!authClientProperties.exists()) {
+          throw new ConfigurationLoadingException("File " +
+                                                    authClientProperties.getAbsolutePath() + " doesn't exists");
+        }
         authClient.configure(new ConfigurationLoaderImpl().load(authClientProperties).getProperties());
         builder.authClient(authClient);
       } catch (ClassNotFoundException e) {

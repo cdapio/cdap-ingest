@@ -131,12 +131,6 @@ it sends it to a Stream via the CDAP REST API.
      security.auth.client.username=admin
      # User password
      security.auth.client.password=realtime
-     # Host name that is used by authentication client
-     security.auth.client.gateway.hostname=localhost
-     # Host port name that is used by authentication client
-     security.auth.client.gateway.port=10000
-     # SSL mode [true|false]
-     security.auth.client.gateway.ssl.enabled=false
  ```
  
 ## Additional Notes

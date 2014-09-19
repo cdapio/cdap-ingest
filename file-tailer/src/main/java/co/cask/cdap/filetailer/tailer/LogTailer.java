@@ -187,15 +187,15 @@ public class LogTailer extends AbstractWorker {
     try {
       while (isRunning()) {
         modifyTime = tryReadFromFile(channel, entrySeparator, currentLogFile, modifyTime);
+        if (!readRotatedFiles && pipeListener != null) {
+          pipeListener.onRead();
+          break;
+        }
         File newLog = getNextLogFile(logDirectory.getAbsolutePath(), modifyTime, false, currentLogFile);
         if (newLog == null) {
           LOG.debug("Waiting for new log data from file {}", currentLogFile);
           Thread.sleep(sleepInterval);
         } else {
-          if (!readRotatedFiles && pipeListener != null) {
-            pipeListener.onRead();
-            break;
-          }
           LOG.debug("Reading file {}", newLog);
           currentLogFile = newLog;
           closeQuietly(channel);
