@@ -2,6 +2,8 @@ File DropZone
 ==================
 
 File DropZone allows users to easily perform the bulk ingestion of local files.
+Files can either be directly uploaded, or they can be copied to a *work_dir*, 
+where they will automatically be ingested by a daemon process.
 
 ## Features
 
@@ -59,9 +61,9 @@ File DropZone allows users to easily perform the bulk ingestion of local files.
  File DropZone stores log files in the /var/log/file-drop-zone directory.
  PID, states and statistics are stored in the /var/run/file-drop-zone directory
  
-## File uploading
+## Uploading A File Directly
 
-  To upload the file, execute the command:
+  To upload a file that is outside of the *work_dir*, execute the command:
   
   ```
      file-drop-zone load <file-path> <observer>
@@ -98,7 +100,7 @@ File DropZone allows users to easily perform the bulk ingestion of local files.
   
 ## Example Configuration
  
- Following configuration file will force file-drop-zone application to observe 2 directories using 2 Pipes.
+ This configuration file will set the File DropZone application to observe 2 directories using 2 pipes:
  
  ```
  
