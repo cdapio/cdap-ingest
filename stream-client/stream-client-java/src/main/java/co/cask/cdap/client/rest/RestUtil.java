@@ -56,8 +56,8 @@ public final class RestUtil {
         throws CertificateException {
       }
     }}, new SecureRandom());
-    SSLConnectionSocketFactory sf = new SSLConnectionSocketFactory(sslContext,
-                                                                   org.apache.http.conn.ssl.SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+    SSLConnectionSocketFactory sf = new SSLConnectionSocketFactory(
+      sslContext, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
     return RegistryBuilder
       .<ConnectionSocketFactory>create().register("https", sf)
       .register("http", PlainConnectionSocketFactory.getSocketFactory())
