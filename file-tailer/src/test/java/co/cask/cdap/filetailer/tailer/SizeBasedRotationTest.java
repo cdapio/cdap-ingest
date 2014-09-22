@@ -63,8 +63,7 @@ public class SizeBasedRotationTest {
       new FileTailerMetricsProcessor(flowConfig.getDaemonDir(), flowConfig.getStatisticsFile(),
                                      flowConfig.getStatisticsSleepInterval(), flowConfig.getPipeName(),
                                      flowConfig.getSourceConfiguration().getFileName());
-
-    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor);
+    LogTailer tailer = new LogTailer(TailerLogUtils.loadConfig(), queue, stateProcessor, metricsProcessor, null);
     String filePath = flowConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + flowConfig.getSourceConfiguration().getFileName();
 

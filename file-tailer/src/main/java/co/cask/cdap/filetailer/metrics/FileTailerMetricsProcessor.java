@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FileTailerMetricsProcessor extends AbstractWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerMetricsProcessor.class);
+  private static final int SLEEP_INTERVAL = 3000;
 
   private final String loggerClass = ch.qos.logback.classic.Logger.class.getName();
   private final File stateDirPath;
@@ -86,7 +87,12 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
       appender = initAppender(stateDirPath.getAbsolutePath(), metricsFileName);
       writeMetricsHeader(logger, appender);
       while (isRunning()) {
-        Thread.sleep(metricsSleepInterval);
+        for (long i = 0; i < metricsSleepInterval; i += SLEEP_INTERVAL) {
+          Thread.sleep(SLEEP_INTERVAL);
+          if (!isRunning()) {
+            throw new InterruptedException();
+          }
+        }
         String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
         writeMetrics(logger, appender, currentDate);
         resetMetrics();
@@ -182,7 +188,7 @@ public class FileTailerMetricsProcessor extends AbstractWorker {
     LOG.debug("Start writing header to file ..");
     String header = new StringBuilder("Current Date").append(",")
       .append("Flow Name").append(",")
-      .append("File Name").append(",")
+      .append("Directory Name").append(",")
       .append("Total Events Read Per File").append(",")
       .append("Total Events Ingested Per File").append(",")
       .append("Min Event Size Per File").append(",")

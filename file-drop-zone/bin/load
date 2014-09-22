@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# Copyright © 2014 Cask Data, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+#
+. /lib/lsb/init-functions
+
+function load(){
+ if [ -z $FDZ_CONF_DIR ]; then
+ 	    FDZ_CONF_DIR=/etc/file-drop-zone/conf
+ fi
+ if [ $# -gt 2 ] || [ $# -eq 0 ]; then
+    log_failure_msg "wrong number of args $#"
+ else
+	file_path=$1
+	simple_file_name=$(basename $file_path)
+	date=`date +%s%N`
+	observer_list=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep 'observers'| head -n 1| cut -d "=" -f2-`
+	observer=$2
+  fdz_work_dir=`sed '/^\#/d' $FDZ_CONF_DIR"/file-drop-zone.properties" | grep "work_dir"| head -n 1| cut -d "=" -f2-`
+
+	if [ -z $fdz_work_dir ]; then
+		fdz_work_dir="/var/file-drop-zone/"
+	fi
+
+	if [[ $fdz_work_dir != *"/" ]]; then
+		fdz_work_dir=$fdz_work_dir"/"
+	fi
+
+	if [ ! -e $file_path ];then
+		log_failure_msg "File $file_path does not exists"
+	exit 0
+	fi
+    case $# in
+    	1)
+		    if [[ "$observer_list" == *,* ]];then
+			    log_failure_msg "Few observers are configured. Please, enter observer name"
+		    exit 0
+		    else
+			    fdz_directory=$fdz_work_dir$observer_list
+			    temp_folder="/tmp/file-drop-zone/"$observer_list
+		    fi;;
+    	2)
+    	  observer_list=,$observer_list,
+    		if [[ "$observer_list" == *,$observer,* ]];then
+			    fdz_directory=$fdz_work_dir$observer
+			    temp_folder="/tmp/file-drop-zone/"$observer
+    		else
+			    log_failure_msg "Observer not found"
+			    exit 0
+    		fi;;
+    esac
+		if [ ! -d $fdz_directory ]; then
+    		mkdir -p $fdz_directory
+		    chown -R file-drop-zone:file-drop-zone $fdz_directory
+		    chmod 755 $fdz_directory
+    fi
+
+    if [ ! -d $temp_folder ]; then
+		    mkdir -p $temp_folder
+		    chown -R file-drop-zone:file-drop-zone $temp_folder
+		    chmod 755 $temp_folder
+		fi
+	ln $file_path $temp_folder"/"$simple_file_name"."$date
+	mv $temp_folder"/"$simple_file_name"."$date $fdz_directory
+
+ fi
+}
+load $1 $2 $3

@@ -29,6 +29,7 @@
   <modules>
     <module>stream-client</module>
     <module>file-tailer</module>
+    <module>file-drop-zone</module>
     <module>cdap-flume</module>
     <module>integration-tests</module>
   </modules>

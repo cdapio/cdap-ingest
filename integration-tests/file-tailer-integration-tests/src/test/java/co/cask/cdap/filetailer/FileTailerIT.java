@@ -225,9 +225,9 @@ public class FileTailerIT {
               ingest.incrementAndGet();
             }
           };
-        pipeList.add(new Pipe(new LogTailer(pipeConf, queue, stateProcessor, metricsProcessor),
+        pipeList.add(new Pipe(new LogTailer(pipeConf, queue, stateProcessor, metricsProcessor, null),
                               new FileTailerSink(queue, writer, SinkStrategy.LOADBALANCE,
-                                                 stateProcessor, metricsProcessor,
+                                                 stateProcessor, metricsProcessor, null,
                                                  pipeConf.getSinkConfiguration().getPackSize()),
                               metricsProcessor));
         client = null;

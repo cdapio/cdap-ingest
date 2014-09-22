@@ -17,6 +17,7 @@
 package co.cask.cdap.filetailer.tailer;
 
 import co.cask.cdap.filetailer.AbstractWorker;
+import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.config.PipeConfiguration;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
@@ -75,10 +76,11 @@ public class LogTailer extends AbstractWorker {
   private final CharsetDecoder decoder;
   private final ByteBuffer readBuffer;
   private final CharBuffer decoded;
+  private final boolean readRotatedFiles;
+  private final PipeListener pipeListener;
 
-
-  public LogTailer(PipeConfiguration loader, FileTailerQueue queue,
-                   FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
+  public LogTailer(PipeConfiguration loader, FileTailerQueue queue, FileTailerStateProcessor stateProcessor,
+                   FileTailerMetricsProcessor metricsProcessor, PipeListener pipeListener) {
     String charsetName = loader.getSourceConfiguration().getCharsetName();
     if (!Charset.isSupported(charsetName)) {
       LOG.error("Charset {} is not supported", charsetName);
@@ -91,6 +93,7 @@ public class LogTailer extends AbstractWorker {
     this.queue = queue;
     this.fileTailerStateProcessor = stateProcessor;
     this.metricsProcessor = metricsProcessor;
+    this.pipeListener = pipeListener;
     this.sleepInterval = loader.getSourceConfiguration().getSleepInterval();
     this.logDirectory = loader.getSourceConfiguration().getWorkDir();
     this.logFileName = loader.getSourceConfiguration().getFileName();
@@ -99,6 +102,7 @@ public class LogTailer extends AbstractWorker {
     this.failureRetryLimit = loader.getSourceConfiguration().getFailureRetryLimit();
     this.failureSleepInterval = loader.getSourceConfiguration().getFailureSleepInterval();
     this.rotationPattern = loader.getSourceConfiguration().getRotationPattern();
+    this.readRotatedFiles = loader.getSourceConfiguration().getReadRotatedFiles();
   }
 
   /**
@@ -117,6 +121,7 @@ public class LogTailer extends AbstractWorker {
         LOG.info("File Tailer state was not found; start reading all logs from the directory from the beginning");
         runWithOutRestore();
       } else {
+        LOG.info("Start recover from state file");
         runFromSaveState(fileTailerState);
       }
     } catch (InterruptedException e) {
@@ -182,6 +187,10 @@ public class LogTailer extends AbstractWorker {
     try {
       while (isRunning()) {
         modifyTime = tryReadFromFile(channel, entrySeparator, currentLogFile, modifyTime);
+        if (!readRotatedFiles && pipeListener != null) {
+          pipeListener.onRead();
+          break;
+        }
         File newLog = getNextLogFile(logDirectory.getAbsolutePath(), modifyTime, false, currentLogFile);
         if (newLog == null) {
           LOG.debug("Waiting for new log data from file {}", currentLogFile);
@@ -192,7 +201,6 @@ public class LogTailer extends AbstractWorker {
           closeQuietly(channel);
           channel  = (new RandomAccessFile(currentLogFile, RAF_MODE)).getChannel();
         }
-//        }
       }
     } catch (IOException e) {
       LOG.error("Tailer daemon stopped due to IO exception while reading file: {}", e.getMessage());

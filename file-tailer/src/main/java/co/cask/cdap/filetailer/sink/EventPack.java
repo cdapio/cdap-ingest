@@ -56,6 +56,10 @@ class EventPack {
     return capacity == events.size();
   }
 
+  boolean isEmpty() {
+    return events.isEmpty();
+  }
+
   /**
    * Retrieves the free size of this pack.
    *

@@ -63,6 +63,13 @@ public class FileTailerQueue {
     return event;
   }
 
+  public boolean isEmpty() {
+    LOG.trace("Attempt to check queue for emptiness");
+    boolean isEmpty = queue.isEmpty();
+    LOG.trace("Attempt to check queue for emptiness was successful");
+    return isEmpty;
+  }
+
   /**
    * Drains events from the queue to a specified collection.
    *

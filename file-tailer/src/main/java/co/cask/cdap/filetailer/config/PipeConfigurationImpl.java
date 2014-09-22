@@ -71,7 +71,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
 
   @Override
   public String getStateFile() {
-    return getProperty(this.keyPath + "state_file", DEFAULT_STATE_FILE);
+    return getProperty(this.keyPath + "state_file", sourceConfiguration.getFileName() + "." + DEFAULT_STATE_FILE);
   }
 
   @Override
@@ -149,6 +149,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     private static final String DEFAULT_SLEEP_INTERVAL = "3000";
     private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
+    private static final String DEFAULT_READ_ROTATED_FILES = "true";
 
     private final String key;
 
@@ -194,6 +195,11 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     @Override
     public long getFailureSleepInterval() {
       return Long.parseLong(getProperty(this.key + "failure_sleep_interval", DEFAULT_FAILURE_SLEEP_INTERVAL));
+    }
+
+    @Override
+    public boolean getReadRotatedFiles() {
+      return Boolean.valueOf(getProperty(this.key + "read_rotated_files", DEFAULT_READ_ROTATED_FILES));
     }
   }
 
@@ -243,6 +249,10 @@ public class PipeConfigurationImpl implements PipeConfiguration {
           if (authFileUrl != null) {
             authClientProperties = new File(authFileUrl.toURI());
           }
+        }
+        if (!authClientProperties.exists()) {
+          throw new ConfigurationLoadingException("File " +
+                                                    authClientProperties.getAbsolutePath() + " doesn't exists");
         }
         authClient.configure(new ConfigurationLoaderImpl().load(authClientProperties).getProperties());
         builder.authClient(authClient);

@@ -18,6 +18,7 @@ package co.cask.cdap.filetailer.sink;
 
 import co.cask.cdap.client.StreamWriter;
 import co.cask.cdap.filetailer.AbstractWorker;
+import co.cask.cdap.filetailer.PipeListener;
 import co.cask.cdap.filetailer.event.FileTailerEvent;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
 import co.cask.cdap.filetailer.queue.FileTailerQueue;
@@ -41,7 +42,6 @@ public class FileTailerSink extends AbstractWorker {
   private static final Logger LOG = LoggerFactory.getLogger(FileTailerSink.class);
 
   private static final int DEFAULT_PACK_SIZE = 1;
-  private static final int LISTENER_THREAD_COUNT = 3;
   private static final int MAX_RETRY_COUNT = 3;
   private final FileTailerQueue queue;
   private final SinkStrategy strategy;
@@ -51,15 +51,19 @@ public class FileTailerSink extends AbstractWorker {
   private final FileTailerStateProcessor stateProcessor;
   private final FileTailerMetricsProcessor metricsProcessor;
 
+  private PipeListener pipeListener;
+
 
   public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
-                        FileTailerStateProcessor stateProcessor, FileTailerMetricsProcessor metricsProcessor) {
-    this(queue, writer, strategy, stateProcessor, metricsProcessor, DEFAULT_PACK_SIZE);
+                        FileTailerStateProcessor stateProcessor,
+                        FileTailerMetricsProcessor metricsProcessor, PipeListener pipeListener) {
+    this(queue, writer, strategy, stateProcessor, metricsProcessor, pipeListener, DEFAULT_PACK_SIZE);
   }
 
   public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
                         FileTailerStateProcessor stateProcessor,
-                        FileTailerMetricsProcessor metricsProcessor, int packSize) {
+                        FileTailerMetricsProcessor metricsProcessor,
+                        PipeListener pipeListener, int packSize) {
     this.stateProcessor = stateProcessor;
     this.metricsProcessor = metricsProcessor;
     this.queue = queue;
@@ -67,6 +71,7 @@ public class FileTailerSink extends AbstractWorker {
     this.strategy = strategy;
     this.packSize = packSize;
     this.random = new Random();
+    this.pipeListener = pipeListener;
   }
 
   @Override
@@ -76,6 +81,17 @@ public class FileTailerSink extends AbstractWorker {
     List<FileTailerEvent> events = new ArrayList<FileTailerEvent>(packSize);
     while (isRunning()) {
       try {
+        if (pipeListener != null && pipeListener.isRead() && queue.isEmpty()) {
+          if (!pack.isEmpty()) {
+            uploadEventPack(pack);
+            LOG.debug("Saving File Tailer state");
+            stateProcessor.saveState(pack.getState());
+            LOG.debug("Cleanup event pack");
+            pack.clear();
+          }
+          pipeListener.onIngest();
+          break;
+        }
         queue.drainTo(events, pack.getFreeSize());
         pack.addAll(events);
         events.clear();

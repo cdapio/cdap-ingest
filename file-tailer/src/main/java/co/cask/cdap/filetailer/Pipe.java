@@ -31,6 +31,10 @@ public class Pipe extends AbstractIdleService {
 
     private final ServiceManager serviceManager;
 
+    public Pipe(LogTailer tailer, FileTailerSink sink) {
+        serviceManager = new ServiceManager(Arrays.asList(tailer, sink));
+    }
+
     public Pipe(LogTailer tailer, FileTailerSink sink, FileTailerMetricsProcessor metricsProcessor) {
         serviceManager = new ServiceManager(Arrays.asList(metricsProcessor, tailer, sink));
     }
