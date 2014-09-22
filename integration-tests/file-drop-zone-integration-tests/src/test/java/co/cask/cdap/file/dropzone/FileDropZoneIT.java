@@ -14,7 +14,7 @@
  * the License.
  */
 
-package co.cask.cdap.filetailer;
+package co.cask.cdap.file.dropzone;
 
 import co.cask.cdap.file.dropzone.config.FileDropZoneConfigurationImpl;
 import co.cask.cdap.file.dropzone.config.ObserverConfiguration;
@@ -148,6 +148,6 @@ public class FileDropZoneIT {
 
   @After
   public void clean() throws Exception {
-//    deleteTestDir();
+    deleteTestDir();
   }
 }
