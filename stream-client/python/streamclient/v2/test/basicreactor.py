@@ -16,7 +16,8 @@ from caskauthclient.BasicAuthenticationClient import BasicAuthenticationClient
 from caskauthclient.Config import Config as AuthConfig
 
 # Should be used as parent class for integration tests.
-# In children __host, __port, __ssl properties have to be set.
+# In children 'config_file' property has to be set and
+# 'base_set_up' method called.
 
 class BasicReactor(object):
 
