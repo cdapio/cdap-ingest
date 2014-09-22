@@ -16,6 +16,7 @@
 
 package co.cask.cdap.client.rest;
 
+import co.cask.cdap.common.http.exception.HttpFailureException;
 import com.google.common.base.Charsets;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang.StringUtils;
@@ -31,13 +32,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.NotSupportedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -70,7 +64,7 @@ public class RestClientTest {
     verify(response).getStatusLine();
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test(expected = HttpFailureException.class)
   public void testBadRequestResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_BAD_REQUEST,
@@ -82,7 +76,7 @@ public class RestClientTest {
     verify(response).getStatusLine();
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test(expected = HttpFailureException.class)
   public void testNotFoundResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_NOT_FOUND,
@@ -94,7 +88,7 @@ public class RestClientTest {
     verify(response).getStatusLine();
   }
 
-  @Test(expected = NotAuthorizedException.class)
+  @Test(expected = HttpFailureException.class)
   public void testUnauthorizedResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_UNAUTHORIZED,
@@ -106,7 +100,7 @@ public class RestClientTest {
     verify(response).getStatusLine();
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test(expected = HttpFailureException.class)
   public void testForbiddenResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_FORBIDDEN,
@@ -118,7 +112,7 @@ public class RestClientTest {
     verify(response).getStatusLine();
   }
 
-  @Test(expected = NotAllowedException.class)
+  @Test(expected = HttpFailureException.class)
   public void testNotAllowedResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_METHOD_NOT_ALLOWED,
@@ -130,7 +124,7 @@ public class RestClientTest {
     verify(response).getStatusLine();
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test(expected = HttpFailureException.class)
   public void testConflictResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_CONFLICT, "Conflict");
@@ -141,7 +135,7 @@ public class RestClientTest {
     verify(response).getStatusLine();
   }
 
-  @Test(expected = InternalServerErrorException.class)
+  @Test(expected = HttpFailureException.class)
   public void testInternalServerErrorResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_INTERNAL_SERVER_ERROR,
@@ -153,7 +147,7 @@ public class RestClientTest {
     verify(response).getStatusLine();
   }
 
-  @Test(expected = NotSupportedException.class)
+  @Test(expected = UnsupportedOperationException.class)
   public void testNotImplementedResponseCodeAnalysis() {
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_NOT_IMPLEMENTED,
                                                 "Not Implemented");

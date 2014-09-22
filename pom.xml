@@ -35,6 +35,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <cdap.version>2.5.0-SNAPSHOT</cdap.version>
     <cdap.clients.version>1.0.0-SNAPSHOT</cdap.clients.version>
     <guava.version>17.0</guava.version>
     <http.component.version>4.3.1</http.component.version>
@@ -89,6 +90,11 @@
         <groupId>co.cask.cdap</groupId>
         <artifactId>authentication-client-java</artifactId>
         <version>${cdap.clients.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>co.cask.cdap</groupId>
+        <artifactId>cdap-common</artifactId>
+        <version>${cdap.version}</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
