@@ -36,6 +36,7 @@ import co.cask.cdap.filetailer.sink.SinkStrategy;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ServiceManager;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -51,6 +52,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -128,7 +130,10 @@ public class FileTailerIT {
 
   private File getConfigFile() throws URISyntaxException {
     String configFileName = System.getProperty(CONFIG_NAME);
-    return new File(FileTailerIT.class.getClassLoader().getResource(configFileName).toURI());
+    Preconditions.checkNotNull(configFileName, CONFIG_NAME + " must be set");
+    URL resource = FileTailerIT.class.getClassLoader().getResource(configFileName);
+    Preconditions.checkNotNull(resource, "Config file was not found: " + configFileName);
+    return new File(resource.toURI());
   }
 
   private void deleteTestDir() throws Exception {

@@ -21,7 +21,7 @@ if [ -x "/etc/init.d/file-drop-zone" ]; then
   if ! chkconfig_loc="$(type -p "chkconfig")" || [ -z "$chkconfig_loc" ]; then
     update-rc.d -f file-drop-zone remove >/dev/null
   else
-	  chkconfig --del file-drop-zone >/dev/null
+    chkconfig --del file-drop-zone >/dev/null
   fi
   rm -f /etc/init.d/file-drop-zone
 fi

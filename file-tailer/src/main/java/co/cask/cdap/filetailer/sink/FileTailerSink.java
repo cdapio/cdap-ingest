@@ -54,15 +54,16 @@ public class FileTailerSink extends AbstractWorker {
   private PipeListener pipeListener;
 
 
-  public FileTailerSink(FileTailerQueue queue, StreamWriter writer,
-                        SinkStrategy strategy, FileTailerStateProcessor stateProcessor,
+  public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
+                        FileTailerStateProcessor stateProcessor,
                         FileTailerMetricsProcessor metricsProcessor, PipeListener pipeListener) {
     this(queue, writer, strategy, stateProcessor, metricsProcessor, pipeListener, DEFAULT_PACK_SIZE);
   }
 
   public FileTailerSink(FileTailerQueue queue, StreamWriter writer, SinkStrategy strategy,
                         FileTailerStateProcessor stateProcessor,
-                        FileTailerMetricsProcessor metricsProcessor, PipeListener pipeListener, int packSize) {
+                        FileTailerMetricsProcessor metricsProcessor,
+                        PipeListener pipeListener, int packSize) {
     this.stateProcessor = stateProcessor;
     this.metricsProcessor = metricsProcessor;
     this.queue = queue;

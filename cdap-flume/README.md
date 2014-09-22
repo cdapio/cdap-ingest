@@ -1,7 +1,7 @@
 CDAP FLUME
 ==================
 
-The CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write events received from a source.
+The CDAP Sink is a Flume Sink implementation using REST Stream interface to write events received from a source.
 
 ## Usage
 
@@ -33,10 +33,33 @@ The CDAP Sink is a Flume Sink implementation using RESTStreamWriter to write eve
  ```
  a1.sinks.sink1.writerPoolSize = 10
  ```
- CDAP Gateway server version:
+ CDAP Router server version:
  ```
  a1.sinks.sink1.version = v2
+
  ```
+
+## Authentication Client
+
+ To use authentication, add these authentication client configuration parameters to the sink configuration file:
+ 
+ Fully qualified class name of the client class:
+ ````
+ a1.sinks.sink1.authClientClass = co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient
+ ````
+ Path to authentication client properties file:
+ ````
+ a1.sinks.sink1.authClientProperties = /usr/local/apache-flume/conf/auth_client.conf
+ ````
+
+## Authentication Client Example Configuration
+ 
+ ```
+
+     # User name
+     security.auth.client.username=admin
+     # User password
+     security.auth.client.password=secret
  
 ## Example
    

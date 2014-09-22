@@ -2,6 +2,8 @@ File DropZone
 ==================
 
 File DropZone allows users to easily perform the bulk ingestion of local files.
+Files can either be directly uploaded, or they can be copied to a *work_dir*, 
+where they will automatically be ingested by a daemon process.
 
 ## Features
 
@@ -13,7 +15,7 @@ File DropZone allows users to easily perform the bulk ingestion of local files.
 
 ## Usage
 
- To install File DropZone, execute one of these commands:
+ to install File DropZone, execute one of these commands:
  
  - on Debian/Ubuntu systems:
  
@@ -28,7 +30,7 @@ File DropZone allows users to easily perform the bulk ingestion of local files.
  ```
  
 
- Once installed, configure the daemon by editing the file:
+ once installed, configure the daemon by editing the file:
  
  ```
     /etc/file-drop-zone/conf/file-drop-zone.properties
@@ -44,13 +46,13 @@ File DropZone allows users to easily perform the bulk ingestion of local files.
   - pipes.pipe1.sink.host
   - pipes.pipe1.sink.port
 
- To start the daemon, execute the command:
+ to start the daemon, execute the command:
  
  ```
     sudo service file-drop-zone start
  ```
  
- To stop the daemon, execute the command:
+ to stop the daemon, execute the command:
  
  ```
     sudo service file-drop-zone stop
@@ -59,15 +61,15 @@ File DropZone allows users to easily perform the bulk ingestion of local files.
  File DropZone stores log files in the /var/log/file-drop-zone directory.
  PID, states and statistics are stored in the /var/run/file-drop-zone directory
  
-## File uploading
+## Uploading A File Directly
 
-  To upload the file, execute the command:
+  to upload a file that is outside of the *work_dir*, execute the command:
   
   ```
      file-drop-zone load <file-path> <observer>
   ```
   
-  If only one observer is configured, the *observer* parameter is not required:
+  if only one observer is configured, the *observer* parameter is not required:
   
   ```
      file-drop-zone load <file-path>
@@ -75,7 +77,7 @@ File DropZone allows users to easily perform the bulk ingestion of local files.
   
 ## Authentication Client
 
- Once File DropZone is installed, configure the Authentication Client by editing the properties file:
+ once File DropZone is installed, configure the Authentication Client by editing the properties file:
  
  ```
     /etc/file-drop-zone/conf/auth-client.properties
@@ -98,7 +100,7 @@ File DropZone allows users to easily perform the bulk ingestion of local files.
   
 ## Example Configuration
  
- Following configuration file will force file-drop-zone application to observe 2 directories using 2 Pipes.
+ This configuration file will set the File DropZone application to observe 2 directories using 2 pipes:
  
  ```
  

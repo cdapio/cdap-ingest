@@ -198,7 +198,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     }
 
     @Override
-    public boolean getReadRotatedFiles() {
+    public boolean getReadRotatedFilesMode() {
       return Boolean.valueOf(getProperty(this.key + "read_rotated_files", DEFAULT_READ_ROTATED_FILES));
     }
   }

@@ -61,7 +61,7 @@ public class RestStreamClient implements StreamClient {
                                             builder.ssl, builder.version);
     if (builder.disableCertCheck) {
       try {
-        connectionRegistry = AbstractAuthenticationClient.getRegistryWithDisabledCertCheck();
+        connectionRegistry = RestUtil.getRegistryWithDisabledCertCheck();
       } catch (KeyManagementException e) {
         LOG.error("Failed to init SSL context: {}", e);
       } catch (NoSuchAlgorithmException e) {
