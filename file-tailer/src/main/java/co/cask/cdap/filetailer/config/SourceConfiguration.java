@@ -80,9 +80,9 @@ public interface SourceConfiguration {
   long getFailureSleepInterval();
 
   /**
-   * Returns read rotated files mode [true|false]
+   * Returns the mode of the read rotated files.
    *
-   * @return read rotated files mode [true|false]
+   * @return {@code true} if the files have been rotated, {@code false} otherwise
    */
-  public boolean getReadRotatedFiles();
+  public boolean getReadRotatedFilesMode();
 }

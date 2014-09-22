@@ -15,7 +15,7 @@ where they will automatically be ingested by a daemon process.
 
 ## Usage
 
- To install File DropZone, execute one of these commands:
+ to install File DropZone, execute one of these commands:
  
  - on Debian/Ubuntu systems:
  
@@ -30,7 +30,7 @@ where they will automatically be ingested by a daemon process.
  ```
  
 
- Once installed, configure the daemon by editing the file:
+ once installed, configure the daemon by editing the file:
  
  ```
     /etc/file-drop-zone/conf/file-drop-zone.properties
@@ -46,13 +46,13 @@ where they will automatically be ingested by a daemon process.
   - pipes.pipe1.sink.host
   - pipes.pipe1.sink.port
 
- To start the daemon, execute the command:
+ to start the daemon, execute the command:
  
  ```
     sudo service file-drop-zone start
  ```
  
- To stop the daemon, execute the command:
+ to stop the daemon, execute the command:
  
  ```
     sudo service file-drop-zone stop
@@ -63,13 +63,13 @@ where they will automatically be ingested by a daemon process.
  
 ## Uploading A File Directly
 
-  To upload a file that is outside of the *work_dir*, execute the command:
+  to upload a file that is outside of the *work_dir*, execute the command:
   
   ```
      file-drop-zone load <file-path> <observer>
   ```
   
-  If only one observer is configured, the *observer* parameter is not required:
+  if only one observer is configured, the *observer* parameter is not required:
   
   ```
      file-drop-zone load <file-path>
@@ -77,7 +77,7 @@ where they will automatically be ingested by a daemon process.
   
 ## Authentication Client
 
- Once File DropZone is installed, configure the Authentication Client by editing the properties file:
+ once File DropZone is installed, configure the Authentication Client by editing the properties file:
  
  ```
     /etc/file-drop-zone/conf/auth-client.properties

@@ -127,7 +127,7 @@ public class DirPollingObserver {
    * List the contents of a directory.
    *
    * @param file The file to list the contents of
-   * @return the directory contents or a zero length array if the empty or the file is not a directory
+   * @return the directory contents or a zero-length array if the directory is empty or the file is not a directory
    */
   private File[] listFiles(File file) {
     File[] children = null;
