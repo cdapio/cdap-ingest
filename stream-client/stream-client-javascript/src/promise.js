@@ -44,7 +44,7 @@
             notify_value_stack = [];
 
         var fireResolve = function () {
-                if (null != resolve_value && success_handlers_stack.length) {
+                if (resolve_value && success_handlers_stack.length) {
                     while (success_handlers_stack.length) {
                         success_handlers_stack.shift()(resolve_value);
                     }
@@ -54,7 +54,7 @@
                 }
             },
             fireReject = function () {
-                if (null != reject_reason && error_handlers_stack.length) {
+                if (reject_reason && error_handlers_stack.length) {
                     while (error_handlers_stack.length) {
                         error_handlers_stack.shift()(reject_reason);
                     }
@@ -131,7 +131,8 @@
              * @param {any} value
              */
             resolveImpl = function (value) {
-                resolve_value = value;
+                resolve_value = !resolve_value ? value : resolve_value;
+
                 fireResolve();
             },
 
@@ -141,7 +142,7 @@
              * @param {any} reason
              */
             rejectImpl = function (reason) {
-                reject_reason = reason;
+                reject_reason = !reject_reason ? reason : reject_reason;
                 fireReject();
             },
 

@@ -42,26 +42,21 @@
      * @param {number} [port=10000]         - port number of a service at the server we are going to connect to.
      * @param {boolean} [ssl=false]         - should be connection secured or not (true / false)
      */
-    target['ServiceConnector'] = target['ServiceConnector'] || function (url, host, port, ssl) {
-        if (null == url || 'string' !== typeof url) {
-            throw TypeError('"url" parameter have to be of type "string"');
-        }
-
+    target['ServiceConnector'] = target['ServiceConnector'] || function (host, port, ssl) {
         var server = {
-                path: url,
-                hostname: host ? host : 'localhost',
-                port: port ? port : 10000,
-                ssl: ssl ? ssl : false
-            };
+            hostname: host ? host : 'localhost',
+            port: port ? port : 10000,
+            ssl: ssl ? ssl : false
+        };
 
-        var copyObject = function(src1, src2) {
+        var copyObject = function (src1, src2) {
                 var result = {};
 
-                var addToResult = function(src) {
+                var addToResult = function (src) {
                     var srcKeys = Object.keys(src),
                         prop = '';
 
-                    while(srcKeys.length) {
+                    while (srcKeys.length) {
                         prop = srcKeys.shift();
                         result[prop] = src[prop];
                     }
@@ -73,23 +68,23 @@
                 return result;
             },
 
-            baseUrl = function() {
+            baseUrl = function () {
                 return ['', (server.ssl ? 'https' : 'http'), '://',
                     server.hostname, ':', server.port].join('');
             },
 
-        /**
-         * @param {object} requestParams
-         * Possible fields for requestParams:
-         *
-         * @param {object} data         - data to send to a server
-         *
-         * @returns {CDAPTracker.Promise}
-         */
-            requestBrowser = function (requestParams) {
+            /**
+             * @param {object} requestParams
+             * Possible fields for requestParams:
+             *
+             * @param {object} data         - data to send to a server
+             *
+             * @returns {CDAPTracker.Promise}
+             */
+            requestBrowser = function (url, requestParams) {
                 var httpCon = new XMLHttpRequest(),
-                    promise = target['Promise'](),
-                    request_url = baseUrl() + server.path;
+                    promise = new target['Promise'](),
+                    request_url = baseUrl() + url;
 
                 httpCon.onreadystatechange = function (response) {
                     var readyStates = [
@@ -117,7 +112,8 @@
                 return promise;
             },
 
-            requestNode = function (requestParams) {
+            requestNode = function (url, requestParams) {
+                requestParams.path = url;
                 requestParams.method = 'POST';
 
                 var http = require('http'),
@@ -148,12 +144,12 @@
 
             request = ('undefined' != typeof window) ? requestBrowser : requestNode,
 
-            trackImpl = function (data) {
+            trackImpl = function (url, data) {
                 if (!(data instanceof Object)) {
                     throw TypeError('"data" parameter has to be of type "Object"');
                 }
 
-                return request({
+                return request(url, {
                     data: JSON.stringify(data)
                 });
             };
