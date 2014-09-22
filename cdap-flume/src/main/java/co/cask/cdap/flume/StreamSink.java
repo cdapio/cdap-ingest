@@ -215,7 +215,6 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
     }
 
     if (authClient != null) {
-      authClient.close();
       authClient = null;
     }
   }
