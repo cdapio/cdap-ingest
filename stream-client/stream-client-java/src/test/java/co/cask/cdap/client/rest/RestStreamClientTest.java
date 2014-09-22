@@ -18,6 +18,7 @@ package co.cask.cdap.client.rest;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.common.http.exception.HttpFailureException;
 import co.cask.cdap.security.authentication.client.AccessToken;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import org.apache.commons.lang.StringUtils;
@@ -27,13 +28,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.NotSupportedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -57,23 +51,23 @@ public class RestStreamClientTest extends RestTest {
     assertTrue(ttl == STREAM_TTL);
   }
 
-  @Test(expected = NotFoundException.class)
-  public void testNotFoundGetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotFoundGetTTL() throws IOException {
     streamClient.getTTL(TestUtils.NOT_FOUND_STREAM_NAME);
   }
 
-  @Test(expected = BadRequestException.class)
-  public void testBadRequestGetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testBadRequestGetTTL() throws IOException {
     streamClient.getTTL(TestUtils.BAD_REQUEST_STREAM_NAME);
   }
 
-  @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedGetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAuthorizedGetTTL() throws IOException {
     streamClient.getTTL(TestUtils.AUTH_STREAM_NAME);
   }
 
-  @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedEmptyTokenGetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAuthorizedEmptyTokenGetTTL() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
@@ -83,8 +77,8 @@ public class RestStreamClientTest extends RestTest {
     streamClient.getTTL(TestUtils.AUTH_STREAM_NAME);
   }
 
-  @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedUnknownTokenGetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAuthorizedUnknownTokenGetTTL() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
@@ -95,7 +89,7 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test
-  public void testSuccessAuthGetTTL() throws NotFoundException, IOException {
+  public void testSuccessAuthGetTTL() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
@@ -106,53 +100,53 @@ public class RestStreamClientTest extends RestTest {
     assertTrue(ttl == STREAM_TTL);
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void testForbiddenGetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testForbiddenGetTTL() throws IOException {
     streamClient.getTTL(TestUtils.FORBIDDEN_STREAM_NAME);
   }
 
-  @Test(expected = NotAllowedException.class)
-  public void testNotAcceptableGetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAcceptableGetTTL() throws IOException {
     streamClient.getTTL(TestUtils.NOT_ALLOWED_STREAM_NAME);
   }
 
-  @Test(expected = BadRequestException.class)
-  public void testConflictGetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testConflictGetTTL() throws IOException {
     streamClient.getTTL(TestUtils.CONFLICT_STREAM_NAME);
   }
 
-  @Test(expected = InternalServerErrorException.class)
-  public void testServerErrorGetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testServerErrorGetTTL() throws IOException {
     streamClient.getTTL(StringUtils.EMPTY);
   }
 
-  @Test(expected = NotSupportedException.class)
-  public void testNotSupportedGetTTL() throws IOException, NotFoundException {
+  @Test(expected = UnsupportedOperationException.class)
+  public void testNotSupportedGetTTL() throws IOException {
     streamClient.getTTL("Unknown");
   }
 
   @Test
-  public void testSuccessSetTTL() throws NotFoundException, IOException {
+  public void testSuccessSetTTL() throws IOException {
     streamClient.setTTL(TestUtils.SUCCESS_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = NotFoundException.class)
-  public void testNotFoundSetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotFoundSetTTL() throws IOException {
     streamClient.setTTL(TestUtils.NOT_FOUND_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = BadRequestException.class)
-  public void testBadRequestSetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testBadRequestSetTTL() throws IOException {
     streamClient.setTTL(TestUtils.BAD_REQUEST_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedSetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAuthorizedSetTTL() throws IOException {
     streamClient.setTTL(TestUtils.AUTH_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedEmptyTokenSetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAuthorizedEmptyTokenSetTTL() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
@@ -162,8 +156,8 @@ public class RestStreamClientTest extends RestTest {
     streamClient.setTTL(TestUtils.AUTH_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedUnknownTokenSetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAuthorizedUnknownTokenSetTTL() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
@@ -174,7 +168,7 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test
-  public void testSuccessAuthSetTTL() throws NotFoundException, IOException {
+  public void testSuccessAuthSetTTL() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
@@ -184,53 +178,53 @@ public class RestStreamClientTest extends RestTest {
     streamClient.setTTL(TestUtils.SUCCESS_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void testForbiddenSetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testForbiddenSetTTL() throws IOException {
     streamClient.setTTL(TestUtils.FORBIDDEN_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = NotAllowedException.class)
-  public void testNotAcceptableSetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAcceptableSetTTL() throws IOException {
     streamClient.setTTL(TestUtils.NOT_ALLOWED_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = BadRequestException.class)
-  public void testConflictSetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testConflictSetTTL() throws IOException {
     streamClient.setTTL(TestUtils.CONFLICT_STREAM_NAME, STREAM_TTL);
   }
 
-  @Test(expected = InternalServerErrorException.class)
-  public void testServerErrorSetTTL() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testServerErrorSetTTL() throws IOException {
     streamClient.setTTL(StringUtils.EMPTY, STREAM_TTL);
   }
 
-  @Test(expected = NotSupportedException.class)
-  public void testNotSupportedSetTTL() throws IOException, NotFoundException {
+  @Test(expected = UnsupportedOperationException.class)
+  public void testNotSupportedSetTTL() throws IOException {
     streamClient.setTTL("Unknown", STREAM_TTL);
   }
 
   @Test
-  public void testSuccessTruncate() throws NotFoundException, IOException {
+  public void testSuccessTruncate() throws IOException {
     streamClient.truncate(TestUtils.SUCCESS_STREAM_NAME);
   }
 
-  @Test(expected = NotFoundException.class)
-  public void testNotFoundTruncate() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotFoundTruncate() throws IOException {
     streamClient.truncate(TestUtils.NOT_FOUND_STREAM_NAME);
   }
 
-  @Test(expected = BadRequestException.class)
-  public void testBadRequestTruncate() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testBadRequestTruncate() throws IOException {
     streamClient.truncate(TestUtils.BAD_REQUEST_STREAM_NAME);
   }
 
-  @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedTruncate() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAuthorizedTruncate() throws IOException {
     streamClient.truncate(TestUtils.AUTH_STREAM_NAME);
   }
 
-  @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedEmptyTokenTruncate() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAuthorizedEmptyTokenTruncate() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
@@ -240,8 +234,8 @@ public class RestStreamClientTest extends RestTest {
     streamClient.truncate(TestUtils.AUTH_STREAM_NAME);
   }
 
-  @Test(expected = NotAuthorizedException.class)
-  public void testNotAuthorizedUnknownTokenTruncate() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAuthorizedUnknownTokenTruncate() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
@@ -252,7 +246,7 @@ public class RestStreamClientTest extends RestTest {
   }
 
   @Test
-  public void testSuccessAuthTruncate() throws NotFoundException, IOException {
+  public void testSuccessAuthTruncate() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
@@ -262,28 +256,28 @@ public class RestStreamClientTest extends RestTest {
     streamClient.truncate(TestUtils.SUCCESS_STREAM_NAME);
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void testForbiddenTruncate() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testForbiddenTruncate() throws IOException {
     streamClient.truncate(TestUtils.FORBIDDEN_STREAM_NAME);
   }
 
-  @Test(expected = NotAllowedException.class)
-  public void testNotAcceptableTruncate() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotAcceptableTruncate() throws IOException {
     streamClient.truncate(TestUtils.NOT_ALLOWED_STREAM_NAME);
   }
 
-  @Test(expected = BadRequestException.class)
-  public void testConflictTruncate() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testConflictTruncate() throws IOException {
     streamClient.truncate(TestUtils.CONFLICT_STREAM_NAME);
   }
 
-  @Test(expected = InternalServerErrorException.class)
-  public void testServerErrorTruncate() throws IOException, NotFoundException {
+  @Test(expected = HttpFailureException.class)
+  public void testServerErrorTruncate() throws IOException {
     streamClient.truncate(StringUtils.EMPTY);
   }
 
-  @Test(expected = NotSupportedException.class)
-  public void testNotSupportedTruncate() throws IOException, NotFoundException {
+  @Test(expected = UnsupportedOperationException.class)
+  public void testNotSupportedTruncate() throws IOException {
     streamClient.truncate("Unknown");
   }
 
@@ -292,17 +286,17 @@ public class RestStreamClientTest extends RestTest {
     streamClient.create(TestUtils.SUCCESS_STREAM_NAME);
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test(expected = HttpFailureException.class)
   public void testBadRequestCreate() throws IOException {
     streamClient.create(TestUtils.BAD_REQUEST_STREAM_NAME);
   }
 
-  @Test(expected = NotAuthorizedException.class)
+  @Test(expected = HttpFailureException.class)
   public void testNotAuthorizedCreate() throws IOException {
     streamClient.create(TestUtils.AUTH_STREAM_NAME);
   }
 
-  @Test(expected = NotAuthorizedException.class)
+  @Test(expected = HttpFailureException.class)
   public void testNotAuthorizedEmptyTokenCreate() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
@@ -313,7 +307,7 @@ public class RestStreamClientTest extends RestTest {
     streamClient.create(TestUtils.AUTH_STREAM_NAME);
   }
 
-  @Test(expected = NotAuthorizedException.class)
+  @Test(expected = HttpFailureException.class)
   public void testNotAuthorizedUnknownTokenCreate() throws IOException {
     AuthenticationClient authClient = Mockito.mock(AuthenticationClient.class);
     AccessToken accessToken = Mockito.mock(AccessToken.class);
@@ -335,33 +329,33 @@ public class RestStreamClientTest extends RestTest {
     streamClient.create(TestUtils.SUCCESS_STREAM_NAME);
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test(expected = HttpFailureException.class)
   public void testForbiddenCreate() throws IOException {
     streamClient.create(TestUtils.FORBIDDEN_STREAM_NAME);
   }
 
-  @Test(expected = NotAllowedException.class)
+  @Test(expected = HttpFailureException.class)
   public void testNotAcceptableCreate() throws IOException {
     streamClient.create(TestUtils.NOT_ALLOWED_STREAM_NAME);
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test(expected = HttpFailureException.class)
   public void testConflictCreate() throws IOException {
     streamClient.create(TestUtils.CONFLICT_STREAM_NAME);
   }
 
-  @Test(expected = InternalServerErrorException.class)
+  @Test(expected = HttpFailureException.class)
   public void testServerErrorCreate() throws IOException {
     streamClient.create(StringUtils.EMPTY);
   }
 
-  @Test(expected = NotSupportedException.class)
+  @Test(expected = UnsupportedOperationException.class)
   public void testNotSupportedCreate() throws IOException {
     streamClient.create("Unknown");
   }
 
   @Test
-  public void testCreateWriter() throws NotFoundException, IOException {
+  public void testCreateWriter() throws IOException {
     StreamWriter streamWriter = streamClient.createWriter(TestUtils.SUCCESS_STREAM_NAME);
     assertNotNull(streamWriter);
     assertEquals(RestStreamWriter.class, streamWriter.getClass());
@@ -369,8 +363,8 @@ public class RestStreamClientTest extends RestTest {
     assertEquals(TestUtils.SUCCESS_STREAM_NAME, restStreamWriter.getStreamName());
   }
 
-  @Test(expected = NotFoundException.class)
-  public void testNotExistStreamCreateWriter() throws NotFoundException, IOException {
+  @Test(expected = HttpFailureException.class)
+  public void testNotExistStreamCreateWriter() throws IOException {
     StreamWriter streamWriter = streamClient.createWriter(TestUtils.NOT_FOUND_STREAM_NAME);
     assertNotNull(streamWriter);
     assertEquals(RestStreamWriter.class, streamWriter.getClass());

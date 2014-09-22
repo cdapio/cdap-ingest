@@ -18,6 +18,7 @@ package co.cask.cdap.client.rest;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.common.http.exception.HttpFailureException;
 import co.cask.cdap.security.authentication.client.AccessToken;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.base.Charsets;
@@ -36,11 +37,6 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -70,7 +66,7 @@ public class RestStreamWriterTest extends RestTest {
     try {
       streamWriter.write("Unexpected body", Charsets.UTF_8).get();
     } catch (ExecutionException e) {
-      assertEquals(InternalServerErrorException.class, e.getCause().getClass());
+      assertEquals(HttpFailureException.class, e.getCause().getClass());
     }
   }
 
@@ -81,7 +77,7 @@ public class RestStreamWriterTest extends RestTest {
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
     } catch (ExecutionException e) {
-      assertEquals(BadRequestException.class, e.getCause().getClass());
+      assertEquals(HttpFailureException.class, e.getCause().getClass());
     }
   }
 
@@ -92,7 +88,7 @@ public class RestStreamWriterTest extends RestTest {
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
     } catch (ExecutionException e) {
-      assertEquals(javax.ws.rs.NotFoundException.class, e.getCause().getClass());
+      assertEquals(HttpFailureException.class, e.getCause().getClass());
     }
   }
 
@@ -103,7 +99,7 @@ public class RestStreamWriterTest extends RestTest {
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
     } catch (ExecutionException e) {
-      assertEquals(BadRequestException.class, e.getCause().getClass());
+      assertEquals(HttpFailureException.class, e.getCause().getClass());
     }
   }
 
@@ -113,7 +109,7 @@ public class RestStreamWriterTest extends RestTest {
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
     } catch (ExecutionException e) {
-      assertEquals(NotAuthorizedException.class, e.getCause().getClass());
+      assertEquals(HttpFailureException.class, e.getCause().getClass());
     }
   }
 
@@ -143,7 +139,7 @@ public class RestStreamWriterTest extends RestTest {
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
     } catch (ExecutionException e) {
-      assertEquals(NotAuthorizedException.class, e.getCause().getClass());
+      assertEquals(HttpFailureException.class, e.getCause().getClass());
     }
   }
 
@@ -159,7 +155,7 @@ public class RestStreamWriterTest extends RestTest {
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
     } catch (ExecutionException e) {
-      assertEquals(NotAuthorizedException.class, e.getCause().getClass());
+      assertEquals(HttpFailureException.class, e.getCause().getClass());
     }
   }
 
@@ -170,7 +166,7 @@ public class RestStreamWriterTest extends RestTest {
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
     } catch (ExecutionException e) {
-      assertEquals(ForbiddenException.class, e.getCause().getClass());
+      assertEquals(HttpFailureException.class, e.getCause().getClass());
     }
   }
 
@@ -181,7 +177,7 @@ public class RestStreamWriterTest extends RestTest {
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
     } catch (ExecutionException e) {
-      assertEquals(NotAllowedException.class, e.getCause().getClass());
+      assertEquals(HttpFailureException.class, e.getCause().getClass());
     }
   }
 

@@ -16,6 +16,7 @@
 
 package co.cask.cdap.client.rest;
 
+import co.cask.cdap.common.http.exception.HttpFailureException;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.gson.JsonObject;
@@ -38,14 +39,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.Charset;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.NotSupportedException;
-import javax.ws.rs.core.HttpHeaders;
 
 /**
  * Provides way to execute http requests with Apache HttpClient {@link org.apache.http.client.HttpClient}.
@@ -54,6 +47,7 @@ public class RestClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(RestClient.class);
 
+  private static final String HTTP_HEADER_AUTHORIZATION = "Authorization";
   private static final String HTTP_PROTOCOL = "http";
   private static final String HTTPS_PROTOCOL = "https";
   private static final String CONTINUUITY_API_KEY_HEADER_NAME = "X-Continuuity-ApiKey";
@@ -81,7 +75,7 @@ public class RestClient {
    */
   public CloseableHttpResponse execute(HttpRequestBase request) throws IOException {
     if (config.isAuthEnabled()) {
-      request.setHeader(HttpHeaders.AUTHORIZATION, config.getAuthTokenType() + " " + config.getAuthToken());
+      request.setHeader(HTTP_HEADER_AUTHORIZATION, config.getAuthTokenType() + " " + config.getAuthToken());
     }
     if (StringUtils.isNotEmpty(config.getAPIKey())) {
       request.setHeader(CONTINUUITY_API_KEY_HEADER_NAME, config.getAPIKey());
@@ -102,22 +96,22 @@ public class RestClient {
         LOG.debug("Success operation result code");
         break;
       case HttpStatus.SC_NOT_FOUND:
-        throw new NotFoundException("Not found HTTP code was received from gateway server.");
+        throw new HttpFailureException("Not found HTTP code was received from gateway server.", code);
       case HttpStatus.SC_CONFLICT:
-        throw new BadRequestException("Conflict HTTP code was received from gateway server.");
+        throw new HttpFailureException("Conflict HTTP code was received from gateway server.", code);
       case HttpStatus.SC_BAD_REQUEST:
-        throw new BadRequestException("Bad request HTTP code was received from gateway server.");
+        throw new HttpFailureException("Bad request HTTP code was received from gateway server.", code);
       case HttpStatus.SC_UNAUTHORIZED:
-        throw new NotAuthorizedException(response);
+        throw new HttpFailureException(response.toString(), code);
       case HttpStatus.SC_FORBIDDEN:
-        throw new ForbiddenException("Forbidden HTTP code was received from gateway server");
+        throw new HttpFailureException("Forbidden HTTP code was received from gateway server", code);
       case HttpStatus.SC_METHOD_NOT_ALLOWED:
-        throw new NotAllowedException(response.getStatusLine().getReasonPhrase());
+        throw new HttpFailureException(response.getStatusLine().getReasonPhrase(), code);
       case HttpStatus.SC_INTERNAL_SERVER_ERROR:
-        throw new InternalServerErrorException("Internal server exception during operation process.");
+        throw new HttpFailureException("Internal server exception during operation process.", code);
       case HttpStatus.SC_NOT_IMPLEMENTED:
       default:
-        throw new NotSupportedException("Operation is not supported by gateway server");
+        throw new UnsupportedOperationException("Operation is not supported by gateway server");
     }
   }
 
