@@ -16,7 +16,8 @@
 #  the License.
 
 import unittest
-from unittest import mock
+import mock
+
 import httpretty
 import requests
 
@@ -42,6 +43,8 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
     class TestStreamClient(unittest.TestCase):
 
+        # Should be the same as 'hostname' and 'port' fields in 'config.json'
+        # file to make tests work right.
         __dummy_host = 'dummy.host'
         __dummy_port = 65000
         __BASE_URL = 'http://{0}:{1}/v2'.format(__dummy_host, __dummy_port)
@@ -49,16 +52,18 @@ with mock.patch('__main__.Config.is_auth_enabled',
             'streamid': '<streamid>'
         }
         __REQUESTS = {'base_stream_path': __BASE_URL + '/streams'}
-        __REQUESTS['stream'] = '{0}/{1}'.format(__REQUESTS['base_stream_path'],
-                                            __REQUEST_PLACEHOLDERS['streamid'])
+        __REQUESTS['stream'] = '{0}/{1}'.format(
+            __REQUESTS['base_stream_path'],
+            __REQUEST_PLACEHOLDERS['streamid'])
         __REQUESTS['consumerid'] = '{0}/{1}'.format(__REQUESTS['stream'],
-                                                    'consumer-id')
+                                                      'consumer-id')
         __REQUESTS['dequeue'] = '{0}/{1}'.format(__REQUESTS['stream'],
-                                                 'dequeue')
-        __REQUESTS['config'] = '{0}/{1}'.format(__REQUESTS['stream'], 'config')
+                                                   'dequeue')
+        __REQUESTS['config'] = '{0}/{1}'.format(__REQUESTS['stream'],
+                                                  'config')
         __REQUESTS['info'] = '{0}/{1}'.format(__REQUESTS['stream'], 'info')
         __REQUESTS['truncate'] = '{0}/{1}'.format(__REQUESTS['stream'],
-                                                  'truncate')
+                                                    'truncate')
 
         validStream = 'validStream'
         invalidStream = 'invalidStream'
@@ -71,7 +76,8 @@ with mock.patch('__main__.Config.is_auth_enabled',
         exit_code = 404
 
         def setUp(self):
-            config = Config(self.__dummy_host, self.__dummy_port, False, False)
+            config = Config.read_from_file('config.json')
+
             self.sc = StreamClient(config)
 
         @httpretty.activate
@@ -93,7 +99,6 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
         @httpretty.activate
         def test_create_fail(self):
-
             url = self.__REQUESTS['stream'].replace(
                 self.__REQUEST_PLACEHOLDERS['streamid'],
                 self.validStream
@@ -166,7 +171,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
             try:
                 self.sc.get_ttl(self.validStream)
             except NotFoundError:
-                self.fail('StreamClient.get_ttl() failed')
+                self.fail('StreamClient.getTTL() failed')
 
         @httpretty.activate
         def test_get_ttl_invalid_stream(self):
@@ -256,10 +261,12 @@ with mock.patch('__main__.Config.is_auth_enabled',
             def on_response(response):
                 self.exit_code = response.status_code
 
+            def check_exit_code(response):
+                self.assertEqual(self.exit_code, 200)
+
             q = sw.send(self.validFile)
             q.on_response(on_response)
-
-            self.assertEqual(self.exit_code, 200)
+            q.on_response(check_exit_code)
 
         @httpretty.activate
         def test_stream_writer_successful_writing(self):
@@ -291,10 +298,12 @@ with mock.patch('__main__.Config.is_auth_enabled',
             def on_response(response):
                 self.exit_code = response.status_code
 
+            def check_exit_code(response):
+                self.assertEqual(self.exit_code, 200)
+
             q = sw.write(self.messageToWrite)
             q.on_response(on_response)
-
-            self.assertEqual(self.exit_code, 200)
+            q.on_response(check_exit_code)
 
     if '__main__' == __name__:
-        unittest.main(warnings='ignore')
+        unittest.main()

@@ -100,4 +100,5 @@ class ServiceConnector(object):
         if headers is not None:
             headersToSend.update(headers)
 
-        return requests.post(url, files=fields, headers=headersToSend)
+        return requests.post(url, files=fields, headers=headersToSend,
+                             verify=self.__connectionConfig.ssl_cert_check)

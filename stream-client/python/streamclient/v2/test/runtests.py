@@ -48,6 +48,8 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
     class TestStreamClient(unittest.TestCase):
 
+        # Should be the same as 'hostname' and 'port' fields in 'config.json'
+        # file to make tests work right.
         __dummy_host = u'dummy.host'
         __dummy_port = 65000
         __BASE_URL = u'http://{0}:{1}/v2'.format(__dummy_host, __dummy_port)
@@ -79,7 +81,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
         exit_code = 404
 
         def setUp(self):
-            config = Config(self.__dummy_host, self.__dummy_port, False, False)
+            config = Config.read_from_file(u'config.json')
 
             self.sc = StreamClient(config)
 
@@ -264,10 +266,12 @@ with mock.patch('__main__.Config.is_auth_enabled',
             def on_response(response):
                 self.exit_code = response.status_code
 
+            def check_exit_code(response):
+                self.assertEqual(self.exit_code, 200)
+
             q = sw.send(self.validFile)
             q.on_response(on_response)
-
-            self.assertEqual(self.exit_code, 200)
+            q.on_response(check_exit_code)
 
         @httpretty.activate
         def test_stream_writer_successful_writing(self):
@@ -299,10 +303,12 @@ with mock.patch('__main__.Config.is_auth_enabled',
             def on_response(response):
                 self.exit_code = response.status_code
 
+            def check_exit_code(response):
+                self.assertEqual(self.exit_code, 200)
+
             q = sw.write(self.messageToWrite)
             q.on_response(on_response)
-
-            self.assertEqual(self.exit_code, 200)
+            q.on_response(check_exit_code)
 
     if u'__main__' == __name__:
         unittest.main()

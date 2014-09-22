@@ -1,6 +1,6 @@
 {
-    "hostname": "dummy.host",
-    "port": 65000,
+    "hostname": "166.78.96.4",
+    "port": 10000,
     "SSL": false,
     "security_auth_client_username": "username",
     "security_auth_client_password": "password",

@@ -84,7 +84,8 @@ class ServiceConnector:
         if headers is not None:
             headersToSend.update(headers)
 
-        return requests.request(method, url, data=body, headers=headersToSend)
+        return requests.request(method, url, data=body, headers=headersToSend,
+                                verify=self.__connectionConfig.ssl_cert_check)
 
     def send(self, uri, fields=None, headers=None):
         headersToSend = self.__defaultHeaders
@@ -98,4 +99,5 @@ class ServiceConnector:
         if headers is not None:
             headersToSend.update(headers)
 
-        return requests.post(url, files=fields, headers=headersToSend)
+        return requests.post(url, files=fields, headers=headersToSend,
+                             verify=self.__connectionConfig.ssl_cert_check)

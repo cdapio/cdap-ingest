@@ -48,6 +48,8 @@ class StreamPromise(ConnectionErrorChecker):
         self.__onOkHandler = None
         self.__onErrorHandler = None
 
+        self.__serviceResponse = None
+
         self.__serviceConnector = serviceConnector
 
         self.__handlersLock = Lock()
@@ -189,10 +191,7 @@ class StreamPromise(ConnectionErrorChecker):
 
         self.__handlersLock.acquire()
         self.__onOkHandler = success_handler
-        if None == error_handler:
-            self.__onErrorHandler = success_handler
-        else:
-            self.__onErrorHandler = error_handler
+        self.__onErrorHandler = error_handler
 
         self.__handlersLock.release()
         self.__response_check_target()

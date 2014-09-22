@@ -60,6 +60,14 @@ class Config:
         self.__ssl = ssl
 
     @property
+    def ssl_cert_check(self):
+        return self.__ssl_disable_check
+
+    @ssl_cert_check.setter
+    def ssl_cert_check(self, state):
+        self.__ssl_disable_check = state
+
+    @property
     def auth_token(self):
         try:
             return self.__authClient.get_access_token()

@@ -15,11 +15,8 @@ from basicreactor import BasicReactor
 class TestStreamClient(unittest.TestCase, BasicReactor):
 
     def setUp(self):
-        self.host = u'198.61.160.4'
-        self.port = 10443
-        self.ssl = True
-        self.ssl_cert_check = False
-        self.set_up()
+        self.config_file = u'config_reactor_ssl.json'
+        self.base_set_up()
 
 if u'__main__' == __name__:
     unittest.main()

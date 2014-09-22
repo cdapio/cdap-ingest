@@ -32,39 +32,28 @@ class BasicReactor(object):
     exit_code = 404
 
     @property
-    def host(self):
-        return self.__host
+    def config_file(self):
+        return self.__config_file
 
-    @host.setter
-    def host(self, host):
-        self.__host = host
+    @config_file.setter
+    def config_file(self, filename):
+        self.__config_file = filename
 
-    @property
-    def port(self):
-        return self.__port
+    def base_set_up(self):
+        authConfig = AuthConfig().read_from_file(self.config_file)
+        self.config = Config.read_from_file(self.config_file)
 
-    @port.setter
-    def port(self, port):
-        self.__port = port
+        authClient = BasicAuthenticationClient()
+        authClient.set_connection_info(self.config.host,
+                                       self.config.port, self.config.ssl)
+        authClient.configure(authConfig)
 
-    @property
-    def ssl(self):
-        return self.__ssl
+        self.config.set_auth_client(authClient)
 
-    @ssl.setter
-    def ssl(self, ssl):
-        self.__ssl = ssl
+        self.sc = StreamClient(self.config)
 
-    @property
-    def ssl_cert_check(self):
-        return self.__ssl_cert_check
-
-    @ssl_cert_check.setter
-    def ssl_cert_check(self, state):
-        self.__ssl_cert_check = state
-
-    def set_up(self):
-        self.__BASE_URL = u'http://{0}:{1}/v2'.format(self.host, self.port)
+        self.__BASE_URL = u'http://{0}:{1}/v2'.format(
+            self.config.host, self.config.port)
         self.__REQUEST_PLACEHOLDERS = {
             u'streamid': u'<streamid>'
         }
@@ -83,17 +72,6 @@ class BasicReactor(object):
         self.__REQUESTS[u'truncate'] = u'{0}/{1}'.format(
             self.__REQUESTS[u'stream'], u'truncate')
 
-        authConfig = AuthConfig().read_from_file(u'config.json')
-
-        authClient = BasicAuthenticationClient()
-        authClient.set_connection_info(self.host, self.port, self.ssl)
-        authClient.configure(authConfig)
-
-        config = Config(self.host, self.port, self.ssl, self.ssl_cert_check)
-        config.set_auth_client(authClient)
-
-        self.sc = StreamClient(config)
-
     def test_reactor_successful_connection(self):
         try:
             self.sc.create(self.validStream)
@@ -106,7 +84,7 @@ class BasicReactor(object):
             self.validStream
         )
 
-        url = url.replace(u'{0}'.format(self.port), u'0')
+        url = url.replace(u'{0}'.format(self.config.port), u'0')
 
         self.assertRaises(
             Exception,
@@ -174,10 +152,12 @@ class BasicReactor(object):
         def on_response(response):
             self.exit_code = response.status_code
 
+        def check_exit_code(response):
+            self.assertEqual(self.exit_code, 200)
+
         q = sw.send(self.validFile)
         q.on_response(on_response)
-
-        self.assertEqual(self.exit_code, 200)
+        q.on_response(check_exit_code)
 
     def test_stream_writer_successful_writing(self):
         sw = self.sc.create_writer(self.validStream)
@@ -185,7 +165,9 @@ class BasicReactor(object):
         def on_response(response):
             self.exit_code = response.status_code
 
+        def check_exit_code(response):
+            self.assertEqual(self.exit_code, 200)
+
         q = sw.write(self.messageToWrite)
         q.on_response(on_response)
-
-        self.assertEqual(self.exit_code, 200)
+        q.on_response(check_exit_code)

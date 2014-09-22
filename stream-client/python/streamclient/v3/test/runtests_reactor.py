@@ -10,11 +10,8 @@ from basicreactor import BasicReactor
 class TestStreamClient(unittest.TestCase, BasicReactor):
 
     def setUp(self):
-        self.host = '166.78.96.4'
-        self.port = 10000
-        self.ssl = False
-        self.ssl_cert_check = False
-        self.set_up()
+        self.config_file = 'config_reactor.json'
+        self.base_set_up()
 
-if u'__main__' == __name__:
-    unittest.main(warnings='ignore')
+if '__main__' == __name__:
+    unittest.main(warnings=False)

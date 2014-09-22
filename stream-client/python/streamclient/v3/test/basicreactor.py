@@ -18,95 +18,73 @@ from caskauthclient.Config import Config as AuthConfig
 # Should be used as parent class for integration tests.
 # In children __host, __port, __ssl properties have to be set.
 
-
 class BasicReactor(object):
 
-    validStream = 'validStream'
-    invalidStream = 'invalidStream'
 
-    validFile = 'some.log'
-    invalidFile = 'invalid.file'
+    validStream = u'validStream'
+    invalidStream = u'invalidStream'
 
-    messageToWrite = 'some message'
+    validFile = u'some.log'
+    invalidFile = u'invalid.file'
+
+    messageToWrite = u'some message'
 
     exit_code = 404
 
     @property
-    def host(self):
-        return self.__host
+    def config_file(self):
+        return self.__config_file
 
-    @host.setter
-    def host(self, host):
-        self.__host = host
+    @config_file.setter
+    def config_file(self, filename):
+        self.__config_file = filename
 
-    @property
-    def port(self):
-        return self.__port
-
-    @port.setter
-    def port(self, port):
-        self.__port = port
-
-    @property
-    def ssl(self):
-        return self.__ssl
-
-    @ssl.setter
-    def ssl(self, ssl):
-        self.__ssl = ssl
-
-    @property
-    def ssl_cert_check(self):
-        return self.__ssl_cert_check
-
-    @ssl_cert_check.setter
-    def ssl_cert_check(self, state):
-        self.__ssl_cert_check = state
-
-    def set_up(self):
-        self.__BASE_URL = 'http://{0}:{1}/v2'.format(self.host, self.port)
-        self.__REQUEST_PLACEHOLDERS = {
-            'streamid': '<streamid>'
-        }
-        self.__REQUESTS = {'base_stream_path': self.__BASE_URL + '/streams'}
-        self.__REQUESTS['stream'] = '{0}/{1}'.format(
-            self.__REQUESTS['base_stream_path'],
-            self.__REQUEST_PLACEHOLDERS['streamid'])
-        self.__REQUESTS['consumerid'] = '{0}/{1}'.format(
-            self.__REQUESTS['stream'], 'consumer-id')
-        self.__REQUESTS['dequeue'] = '{0}/{1}'.format(
-            self.__REQUESTS['stream'], 'dequeue')
-        self.__REQUESTS['config'] = '{0}/{1}'.format(
-            self.__REQUESTS['stream'], 'config')
-        self.__REQUESTS['info'] = '{0}/{1}'.format(
-            self.__REQUESTS['stream'], 'info')
-        self.__REQUESTS['truncate'] = '{0}/{1}'.format(
-            self.__REQUESTS['stream'], 'truncate')
-
-        authConfig = AuthConfig().read_from_file('config.json')
+    def base_set_up(self):
+        authConfig = AuthConfig().read_from_file(self.config_file)
+        self.config = Config.read_from_file(self.config_file)
 
         authClient = BasicAuthenticationClient()
-        authClient.set_connection_info(self.host, self.port, self.ssl)
+        authClient.set_connection_info(self.config.host,
+                                       self.config.port, self.config.ssl)
         authClient.configure(authConfig)
 
-        config = Config(self.host, self.port, self.ssl, self.ssl_cert_check)
-        config.set_auth_client(authClient)
+        self.config.set_auth_client(authClient)
 
-        self.sc = StreamClient(config)
+        self.sc = StreamClient(self.config)
+
+        self.__BASE_URL = u'http://{0}:{1}/v2'.format(
+            self.config.host, self.config.port)
+        self.__REQUEST_PLACEHOLDERS = {
+            u'streamid': u'<streamid>'
+        }
+        self.__REQUESTS = {u'base_stream_path': self.__BASE_URL + u'/streams'}
+        self.__REQUESTS[u'stream'] = u'{0}/{1}'.format(
+            self.__REQUESTS[u'base_stream_path'],
+            self.__REQUEST_PLACEHOLDERS[u'streamid'])
+        self.__REQUESTS[u'consumerid'] = u'{0}/{1}'.format(
+            self.__REQUESTS[u'stream'], u'consumer-id')
+        self.__REQUESTS[u'dequeue'] = u'{0}/{1}'.format(
+            self.__REQUESTS[u'stream'], u'dequeue')
+        self.__REQUESTS[u'config'] = u'{0}/{1}'.format(
+            self.__REQUESTS[u'stream'], u'config')
+        self.__REQUESTS[u'info'] = u'{0}/{1}'.format(
+            self.__REQUESTS[u'stream'], u'info')
+        self.__REQUESTS[u'truncate'] = u'{0}/{1}'.format(
+            self.__REQUESTS[u'stream'], u'truncate')
 
     def test_reactor_successful_connection(self):
         try:
             self.sc.create(self.validStream)
         except:
-            self.fail('Reactor connection failed')
+            self.fail(u'Reactor connection failed')
 
     def test_reactor_failure_connection(self):
-        url = self.__REQUESTS['stream'].replace(
-            self.__REQUEST_PLACEHOLDERS['streamid'],
+        url = self.__REQUESTS[u'stream'].replace(
+            self.__REQUEST_PLACEHOLDERS[u'streamid'],
             self.validStream
         )
 
-        url = url.replace('{0}'.format(self.port), '0')
+        url = url.replace(u'{0}'.format(self.config.port), u'0')
 
         self.assertRaises(
             Exception,
@@ -115,8 +93,8 @@ class BasicReactor(object):
             )
 
     def test_create(self):
-        url = self.__REQUESTS['stream'].replace(
-            self.__REQUEST_PLACEHOLDERS['streamid'],
+        url = self.__REQUESTS[u'stream'].replace(
+            self.__REQUEST_PLACEHOLDERS[u'streamid'],
             self.validStream
         )
 
@@ -130,7 +108,7 @@ class BasicReactor(object):
         try:
             self.sc.set_ttl(self.validStream, ttl)
         except NotFoundError:
-            self.fail('StreamClient.set_ttl() failed')
+            self.fail(u'StreamClient.set_ttl() failed')
 
     def test_set_ttl_invalid_stream(self):
         ttl = 88888
@@ -146,7 +124,7 @@ class BasicReactor(object):
         try:
             self.sc.get_ttl(self.validStream)
         except NotFoundError:
-            self.fail('StreamClient.get_ttl() failed')
+            self.fail(u'StreamClient.getTTL() failed')
 
     def test_get_ttl_invalid_stream(self):
         self.assertRaises(
@@ -174,10 +152,12 @@ class BasicReactor(object):
         def on_response(response):
             self.exit_code = response.status_code
 
+        def check_exit_code(response):
+                self.assertEqual(self.exit_code, 200)
+
         q = sw.send(self.validFile)
         q.on_response(on_response)
-
-        self.assertEqual(self.exit_code, 200)
+        q.on_response(check_exit_code)
 
     def test_stream_writer_successful_writing(self):
         sw = self.sc.create_writer(self.validStream)
@@ -185,7 +165,9 @@ class BasicReactor(object):
         def on_response(response):
             self.exit_code = response.status_code
 
+        def check_exit_code(response):
+                self.assertEqual(self.exit_code, 200)
+
         q = sw.write(self.messageToWrite)
         q.on_response(on_response)
-
-        self.assertEqual(self.exit_code, 200)
+        q.on_response(check_exit_code)
