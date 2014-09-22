@@ -55,11 +55,11 @@ The CDAP Sink is a Flume Sink implementation using REST Stream interface to writ
 ## Authentication Client Example Configuration
  
  ```
-
-     # User name
-     security.auth.client.username=admin
-     # User password
-     security.auth.client.password=secret
+ # User name
+ security.auth.client.username=admin
+ # User password
+ security.auth.client.password=secret
+ ```
  
 ## Example
    
