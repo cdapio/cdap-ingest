@@ -107,6 +107,8 @@ public class RestClient {
         throw new HttpFailureException("Forbidden HTTP code was received from gateway server", code);
       case HttpStatus.SC_METHOD_NOT_ALLOWED:
         throw new HttpFailureException(response.getStatusLine().getReasonPhrase(), code);
+      case HttpStatus.SC_NOT_ACCEPTABLE:
+        throw new HttpFailureException("Input was not acceptable", code);
       case HttpStatus.SC_INTERNAL_SERVER_ERROR:
         throw new HttpFailureException("Internal server exception during operation process.", code);
       case HttpStatus.SC_NOT_IMPLEMENTED:
