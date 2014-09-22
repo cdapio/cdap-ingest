@@ -26,8 +26,11 @@ import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicStatusLine;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.internal.verification.api.VerificationData;
+import org.mockito.verification.VerificationMode;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -64,97 +67,88 @@ public class RestClientTest {
     verify(response).getStatusLine();
   }
 
-  @Test(expected = HttpFailureException.class)
+  @Test
   public void testBadRequestResponseCodeAnalysis() {
-
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_BAD_REQUEST,
                                                 "Bad Request");
     when(response.getStatusLine()).thenReturn(statusLine);
-
-    RestClient.responseCodeAnalysis(response);
-
+    TestUtils.verifyResponse(HttpStatus.SC_BAD_REQUEST, response);
     verify(response).getStatusLine();
   }
 
-  @Test(expected = HttpFailureException.class)
+  @Test
   public void testNotFoundResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_NOT_FOUND,
                                                 "Not Found");
     when(response.getStatusLine()).thenReturn(statusLine);
-
-    RestClient.responseCodeAnalysis(response);
-
+    TestUtils.verifyResponse(HttpStatus.SC_NOT_FOUND, response);
     verify(response).getStatusLine();
   }
 
-  @Test(expected = HttpFailureException.class)
+  @Test
   public void testUnauthorizedResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_UNAUTHORIZED,
                                                 "Unauthorized");
     when(response.getStatusLine()).thenReturn(statusLine);
-
-    RestClient.responseCodeAnalysis(response);
-
+    TestUtils.verifyResponse(HttpStatus.SC_UNAUTHORIZED, response);
     verify(response).getStatusLine();
   }
 
-  @Test(expected = HttpFailureException.class)
+  @Test
   public void testForbiddenResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_FORBIDDEN,
                                                 "Forbidden");
     when(response.getStatusLine()).thenReturn(statusLine);
-
-    RestClient.responseCodeAnalysis(response);
-
+    TestUtils.verifyResponse(HttpStatus.SC_FORBIDDEN, response);
     verify(response).getStatusLine();
   }
 
-  @Test(expected = HttpFailureException.class)
+  @Test
   public void testNotAllowedResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_METHOD_NOT_ALLOWED,
                                                 "Method Not Allowed");
     when(response.getStatusLine()).thenReturn(statusLine);
-
-    RestClient.responseCodeAnalysis(response);
-
-    verify(response).getStatusLine();
+    TestUtils.verifyResponse(HttpStatus.SC_METHOD_NOT_ALLOWED, response);
+    verify(response, new VerificationMode() {
+      @Override
+      public void verify(VerificationData verificationData) {
+        Assert.assertEquals(2, verificationData.getAllInvocations().size());
+      }
+    }).getStatusLine();
   }
 
-  @Test(expected = HttpFailureException.class)
+  @Test
   public void testConflictResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_CONFLICT, "Conflict");
     when(response.getStatusLine()).thenReturn(statusLine);
-
-    RestClient.responseCodeAnalysis(response);
-
+    TestUtils.verifyResponse(HttpStatus.SC_CONFLICT, response);
     verify(response).getStatusLine();
   }
 
-  @Test(expected = HttpFailureException.class)
+  @Test
   public void testInternalServerErrorResponseCodeAnalysis() {
 
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_INTERNAL_SERVER_ERROR,
                                                 "Internal Server Error");
     when(response.getStatusLine()).thenReturn(statusLine);
-
-    RestClient.responseCodeAnalysis(response);
-
+    TestUtils.verifyResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, response);
     verify(response).getStatusLine();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void testNotImplementedResponseCodeAnalysis() {
     StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), HttpStatus.SC_NOT_IMPLEMENTED,
                                                 "Not Implemented");
     when(response.getStatusLine()).thenReturn(statusLine);
-
-    RestClient.responseCodeAnalysis(response);
-
+    try {
+      RestClient.responseCodeAnalysis(response);
+      Assert.fail("Expected UnsupportedOperationException");
+    } catch (UnsupportedOperationException e) { }
     verify(response).getStatusLine();
   }
 

@@ -16,11 +16,15 @@
 
 package co.cask.cdap.client.rest;
 
+import co.cask.cdap.common.http.exception.HttpFailureException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.junit.Assert;
 
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.ws.rs.core.HttpHeaders;
@@ -88,6 +92,24 @@ public final class TestUtils {
       statusCode = HttpStatus.SC_OK;
     }
     return statusCode;
+  }
+
+  public static void verifyException(Class<? extends RuntimeException> expectedException, Callable<Void> callable) {
+    try {
+      callable.call();
+      Assert.fail("Expected exception type: " + expectedException.getName());
+    } catch (Exception e) {
+      Assert.assertEquals(expectedException, e.getClass());
+    }
+  }
+
+  public static void verifyResponse(int expectedCode, HttpResponse response) {
+    try {
+      RestClient.responseCodeAnalysis(response);
+      Assert.fail("Expected HTTP code " + expectedCode + " but got " + response.getStatusLine().getStatusCode());
+    } catch (HttpFailureException e) {
+      Assert.assertEquals(expectedCode, e.getStatusCode());
+    }
   }
 
 }
