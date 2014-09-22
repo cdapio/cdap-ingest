@@ -62,11 +62,11 @@ if [ -f /usr/lib/file-drop-zone/bin/file-drop-zone.init.d ]; then
 fi
 
 if [ -x "/etc/init.d/file-drop-zone" ]; then
-	if [ ! -e "/etc/init/file-drop-zone.conf" ]; then
-		if ! chkconfig_loc="$(type -p "chkconfig")" || [ -z "$chkconfig_loc" ]; then
+  if [ ! -e "/etc/init/file-drop-zone.conf" ]; then
+    if ! chkconfig_loc="$(type -p "chkconfig")" || [ -z "$chkconfig_loc" ]; then
       update-rc.d -f file-drop-zone defaults >/dev/null
-		else
+    else
       chkconfig --add file-drop-zone >/dev/null
-		fi
-	fi
+    fi
+  fi
 fi

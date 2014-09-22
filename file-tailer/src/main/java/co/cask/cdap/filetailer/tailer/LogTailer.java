@@ -102,7 +102,7 @@ public class LogTailer extends AbstractWorker {
     this.failureRetryLimit = loader.getSourceConfiguration().getFailureRetryLimit();
     this.failureSleepInterval = loader.getSourceConfiguration().getFailureSleepInterval();
     this.rotationPattern = loader.getSourceConfiguration().getRotationPattern();
-    this.readRotatedFiles = loader.getSourceConfiguration().getReadRotatedFiles();
+    this.readRotatedFiles = loader.getSourceConfiguration().getReadRotatedFilesMode();
   }
 
   /**
