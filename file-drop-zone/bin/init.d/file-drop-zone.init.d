@@ -108,7 +108,7 @@ stop() {
 
   FDZ_PID=`cat $FDZ_PID_FILE`
   if [ -n $FDZ_PID ]; then
-    ${EXEC_PATH} stop
+    kill ${FDZ_PID} > /dev/null 2>&1
     for i in `seq 1 ${FDZ_SHUTDOWN_TIMEOUT}` ; do
       kill -0 ${FDZ_PID} &>/dev/null || break
       sleep 1
