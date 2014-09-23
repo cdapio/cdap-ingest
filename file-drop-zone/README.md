@@ -124,5 +124,7 @@ where they will automatically be ingested by a daemon process.
      pipes.pipe1.sink.host=localhost
      # Host port that is used by stream client
      pipes.pipe1.sink.port=10000
+     # Whether or not SSL is enabled
+     pipes.pipe1.sink.sslEnabled=false
 
  ```
