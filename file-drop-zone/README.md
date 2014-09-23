@@ -124,5 +124,11 @@ where they will automatically be ingested by a daemon process.
      pipes.pipe1.sink.host=localhost
      # Host port that is used by stream client
      pipes.pipe1.sink.port=10000
+     # Whether or not the sink endpoint uses SSL
+     pipes.pipe1.sink.ssl=true
+     # Whether or not the certificate should be checked if using SSL
+     pipes.pipe1.sink.disableCertCheck=true
+     # path to authentication client properties to use if SSL is being used
+     pipes.pipe1.sink.auth_client_properties=/etc/file-drop-zone/conf/auth-client.properties
 
  ```
