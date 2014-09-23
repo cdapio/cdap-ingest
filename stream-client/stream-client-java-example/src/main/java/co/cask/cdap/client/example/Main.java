@@ -40,12 +40,14 @@ public class Main {
       // defaults: protocol : 'http', writerPoolSize: '10', version : 'v2'.
       StreamClient streamClient = RestStreamClient.builder("localhost", 10000).build();
 
-      // Create StreamWriter Instance
-      StreamWriter streamWriter = streamClient.createWriter(STREAM_NAME);
+      StreamWriter streamWriter = null;
 
       try {
         // Create Stream by id <STREAM_NAME>
         streamClient.create(STREAM_NAME);
+
+        // Create StreamWriter Instance
+        streamWriter = streamClient.createWriter(STREAM_NAME);
 
         // Get current Stream TTL value by id <STREAM_NAME>
         long currentTTL = streamClient.getTTL(STREAM_NAME);
@@ -81,7 +83,9 @@ public class Main {
         });
       } finally {
         // Releasing all resources
-        streamWriter.close();
+        if (streamWriter != null) {
+          streamWriter.close();
+        }
         streamClient.close();
       }
     } catch (Exception e) {
