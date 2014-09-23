@@ -30,34 +30,35 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+  private static final String STREAM_NAME = "exampleStream";
 
   public static void main(String[] args) {
-    final String streamName = "streamName";
-
     try {
       // Create StreamClient instance with mandatory fields 'host' and 'port'.
       // Optional configurations will be set as:
       // defaults: protocol : 'http', writerPoolSize: '10', version : 'v2'.
       StreamClient streamClient = RestStreamClient.builder("localhost", 10000).build();
 
-      // Create StreamWriter Instance
-      StreamWriter streamWriter = streamClient.createWriter(streamName);
+      StreamWriter streamWriter = null;
 
       try {
-        // Create Stream by id <streamName>
-        streamClient.create(streamName);
+        // Create Stream by id <STREAM_NAME>
+        streamClient.create(STREAM_NAME);
 
-        // Get current Stream TTL value by id <streamName>
-        long currentTTL = streamClient.getTTL(streamName);
-        LOG.info("Get TTL for {} stream: {}", currentTTL, streamName);
+        // Create StreamWriter Instance
+        streamWriter = streamClient.createWriter(STREAM_NAME);
+
+        // Get current Stream TTL value by id <STREAM_NAME>
+        long currentTTL = streamClient.getTTL(STREAM_NAME);
+        LOG.info("Get TTL for {} stream: {}", currentTTL, STREAM_NAME);
         long newTTL = 18000;
 
-        // Update TTL value for Stream by id <streamName>
-        streamClient.setTTL(streamName, newTTL);
-        LOG.info("Set new TTL for {} stream: {}", newTTL, streamName);
+        // Update TTL value for Stream by id <STREAM_NAME>
+        streamClient.setTTL(STREAM_NAME, newTTL);
+        LOG.info("Set new TTL for {} stream: {}", newTTL, STREAM_NAME);
 
-        // Get current Stream TTL value by id <streamName> after updating for compare
-        currentTTL = streamClient.getTTL(streamName);
+        // Get current Stream TTL value by id <STREAM_NAME> after updating for compare
+        currentTTL = streamClient.getTTL(STREAM_NAME);
         LOG.info("Was TTL updated successfully? {}", currentTTL == newTTL ? "YES" : "NO");
 
 
@@ -71,7 +72,7 @@ public class Main {
         Futures.addCallback(future, new FutureCallback<Void>() {
           @Override
           public void onSuccess(Void contents) {
-            LOG.info("Success write stream {}", streamName);
+            LOG.info("Success write stream {}", STREAM_NAME);
           }
 
           @Override
@@ -81,7 +82,9 @@ public class Main {
         });
       } finally {
         // Releasing all resources
-        streamWriter.close();
+        if (streamWriter != null) {
+          streamWriter.close();
+        }
         streamClient.close();
       }
     } catch (Exception e) {
