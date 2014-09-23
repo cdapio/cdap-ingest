@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright 2014 Cask Data, Inc.
+# Copyright © 2014 Cask Data, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -108,7 +108,7 @@ stop() {
 
   FDZ_PID=`cat $FDZ_PID_FILE`
   if [ -n $FDZ_PID ]; then
-    ${EXEC_PATH} stop
+    kill ${FDZ_PID} > /dev/null 2>&1
     for i in `seq 1 ${FDZ_SHUTDOWN_TIMEOUT}` ; do
       kill -0 ${FDZ_PID} &>/dev/null || break
       sleep 1
