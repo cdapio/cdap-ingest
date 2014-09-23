@@ -32,7 +32,7 @@ public class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   public static void main(String[] args) {
-    final String streamName = "streamName";
+    final String STREAM_NAME = "exampleStream";
 
     try {
       // Create StreamClient instance with mandatory fields 'host' and 'port'.
@@ -41,23 +41,23 @@ public class Main {
       StreamClient streamClient = RestStreamClient.builder("localhost", 10000).build();
 
       // Create StreamWriter Instance
-      StreamWriter streamWriter = streamClient.createWriter(streamName);
+      StreamWriter streamWriter = streamClient.createWriter(STREAM_NAME);
 
       try {
-        // Create Stream by id <streamName>
-        streamClient.create(streamName);
+        // Create Stream by id <STREAM_NAME>
+        streamClient.create(STREAM_NAME);
 
-        // Get current Stream TTL value by id <streamName>
-        long currentTTL = streamClient.getTTL(streamName);
-        LOG.info("Get TTL for {} stream: {}", currentTTL, streamName);
+        // Get current Stream TTL value by id <STREAM_NAME>
+        long currentTTL = streamClient.getTTL(STREAM_NAME);
+        LOG.info("Get TTL for {} stream: {}", currentTTL, STREAM_NAME);
         long newTTL = 18000;
 
-        // Update TTL value for Stream by id <streamName>
-        streamClient.setTTL(streamName, newTTL);
-        LOG.info("Set new TTL for {} stream: {}", newTTL, streamName);
+        // Update TTL value for Stream by id <STREAM_NAME>
+        streamClient.setTTL(STREAM_NAME, newTTL);
+        LOG.info("Set new TTL for {} stream: {}", newTTL, STREAM_NAME);
 
-        // Get current Stream TTL value by id <streamName> after updating for compare
-        currentTTL = streamClient.getTTL(streamName);
+        // Get current Stream TTL value by id <STREAM_NAME> after updating for compare
+        currentTTL = streamClient.getTTL(STREAM_NAME);
         LOG.info("Was TTL updated successfully? {}", currentTTL == newTTL ? "YES" : "NO");
 
 
@@ -71,7 +71,7 @@ public class Main {
         Futures.addCallback(future, new FutureCallback<Void>() {
           @Override
           public void onSuccess(Void contents) {
-            LOG.info("Success write stream {}", streamName);
+            LOG.info("Success write stream {}", STREAM_NAME);
           }
 
           @Override
