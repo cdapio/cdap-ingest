@@ -1,3 +1,4 @@
+#! /usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 #  Copyright © 2014 Cask Data, Inc.
@@ -13,3 +14,23 @@
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations under
 #  the License.
+
+# Python 2.6 does not have 'unittest' module;
+# try importing 'unittest2' instead.
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest as unittest
+import requests
+
+from basicreactor import BasicReactor
+
+
+class TestStreamClient(unittest.TestCase, StreamTestBase):
+
+    def setUp(self):
+        self.config_file = u'cdap_ssl_config.json'
+        self.base_set_up()
+
+if u'__main__' == __name__:
+    unittest.main()

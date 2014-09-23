@@ -245,11 +245,13 @@
                   <exclude>build-number.txt</exclude>
                   <exclude>LICENSE*.txt</exclude>
                   <exclude>*.rst</exclude>
-                  <exclude>*.md</exclude>
+                  <exclude>**/*.md</exclude>
                   <exclude>logs/**</exclude>
                   <exclude>docs/**</exclude>
                   <exclude>conf/**</exclude>
                   <exclude>data/**</exclude>
+                  <exclude>**/*.json</exclude>
+                  <exclude>**/*.log</exclude>
                   <exclude>**/Apache-LICENSE-2.0</exclude>
                   <exclude>**/VERSION</exclude>
                   <exlcude>**/*.patch</exlcude>
