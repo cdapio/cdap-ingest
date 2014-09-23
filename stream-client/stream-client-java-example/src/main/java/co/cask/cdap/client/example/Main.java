@@ -30,10 +30,9 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+  private static final String STREAM_NAME = "exampleStream";
 
   public static void main(String[] args) {
-    final String STREAM_NAME = "exampleStream";
-
     try {
       // Create StreamClient instance with mandatory fields 'host' and 'port'.
       // Optional configurations will be set as:
