@@ -49,7 +49,7 @@ class ConnectionErrorChecker:
 
 class ServiceConnector:
 
-    __DEFAULT_CONFIG = u'config.json'
+    __DEFAULT_CONFIG = u'default-config.json'
     __base_url = '{0}://{1}:{2}'
     __defaultHeaders = {
         'Authorization': '{0} {1}'

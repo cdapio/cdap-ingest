@@ -49,7 +49,7 @@ class ConnectionErrorChecker(object):
 
 class ServiceConnector(object):
 
-    __DEFAULT_CONFIG = u'config.json'
+    __DEFAULT_CONFIG = u'default-config.json'
     __defaultHeaders = {
         u'Authorization': u'{0} {1}'
     }

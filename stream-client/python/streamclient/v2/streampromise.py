@@ -19,7 +19,8 @@ from os import path
 import mimetypes
 from threading import Thread, Lock
 from types import FunctionType
-from serviceconnector import ServiceConnector, ConnectionErrorChecker
+from serviceconnector import ServiceConnector, ConnectionErrorChecker,\
+    NotFoundError
 from io import open
 
 
@@ -155,14 +156,15 @@ class StreamPromise(ConnectionErrorChecker):
         self.__workerThread.join()
 
         self.__handlersLock.acquire()
-        if self.__serviceResponse and self.__onOkHandler \
-           and self.__onErrorHandler:
+        if self.__serviceResponse:
             try:
-                self.__onOkHandler(
-                    self.check_response_errors(self.__serviceResponse)
-                )
+                self.check_response_errors(self.__serviceResponse)
+
+                if self.__onOkHandler:
+                    self.__onOkHandler(self.__serviceResponse)
             except NotFoundError:
-                self.__onErrorHandler(self.__serviceResponse)
+                if self.__onErrorHandler:
+                    self.__onErrorHandler(self.__serviceResponse)
             finally:
                 self.__onOkHandler = self.__onErrorHandler = None
         self.__handlersLock.release()

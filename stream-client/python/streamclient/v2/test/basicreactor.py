@@ -158,7 +158,7 @@ class BasicReactor(object):
 
         q = sw.send(self.validFile)
         q.on_response(on_response)
-        q.on_response(check_exit_code)
+        q.on_response(check_exit_code, check_exit_code)
 
     def test_stream_writer_successful_writing(self):
         sw = self.sc.create_writer(self.validStream)
@@ -171,4 +171,4 @@ class BasicReactor(object):
 
         q = sw.write(self.messageToWrite)
         q.on_response(on_response)
-        q.on_response(check_exit_code)
+        q.on_response(check_exit_code, check_exit_code)
