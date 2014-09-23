@@ -205,25 +205,6 @@ public class RestStreamWriterTest extends RestTest {
     streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8, headers).get();
   }
 
-  @Test
-  public void testFileSend() throws IOException, InterruptedException, ExecutionException {
-    streamWriter = streamClient.createWriter(TestUtils.FILE_STREAM_NAME +
-                                               TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
-
-    File file = File.createTempFile("tmp", ".txt");
-    BufferedWriter writer = null;
-    try {
-      writer = new BufferedWriter(new FileWriter(file));
-      writer.write(RestTest.EXPECTED_WRITER_CONTENT);
-    } finally {
-      if (writer != null) {
-        writer.close();
-      }
-    }
-    streamWriter.send(file, MediaType.PLAIN_TEXT_UTF_8).get();
-    file.delete();
-  }
-
   @After
   public void shutDown() throws Exception {
     if (streamWriter != null) {

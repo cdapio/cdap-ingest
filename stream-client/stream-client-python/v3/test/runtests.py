@@ -220,41 +220,6 @@ class TestStreamClient(unittest.TestCase):
             self.invalidStream)
 
     @httpretty.activate
-    def test_stream_writer_successful_sending(self):
-        url = self.__REQUESTS['stream'].replace(
-            self.__REQUEST_PLACEHOLDERS['streamid'],
-            self.validStream
-        )
-
-        urlInfo = self.__REQUESTS['info'].replace(
-            self.__REQUEST_PLACEHOLDERS['streamid'],
-            self.validStream
-        )
-
-        httpretty.register_uri(
-            httpretty.GET,
-            urlInfo,
-            status=200,
-            body='{"ttl": 88888}'
-        )
-
-        httpretty.register_uri(
-            httpretty.POST,
-            url,
-            status=200
-        )
-
-        sw = self.sc.create_writer(self.validStream)
-
-        def on_response(response):
-            self.exit_code = response.status_code
-
-        q = sw.send(self.validFile)
-        q.on_response(on_response)
-
-        self.assertEqual(self.exit_code, 200)
-
-    @httpretty.activate
     def test_stream_writer_successful_writing(self):
         url = self.__REQUESTS['stream'].replace(
             self.__REQUEST_PLACEHOLDERS['streamid'],
