@@ -36,15 +36,6 @@ describe CDAPIngest::StreamWriter do
     }
   }
 
-  it { expect(stream_writer).to respond_to(:send) }
-
-  it {
-    VCR.use_cassette('stream_writer_send') {
-      result = stream_writer.send file
-      expect(result).to be_a Promise
-    }
-  }
-
   it { expect(stream_writer).to respond_to(:close) }
 
   it {

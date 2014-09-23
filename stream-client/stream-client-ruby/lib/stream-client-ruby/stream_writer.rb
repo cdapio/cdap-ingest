@@ -50,25 +50,6 @@ module CDAPIngest
       }
     end
 
-    ###
-      # Sends the content of a {@link File} as multiple stream events.
-      #
-      # @param file The file to send
-      # @param type Contains information about the file type.
-      # @return A future that will be completed when the ingestion is completed. The future will fail if the ingestion
-      #         failed. Cancelling the returning future has no effect.
-      #
-      # NOTE: There will be a new HTTP API in 2.5 to support extracting events from the file based on the content type.
-      #       Until that is available, breaking down the file content into multiple events need to happen in the client
-      #       side.
-    def send(file, type = 'text/plain')
-      # rest.send_file file, type
-      promise_request {
-        file = File.open(file, 'rb') { |io| io.read }
-        rest.request 'post', stream, body: file, headers: { 'Content-type' => type }
-      }
-    end
-
     def close
       pool.shutdown
     end
