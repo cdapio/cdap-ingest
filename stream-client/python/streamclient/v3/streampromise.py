@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #  Copyright © 2014 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -45,6 +47,8 @@ class StreamPromise(ConnectionErrorChecker):
 
         self.__onOkHandler = None
         self.__onErrorHandler = None
+
+        self.__serviceResponse = None
 
         self.__serviceConnector = serviceConnector
 
@@ -131,14 +135,15 @@ class StreamPromise(ConnectionErrorChecker):
         self.__workerThread.join()
 
         self.__handlersLock.acquire()
-        if self.__serviceResponse and self.__onOkHandler \
-           and self.__onErrorHandler:
+        if self.__serviceResponse:
             try:
-                self.__onOkHandler(
-                    self.check_response_errors(self.__serviceResponse)
-                )
+                self.check_response_errors(self.__serviceResponse)
+
+                if self.__onOkHandler:
+                    self.__onOkHandler(self.__serviceResponse)
             except NotFoundError:
-                self.__onErrorHandler(self.__serviceResponse)
+                if self.__onErrorHandler:
+                    self.__onErrorHandler(self.__serviceResponse)
             finally:
                 self.__onOkHandler = self.__onErrorHandler = None
         self.__handlersLock.release()
@@ -167,10 +172,7 @@ class StreamPromise(ConnectionErrorChecker):
 
         self.__handlersLock.acquire()
         self.__onOkHandler = success_handler
-        if None == error_handler:
-            self.__onErrorHandler = success_handler
-        else:
-            self.__onErrorHandler = error_handler
+        self.__onErrorHandler = error_handler
 
         self.__handlersLock.release()
         self.__response_check_target()

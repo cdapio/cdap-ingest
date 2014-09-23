@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #  Copyright © 2014 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -47,14 +49,13 @@ class ConnectionErrorChecker:
 
 class ServiceConnector:
 
-    __protocol = ''
+    __DEFAULT_CONFIG = u'default-config.json'
     __base_url = '{0}://{1}:{2}'
-    __connectionConfig = None
     __defaultHeaders = {
-        'Authorization': 'Bearer '
+        'Authorization': '{0} {1}'
     }
 
-    def __init__(self, config=Config()):
+    def __init__(self, config=Config.read_from_file(__DEFAULT_CONFIG)):
         if not isinstance(config, Config):
             raise TypeError('parameter should be of type Config')
 
@@ -71,23 +72,32 @@ class ServiceConnector:
             self.__connectionConfig.port
         )
 
-    def set_authorization_token(self, token):
-        self.__defaultHeaders['Authorization'] = 'Bearer ' + token
-
     def request(self, method, uri, body=None, headers=None):
         headersToSend = self.__defaultHeaders
         url = '{0}{1}'.format(self.__base_url, uri)
 
+        if self.__connectionConfig.is_auth_enabled:
+            headersToSend['Authorization'] = headersToSend['Authorization']\
+                .format(self.__connectionConfig.auth_token.token_type,
+                        self.__connectionConfig.auth_token.value)
+
         if headers is not None:
             headersToSend.update(headers)
 
-        return requests.request(method, url, data=body, headers=headersToSend)
+        return requests.request(method, url, data=body, headers=headersToSend,
+                                verify=self.__connectionConfig.ssl_cert_check)
 
     def send(self, uri, fields=None, headers=None):
         headersToSend = self.__defaultHeaders
         url = '{0}{1}'.format(self.__base_url, uri)
 
+        if self.__connectionConfig.is_auth_enabled:
+            headersToSend['Authorization'] = headersToSend['Authorization']\
+                .format(self.__connectionConfig.auth_token.token_type,
+                        self.__connectionConfig.auth_token.value)
+
         if headers is not None:
             headersToSend.update(headers)
 
-        return requests.post(url, files=fields, headers=headersToSend)
+        return requests.post(url, files=fields, headers=headersToSend,
+                             verify=self.__connectionConfig.ssl_cert_check)
