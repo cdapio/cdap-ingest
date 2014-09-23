@@ -18,7 +18,6 @@ package co.cask.cdap.client.rest;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.security.authentication.client.AbstractAuthenticationClient;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -59,7 +58,7 @@ public class RestStreamClient implements StreamClient {
     writerPoolSize = builder.writerPoolSize;
     config = new RestClientConnectionConfig(builder.host, builder.port, builder.authClient, builder.apiKey,
                                             builder.ssl, builder.version);
-    if (builder.disableCertCheck) {
+    if (!builder.verifySSLCert) {
       try {
         connectionRegistry = RestUtil.getRegistryWithDisabledCertCheck();
       } catch (KeyManagementException e) {
@@ -182,7 +181,7 @@ public class RestStreamClient implements StreamClient {
     private AuthenticationClient authClient;
     private String apiKey;
     private boolean ssl = false;
-    private boolean disableCertCheck = false;
+    private boolean verifySSLCert = true;
     private int writerPoolSize = DEFAULT_WRITER_POOL_SIZE;
     private String version = DEFAULT_VERSION;
 
@@ -196,8 +195,8 @@ public class RestStreamClient implements StreamClient {
       return this;
     }
 
-    public Builder disableCertCheck(boolean disableCertCheck) {
-      this.disableCertCheck = disableCertCheck;
+    public Builder verifySSLCert(boolean verifySSLCert) {
+      this.verifySSLCert = verifySSLCert;
       return this;
     }
 

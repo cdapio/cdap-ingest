@@ -234,7 +234,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
                                                              DEFAULT_DISABLE_CERT_CHECK));
 
       RestStreamClient.Builder builder = RestStreamClient.builder(host, port).ssl(ssl)
-        .disableCertCheck(disableCertCheck);
+        .verifySSLCert(disableCertCheck);
 
       String authClientClassPath = getProperty(this.key + "auth_client", DEFAULT_AUTH_CLIENT);
       String authClientPropertiesPath = getProperty(this.key + "auth_client_properties",

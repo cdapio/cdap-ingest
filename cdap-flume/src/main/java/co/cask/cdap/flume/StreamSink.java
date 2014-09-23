@@ -50,18 +50,16 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
   private static final Logger LOG = LoggerFactory.getLogger(StreamSink.class);
 
   private static final int DEFAULT_WRITER_POOL_SIZE = 1;
-
   private static final boolean DEFAULT_SSL = false;
-
+  private static final boolean DEFAULT_VERIFY_SSL_CERT = true;
   private static final String DEFAULT_VERSION = "v2";
-
   private static final int DEFAULT_PORT = 10000;
-
   private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
 
   private String host;
   private Integer port;
   private boolean sslEnabled;
+  private boolean verifySSLCert;
   private int writerPoolSize;
   private String version;
   private String streamName;
@@ -82,6 +80,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
     host = context.getString("host");
     port = context.getInteger("port", DEFAULT_PORT);
     sslEnabled = context.getBoolean("sslEnabled", DEFAULT_SSL);
+    verifySSLCert = context.getBoolean("verifySSLCert", DEFAULT_VERIFY_SSL_CERT);
     version = context.getString("version", DEFAULT_VERSION);
     writerPoolSize = context.getInteger("writerPoolSize", DEFAULT_WRITER_POOL_SIZE);
     streamName = context.getString("streamName");
@@ -165,7 +164,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       RestStreamClient.Builder builder = RestStreamClient.builder(host, port);
 
       builder.ssl(sslEnabled);
-
+      builder.verifySSLCert(verifySSLCert);
       builder.writerPoolSize(writerPoolSize);
       builder.version(version);
       InputStream inStream = null;
@@ -173,6 +172,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
         authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
 
         Properties properties = new Properties();
+        properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
         inStream = new FileInputStream(authClientPropertiesPath);
         properties.load(inStream);
         authClient.configure(properties);
