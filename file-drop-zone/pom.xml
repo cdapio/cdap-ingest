@@ -146,7 +146,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${project.basedir}/src/main/deb/init.d</src>
+                  <src>${project.basedir}/bin/init.d</src>
                   <type>directory</type>
                   <mapper>
                     <type>perm</type>
@@ -220,7 +220,7 @@
                   <location>${project.basedir}/bin</location>
                 </source>
                 <source>
-                  <location>${project.basedir}/src/main/rpm/init.d</location>
+                  <location>${project.basedir}/bin/init.d</location>
                 </source>
               </sources>
             </mapping>
