@@ -6,6 +6,9 @@
 *.war
 *.ear
 
+#Python-generated files
+*.pyc
+
 # Intellij Files & Dir #
 *.iml
 *.ipr

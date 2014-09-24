@@ -163,19 +163,6 @@ class StreamTestBase(object):
             self.sc.create_writer,
             self.invalidStream)
 
-    def test_stream_writer_successful_sending(self):
-        sw = self.sc.create_writer(self.validStream)
-
-        def on_response(response):
-            self.exit_code = response.status_code
-
-        def check_exit_code(response):
-                self.assertEqual(self.exit_code, 200)
-
-        q = sw.send(self.validFile)
-        q.on_response(on_response)
-        q.on_response(check_exit_code, check_exit_code)
-
     def test_stream_writer_successful_writing(self):
         sw = self.sc.create_writer(self.validStream)
 

@@ -43,7 +43,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
     class TestStreamClient(unittest.TestCase):
 
-        # Should be the same as 'hostname' and 'port' fields in 'config.json'
+        # Should be the same as 'hostname' and 'port' fields in 'default-config.json'
         # file to make tests work right.
         __dummy_host = 'dummy.host'
         __dummy_port = 65000
@@ -76,7 +76,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
         exit_code = 404
 
         def setUp(self):
-            config = Config.read_from_file('config.json')
+            config = Config.read_from_file('default-config.json')
 
             self.sc = StreamClient(config)
 

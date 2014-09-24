@@ -17,14 +17,18 @@
 
 from os import path
 import mimetypes
+import logging
 from threading import Thread, Lock
 from types import FunctionType
 from serviceconnector import ServiceConnector, ConnectionErrorChecker,\
     NotFoundError
 from io import open
 
+logging.basicConfig()
+LOG = logging.getLogger(__name__)
 
 class StreamPromise(ConnectionErrorChecker):
+    __HTTP_OK = 200
 
     u"""
     Type to simulate ListenableFuture functionality of Guava framework.
@@ -46,8 +50,8 @@ class StreamPromise(ConnectionErrorChecker):
             raise TypeError(u'"serviceConnector" parameter \
                             should be of type ServiceConnector')
 
-        self.__onOkHandler = None
-        self.__onErrorHandler = None
+        self.__onOkHandlerList = []
+        self.__onErrorHandlerList = []
 
         self.__serviceResponse = None
 
@@ -57,9 +61,7 @@ class StreamPromise(ConnectionErrorChecker):
 
         self.__workerThread = Thread(target=self.__worker_target,
                                      args=(uri, data))
-        self.__handlerThread = Thread(target=self.__response_check_target)
         self.__workerThread.start()
-        self.__handlerThread.start()
 
     def __worker_target(self, uri, dataDict):
         u"""
@@ -126,26 +128,29 @@ class StreamPromise(ConnectionErrorChecker):
         self.__serviceResponse = self.__serviceConnector.request(
             u'POST', uri, dataToSend, headersToSend)
 
+        self.__response_check_target()
+
 
     def __response_check_target(self):
         u"""
         Checks for status of HTTP response from Gateway server and
         fires handlers according to status code.
         """
-        self.__workerThread.join()
-
         self.__handlersLock.acquire()
         if self.__serviceResponse:
-            try:
-                self.check_response_errors(self.__serviceResponse)
+            funcList = []
+            if self.__HTTP_OK is self.__serviceResponse.status_code:
+                funcList = self.__onOkHandlerList
+            else:
+                funcList = self.__onErrorHandlerList
 
-                if self.__onOkHandler:
-                    self.__onOkHandler(self.__serviceResponse)
-            except NotFoundError:
-                if self.__onErrorHandler:
-                    self.__onErrorHandler(self.__serviceResponse)
-            finally:
-                self.__onOkHandler = self.__onErrorHandler = None
+            for callback in funcList:
+                try:
+                    callback(self.__serviceResponse)
+                except Exception as e:
+                    LOG.exception("Failed to execute callback function.")
+
+            del funcList[:]
         self.__handlersLock.release()
 
     def on_response(self, success_handler, error_handler=None):
@@ -160,7 +165,7 @@ class StreamPromise(ConnectionErrorChecker):
 
         Handlers should be a function declared with next signature:
 
-        def coolErrorHandler( httpResponseObject):
+        def coolErrorHandler(httpResponseObject):
             ...
             Error handling response
             ...
@@ -171,8 +176,10 @@ class StreamPromise(ConnectionErrorChecker):
             raise TypeError(u'parameters should be functions')
 
         self.__handlersLock.acquire()
-        self.__onOkHandler = success_handler
-        self.__onErrorHandler = error_handler
-
+        self.__onOkHandlerList.append(success_handler)
+        if error_handler:
+            self.__onErrorHandlerList.append(error_handler)
         self.__handlersLock.release()
-        self.__response_check_target()
+
+        self.__handlerThread = Thread(target=self.__response_check_target)
+        self.__handlerThread.start()
