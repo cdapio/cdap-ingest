@@ -22,15 +22,10 @@
 
 <suppressions>
 
-  <suppress checks=".*" files="Gemfile.lock" />
-
-  <suppress checks="Javadoc.*" files=".*/src/test/java/.*" />
-
   <suppress checks="JavadocPackage" files=".*/src/(main|integration)/java/.*" />
   <suppress checks="JavadocPackage" files=".*/src/.*/internal/.*" />
 
   <suppress checks="JavadocStyle" files=".*/src/(main|integration)/java/.*" />
   <suppress checks="JavadocStyle" files=".*/src/.*/internal/.*" />
 
-  <suppress checks=".*" files=".*/Gemfile.lock" />
 </suppressions>
