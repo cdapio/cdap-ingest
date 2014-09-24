@@ -22,19 +22,25 @@
 
   <parent>
     <groupId>co.cask.cdap</groupId>
-    <artifactId>stream-client</artifactId>
+    <artifactId>cdap-integration-tests</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>stream-client-java-example</artifactId>
-  <packaging>pom</packaging>
-  <name>Example of using the Stream Client Java API</name>
+  <artifactId>cdap-stream-client-integration-tests</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0.0-SNAPSHOT</version>
+  <name>Stream Client Java API IT</name>
 
   <dependencies>
     <dependency>
       <groupId>co.cask.cdap</groupId>
-      <artifactId>stream-client-java</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <artifactId>cdap-stream-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

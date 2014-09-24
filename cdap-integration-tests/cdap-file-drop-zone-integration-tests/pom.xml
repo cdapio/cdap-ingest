@@ -22,19 +22,19 @@
 
   <parent>
     <groupId>co.cask.cdap</groupId>
-    <artifactId>integration-tests</artifactId>
+    <artifactId>cdap-integration-tests</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>file-tailer-integration-tests</artifactId>
+  <artifactId>cdap-file-drop-zone-integration-tests</artifactId>
   <packaging>jar</packaging>
   <version>1.0.0-SNAPSHOT</version>
-  <name>File Tailer IT</name>
+  <name>File DropZone IT</name>
 
   <dependencies>
     <dependency>
       <groupId>co.cask.cdap</groupId>
-      <artifactId>file-tailer</artifactId>
+      <artifactId>cdap-file-drop-zone</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

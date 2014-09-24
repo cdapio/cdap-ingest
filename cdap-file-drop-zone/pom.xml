@@ -24,14 +24,14 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>file-drop-zone</artifactId>
+  <artifactId>cdap-file-drop-zone</artifactId>
   <packaging>jar</packaging>
   <name>File DropZone</name>
 
   <dependencies>
     <dependency>
       <groupId>co.cask.cdap</groupId>
-      <artifactId>file-tailer</artifactId>
+      <artifactId>cdap-file-tailer</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

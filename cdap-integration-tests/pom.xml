@@ -26,15 +26,15 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>integration-tests</artifactId>
+  <artifactId>cdap-integration-tests</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>CDAP ingest integration tests</name>
 
   <modules>
-    <module>stream-client-java-integration-tests</module>
-    <module>file-tailer-integration-tests</module>
-    <module>file-drop-zone-integration-tests</module>
+    <module>cdap-stream-client-integration-tests</module>
+    <module>cdap-file-tailer-integration-tests</module>
+    <module>cdap-file-drop-zone-integration-tests</module>
   </modules>
 
   <profiles>

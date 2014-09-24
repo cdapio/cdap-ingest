@@ -22,32 +22,17 @@
 
   <parent>
     <groupId>co.cask.cdap</groupId>
-    <artifactId>integration-tests</artifactId>
+    <artifactId>cdap-ingest</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>file-drop-zone-integration-tests</artifactId>
-  <packaging>jar</packaging>
+  <artifactId>cdap-stream-clients</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <name>File DropZone IT</name>
+  <packaging>pom</packaging>
+  <name>Stream Client API</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>co.cask.cdap</groupId>
-      <artifactId>file-drop-zone</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.4</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+  <modules>
+    <module>java</module>
+  </modules>
 
 </project>
