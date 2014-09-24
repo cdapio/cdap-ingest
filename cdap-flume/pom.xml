@@ -33,7 +33,7 @@
   <dependencies>
     <dependency>
       <groupId>co.cask.cdap</groupId>
-      <artifactId>stream-client-java</artifactId>
+      <artifactId>cdap-stream-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

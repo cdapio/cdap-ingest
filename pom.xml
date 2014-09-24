@@ -27,11 +27,11 @@
   <name>CDAP ingest</name>
 
   <modules>
-    <module>stream-client</module>
-    <module>file-tailer</module>
-    <module>file-drop-zone</module>
+    <module>cdap-stream-clients</module>
+    <module>cdap-file-tailer</module>
+    <module>cdap-file-drop-zone</module>
     <module>cdap-flume</module>
-    <module>integration-tests</module>
+    <module>cdap-integration-tests</module>
   </modules>
 
   <properties>
@@ -244,6 +244,7 @@
                 <excludes>
                   <exclude>build-number.txt</exclude>
                   <exclude>LICENSE*.txt</exclude>
+                  <exclude>ruby/**</exclude>
                   <exclude>*.rst</exclude>
                   <exclude>**/*.md</exclude>
                   <exclude>logs/**</exclude>
