@@ -75,20 +75,6 @@ public interface StreamWriter extends Closeable {
   ListenableFuture<Void> write(ByteBuffer buffer, Map<String, String> headers);
 
   /**
-   * Sends the content of a {@link File} as multiple Stream events.
-   *
-   * @param file The file to send
-   * @param type Contains information about the file type.
-   * @return A future that will be completed when the ingestion is completed. The future will fail if the ingestion
-   * failed. Cancelling the returning future has no effect.
-   * <p/>
-   * NOTE: There will be a new HTTP API in 2.5 to support extracting events from the file based on the content type.
-   * Until that is available, breaking down the file content into multiple events need to happen in the client
-   * side.
-   */
-  ListenableFuture<Void> send(File file, MediaType type);
-
-  /**
    * Closes a {@link org.apache.http.impl.client.CloseableHttpClient} instance and a
    * {@link com.google.common.util.concurrent.ListeningExecutorService} Executor thread pool
    * for releasing all unused resource associated with them.

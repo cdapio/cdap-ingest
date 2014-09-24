@@ -9,7 +9,7 @@ Stream Client Python API for managing Streams via external Python applications.
 - retrieve the current Stream TTL for a specified *stream-id*;
 - truncate an existing Stream (the deletion of all events that were written to the Stream);
 - write an event to an existing Stream specified by *stream-id*;
-- send a File to an existing Stream specififed by *stream-id*.
+
 
 ## Usage
 
@@ -87,7 +87,6 @@ Config file structure in JSON format:
 
  ```
    def write(self, message, charset=None, headers=None)
-   def send(self, file, mimetype=None)
  ```
 
  Example:

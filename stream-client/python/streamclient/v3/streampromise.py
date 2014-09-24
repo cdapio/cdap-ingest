@@ -124,30 +124,8 @@ class StreamPromise(ConnectionErrorChecker):
         if 'headers' in dataDict:
             headersToSend = dataDict['headers']
 
-        if 'file' not in dataDict:
-            self.__serviceResponse = self.__serviceConnector.request(
-                'POST', uri, dataToSend, headersToSend)
-        else:
-            filepath, filename = path.split(dataDict['file'])
-            filemime, fileenc = mimetypes.guess_type(dataDict['file'], False)
-
-            if 'mimetype' in dataDict and dataDict['mimetype'] is not None:
-                filemime = dataDict['mimetype']
-
-            file = open(dataDict['file'])
-
-            fields = {
-                'file': (
-                    filename,
-                    file.read(),
-                    filemime
-                )
-            }
-
-            file.close()
-
-            self.__serviceResponse = self.__serviceConnector.send(
-                uri, fields, headersToSend)
+        self.__serviceResponse = self.__serviceConnector.request(
+            'POST', uri, dataToSend, headersToSend)
 
     def __response_check_target(self):
         """

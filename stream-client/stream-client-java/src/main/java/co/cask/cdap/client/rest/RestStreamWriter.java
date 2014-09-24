@@ -88,15 +88,6 @@ public class RestStreamWriter implements StreamWriter {
     return write(content, headers);
   }
 
-  @Override
-  public ListenableFuture<Void> send(File file, MediaType type) {
-    //TODO: There will be a new HTTP API in 2.5 to support extracting events from the file based on the content type.
-    FileEntity entity = new FileEntity(file, type != null ? ContentType.create(type.toString()) : null);
-    entity.setChunked(true);
-
-    return write(entity, ImmutableMap.<String, String>of());
-  }
-
   private ListenableFuture<Void> write(HttpEntity entity, Map<String, String> headers) {
     final HttpPost postRequest = new HttpPost(restClient.getBaseURL().resolve(
       String.format("/%s/streams/%s", restClient.getVersion(), streamName)));

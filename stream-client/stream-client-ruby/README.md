@@ -10,7 +10,6 @@ The Stream Client Ruby API is a tool for managing Streams via external custom Ru
  - retrieve the current Stream TTL for a specified <stream-id>;
  - truncate an existing Stream (the deletion of all events that were written to the Stream);
  - write an event to an existing Stream;
- - send a File to an existing Stream.
 
 ## Build
 
@@ -110,9 +109,6 @@ test_data = "string to send in stream 10 times"
   )
 }
 
-writer.send('file.log').then { |response|
-  puts "success send file: #{response.code}"
-}
  ```
 
  To truncate the Stream *stream_name*, use:

@@ -10,7 +10,6 @@ The Stream Client Java API is for managing Streams via external custom Java appl
  - retrieve the current Stream TTL for a specified <stream-id>;
  - truncate an existing Stream (the deletion of all events that were written to the Stream);
  - write an event to an existing Stream; 
- - send a File to an existing Stream.
 
 ## Build
  
@@ -91,8 +90,7 @@ The Stream Client Java API is for managing Streams via external custom Java appl
    ListenableFuture<Void> write(String str, Charset charset);
    ListenableFuture<Void> write(String str, Charset charset, Map<String, String> headers);
    ListenableFuture<Void> write(ByteBuffer buffer);
-   ListenableFuture<Void> write(ByteBuffer buffer, Map<String, String> headers);
-   ListenableFuture<Void> send(File file, MediaType type);
+   ListenableFuture<Void> write(ByteBuffer buffer, Map<String, String> headers);   
  ```
  
  Example:

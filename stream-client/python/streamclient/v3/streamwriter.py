@@ -62,23 +62,3 @@ class StreamWriter:
 
         return StreamPromise(self.__serviceConnector, self.__serviceUri,
                              promiseData)
-
-    def send(self, file, mimetype=None):
-        """
-        Sends the content of a file as multiple stream events.
-
-        Keyword arguments:
-        file -- path to file to be sent to Gateway
-        mimetype -- mimetype of a file. If is not defined will attempt
-                    to detect mimetype automaticaly.
-
-        Returns:
-        StreamPromise instance for further handling
-        """
-        promiseData = {
-            'file': file,
-            'mimetype': mimetype
-        }
-
-        return StreamPromise(self.__serviceConnector, self.__serviceUri,
-                             promiseData)
