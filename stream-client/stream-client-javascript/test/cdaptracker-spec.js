@@ -1,4 +1,4 @@
-var CDAPTracker = require('../../../src/serviceconnector'),
+var CDAPTracker = require('../src/serviceconnector'),
     expect = require('expect.js'),
     nock = require('nock');
 
