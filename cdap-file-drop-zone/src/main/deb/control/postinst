@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# Copyright © 2014 Cask Data, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+#
+
+set -e
+
+if [ -h /usr/bin/file-drop-zone ]; then
+  rm -f /usr/bin/file-drop-zone
+fi
+
+if [ -h /etc/file-drop-zone/conf ]; then
+  rm -f /etc/file-drop-zone/conf
+fi
+
+if [ ! -d /etc/file-drop-zone ]; then
+  mkdir -p /etc/file-drop-zone
+fi
+
+if [ ! -d /var/log/file-drop-zone ]; then
+  mkdir -p /var/log/file-drop-zone
+fi
+
+if [ ! -d /var/file-drop-zone ]; then
+  mkdir -p /var/file-drop-zone
+fi
+
+if [ ! -d /tmp/file-drop-zone ]; then
+  mkdir -p /tmp/file-drop-zone
+fi
+
+chown -R file-drop-zone:file-drop-zone /var/log/file-drop-zone
+chmod 755 /var/log/file-drop-zone
+
+chown -R file-drop-zone:file-drop-zone /var/file-drop-zone
+chmod 755 /var/file-drop-zone
+
+chown -R file-drop-zone:file-drop-zone /tmp/file-drop-zone
+chmod 755 /tmp/file-drop-zone
+
+ln -s /usr/lib/file-drop-zone/bin/file-drop-zone /usr/bin/file-drop-zone
+ln -s /usr/lib/file-drop-zone/conf /etc/file-drop-zone/conf
+
+if [ -f /usr/lib/file-drop-zone/bin/file-drop-zone.default ]; then
+  mv /usr/lib/file-drop-zone/bin/file-drop-zone.default /etc/default/file-drop-zone
+fi
+
+if [ -f /usr/lib/file-drop-zone/bin/file-drop-zone.init.d ]; then
+  mv /usr/lib/file-drop-zone/bin/file-drop-zone.init.d /etc/init.d/file-drop-zone
+fi
+
+if [ -x "/etc/init.d/file-drop-zone" ]; then
+  if [ ! -e "/etc/init/file-drop-zone.conf" ]; then
+    if ! chkconfig_loc="$(type -p "chkconfig")" || [ -z "$chkconfig_loc" ]; then
+      update-rc.d -f file-drop-zone defaults >/dev/null
+    else
+      chkconfig --add file-drop-zone >/dev/null
+    fi
+  fi
+fi
