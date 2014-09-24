@@ -15,15 +15,12 @@ $> grunt
 
 ## Build process commands
 
-1. *grunt test*
-
+1. *grunt test* - 
 Will make library testing.
 
-2. *grunt build*
-
+2. *grunt build* -
 Will build library for both browser and NodeJS.
 Build artifactes will be located at *dist* directory.
 
-3. *grunt*
-
+3. *grunt* -
 *grunt test* + *grunt build*
