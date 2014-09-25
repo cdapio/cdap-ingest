@@ -39,7 +39,7 @@
       <id>dist</id>
       <properties>
         <python.dir>${project.build.directory}/cdap-stream-clients</python.dir>
-        <python.stage.dir>${python.dir}/python-${project.version}</python.stage.dir>
+        <python.stage.dir>${python.dir}</python.stage.dir>
         <deploy.url>http://wwww.com</deploy.url>
       </properties>
       <build>
@@ -61,7 +61,6 @@
                   <resources>
                     <resource>
                       <directory>${project.basedir}/python</directory>
-                      <targetPath>python</targetPath>
                     </resource>
                   </resources>
                 </configuration>
