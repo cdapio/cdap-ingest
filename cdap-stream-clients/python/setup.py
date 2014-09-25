@@ -17,6 +17,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
+
 setup(name='cdap-stream-client',
     version='${project.version}',
     description='Stream ingestion client for Cask Data Application Platform',

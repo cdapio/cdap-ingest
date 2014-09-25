@@ -49,12 +49,11 @@ class ConnectionErrorChecker(object):
 
 class ServiceConnector(object):
 
-    __DEFAULT_CONFIG = u'default-config.json'
     __defaultHeaders = {
         u'Authorization': u'{0} {1}'
     }
 
-    def __init__(self, config=Config.read_from_file(__DEFAULT_CONFIG)):
+    def __init__(self, config=Config()):
         self.__base_url = u'{0}://{1}:{2}'
 
         if not isinstance(config, Config):
