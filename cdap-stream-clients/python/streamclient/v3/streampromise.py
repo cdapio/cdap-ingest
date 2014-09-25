@@ -140,7 +140,7 @@ class StreamPromise(ConnectionErrorChecker):
          self.__handlersLock.acquire()
         if self.__serviceResponse:
             funcList = []
-            if self.__HTTP_OK is self.__serviceResponse.status_code:
+            if self.__HTTP_OK == self.__serviceResponse.status_code:
                 funcList = self.__onOkHandlerList
             else:
                 funcList = self.__onErrorHandlerList
