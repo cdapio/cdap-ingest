@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #  Copyright © 2014 Cask Data, Inc.
@@ -15,17 +14,15 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-import unittest
-import requests
-
-from stream_test_base import StreamTestBase
+from setuptools import setup
+from setuptools import find_packages
 
 
-class TestStreamClient(unittest.TestCase, StreamTestBase):
-
-    def setUp(self):
-        self.config_file = 'cdap_config.json'
-        self.base_set_up()
-
-if '__main__' == __name__:
-    unittest.main(warnings=False)
+setup(name='cdap-stream-client',
+    version='${project.version}',
+    description='Stream ingestion client for Cask Data Application Platform',
+    author='Cask Data',
+    author_email='cask-dev@googlegroups.com',
+    packages=find_packages(),
+    install_requires=['cdap_auth_client'],
+    )

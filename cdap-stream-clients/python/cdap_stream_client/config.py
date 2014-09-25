@@ -14,13 +14,15 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
+from __future__ import with_statement
 import json
-from caskauthclient.BasicAuthenticationClient import BasicAuthenticationClient
+from io import open
+from cdap_auth_client.BasicAuthenticationClient import BasicAuthenticationClient
 
 
-class Config:
+class Config(object):
 
-    def __init__(self, host='localhost', port=10000, ssl=False,
+    def __init__(self, host=u'localhost', port=10000, ssl=False,
                  ssl_disable_check=True, filename=u''):
         self.__host = host
         self.__port = port
@@ -78,6 +80,7 @@ class Config:
     def is_auth_enabled(self):
         return self.__authClient.is_auth_enabled()
 
+    @staticmethod
     def read_from_file(filename):
         newConfig = None
         jsonConfig = None
@@ -85,8 +88,8 @@ class Config:
         with open(filename) as configFile:
             jsonConfig = json.loads(configFile.read())
 
-        newConfig = Config(jsonConfig['hostname'],
-                           jsonConfig['port'], jsonConfig['SSL'],
+        newConfig = Config(jsonConfig[u'hostname'],
+                           jsonConfig[u'port'], jsonConfig[u'SSL'],
                            jsonConfig[u'security_ssl_cert_check'])
 
         return newConfig
