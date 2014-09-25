@@ -1,5 +1,5 @@
 {
-    "hostname": "166.78.96.4",
+    "hostname": "localhost",
     "port": 10000,
     "SSL": false,
     "security_auth_client_username": "username",
