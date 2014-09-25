@@ -23,16 +23,101 @@
   <parent>
     <groupId>co.cask.cdap</groupId>
     <artifactId>cdap-ingest</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>cdap-stream-clients</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
   <name>Stream Client API</name>
 
   <modules>
     <module>java</module>
   </modules>
-
+  <profiles>
+    <profile>
+      <id>dist</id>
+      <properties>
+        <python.dir>${project.build.directory}/cdap-stream-clients</python.dir>
+        <python.stage.dir>${python.dir}/cdap-stream-client-${project.version}/</python.stage.dir>
+        <deploy.url>https://repository.continuuity.com/service/local/staging/deploy/maven2</deploy.url>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>2.6</version>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>copy-opt</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration combine.self="override">
+                  <outputDirectory>${python.stage.dir}</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${project.basedir}/python</directory>
+                      <filtering>true</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>2.4</version>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>python-package</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration combine.self="override">
+                  <descriptors>
+                    <descriptor>${project.basedir}/assembly/python-package.xml</descriptor>
+                  </descriptors>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <attach>false</attach>
+                  <finalName>cdap-python-stream-client-${project.version}</finalName>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.8</version>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>deploy-python</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+                <configuration>
+                  <version>${project.version}</version>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>cdap-python-stream-client</artifactId>
+                  <packaging>zip</packaging>
+                  <generatePom>false</generatePom>
+                  <file>${project.build.directory}/cdap-python-stream-client-${project.version}.zip</file>
+                  <repositoryId>continuuity</repositoryId>
+                  <url>${deploy.url}</url>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
