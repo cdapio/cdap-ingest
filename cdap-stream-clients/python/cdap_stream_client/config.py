@@ -32,7 +32,7 @@ class Config(object):
         self.__authClient.set_connection_info(self.__host,
                                               self.__port, self.__ssl)
         if filename:
-            self.__authClient.configure(filename)
+            self.__authClient.configure(cdap_auth_client.Config().read_from_file(filename))
 
     def set_auth_client(self, client):
         self.__authClient = client
