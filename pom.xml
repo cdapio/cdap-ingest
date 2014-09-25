@@ -26,6 +26,34 @@
   <packaging>pom</packaging>
   <name>CDAP ingest</name>
 
+  <organization>
+    <name>Cask Data, Inc.</name>
+    <url>http://cask.co</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Cask Data</name>
+      <email>cask-dev@googlegroups.com</email>
+      <organization>Cask Data, Inc.</organization>
+      <organizationUrl>http://www.cdap.io</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/caskdata/cdap-ingest.git</connection>
+    <developerConnection>scm:git:git@github.com:caskdata/cdap-ingest.git</developerConnection>
+    <url>https://github.com/caskdata/cdap-ingest.git</url>
+    <tag>HEAD</tag>
+  </scm>
+
   <modules>
     <module>cdap-stream-clients</module>
     <module>cdap-file-tailer</module>
@@ -52,36 +80,28 @@
 
   <repositories>
     <repository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+    <repository>
       <id>continuuity-public</id>
       <url>https://repository.continuuity.com/content/repositories/public</url>
-    </repository>
-    <repository>
-      <id>smartifacts</id>
-      <url>https://repository.continuuity.com/content/repositories/smartifacts</url>
-    </repository>
-    <repository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/groups/public/</url>
-    </repository>
-    <repository>
-      <id>continuuity</id>
-      <url>https://repository.continuuity.com/content/repositories/snapshots</url>
     </repository>
   </repositories>
 
   <distributionManagement>
     <repository>
-      <id>nexus</id>
-      <name>continuuity-internal</name>
-      <url>https://repository.continuuity.com/service/local/staging/deploy/maven2</url>
+      <id>sonatype.release</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
     </repository>
     <snapshotRepository>
-      <id>continuuity</id>
-      <url>https://repository.continuuity.com/content/repositories/snapshots/</url>
+      <id>sonatype.snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
+
     <site>
-      <id>continuuity</id>
-      <url>http://continuuity.com</url>
+      <id>cask</id>
+      <url>http://cask.co</url>
     </site>
   </distributionManagement>
 
