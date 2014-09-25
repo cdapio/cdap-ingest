@@ -17,7 +17,7 @@
 from __future__ import with_statement
 import json
 from io import open
-from caskauthclient.BasicAuthenticationClient import BasicAuthenticationClient
+from cdap_auth_client.BasicAuthenticationClient import BasicAuthenticationClient
 
 
 class Config(object):

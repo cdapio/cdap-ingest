@@ -23,4 +23,5 @@ setup(name='cdap-stream-client',
     author='Cask Data',
     author_email='cask-dev@googlegroups.com',
     packages=find_packages(),
+    install_requires=['cdap_auth_client'],
     )

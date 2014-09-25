@@ -28,8 +28,8 @@ from config import Config
 from serviceconnector import NotFoundError
 from streamwriter import StreamWriter
 from streamclient import StreamClient
-from caskauthclient.BasicAuthenticationClient import BasicAuthenticationClient
-from caskauthclient.Config import Config as AuthConfig
+from cdap_auth_client.BasicAuthenticationClient import BasicAuthenticationClient
+from cdap_auth_client.Config import Config as AuthConfig
 
 # Should be used as parent class for integration tests.
 # In children 'config_file' property has to be set and
