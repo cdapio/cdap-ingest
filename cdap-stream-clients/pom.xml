@@ -86,7 +86,7 @@
                   </descriptors>
                   <appendAssemblyId>false</appendAssemblyId>
                   <attach>false</attach>
-                  <finalName>python-stream-client-${project.version}</finalName>
+                  <finalName>cdap-python-stream-client-${project.version}</finalName>
                 </configuration>
               </execution>
             </executions>
@@ -106,10 +106,10 @@
                 <configuration>
                   <version>${project.version}</version>
                   <groupId>${project.groupId}</groupId>
-                  <artifactId>python-stream-client</artifactId>
+                  <artifactId>cdap-python-stream-client</artifactId>
                   <packaging>zip</packaging>
                   <generatePom>false</generatePom>
-                  <file>${project.build.directory}/python-stream-client-${project.version}.zip</file>
+                  <file>${project.build.directory}/cdap-python-stream-client-${project.version}.zip</file>
                   <repositoryId>continuuity</repositoryId>
                   <url>${deploy.url}</url>
                 </configuration>
