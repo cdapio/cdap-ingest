@@ -38,8 +38,8 @@
     <profile>
       <id>dist</id>
       <properties>
-        <sdk.dir>${project.build.directory}/stream-clients</sdk.dir>
-        <stage.opt.dir>${sdk.dir}/python-${project.version}</stage.opt.dir>
+        <python.dir>${project.build.directory}/cdap-stream-clients</python.dir>
+        <python.stage.dir>${python.dir}/python-${project.version}</python.stage.dir>
         <deploy.url>http://wwww.com</deploy.url>
       </properties>
       <build>
@@ -48,6 +48,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-resources-plugin</artifactId>
             <version>2.6</version>
+            <inherited>false</inherited>
             <executions>
               <execution>
                 <id>copy-opt</id>
@@ -56,7 +57,7 @@
                   <goal>copy-resources</goal>
                 </goals>
                 <configuration combine.self="override">
-                  <outputDirectory>${stage.opt.dir}</outputDirectory>
+                  <outputDirectory>${python.stage.dir}</outputDirectory>
                   <resources>
                     <resource>
                       <directory>${project.basedir}/python</directory>
@@ -67,11 +68,34 @@
               </execution>
             </executions>
           </plugin>
-          <!-- Extra deployment for cdap sdk -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>2.4</version>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>python-package</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration combine.self="override">
+                  <descriptors>
+                    <descriptor>${project.basedir}/assembly/python-package.xml</descriptor>
+                  </descriptors>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <attach>false</attach>
+                  <finalName>python-streamclient-${project.version}</finalName>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-deploy-plugin</artifactId>
             <version>2.8</version>
+            <inherited>false</inherited>
             <executions>
               <execution>
                 <id>deploy-sdk</id>
