@@ -18,8 +18,7 @@
 import unittest
 import requests
 
-from basicreactor import BasicReactor
-
+from stream_test_base import StreamTestBase
 
 class TestStreamClient(unittest.TestCase, StreamTestBase):
 
