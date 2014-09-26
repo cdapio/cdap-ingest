@@ -11,13 +11,19 @@ Stream Client Python API for managing Streams via external Python applications.
 - write an event to an existing Stream specified by *stream-id*;
 
 
+## Installation
+ To install CDAP Authentication Client, run:
+```
+    $ python setup.py install
+```
+
 ## Usage
 
  To use the Stream Client Python API, include these imports in your Python script:
 
 ```
-    from config import Config
-    from streamclient import StreamClient
+    from cdap_stream_client import Config
+    from cdap_stream_client import StreamClient
 ```
 
 ## Example
