@@ -1,5 +1,3 @@
-<?xml version="1.0"?>
-
 <!--
   Copyright © 2014 Cask Data, Inc.
 
@@ -16,18 +14,17 @@
   the License.
   -->
 
-<!DOCTYPE suppressions PUBLIC
-        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
-        "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
-
-<suppressions>
-
-  <suppress checks="Javadoc.*" files=".*/src/test/java/.*" />
-
-  <suppress checks="JavadocPackage" files=".*/src/(main|integration)/java/.*" />
-  <suppress checks="JavadocPackage" files=".*/src/.*/internal/.*" />
-
-  <suppress checks="JavadocStyle" files=".*/src/(main|integration)/java/.*" />
-  <suppress checks="JavadocStyle" files=".*/src/.*/internal/.*" />
-
-</suppressions>
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+  <id>sdk</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>${python.dir}</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>
