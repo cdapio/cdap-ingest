@@ -3,6 +3,18 @@ CDAP Ingest Project
 
 Various ways to ingest data into CDAP. 
 
+Build all packages
+------------------
+mvn clean package 
+
+Build rpm for packages (File tailer and DropZone)
+----------------------
+mvn clean package -P rpm
+
+Build debian for packages (File tailer and DropZone)
+----------------------
+mvn clean package -P deb
+
 For details, please see the README.md file in each submodule.
 
 
