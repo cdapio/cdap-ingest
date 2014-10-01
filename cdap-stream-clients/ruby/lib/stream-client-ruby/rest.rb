@@ -27,6 +27,7 @@ module CDAPIngest
       attr_accessor :port
       attr_accessor :api_version
       attr_accessor :ssl
+      attr_accessor :auth_client
     end
 
     def initialize
@@ -38,15 +39,32 @@ module CDAPIngest
       !!self.class.ssl
     end
 
+    def is_auth_enabled
+      self.class.auth_client.auth_enabled?
+    end
+
+    def get_access_token
+      self.class.auth_client.get_access_token
+    end
+
+    def self.set_auth_client auth_client
+      self.auth_client = auth_client
+      self.auth_client.set_connection_info(self.gateway, self.port, self.ssl)
+    end
+
     def request (method, url, options = {}, &block)
       # define variables
       method.downcase!
-      url = "/#{url}"
+      url = "#{self.class.base_uri}/#{url}"
 
       # setup options
       headers = options[:headers] || {}
       # The name of this header will change in the future to take out 'continuuity'
       headers['X-Continuuity-ApiKey'] = config['api_key'] || '' if ssl?
+      if self.class.auth_client && self.is_auth_enabled
+        token = self.get_access_token
+        headers['Authorization'] = "'#{token.token_type} #{token.value}'"
+      end
       options[:headers] = headers
       options[:body] = to_s options[:body]
 
@@ -98,3 +116,4 @@ module CDAPIngest
   end
 
 end
+
