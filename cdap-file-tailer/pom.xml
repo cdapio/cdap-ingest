@@ -81,7 +81,7 @@
   <profiles>
     <!-- Profile for prepare rpm package. -->
     <profile>
-      <id>file-tailer-rpm-prepare</id>
+      <id>rpm-prepare</id>
       <properties>
         <package.dirs>usr</package.dirs>
       </properties>
@@ -239,7 +239,7 @@
 
     <!-- Profile for prepare debian package. -->
     <profile>
-      <id>file-tailer-deb-prepare</id>
+      <id>deb-prepare</id>
       <properties>
         <package.dirs>usr</package.dirs>
       </properties>
@@ -395,9 +395,9 @@
       </build>
     </profile>
 
-    <!-- Profile for creating rpm package. The "prepare" profile must be activated as well. -->
+    <!-- Profile for creating rpm package. The "rpm-prepare" profile must be activated as well. -->
     <profile>
-      <id>file-tailer-rpm</id>
+      <id>rpm</id>
       <build>
         <plugins>
           <plugin>
@@ -444,9 +444,9 @@
       </build>
     </profile>
 
-    <!-- Profile for creating debian package. The "prepare" profile must be activated as well. -->
+    <!-- Profile for creating debian package. The "deb-prepare" profile must be activated as well. -->
     <profile>
-      <id>file-tailer-deb</id>
+      <id>deb</id>
       <build>
         <plugins>
           <plugin>
