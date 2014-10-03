@@ -21,15 +21,14 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest as unittest
-import requests
 
 from stream_test_base import StreamTestBase
-
+import os
 
 class TestStreamClient(unittest.TestCase, StreamTestBase):
 
     def setUp(self):
-        self.config_file = u'cdap_config.json'
+        self.config_file = os.path.join(os.path.dirname(__file__), u"cdap_config.json")
         self.base_set_up()
 
 if u'__main__' == __name__:

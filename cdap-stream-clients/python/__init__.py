@@ -14,16 +14,3 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-from setuptools import setup
-from setuptools import find_packages
-
-
-setup(name='cdap-stream-client',
-      version='${project.version}',
-      description='Stream ingestion client for Cask Data Application Platform',
-      author='Cask Data',
-      author_email='cask-dev@googlegroups.com',
-      packages=find_packages(),
-      install_requires=['cdap_auth_client'],
-      tests_require=['httpretty', 'mock'],
-      )

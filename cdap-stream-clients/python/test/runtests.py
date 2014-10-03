@@ -32,13 +32,12 @@ import inspect
 current_dir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
-src_dir = parent_dir + '/cdap_stream_client'
-sys.path.insert(0, src_dir)
+sys.path.insert(0, parent_dir)
 
-from config import Config
-from serviceconnector import NotFoundError
-from streamwriter import StreamWriter
-from streamclient import StreamClient
+from cdap_stream_client import Config
+from cdap_stream_client.serviceconnector import NotFoundError
+from cdap_stream_client import StreamWriter
+from cdap_stream_client import StreamClient
 
 with mock.patch('__main__.Config.is_auth_enabled',
                         new_callable=mock.PropertyMock) \
@@ -82,7 +81,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
         exit_code = 404
 
         def setUp(self):
-            config = Config.read_from_file(u'default-config.json')
+            config = Config.read_from_file(os.path.join(os.path.dirname(__file__), u"default-config.json"))
 
             self.sc = StreamClient(config)
 

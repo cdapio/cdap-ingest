@@ -15,4 +15,5 @@
 #  the License.
 
 from streamclient import StreamClient
+from streamwriter import StreamWriter
 from config import Config
