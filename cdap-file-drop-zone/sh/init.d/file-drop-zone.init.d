@@ -35,7 +35,7 @@ DESC="File Drop Zone"
 
 DEFAULT=/etc/default/$NAME
 FDZ_LOG_DIR=/var/log/file-drop-zone
-FDZ_CONF_DIR=/etc/$NAME/conf
+FDZ_CONF_DIR=/etc/cdap/$NAME/conf
 FDZ_RUN_DIR=/var/run/file-drop-zone
 FDZ_HOME=/usr/lib/$NAME
 FDZ_USER=file-drop-zone

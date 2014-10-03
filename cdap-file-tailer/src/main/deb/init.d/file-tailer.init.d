@@ -35,7 +35,7 @@ DESC="File Tailer"
 
 DEFAULT=/etc/default/$NAME
 FT_LOG_DIR=/var/log/file-tailer
-FT_CONF_DIR=/etc/$NAME/conf
+FT_CONF_DIR=/etc/cdap/$NAME/conf
 FT_RUN_DIR=/var/run/file-tailer
 FT_HOME=/usr/lib/$NAME
 FT_USER=file-tailer

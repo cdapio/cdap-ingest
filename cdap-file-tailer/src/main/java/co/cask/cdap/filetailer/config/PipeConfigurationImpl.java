@@ -212,7 +212,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
     private static final String DEFAULT_PACK_SIZE = "1";
     private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
-    private static final String DEFAULT_AUTH_CLIENT_PROPERTIES = "/etc/file-tailer/conf/auth-client.properties";
+    private static final String DEFAULT_AUTH_CLIENT_PROPERTIES = "/etc/cdap/file-tailer/conf/auth-client.properties";
 
     private final String key;
 
