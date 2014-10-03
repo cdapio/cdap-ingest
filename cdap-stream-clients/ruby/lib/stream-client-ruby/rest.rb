@@ -27,12 +27,12 @@ module CDAPIngest
       attr_accessor :port
       attr_accessor :api_version
       attr_accessor :ssl
-      attr_accessor :auth_client
     end
 
     def initialize
       protocol = self.class.ssl ? 'https' : 'http'
       self.class.base_uri "#{protocol}://#{self.class.gateway}:#{self.class.port}/#{self.class.api_version}/streams"
+      @auth_client = nil
     end
 
     def ssl?
@@ -40,16 +40,16 @@ module CDAPIngest
     end
 
     def is_auth_enabled
-      self.class.auth_client.auth_enabled?
+      @auth_client.auth_enabled?
     end
 
     def get_access_token
-      self.class.auth_client.get_access_token
+      @auth_client.get_access_token
     end
 
-    def self.set_auth_client auth_client
-      self.auth_client = auth_client
-      self.auth_client.set_connection_info(self.gateway, self.port, self.ssl)
+    def set_auth_client auth_client
+      @auth_client = auth_client
+      @auth_client.set_connection_info(self.class.gateway, self.class.port, self.class.ssl)
     end
 
     def request (method, url, options = {}, &block)
@@ -61,7 +61,7 @@ module CDAPIngest
       headers = options[:headers] || {}
       # The name of this header will change in the future to take out 'continuuity'
       headers['X-Continuuity-ApiKey'] = config['api_key'] || '' if ssl?
-      if self.class.auth_client && self.is_auth_enabled
+      if @auth_client && self.is_auth_enabled
         token = self.get_access_token
         headers['Authorization'] = "'#{token.token_type} #{token.value}'"
       end
