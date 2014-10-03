@@ -77,14 +77,12 @@
                   <artifact>*:*</artifact>
                   <excludes>
                     <exclude>org/slf4j/impl/**</exclude>
-                    <exclude>com/google/common/**</exclude>
                   </excludes>
                 </filter>
               </filters>
               <artifactSet>
                 <excludes>
                   <exclude>org.slf4j</exclude>
-                  <exclude>com.google.guava</exclude>
                 </excludes>
               </artifactSet>
             </configuration>
