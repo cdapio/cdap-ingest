@@ -80,8 +80,9 @@ export JAVA_OPTIONS
 start() {
   [ -x $exec ] || exit $ERROR_PROGRAM_NOT_INSTALLED
 
-  checkstatus
+  pidofproc -p $FDZ_PID_FILE java > /dev/null
   status=$?
+
   if [ "$status" -eq "$STATUS_RUNNING" ]; then
     exit 0
   fi
@@ -99,23 +100,22 @@ start() {
 }
 
 stop() {
-  if [ ! -e $FDZ_PID_FILE ]; then
-    log_failure_msg "$desc is not running"
-    exit 0
-  fi
-
   log_success_msg "Stopping $desc ($NAME): "
-
-  FDZ_PID=`cat $FDZ_PID_FILE`
-  if [ -n $FDZ_PID ]; then
-    kill ${FDZ_PID} > /dev/null 2>&1
-    for i in `seq 1 ${FDZ_SHUTDOWN_TIMEOUT}` ; do
-      kill -0 ${FDZ_PID} &>/dev/null || break
-      sleep 1
-    done
-    kill -KILL ${FDZ_PID} &>/dev/null
+  if [ -e $FDZ_PID_FILE ]; then
+    FDZ_PID=`cat $FDZ_PID_FILE`
+    if [ -n $FDZ_PID ]; then
+        for i in `seq 1 ${FDZ_SHUTDOWN_TIMEOUT}` ; do
+          kill -15 ${FDZ_PID}
+          status=$?
+          if [ $status -eq 0 ]; then
+            break
+          fi
+          sleep 1
+        done
+        kill -KILL ${FDZ_PID} >/dev/null
+    fi
+    rm -f $LOCKFILE $FDZ_PID_FILE
   fi
-  rm -f $LOCKFILE $FDZ_PID_FILE
   return 0
 }
 
