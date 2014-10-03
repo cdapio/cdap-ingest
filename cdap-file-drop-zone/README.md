@@ -33,7 +33,7 @@ where they will automatically be ingested by a daemon process.
  once installed, configure the daemon by editing the file:
  
  ```
-    /etc/file-drop-zone/conf/file-drop-zone.properties
+    /etc/cdap/file-drop-zone/conf/file-drop-zone.properties
  ```
  
  These parameters must be specified:
@@ -80,7 +80,7 @@ where they will automatically be ingested by a daemon process.
  once File DropZone is installed, configure the Authentication Client by editing the properties file:
  
  ```
-    /etc/file-drop-zone/conf/auth-client.properties
+    /etc/cdap/file-drop-zone/conf/auth-client.properties
  ```
  
  Authentication Client configuration parameters:

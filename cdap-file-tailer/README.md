@@ -33,7 +33,7 @@ it sends it to a Stream via the CDAP REST API.
  Once installed, configure the daemon by editing the file:
  
  ```
-    /etc/file-tailer/conf/file-tailer.properties
+    /etc/cdap/file-tailer/conf/file-tailer.properties
  ```
  
  These parameters must be specified:
@@ -115,7 +115,7 @@ it sends it to a Stream via the CDAP REST API.
  Once File Tailer is installed, configure the Authentication Client by editing the properties file:
  
  ```
-    /etc/file-tailer/conf/auth-client.properties
+    /etc/cdap/file-tailer/conf/auth-client.properties
  ```
  
  Authentication Client configuration parameters:
