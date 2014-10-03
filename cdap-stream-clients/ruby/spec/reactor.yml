@@ -1,0 +1,4 @@
+gateway: 'localhost'
+port: 10000
+api_version: 'v2'
+ssl: false

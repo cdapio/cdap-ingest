@@ -18,9 +18,15 @@ module CDAPIngest
   class StreamClient
 
     attr_reader :rest
+    attr_reader :auth_client
 
     def initialize
       @rest = Rest.new
+    end
+
+    # Set authentication client
+    def set_auth_client auth_client
+     Rest.set_auth_client auth_client
     end
 
     ###
