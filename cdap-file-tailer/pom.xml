@@ -160,7 +160,7 @@
                   <outputDirectory>${project.build.directory}/usr/lib/${script.app.name}/bin</outputDirectory>
                   <resources>
                     <resource>
-                      <directory>${project.basedir}/sh/bin</directory>
+                      <directory>${project.basedir}/distributions/bin</directory>
                     </resource>
                   </resources>
                 </configuration>
@@ -395,9 +395,9 @@
                     --url "http://cask.co"
                     --template-value "project=${script.app.name}"
                     --before-install "${project.basedir}/src/main/rpm/control/preinst"
-                    --after-install "${project.basedir}/sh/control/postinst"
-                    --before-remove "${project.basedir}/sh/control/prerm"
-                    --after-remove "${project.basedir}/sh/control/postrm"
+                    --after-install "${project.basedir}/distributions/control/postinst"
+                    --before-remove "${project.basedir}/distributions/control/prerm"
+                    --after-remove "${project.basedir}/distributions/control/postrm"
                     --iteration 1
                     ${package.dirs}
                   </commandlineArgs>
@@ -444,9 +444,9 @@
                     --url "http://cask.co"
                     --template-value "project=${script.app.name}"
                     --before-install "${project.basedir}/src/main/deb/control/preinst"
-                    --after-install "${project.basedir}/sh/control/postinst"
-                    --before-remove "${project.basedir}/sh/control/prerm"
-                    --after-remove "${project.basedir}/sh/control/postrm"
+                    --after-install "${project.basedir}/distributions/control/postinst"
+                    --before-remove "${project.basedir}/distributions/control/prerm"
+                    --after-remove "${project.basedir}/distributions/control/postrm"
                     --iteration 1
                     ${package.dirs}
                   </commandlineArgs>
