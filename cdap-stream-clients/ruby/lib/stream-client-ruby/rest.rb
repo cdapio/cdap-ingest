@@ -40,7 +40,7 @@ module CDAPIngest
     end
 
     def is_auth_enabled
-      @auth_client.auth_enabled?
+      @auth_client ? @auth_client.auth_enabled? : false
     end
 
     def get_access_token

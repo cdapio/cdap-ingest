@@ -63,9 +63,9 @@ Create a StreamClient instance and use it as any Ruby object:
 client = CDAPIngest::StreamClient.new
 ```
 
- if authentication is using, configure set authentication client:
+ If authentication is required, set authentication client:
  ```
-  client.set_auth_client(auth_client)
+  client.set_auth_client auth_client
  ```
 
  Create a new Stream with the *stream id* "new_stream_name":
