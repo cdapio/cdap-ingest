@@ -19,6 +19,9 @@ package co.cask.cdap.flume;
 
 import co.cask.cdap.security.authentication.client.AccessToken;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
+import com.google.common.io.Closeables;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import org.apache.flume.Event;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.agent.embedded.EmbeddedAgent;
@@ -30,7 +33,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,20 +42,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 
 public class CdapFlumeIT {
 
-  private static final int eventNumber = 50;
+  private static final int EVENT_NUMBER = 50;
   private static final String CONFIG_NAME = "cdapFlumeITConfig";
   private static final String AUTH_PROPERTIES = "sink1.authClientProperties";
   private static final String EVENT_STR = "Test event number: ";
-  private static final String RESPONSE_EVENT_BODY = "body";
+  private static final long SLEEP_INTERVAL = 1000;
 
   @Test
   public void baseEventProcessingTest() throws Exception {
@@ -71,17 +75,20 @@ public class CdapFlumeIT {
     agent.configure(propertyMap);
     agent.start();
     long startTime = System.currentTimeMillis();
-    for (int i = 0; i < eventNumber; i++) {
+    for (int i = 0; i < EVENT_NUMBER; i++) {
       Event event = new SimpleEvent();
       event.setBody((EVENT_STR + i).getBytes());
       agent.put(event);
     }
-    Thread.currentThread().sleep(1000);
+    Thread.sleep(1000);
     agent.stop();
-    HttpResponse response = readFromStream(properties, startTime, System.currentTimeMillis());
-    JSONArray jsonArray = new JSONArray(EntityUtils.toString(response.getEntity()));
-    for (int i = 0; i < eventNumber; i++) {
-      Assert.assertTrue(jsonArray.getJSONObject(i).getString(RESPONSE_EVENT_BODY).equals(EVENT_STR + i));
+    String eventsStr = readFromStream(properties, startTime, System.currentTimeMillis());
+    Type listType = new TypeToken<List<StreamEvent>>() {
+    }.getType();
+    List<StreamEvent> eventList = new Gson().fromJson(eventsStr, listType);
+    Assert.assertEquals(EVENT_NUMBER, eventList.size());
+    for (int i = 0; i < EVENT_NUMBER; i++) {
+      Assert.assertTrue(eventList.get(i).getBody().equals(EVENT_STR + i));
     }
   }
 
@@ -100,10 +107,9 @@ public class CdapFlumeIT {
     for (final String name : properties.stringPropertyNames()) {
       propertyMap.put(name, properties.getProperty(name));
     }
-    long startTime = System.currentTimeMillis();
     agent.configure(propertyMap);
     agent.start();
-    for (int i = 0; i < eventNumber; i++) {
+    for (int i = 0; i < EVENT_NUMBER; i++) {
       Event event = new SimpleEvent();
       agent.put(event);
     }
@@ -122,7 +128,7 @@ public class CdapFlumeIT {
     field.set(null, sinkList);
   }
 
-  private HttpResponse readFromStream(Properties properties, long startTime, long endTime) throws Exception {
+  private String readFromStream(Properties properties, long startTime, long endTime) throws Exception {
     String host = properties.getProperty("sink1.host");
     String port = properties.getProperty("sink1.port");
     boolean ssl = Boolean.parseBoolean(properties.getProperty("sink1.ssl"));
@@ -137,7 +143,6 @@ public class CdapFlumeIT {
         "sink1.authClientClass", "co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient");
       AuthenticationClient authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
 
-      Properties authProperties = new Properties();
       InputStream inStream = null;
       try {
         inStream = new FileInputStream(authClientPropertiesPath);
@@ -159,7 +164,9 @@ public class CdapFlumeIT {
     CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(
       new BasicHttpClientConnectionManager()).build();
     HttpResponse response = httpClient.execute(getRequest);
-    return response;
+    String res = EntityUtils.toString(response.getEntity());
+    Closeables.close(httpClient, true);
+    return res;
   }
 
   private Properties getProperties(String fileName) throws IOException {
@@ -167,4 +174,15 @@ public class CdapFlumeIT {
     properties.load(CdapFlumeIT.class.getClassLoader().getResourceAsStream(fileName));
     return properties;
   }
+
+  class StreamEvent {
+    private Map<String, String> headers;
+    private String body;
+    long timestamp;
+
+    public String getBody() {
+      return body;
+    }
+  }
+
 }
