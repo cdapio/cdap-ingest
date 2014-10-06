@@ -80,7 +80,7 @@ public class CdapFlumeIT {
       event.setBody((EVENT_STR + i).getBytes());
       agent.put(event);
     }
-    Thread.sleep(1000);
+    Thread.sleep(SLEEP_INTERVAL);
     agent.stop();
     String eventsStr = readFromStream(properties, startTime, System.currentTimeMillis());
     Type listType = new TypeToken<List<StreamEvent>>() {
