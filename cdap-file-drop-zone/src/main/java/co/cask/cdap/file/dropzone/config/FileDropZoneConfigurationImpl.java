@@ -59,7 +59,7 @@ public class FileDropZoneConfigurationImpl extends ConfigurationImpl implements 
       String authClientPath = newProperties.getProperty("pipes." + pipe + ".sink.auth_client_properties");
       if (authClientPath == null || authClientPath.equals("")) {
         newProperties.put("pipes." + pipe + ".sink.auth_client_properties",
-                          "/etc/file-drop-zone/conf/auth-client.properties");
+                          "/etc/cdap/file-drop-zone/conf/auth-client.properties");
       }
       newProperties.put("pipes." + pipe + ".source.work_dir", getWorkDir() + observer);
       newProperties.put("pipes." + pipe + ".source.read_rotated_files", "false");

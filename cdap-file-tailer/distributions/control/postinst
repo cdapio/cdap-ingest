@@ -21,12 +21,12 @@ if [ -h /usr/bin/file-tailer ]; then
     rm -f /usr/bin/file-tailer
 fi
 
-if [ -h /etc/file-tailer/conf ]; then
-    rm -f /etc/file-tailer/conf
+if [ -h /etc/cdap/file-tailer/conf ]; then
+    rm -f /etc/cdap/file-tailer/conf
 fi
 
-if [ ! -d /etc/file-tailer ]; then
-    mkdir -p /etc/file-tailer
+if [ ! -d /etc/cdap/file-tailer ]; then
+    mkdir -p /etc/cdap/file-tailer
 fi
 
 if [ ! -d /var/log/file-tailer ]; then
@@ -37,7 +37,7 @@ chown -R file-tailer:file-tailer /var/log/file-tailer
 chmod 755 /var/log/file-tailer
 
 ln -s /usr/lib/file-tailer/bin/file-tailer /usr/bin/file-tailer
-ln -s /usr/lib/file-tailer/conf /etc/file-tailer/conf
+ln -s /usr/lib/file-tailer/conf /etc/cdap/file-tailer/conf
 
 if [ -f /usr/lib/file-tailer/bin/file-tailer.default ]; then
     mv /usr/lib/file-tailer/bin/file-tailer.default /etc/default/file-tailer
