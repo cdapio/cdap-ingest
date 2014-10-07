@@ -35,12 +35,14 @@ The Stream Client Python API is for managing Streams from Python applications.
 
 ## Example
 #### Create StreamClient
-Create a ```StreamClient``` instance, specifying the fields 'host' and 'port' of the gateway server.
+Create a StreamClient instance with default parameters.
 ```
    stream_client = StreamClient()
 ```
 
 Optional configurations that can be set (and their default values):
+- host: 'localhost'
+- port: 10000
 - ssl: False (use HTTP protocol)
 - ssl_cert_check: true (set false to suspend certificate checks to allow self-signed certificates when SSL is true)
 - authClient: null ([Authenticaton Client](https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/java)
