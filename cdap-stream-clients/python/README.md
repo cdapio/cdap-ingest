@@ -125,5 +125,6 @@ def on_error_response(response):
     parse response
     ...
 
+stream_promise = stream_writer.write("New stream event");
 stream_promise.on_response(on_ok_response, on_error_response)
 ```
