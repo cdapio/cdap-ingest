@@ -10,7 +10,8 @@ The Stream Client Python API is for managing Streams from Python applications.
 
 
 ## Installation
- To install CDAP Authentication Client, either [download a zip file](https://repository.cask.co/downloads/co/cask/cdap/cdap-python-stream-client/1.0.0/cdap-python-stream-client-1.0.0.zip)
+ To install the CDAP Authentication Client, either [download a zip file]
+ (https://repository.cask.co/downloads/co/cask/cdap/cdap-python-stream-client/1.0.0/cdap-python-stream-client-1.0.0.zip)
  
  ```
  $ unzip cdap-python-authentication-client-1.0.0.zip
