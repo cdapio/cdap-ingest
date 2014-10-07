@@ -6,6 +6,8 @@ The CDAP Sink is a Flume Sink implementation using REST Stream interface to writ
 ## Usage
 
  To use, put the CDAP Sink jar file in the Flume classpath (for example, in the Flume lib directory).
+ The JAR can be obtained from [Maven Central](http://search.maven.org/#search|ga|1|cdap-flume).
+ 
  Specify the fully-qualified name of your CDAP Sink class in the Flume configuration properties:
  ```
  a1.sinks.sink1.type = co.cask.cdap.flume.StreamSink

@@ -20,21 +20,22 @@ it sends it to a Stream via the CDAP REST API.
  - on Debian/Ubuntu systems:
  
  ```
-    sudo apt-get install file-tailer.deb
+    sudo apt-get install cdap-file-tailer-1.0.1.deb
  ```
  
  - on RHEL/CentOS systems:
  
  ```
-    sudo rpm -ivh --force file-tailer.rpm
+    sudo rpm -ivh --force cdap-file-tailer-1.0.1.deb
  ```
  
+ Repository information can be found at http://docs.cask.co/cdap/current/en/admin.html#packaging
 
- Once installed, configure the daemon by editing the file:
+Once installed, configure the daemon by editing the file:
  
- ```
-    /etc/file-tailer/conf/file-tailer.properties
- ```
+```
+   /etc/file-tailer/conf/file-tailer.properties
+```
  
  These parameters must be specified:
 
