@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'thread'
   s.add_dependency 'promise.rb'
   s.add_dependency 'em-http-request'
-  
+
   s.add_development_dependency 'pry'
 
   # s.files         = `git ls-files`.split("\n")
