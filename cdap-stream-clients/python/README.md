@@ -1,20 +1,29 @@
-# CDAP Stream Client Python library
-
-Stream Client Python API for managing Streams via external Python applications.
+# CDAP Stream Client
+The Stream Client Python API is for managing Streams from Python applications.
 
 ## Supported Actions
-
-- create a Stream with a specified *stream-id*;
-- update TTL for an existing Stream with a specified *stream-id*;
-- retrieve the current Stream TTL for a specified *stream-id*;
-- truncate an existing Stream (the deletion of all events that were written to the Stream);
-- write an event to an existing Stream specified by *stream-id*;
+ - Create a Stream
+ - Update TTL (time-to-live) for an existing Stream
+ - Retrieve the current Stream TTL
+ - Truncate an existing Stream (the deletion of all events that were written to the Stream)
+ - Write an event to an existing Stream
 
 
 ## Installation
- To install CDAP Authentication Client, run:
+ To install the CDAP Stream Client, either [download a zip file]
+ (https://repository.cask.co/downloads/co/cask/cdap/cdap-python-stream-client/1.0.0/cdap-python-stream-client-1.0.0.zip)
+ 
+ ```
+ $ unzip cdap-python-stream-client-1.0.0.zip
+ $ cd cdap-python-stream-client-1.0.0
+ $ python setup.py install
+ ```
+ 
+ or [clone the repository](https://github.com/caskdata/cdap-ingest)
 ```
-    $ python setup.py install
+ $ git clone https://github.com/caskdata/cdap-ingest.git
+ $ cd cdap-ingest/cdap-stream-clients/python/
+ $ python setup.py install
 ```
 
 ## Usage
@@ -22,120 +31,104 @@ Stream Client Python API for managing Streams via external Python applications.
  To use the Stream Client Python API, include these imports in your Python script:
 
 ```
-    from cdap_stream_client import Config
-    from cdap_stream_client import StreamClient
+  from cdap_stream_client import Config
+  from cdap_stream_client import StreamClient
 ```
 
 ## Example
+#### Create StreamClient
+Create a StreamClient instance with default parameters.
+```
+   stream_client = StreamClient()
+```
 
-Create a ```StreamClient``` instance, specifying the fields 'host' and 'port' of the gateway server. 
 Optional configurations that can be set (and their default values):
-
-  - ssl: False (use HTTP protocol)
-
- ```
-   config = Config()
-   config.host = 'localhost'
-   config.port = 10000
-   config.ssl = False
-
-   streamClient = StreamClient(config)
- ```
-
- or using the ```read_from_file``` method of the ```Config``` object:
-
- ```
-   config = Config.read_from_file('/path/to/config.json')
-
-   streamClient = StreamClient(config)
- ```
-
-Config file structure in JSON format:
+- host: 'localhost'
+- port: 10000
+- ssl: False (set true to use HTTPS protocol)
+- ssl_cert_check: True (set False to suspend certificate checks; this allows self-signed certificates when SSL is True)
+- authClient: null ([CDAP Authentication Client](https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/python)
+ to interact with a secure CDAP instance)
 ```
-{
-    hostname: 'localhost',    - gateway hostname
-    port: 10000,              - gateway port
-    SSL: false                - if SSL is being used
-}
+  config = Config()
+  config.host = 'localhost'
+  config.port = 10000
+  config.ssl = True
+  config.set_auth_client(authentication_client)
+
+  stream_client = StreamClient(config)
 ```
 
- Create a new Stream with the *stream-id* "newStreamName":
+#### Create Stream
+Create a new Stream with the *stream-id* "newStreamName":
 
  ```
-   streamClient.create("newStreamName");
+   stream_client.create("newStreamName");
  ```
 
- Notes:
+**Notes:**
+ - The *stream-id* should only contain ASCII letters, digits and hyphens.
+ - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
-  - The *stream-id* can only contain ASCII letters, digits and hyphens.
-  - If the Stream already exists, no error is returned, and the existing Stream remains in place.
+#### Create StreamWriter
+Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
 
+```
+  stream_writer = stream_client.create_writer("streamName");
+```
 
- Update TTL for the Stream "streamName"; ```newTTL``` is a long value:
+#### Write Stream Events
+To write new events to the Stream, use the ```write``` method of the ```StreamWriter``` class:
 
- ```
-   streamClient.set_ttl("streamName", newTTL);
- ```
-
- Get the current TTL value for the Stream "streamName":
-
- ```
-   ttl = streamClient.get_ttl("streamName");
- ```
-
- Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
-
- ```
-   streamWriter = streamClient.create_writer("streamName");
- ```
-
- To write new events to the Stream, you can use either of these these methods of the ```StreamWriter``` class:
-
- ```
-   def write(self, message, charset=None, headers=None)
- ```
-
- Example:
-
- ```
-   streamPromise = streamWriter.write("New log event");
- ```
-
- To truncate the Stream *streamName*, use:
-
- ```
-   streamClient.truncate("streamName");
- ```
-
- ### StreamPromise
- StreamPromise's goal is to implement deferred code execution.
-
-For error handling, create a handler for each case and set it using the ```onResponse``` method.
+```
+  def write(self, message, charset=None, headers=None)
+```
 
 Example:
 
 ```
-def onOkHandler(httpResponse):
-    ...
-    parse response
-    ...
-
-def onErrorHandler(httpResponse):
-    ...
-    parse response
-    ...
-
-streamPromise.onResponse(onOkResponse, onErrorResponse)
+  stream_promise = stream_writer.write("New stream event");
 ```
 
-It's not required to define an error handler. If you don't specify an error handler, the success handler is used for both success and error conditions.
+#### Truncate Stream
+To delete all events that were written to the Stream *streamName*, use:
 
-## Additional Notes
+```
+  stream_client.truncate("streamName");
+```
 
- All methods from the ```StreamClient``` and ```StreamWriter``` throw exceptions using response code analysis from the 
- gateway server. These exceptions help determine if the request was processed successfully or not.
+#### Update Stream Time-to-Live (TTL)
+Update TTL for the Stream *streamName*:
 
- In the case of a **200 OK** response, no exception will be thrown; other cases will throw the NoFoundException exception.
+```
+  stream_client.set_ttl("streamName", newTTL);
+```
 
-```code``` method of the exception class returns HTTP error code.
-```message``` method of the exception class returns text representation of an error.
+#### Get Stream Time-to-Live (TTL)
+Get the current TTL value for the Stream *streamName*:
+
+```
+  ttl = stream_client.get_ttl("streamName");
+```
+
+### StreamPromise
+StreamPromise's goal is to implement deferred code execution.
+
+For error handling, create a handler for each case and set it using the ```onResponse``` method. The error handling callback function is optional.
+
+Example:
+
+```
+def on_ok_response(response):
+    ...
+    parse response
+    ...
+
+def on_error_response(response):
+    ...
+    parse response
+    ...
+
+stream_promise = stream_writer.write("New stream event");
+stream_promise.on_response(on_ok_response, on_error_response)
+```
