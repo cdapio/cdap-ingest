@@ -38,13 +38,15 @@ it sends it to a Stream via the CDAP REST API.
  
  These parameters must be specified:
 
+```
   - pipes=<pipe1-name, pipe2-name, ...>
   - pipes.<pipe1-name>.source.work_dir=<source-work-directory>
   - pipes.<pipe1-name>.source.file_name=<source-file-name>
   - pipes.<pipe1-name>.sink.stream_name=<stream-name>
   - pipes.<pipe1-name>.sink.host=<host-name>
   - pipes.<pipe1-name>.sink.port=<port-number>
- 
+```
+
  Please note that the target file must be accessible to the File Tailer user.
  To check, you can use the more command with the File Tailer user:
  
@@ -119,10 +121,12 @@ it sends it to a Stream via the CDAP REST API.
  ```
  
  Authentication Client configuration parameters:
- 
+
+```
  - pipes.<pipe-name>.sink.auth_client - classpath of authentication client class
  - pipes.<pipe-name>.sink.auth_client_properties - path to authentication client properties file
- 
+```
+
 ## Authentication Client Example Configuration
  
  ```
@@ -137,6 +141,7 @@ it sends it to a Stream via the CDAP REST API.
  
  Description of configuration parameters:
 
+```
  - daemon_dir - the path to directory for storage of File Tailer state and metrics
  - pipes - list of all pipes, comma-separated
  - pipes.<pipe-name>.name - name of the pipe
@@ -161,3 +166,4 @@ it sends it to a Stream via the CDAP REST API.
  - pipes.<pipe-name>.sink.packSize - number of logs sent at a time (default 1)
  - pipes.<pipe-name>.sink.failure_retry_limit - number of attempts to retry sending logs, if an error occurred while reading file data (default value is 0 for unlimited attempts)
  - pipes.<pipe-name>.sink.failure_sleep_interval - interval to sleep if an error occurred while sending the logs (default 60000 ms)
+```

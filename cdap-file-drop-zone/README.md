@@ -84,10 +84,12 @@ where they will automatically be ingested by a daemon process.
  ```
  
  Authentication Client configuration parameters:
- 
+
+ ```
  - pipes.<pipe-name>.sink.auth_client - classpath of authentication client class
  - pipes.<pipe-name>.sink.auth_client_properties - path to authentication client properties file
- 
+ ```
+
 ## Authentication Client Example Configuration
  
  ```
