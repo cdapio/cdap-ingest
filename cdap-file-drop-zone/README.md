@@ -20,13 +20,13 @@ where they will automatically be ingested by a daemon process.
  - on Debian/Ubuntu systems:
  
  ```
-    sudo apt-get install cdap-file-drop-zone-1.0.0.deb
+    sudo apt-get install cdap-file-drop-zone-1.0.1.deb
  ```
  
  - on RHEL/CentOS systems:
  
  ```
-    sudo rpm -ivh --force cdap-file-drop-zone-1.0.0.deb
+    sudo rpm -ivh --force cdap-file-drop-zone-1.0.1.deb
  ```
  
  Repository information can be found at http://docs.cask.co/cdap/current/en/admin.html#packaging
