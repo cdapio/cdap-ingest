@@ -10,9 +10,18 @@ The Stream Client Python API is for managing Streams from Python applications.
 
 
 ## Installation
- To install CDAP Stream Client, run:
+ To install CDAP Authentication Client, either [download a zip file](https://repository.continuuity.com/content/repositories/public/co/cask/cdap/cdap-python-stream-client/1.0.0/cdap-python-stream-client-1.0.0.zip)
+ ```
+ $ unzip cdap-python-authentication-client-1.0.0.zip
+ $ cd cdap-python-authentication-client-1.0.0
+ $ python setup.py install
+ ```
+ 
+ or [clone the repository](https://github.com/caskdata/cdap-ingest)
 ```
-    $ python setup.py install
+ $ git clone https://github.com/caskdata/cdap-clients.git
+ $ cd cdap-ingest/cdap-stream-clients/python/
+ $ python setup.py install
 ```
 
 ## Usage
@@ -25,10 +34,10 @@ The Stream Client Python API is for managing Streams from Python applications.
 ```
 
 ## Example
-
+#### Create StreamClient
 Create a ```StreamClient``` instance, specifying the fields 'host' and 'port' of the gateway server.
 ```
-   streamClient = StreamClient()
+   stream_client = StreamClient()
 ```
 
 Optional configurations that can be set (and their default values):
@@ -43,58 +52,62 @@ Optional configurations that can be set (and their default values):
    config.ssl = True
    config.set_auth_client(authentication_client)
 
-   streamClient = StreamClient(config)
+   stream_client = StreamClient(config)
  ```
-
- Create a new Stream with the *stream-id* "newStreamName":
+#### Create Stream
+Create a new Stream with the *stream-id* "newStreamName":
 
  ```
-   streamClient.create("newStreamName");
+   stream_client.create("newStreamName");
  ```
 
 **Notes:**
  - The *stream-id* should only contain ASCII letters, digits and hyphens.
  - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
+#### Create StreamWriter
+Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
 
- Update TTL for the Stream "streamName"; ```newTTL``` is a long value:
+```
+  stream_writer = stream_client.create_writer("streamName");
+```
 
- ```
-   stream_client.set_ttl("streamName", newTTL);
- ```
+#### Write Stream Events
+To write new events to the Stream, use the ```write``` method of the ```StreamWriter``` class:
 
- Get the current TTL value for the Stream "streamName":
+```
+  def write(self, message, charset=None, headers=None)
+```
 
- ```
-   ttl = stream_client.get_ttl("streamName");
- ```
+Example:
 
- Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
+```
+  stream_promise = stream_writer.write("New stream event");
+```
 
- ```
-   stream_writer = stream_client.create_writer("streamName");
- ```
+#### Truncate Stream
+To truncate the Stream *streamName*, use:
 
- To write new events to the Stream, you can use either of these these methods of the ```StreamWriter``` class:
+```
+  stream_client.truncate("streamName");
+```
 
- ```
-   def write(self, message, charset=None, headers=None)
- ```
+#### Update Stream Time-to-Live (TTL)
+Update TTL for the Stream "streamName"; ```newTTL``` is a long value:
 
- Example:
+```
+  stream_client.set_ttl("streamName", newTTL);
+```
 
- ```
-   stream_promise = stream_writer.write("New stream event");
- ```
+#### Get Stream Time-to-Live (TTL)
+Get the current TTL value for the Stream "streamName":
 
- To truncate the Stream *streamName*, use:
+```
+  ttl = stream_client.get_ttl("streamName");
+```
 
- ```
-   stream_client.truncate("streamName");
- ```
-
- ### StreamPromise
- StreamPromise's goal is to implement deferred code execution.
+### StreamPromise
+StreamPromise's goal is to implement deferred code execution.
 
 For error handling, create a handler for each case and set it using the ```onResponse``` method. The error handling callback function is optional.
 
