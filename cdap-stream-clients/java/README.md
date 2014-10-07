@@ -1,9 +1,7 @@
 # CDAP Stream Client
-
 The Stream Client Java API is for managing Streams from Java applications.
 
 ## Supported Actions
-
  - Create a Stream
  - Update TTL (time-to-live) for an exiting Stream
  - Retrieve the current Stream TTL
@@ -11,15 +9,11 @@ The Stream Client Java API is for managing Streams from Java applications.
  - Write an event to an existing Stream
 
 ## Build
- 
- To build the Stream Client Java API jar, use:
- 
- ```mvn clean package```
+To build the Stream Client Java API jar, use:
+```mvn clean package```
 
 ## Usage
-
- To use the Stream Client Java API, include this Maven dependency in your project's ```pom.xml``` file:
-
+To use the Stream Client Java API, include this Maven dependency in your project's ```pom.xml``` file:
 ```
  <dependency>
   <groupId>co.cask.cdap</groupId>
@@ -29,25 +23,23 @@ The Stream Client Java API is for managing Streams from Java applications.
 ```
  
 ## Example
-   
- Create a StreamClient instance, specifying the fields 'host' and 'port' of the CDAP instance.
+Create a StreamClient instance, specifying the fields 'host' and 'port' of the CDAP instance.
 ```
    StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000).build();
  ```
 
- Optional configuration that can be set (and their default values):
-  - ssl: false (set true to use HTTPS protocol)
-  - verifySSLCert: true (set false to suspend certificate checks to allow self-signed certificates when SSL is true)
-  - authClient: null (Needed to interact with secure CDAP instances)
-
- ```
+Optional configuration that can be set (and their default values):
+ - ssl: false (set true to use HTTPS protocol)
+ - verifySSLCert: true (set false to suspend certificate checks to allow self-signed certificates when SSL is true)
+ - authClient: null (Needed to interact with secure CDAP instances)
+```
    StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000)
          .ssl(true)
          .authClient(authenticationClient)
          .build();
  ```
  
- Create a new Stream with the *stream id* "streamName":
+Create a new Stream with the *stream id* "streamName":
 ```
    streamClient.create("streamName");
  ```
@@ -56,22 +48,22 @@ The Stream Client Java API is for managing Streams from Java applications.
  - If the Stream already exists, no error is returned, and the existing Stream remains in place.
      
  
- Update TTL for the Stream *streamName*:
+Update TTL for the Stream *streamName*:
 ```
    streamClient.setTTL("streamName", newTTL);
  ```
  
- Get the current TTL value for the Stream *streamName*:
+Get the current TTL value for the Stream *streamName*:
 ```
    long ttl = streamClient.getTTL("streamName");  
  ```
  
- Create a ```StreamWriter``` instance for writing events to the Stream *streamName*:
+Create a ```StreamWriter``` instance for writing events to the Stream *streamName*:
 ```
    StreamWriter streamWriter = streamClient.createWriter("streamName");
  ```
      
- To write new events to the Stream, you can use any of these five methods in the ```StreamWriter``` interface:
+To write new events to the Stream, you can use any of these five methods in the ```StreamWriter``` interface:
 ```
    ListenableFuture<Void> write(String str, Charset charset);
    ListenableFuture<Void> write(String str, Charset charset, Map<String, String> headers);
@@ -83,29 +75,27 @@ Example:
    streamWriter.write("New log event", Charsets.UTF_8).get();
 ```
    
- To truncate the Stream *streamName*, use:
+To truncate the Stream *streamName*, use:
 ```
    streamClient.truncate("streamName");
 ```
    
- When you are finished, release all resources by calling these two methods:
+When you are finished, release all resources by calling these two methods:
 ```
    streamWriter.close();
    streamClient.close();  
 ```
 
 ## Additional Notes
+All methods from the ```StreamClient``` and ```StreamWriter``` throw exceptions using response code analysis from the
+gateway server. These exceptions help determine if the request was processed successfully or not.
  
- All methods from the ```StreamClient``` and ```StreamWriter``` throw exceptions using response code analysis from the 
- gateway server. These exceptions help determine if the request was processed successfully or not.
- 
- In the case of a **200 OK** response, no exception will be thrown; other cases will throw these exceptions:
-  
-  - **400 Bad Request**: *javax.ws.rs.BadRequestException;*   
-  - **401 Unauthorized**: *javax.ws.rs.NotAuthorizedException;*
-  - **403 Forbidden**: *javax.ws.rs.ForbiddenException;*
-  - **404 Not Found**: *co.cask.cdap.client.exception.NotFoundException/javax.ws.rs.NotFoundException;*
-  - **405 Method Not Allowed**: *javax.ws.rs.NotAcceptableException;*
-  - **409 Conflict**: *javax.ws.rs.NotAcceptableException;*
-  - **500 Internal Server Error**: *javax.ws.rs.ServerErrorException;*
-  - **501 Not Implemented**: *javax.ws.rs.NotSupportedException*.
+In the case of a **200 OK** response, no exception will be thrown; other cases will throw these exceptions:
+ - **400 Bad Request**: *javax.ws.rs.BadRequestException;*
+ - **401 Unauthorized**: *javax.ws.rs.NotAuthorizedException;*
+ - **403 Forbidden**: *javax.ws.rs.ForbiddenException;*
+ - **404 Not Found**: *co.cask.cdap.client.exception.NotFoundException/javax.ws.rs.NotFoundException;*
+ - **405 Method Not Allowed**: *javax.ws.rs.NotAcceptableException;*
+ - **409 Conflict**: *javax.ws.rs.NotAcceptableException;*
+ - **500 Internal Server Error**: *javax.ws.rs.ServerErrorException;*
+ - **501 Not Implemented**: *javax.ws.rs.NotSupportedException*.
