@@ -31,10 +31,10 @@ Create a StreamClient instance, specifying the fields 'host' and 'port' of the C
    StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000).build();
 ```
 
-Optional configuration that can be set (and their default values):
+Optional configurations that can be set (and their default values):
  - ssl: false (set true to use HTTPS protocol)
- - verifySSLCert: true (set false to suspend certificate checks to allow self-signed certificates when SSL is true)
- - authClient: null ([Authenticaton Client](https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/java)
+ - verifySSLCert: true (set false to suspend certificate checks; this allows self-signed certificates when SSL is true)
+ - authClient: null ([CDAP Authentication Client](https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/java)
  to interact with a secure CDAP instance)
 ```
    StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000)
@@ -66,18 +66,18 @@ Example:
 ```
 
 #### Truncate Stream
-To truncate the Stream *streamName*, use:
+To delete all events that were written to the Stream *streamName*, use:
 ```
    streamClient.truncate("streamName");
 ```
 
-#### Update Stream TTL
+#### Update Stream Time-to-Live (TTL)
 Update TTL for the Stream *streamName*:
 ```
    streamClient.setTTL("streamName", newTTL);
 ```
 
-#### Get Stream TTL
+#### Get Stream Time-to-Live (TTL)
 Get the current TTL value for the Stream *streamName*:
 ```
    long ttl = streamClient.getTTL("streamName");
