@@ -89,21 +89,21 @@ Example:
 ```
 
 #### Truncate Stream
-To truncate the Stream *streamName*, use:
+To delete all events that were written to the Stream *streamName*, use:
 
 ```
   stream_client.truncate("streamName");
 ```
 
 #### Update Stream Time-to-Live (TTL)
-Update TTL for the Stream "streamName":
+Update TTL for the Stream *streamName*:
 
 ```
   stream_client.set_ttl("streamName", newTTL);
 ```
 
 #### Get Stream Time-to-Live (TTL)
-Get the current TTL value for the Stream "streamName":
+Get the current TTL value for the Stream *streamName*:
 
 ```
   ttl = stream_client.get_ttl("streamName");
