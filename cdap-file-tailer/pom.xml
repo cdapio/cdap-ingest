@@ -44,7 +44,7 @@
     </dependency>
     <dependency>
       <groupId>co.cask.cdap</groupId>
-      <artifactId>authentication-client-java</artifactId>
+      <artifactId>cdap-authentication-client</artifactId>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
