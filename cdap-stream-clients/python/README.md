@@ -29,8 +29,8 @@ The Stream Client Python API is for managing Streams from Python applications.
  To use the Stream Client Python API, include these imports in your Python script:
 
 ```
-    from cdap_stream_client import Config
-    from cdap_stream_client import StreamClient
+  from cdap_stream_client import Config
+  from cdap_stream_client import StreamClient
 ```
 
 ## Example
@@ -54,6 +54,7 @@ Optional configurations that can be set (and their default values):
 
    stream_client = StreamClient(config)
  ```
+
 #### Create Stream
 Create a new Stream with the *stream-id* "newStreamName":
 
