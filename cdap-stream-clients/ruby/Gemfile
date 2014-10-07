@@ -29,5 +29,5 @@ group :test do
   gem "simplecov-rcov"
   gem "vcr"
   gem "webmock"
-  gem 'authentication-client-ruby'
+  gem 'cdap-authentication-client' , :path =>'/home/yura/work/cdap-clients/cdap-authentication-clients/ruby'
 end
