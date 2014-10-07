@@ -23,6 +23,7 @@ To use the Stream Client Java API, include this Maven dependency in your project
 ```
  
 ## Example
+#### Create StreamClient
 Create a StreamClient instance, specifying the fields 'host' and 'port' of the CDAP instance.
 ```
    StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000).build();
@@ -39,6 +40,7 @@ Optional configuration that can be set (and their default values):
          .build();
  ```
  
+#### Create Stream
 Create a new Stream with the *stream id* "streamName":
 ```
    streamClient.create("streamName");
@@ -47,22 +49,13 @@ Create a new Stream with the *stream id* "streamName":
  - The *stream-id* should only contain ASCII letters, digits and hyphens.
  - If the Stream already exists, no error is returned, and the existing Stream remains in place.
      
- 
-Update TTL for the Stream *streamName*:
-```
-   streamClient.setTTL("streamName", newTTL);
- ```
- 
-Get the current TTL value for the Stream *streamName*:
-```
-   long ttl = streamClient.getTTL("streamName");  
- ```
- 
+#### Create StreamWriter
 Create a ```StreamWriter``` instance for writing events to the Stream *streamName*:
 ```
    StreamWriter streamWriter = streamClient.createWriter("streamName");
  ```
-     
+
+#### Write Stream Events
 To write new events to the Stream, you can use any of these five methods in the ```StreamWriter``` interface:
 ```
    ListenableFuture<Void> write(String str, Charset charset);
@@ -74,12 +67,26 @@ Example:
 ```
    streamWriter.write("New log event", Charsets.UTF_8).get();
 ```
-   
+
+#### Truncate Stream
 To truncate the Stream *streamName*, use:
 ```
    streamClient.truncate("streamName");
 ```
-   
+
+#### Update Stream TTL
+Update TTL for the Stream *streamName*:
+```
+   streamClient.setTTL("streamName", newTTL);
+ ```
+
+#### Get Strem TTL
+Get the current TTL value for the Stream *streamName*:
+```
+   long ttl = streamClient.getTTL("streamName");
+ ```
+
+#### Close Clients
 When you are finished, release all resources by calling these two methods:
 ```
    streamWriter.close();
