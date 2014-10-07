@@ -47,15 +47,15 @@ Optional configurations that can be set (and their default values):
 - ssl_cert_check: true (set false to suspend certificate checks to allow self-signed certificates when SSL is true)
 - authClient: null ([Authenticaton Client](https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/java)
  to interact with a secure CDAP instance)
- ```
-   config = Config()
-   config.host = 'localhost'
-   config.port = 10000
-   config.ssl = True
-   config.set_auth_client(authentication_client)
+```
+  config = Config()
+  config.host = 'localhost'
+  config.port = 10000
+  config.ssl = True
+  config.set_auth_client(authentication_client)
 
-   stream_client = StreamClient(config)
- ```
+  stream_client = StreamClient(config)
+```
 
 #### Create Stream
 Create a new Stream with the *stream-id* "newStreamName":
@@ -96,7 +96,7 @@ To truncate the Stream *streamName*, use:
 ```
 
 #### Update Stream Time-to-Live (TTL)
-Update TTL for the Stream "streamName"; ```newTTL``` is a long value:
+Update TTL for the Stream "streamName":
 
 ```
   stream_client.set_ttl("streamName", newTTL);
