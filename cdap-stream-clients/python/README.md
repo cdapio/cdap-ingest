@@ -43,9 +43,9 @@ Create a StreamClient instance with default parameters.
 Optional configurations that can be set (and their default values):
 - host: 'localhost'
 - port: 10000
-- ssl: False (use HTTP protocol)
-- ssl_cert_check: true (set false to suspend certificate checks to allow self-signed certificates when SSL is true)
-- authClient: null ([Authenticaton Client](https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/java)
+- ssl: False (set true to use HTTPS protocol)
+- ssl_cert_check: True (set False to suspend certificate checks; this allows self-signed certificates when SSL is True)
+- authClient: null ([CDAP Authentication Client](https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/python)
  to interact with a secure CDAP instance)
 ```
   config = Config()
