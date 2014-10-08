@@ -230,11 +230,11 @@ public class PipeConfigurationImpl implements PipeConfiguration {
       String host = getRequiredProperty(this.key + "host");
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
       boolean ssl = Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL));
-      boolean disableCertCheck = Boolean.valueOf(getProperty(this.key + "disableCertCheck",
+      boolean verifySslCert = Boolean.valueOf(getProperty(this.key + "verify.ssl.cert",
                                                              DEFAULT_DISABLE_CERT_CHECK));
 
       RestStreamClient.Builder builder = RestStreamClient.builder(host, port).ssl(ssl)
-        .verifySSLCert(disableCertCheck);
+        .verifySSLCert(verifySslCert);
 
       String authClientClassPath = getProperty(this.key + "auth_client", DEFAULT_AUTH_CLIENT);
       String authClientPropertiesPath = getProperty(this.key + "auth_client_properties",

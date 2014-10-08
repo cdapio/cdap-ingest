@@ -131,7 +131,7 @@ Once installed, configure the daemon by editing the file:
      # Whether or not the sink endpoint uses SSL
      pipes.pipe1.sink.ssl=true
      # Whether or not the certificate should be checked if using SSL
-     pipes.pipe1.sink.disableCertCheck=true
+     pipes.pipe1.sink.verify.ssl.cert=true
      # path to authentication client properties to use if SSL is being used
      pipes.pipe1.sink.auth_client_properties=/etc/file-drop-zone/conf/auth-client.properties
 
