@@ -41,6 +41,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -58,6 +59,9 @@ public class CdapFlumeIT {
   private static final String AUTH_PROPERTIES = "sink1.authClientProperties";
   private static final String EVENT_STR = "Test event number: ";
   private static final long SLEEP_INTERVAL = 1000;
+  public static final String FAIL_PORT = "10010";
+  public static final int EVENT_FAIL_START_NUMBER = 10;
+  public static final int FAIL_EVENT_END_NUMBER = 20;
 
   @Test
   public void baseEventProcessingTest() throws Exception {
@@ -75,29 +79,19 @@ public class CdapFlumeIT {
     agent.configure(propertyMap);
     agent.start();
     long startTime = System.currentTimeMillis();
-    for (int i = 0; i < EVENT_NUMBER; i++) {
-      Event event = new SimpleEvent();
-      event.setBody((EVENT_STR + i).getBytes());
-      agent.put(event);
-    }
+    writeEvents(agent, 0, EVENT_NUMBER);
     Thread.sleep(SLEEP_INTERVAL);
     agent.stop();
-    String eventsStr = readFromStream(properties, startTime, System.currentTimeMillis());
-    Type listType = new TypeToken<List<StreamEvent>>() {
-    }.getType();
-    List<StreamEvent> eventList = new Gson().fromJson(eventsStr, listType);
-    Assert.assertEquals(EVENT_NUMBER, eventList.size());
-    for (int i = 0; i < EVENT_NUMBER; i++) {
-      Assert.assertTrue(eventList.get(i).getBody().equals(EVENT_STR + i));
-    }
+    checkEvents(properties, startTime, System.currentTimeMillis());
   }
 
-  @Test(expected = EventDeliveryException.class)
-  public void failEventProcessingTest() throws Exception {
+  @Test
+  public void eventProcessingWithCdapFailTest() throws Exception {
 
     EmbeddedAgent agent = new EmbeddedAgent("test-flume");
     Properties properties = getProperties(System.getProperty(CONFIG_NAME));
-    properties.setProperty("sink1.port", "11111");
+    Method method = agent.getClass().getDeclaredMethod("doConfigure", Map.class);
+    method.setAccessible(true);
     String authPath = properties.getProperty(AUTH_PROPERTIES);
     if (authPath != null) {
       URL url = Thread.currentThread().getContextClassLoader().getResource(authPath);
@@ -107,13 +101,34 @@ public class CdapFlumeIT {
     for (final String name : properties.stringPropertyNames()) {
       propertyMap.put(name, properties.getProperty(name));
     }
+    String port = properties.getProperty("sink1.port");
     agent.configure(propertyMap);
     agent.start();
-    for (int i = 0; i < EVENT_NUMBER; i++) {
-      Event event = new SimpleEvent();
-      agent.put(event);
-    }
+    method.invoke(agent, propertyMap);
+    long startTime = System.currentTimeMillis();
+    writeEvents(agent, 0, EVENT_FAIL_START_NUMBER);
+    propertyMap.put("sink1.port", FAIL_PORT);
+    method.invoke(agent, propertyMap);
+    writeEvents(agent, EVENT_FAIL_START_NUMBER, FAIL_EVENT_END_NUMBER);
+    propertyMap.put("sink1.port", port);
+    method.invoke(agent, propertyMap);
+
+    writeEvents(agent, FAIL_EVENT_END_NUMBER, EVENT_NUMBER);
+    Thread.sleep(SLEEP_INTERVAL);
     agent.stop();
+
+    checkEvents(properties, startTime, System.currentTimeMillis());
+  }
+
+  private void checkEvents(Properties properties, long startTime, long endTime) throws Exception {
+    String eventsStr = readFromStream(properties, startTime, endTime);
+    Type listType = new TypeToken<List<StreamEvent>>() {
+    }.getType();
+    List<StreamEvent> eventList = new Gson().fromJson(eventsStr, listType);
+    Assert.assertEquals(EVENT_NUMBER, eventList.size());
+    for (int i = 0; i < EVENT_NUMBER; i++) {
+      Assert.assertTrue(eventList.get(i).getBody().equals(EVENT_STR + i));
+    }
   }
 
   @Before
@@ -126,6 +141,18 @@ public class CdapFlumeIT {
     modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     String sinkList[] = {"co.cask.cdap.flume.StreamSink"};
     field.set(null, sinkList);
+  }
+
+  private void writeEvents(EmbeddedAgent agent, int startNumber, int endNumber) {
+    for (int i = startNumber; i < endNumber; i++) {
+      Event event = new SimpleEvent();
+      event.setBody((EVENT_STR + i).getBytes());
+      try {
+        agent.put(event);
+      } catch (EventDeliveryException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   private String readFromStream(Properties properties, long startTime, long endTime) throws Exception {
