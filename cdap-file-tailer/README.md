@@ -26,7 +26,7 @@ it sends it to a Stream via the CDAP REST API.
  - on RHEL/CentOS systems:
  
  ```
-    sudo rpm -ivh --force cdap-file-tailer-1.0.1.deb
+    sudo rpm -ivh --force cdap-file-tailer-1.0.1.rpm
  ```
  
  Repository information can be found at http://docs.cask.co/cdap/current/en/admin.html#packaging

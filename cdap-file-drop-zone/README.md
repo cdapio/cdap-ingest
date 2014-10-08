@@ -26,7 +26,7 @@ where they will automatically be ingested by a daemon process.
  - on RHEL/CentOS systems:
  
  ```
-    sudo rpm -ivh --force cdap-file-drop-zone-1.0.1.deb
+    sudo rpm -ivh --force cdap-file-drop-zone-1.0.1.rpm
  ```
  
  Repository information can be found at http://docs.cask.co/cdap/current/en/admin.html#packaging
