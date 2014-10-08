@@ -43,12 +43,15 @@ Create a StreamClient instance with default parameters.
     stream_client = StreamClient()
 
 Optional configurations that can be set (and their default values):
+
 - host: 'localhost'
 - port: 10000
 - ssl: False (set true to use HTTPS protocol)
 - ssl_cert_check: True (set False to suspend certificate checks; this allows self-signed certificates when SSL is True)
 - authClient: null ([CDAP Authentication Client](https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/python)
   to interact with a secure CDAP instance)
+
+Example:
 
     config = Config()
     config.host = 'localhost'
