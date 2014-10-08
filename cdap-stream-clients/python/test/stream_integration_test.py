@@ -21,9 +21,9 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest as unittest
+import os
 
 from stream_test_base import StreamTestBase
-import os
 
 class TestStreamClient(unittest.TestCase, StreamTestBase):
 
