@@ -17,8 +17,8 @@
 from __future__ import with_statement
 import json
 from io import open
-from cdap_auth_client.BasicAuthenticationClient import BasicAuthenticationClient
-from cdap_auth_client.Config import Config as AuthConfig
+from cdap_auth_client import BasicAuthenticationClient
+from cdap_auth_client import Config as AuthConfig
 
 
 class Config(object):
