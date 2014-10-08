@@ -15,26 +15,28 @@ where they will automatically be ingested by a daemon process.
 
 ## Usage
 
- to install File DropZone, execute one of these commands:
+ To install File DropZone, execute one of these commands:
  
  - on Debian/Ubuntu systems:
  
  ```
-    sudo apt-get install file-drop-zone.deb
+    sudo apt-get install cdap-file-drop-zone-1.0.1.deb
  ```
  
  - on RHEL/CentOS systems:
  
  ```
-    sudo rpm -ivh --force file-drop-zone.rpm
+    sudo rpm -ivh --force cdap-file-drop-zone-1.0.1.deb
  ```
  
+ Repository information can be found at http://docs.cask.co/cdap/current/en/admin.html#packaging
 
- once installed, configure the daemon by editing the file:
- 
- ```
-    /etc/file-drop-zone/conf/file-drop-zone.properties
- ```
+
+Once installed, configure the daemon by editing the file:
+
+```
+   /etc/file-drop-zone/conf/file-drop-zone.properties
+```
  
  These parameters must be specified:
 
