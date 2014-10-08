@@ -34,10 +34,8 @@ current_dir = os.path.dirname(
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from cdap_stream_client import Config
+from cdap_stream_client import Config, StreamWriter, StreamClient
 from cdap_stream_client.serviceconnector import NotFoundError
-from cdap_stream_client import StreamWriter
-from cdap_stream_client import StreamClient
 
 with mock.patch('__main__.Config.is_auth_enabled',
                         new_callable=mock.PropertyMock) \
