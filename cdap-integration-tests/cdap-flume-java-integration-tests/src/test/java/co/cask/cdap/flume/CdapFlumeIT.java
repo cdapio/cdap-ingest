@@ -17,6 +17,8 @@
 
 package co.cask.cdap.flume;
 
+import co.cask.cdap.client.StreamClient;
+import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.security.authentication.client.AccessToken;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.io.Closeables;
@@ -59,22 +61,23 @@ public class CdapFlumeIT {
   private static final String AUTH_PROPERTIES = "sink1.authClientProperties";
   private static final String EVENT_STR = "Test event number: ";
   private static final long SLEEP_INTERVAL = 1000;
-  public static final String FAIL_PORT = "10010";
+  public static final String INVALID_PORT = "11111";
   public static final int EVENT_FAIL_START_NUMBER = 10;
   public static final int FAIL_EVENT_END_NUMBER = 20;
+
+  private String cdapPort;
+  private String cdapHost;
+  private Boolean ssl;
+  private String streamId;
+  private Properties flumeProperties;
+  private String authClientPropertiesPath;
 
   @Test
   public void baseEventProcessingTest() throws Exception {
     EmbeddedAgent agent = new EmbeddedAgent("test-flume");
-    Properties properties = getProperties(System.getProperty(CONFIG_NAME));
-    String authPath = properties.getProperty(AUTH_PROPERTIES);
-    if (authPath != null) {
-      URL url = Thread.currentThread().getContextClassLoader().getResource(authPath);
-      properties.setProperty(AUTH_PROPERTIES, url.getPath());
-    }
     Map propertyMap = new HashMap<String, String>();
-    for (final String name : properties.stringPropertyNames()) {
-      propertyMap.put(name, properties.getProperty(name));
+    for (final String name : flumeProperties.stringPropertyNames()) {
+      propertyMap.put(name, flumeProperties.getProperty(name));
     }
     agent.configure(propertyMap);
     agent.start();
@@ -82,48 +85,44 @@ public class CdapFlumeIT {
     writeEvents(agent, 0, EVENT_NUMBER);
     Thread.sleep(SLEEP_INTERVAL);
     agent.stop();
-    checkEvents(properties, startTime, System.currentTimeMillis());
+    checkDeliveredEvents(flumeProperties, startTime, System.currentTimeMillis());
   }
 
   @Test
+  /**
+   * Test simulate CDAP fail. CDAP port is swapped in runtime to simulate work with not accessible port.
+   */
   public void eventProcessingWithCdapFailTest() throws Exception {
 
     EmbeddedAgent agent = new EmbeddedAgent("test-flume");
-    Properties properties = getProperties(System.getProperty(CONFIG_NAME));
     Method method = agent.getClass().getDeclaredMethod("doConfigure", Map.class);
     method.setAccessible(true);
-    String authPath = properties.getProperty(AUTH_PROPERTIES);
-    if (authPath != null) {
-      URL url = Thread.currentThread().getContextClassLoader().getResource(authPath);
-      properties.setProperty(AUTH_PROPERTIES, url.getPath());
-    }
     Map propertyMap = new HashMap<String, String>();
-    for (final String name : properties.stringPropertyNames()) {
-      propertyMap.put(name, properties.getProperty(name));
+    for (final String name : flumeProperties.stringPropertyNames()) {
+      propertyMap.put(name, flumeProperties.getProperty(name));
     }
-    String port = properties.getProperty("sink1.port");
     agent.configure(propertyMap);
     agent.start();
     method.invoke(agent, propertyMap);
     long startTime = System.currentTimeMillis();
     writeEvents(agent, 0, EVENT_FAIL_START_NUMBER);
-    propertyMap.put("sink1.port", FAIL_PORT);
+    Assert.assertNotEquals(cdapPort, INVALID_PORT);
+    propertyMap.put("sink1.port", INVALID_PORT);
     method.invoke(agent, propertyMap);
     writeEvents(agent, EVENT_FAIL_START_NUMBER, FAIL_EVENT_END_NUMBER);
-    propertyMap.put("sink1.port", port);
+    propertyMap.put("sink1.port", cdapPort);
     method.invoke(agent, propertyMap);
 
     writeEvents(agent, FAIL_EVENT_END_NUMBER, EVENT_NUMBER);
     Thread.sleep(SLEEP_INTERVAL);
     agent.stop();
 
-    checkEvents(properties, startTime, System.currentTimeMillis());
+    checkDeliveredEvents(flumeProperties, startTime, System.currentTimeMillis());
   }
 
-  private void checkEvents(Properties properties, long startTime, long endTime) throws Exception {
+  private void checkDeliveredEvents(Properties properties, long startTime, long endTime) throws Exception {
     String eventsStr = readFromStream(properties, startTime, endTime);
-    Type listType = new TypeToken<List<StreamEvent>>() {
-    }.getType();
+    Type listType = new TypeToken<List<StreamEvent>>() { }.getType();
     List<StreamEvent> eventList = new Gson().fromJson(eventsStr, listType);
     Assert.assertEquals(EVENT_NUMBER, eventList.size());
     for (int i = 0; i < EVENT_NUMBER; i++) {
@@ -141,6 +140,20 @@ public class CdapFlumeIT {
     modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     String sinkList[] = {"co.cask.cdap.flume.StreamSink"};
     field.set(null, sinkList);
+    flumeProperties = getProperties(System.getProperty(CONFIG_NAME));
+
+    cdapHost = flumeProperties.getProperty("sink1.host");
+    cdapPort = flumeProperties.getProperty("sink1.port");
+    ssl = Boolean.parseBoolean(flumeProperties.getProperty("sink1.ssl"));
+    streamId = flumeProperties.getProperty("sink1.streamName");
+    authClientPropertiesPath = flumeProperties.getProperty("sink1.authClientProperties");
+    if (authClientPropertiesPath != null) {
+      URL url = Thread.currentThread().getContextClassLoader().getResource(authClientPropertiesPath);
+      flumeProperties.setProperty(AUTH_PROPERTIES, url.getPath());
+      authClientPropertiesPath = url.getPath();
+    }
+    createStream();
+
   }
 
   private void writeEvents(EmbeddedAgent agent, int startNumber, int endNumber) {
@@ -150,50 +163,59 @@ public class CdapFlumeIT {
       try {
         agent.put(event);
       } catch (EventDeliveryException e) {
-        e.printStackTrace();
       }
     }
   }
 
+  private void createStream() throws Exception {
+    RestStreamClient.Builder builder = RestStreamClient.builder(cdapHost, Integer.parseInt(cdapPort));
+    builder.ssl(ssl);
+    if (authClientPropertiesPath != null) {
+      AuthenticationClient authClient = configureAuthClient();
+      builder.authClient(authClient);
+    }
+    StreamClient streamClient = builder.build();
+    streamClient.create(streamId);
+  }
+
+
   private String readFromStream(Properties properties, long startTime, long endTime) throws Exception {
-    String host = properties.getProperty("sink1.host");
-    String port = properties.getProperty("sink1.port");
-    boolean ssl = Boolean.parseBoolean(properties.getProperty("sink1.ssl"));
-    String streamId = properties.getProperty("sink1.streamName");
-    String authClientPropertiesPath = properties.getProperty("sink1.authClientProperties");
     URI baseUrl = URI.create(String.format("%s://%s:%s", ssl ? "https" : "http",
-                                           host, port));
+                                           cdapHost, cdapPort));
     HttpGet getRequest = new HttpGet(baseUrl.resolve(String.format("/v2/streams/%s/events?start=%s&end=%s",
                                                                    streamId, startTime, endTime)));
     if (authClientPropertiesPath != null) {
-      String authClientClassName = properties.getProperty(
-        "sink1.authClientClass", "co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient");
-      AuthenticationClient authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
-
-      InputStream inStream = null;
-      try {
-        inStream = new FileInputStream(authClientPropertiesPath);
-        properties.load(inStream);
-        authClient.configure(properties);
-        authClient.setConnectionInfo(host, Integer.parseInt(port), ssl);
-        AccessToken token = authClient.getAccessToken();
-        getRequest.setHeader("Authorization", token.getTokenType() + " " + token.getValue());
-      } finally {
-        try {
-          if (inStream != null) {
-            inStream.close();
-          }
-        } catch (IOException e) {
-        }
-      }
+      AuthenticationClient authClient = configureAuthClient();
+      AccessToken token = authClient.getAccessToken();
+      getRequest.setHeader("Authorization", token.getTokenType() + " " + token.getValue());
     }
-
     CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(
       new BasicHttpClientConnectionManager()).build();
     HttpResponse response = httpClient.execute(getRequest);
     String res = EntityUtils.toString(response.getEntity());
     Closeables.close(httpClient, true);
     return res;
+  }
+
+  private AuthenticationClient configureAuthClient() throws Exception {
+    String authClientClassName = flumeProperties.getProperty("sink1.authClientClass");
+    AuthenticationClient authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
+    InputStream inStream = null;
+    try {
+      inStream = new FileInputStream(authClientPropertiesPath);
+      Properties properties = new Properties();
+      properties.load(inStream);
+      authClient.configure(properties);
+      authClient.setConnectionInfo(cdapHost, Integer.parseInt(cdapPort), ssl);
+    } finally {
+      try {
+        if (inStream != null) {
+          inStream.close();
+        }
+      } catch (IOException e) {
+      }
+    }
+    return authClient;
   }
 
   private Properties getProperties(String fileName) throws IOException {
