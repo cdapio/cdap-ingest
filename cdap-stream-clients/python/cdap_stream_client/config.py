@@ -17,23 +17,16 @@
 from __future__ import with_statement
 import json
 from io import open
-from cdap_auth_client import BasicAuthenticationClient
-from cdap_auth_client import Config as AuthConfig
 
 
 class Config(object):
 
-    def __init__(self, host=u'localhost', port=10000, ssl=False,
-                 verify_ssl_cert=True, filename=u''):
+    def __init__(self, host=u'localhost', port=10000, ssl=False, verify_ssl_cert=True):
         self.__host = host
         self.__port = port
         self.__ssl = ssl
         self.__verify_ssl_cert = verify_ssl_cert
-        self.__authClient = BasicAuthenticationClient()
-        self.__authClient.set_connection_info(self.__host,
-                                              self.__port, self.__ssl)
-        if filename:
-            self.__authClient.configure(AuthConfig().read_from_file(filename))
+        self.__authClient = None
 
     def set_auth_client(self, client):
         self.__authClient = client
@@ -72,6 +65,8 @@ class Config(object):
 
     @property
     def auth_token(self):
+        if self.__authClient is None:
+            raise AttributeError("Authentication Client is not set.")
         try:
             return self.__authClient.get_access_token()
         except IOError:
@@ -79,18 +74,18 @@ class Config(object):
 
     @property
     def is_auth_enabled(self):
-        return self.__authClient.is_auth_enabled()
+        return self.__authClient is not None and self.__authClient.is_auth_enabled()
 
     @staticmethod
     def read_from_file(filename):
-        newConfig = None
-        jsonConfig = None
-
         with open(filename) as configFile:
-            jsonConfig = json.loads(configFile.read())
+            json_config = json.loads(configFile.read())
 
-        newConfig = Config(jsonConfig[u'hostname'],
-                           jsonConfig[u'port'], jsonConfig[u'SSL'],
-                           jsonConfig[u'security_ssl_cert_check'])
+        new_config = Config()
 
-        return newConfig
+        new_config.host = json_config.get(u'hostname', new_config.host)
+        new_config.port = json_config.get(u'port', new_config.port)
+        new_config.ssl = json_config.get(u'SSL', new_config.ssl)
+        new_config.ssl_cert_check = json_config.get(u'security_ssl_cert_check', new_config.ssl_cert_check)
+
+        return new_config
