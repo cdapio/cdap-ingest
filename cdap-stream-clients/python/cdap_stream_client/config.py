@@ -24,11 +24,11 @@ from cdap_auth_client import Config as AuthConfig
 class Config(object):
 
     def __init__(self, host=u'localhost', port=10000, ssl=False,
-                 ssl_disable_check=True, filename=u''):
+                 verify_ssl_cert=True, filename=u''):
         self.__host = host
         self.__port = port
         self.__ssl = ssl
-        self.__ssl_disable_check = ssl_disable_check
+        self.__verify_ssl_cert = verify_ssl_cert
         self.__authClient = BasicAuthenticationClient()
         self.__authClient.set_connection_info(self.__host,
                                               self.__port, self.__ssl)
@@ -64,11 +64,11 @@ class Config(object):
 
     @property
     def ssl_cert_check(self):
-        return self.__ssl_disable_check
+        return self.__verify_ssl_cert
 
     @ssl_cert_check.setter
     def ssl_cert_check(self, state):
-        self.__ssl_disable_check = state
+        self.__verify_ssl_cert = state
 
     @property
     def auth_token(self):
@@ -91,6 +91,6 @@ class Config(object):
 
         newConfig = Config(jsonConfig[u'hostname'],
                            jsonConfig[u'port'], jsonConfig[u'SSL'],
-                           jsonConfig[u'security_ssl_cert_check'])
+                           jsonConfig[u'security_verify_ssl_cert'])
 
         return newConfig
