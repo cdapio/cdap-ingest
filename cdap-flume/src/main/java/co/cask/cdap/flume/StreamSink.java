@@ -168,27 +168,29 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       builder.writerPoolSize(writerPoolSize);
       builder.version(version);
       InputStream inStream = null;
-      try {
-        authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
-
-        Properties properties = new Properties();
-        properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
-        inStream = new FileInputStream(authClientPropertiesPath);
-        properties.load(inStream);
-        authClient.configure(properties);
-        authClient.setConnectionInfo(host, port, sslEnabled);
-        builder.authClient(authClient);
-      } catch (IOException e) {
-        LOG.error("Cannot load properties", e);
-      } catch (Exception e) {
-        LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassName, e.getMessage(), e});
-      } finally {
+      if (sslEnabled) {
         try {
-          if (inStream != null) {
-            inStream.close();
-          }
+          authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
+
+          Properties properties = new Properties();
+          properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
+          inStream = new FileInputStream(authClientPropertiesPath);
+          properties.load(inStream);
+          authClient.configure(properties);
+          authClient.setConnectionInfo(host, port, sslEnabled);
+          builder.authClient(authClient);
         } catch (IOException e) {
-          LOG.warn("Error during closing input stream. {}", e.getMessage(), e);
+          LOG.error("Cannot load properties", e);
+        } catch (Exception e) {
+          LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassName, e.getMessage(), e});
+        } finally {
+          try {
+            if (inStream != null) {
+              inStream.close();
+            }
+          } catch (IOException e) {
+            LOG.warn("Error during closing input stream. {}", e.getMessage(), e);
+          }
         }
       }
       streamClient = builder.build();
