@@ -1,0 +1,13 @@
+{
+  "name": "cdap-stream-client",
+  "version": "1.0.0",
+  "dependencies": {
+    "mime": "^1.2.11"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-copy": "^0.6.0",
+    "grunt-contrib-uglify": "~0.2.7"
+  }
+}
