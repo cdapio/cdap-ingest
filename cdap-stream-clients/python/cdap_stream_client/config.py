@@ -91,6 +91,6 @@ class Config(object):
 
         newConfig = Config(jsonConfig[u'hostname'],
                            jsonConfig[u'port'], jsonConfig[u'SSL'],
-                           jsonConfig[u'security_verify_ssl_cert'])
+                           jsonConfig[u'security_ssl_cert_check'])
 
         return newConfig
