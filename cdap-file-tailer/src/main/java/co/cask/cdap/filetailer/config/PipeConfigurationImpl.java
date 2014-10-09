@@ -206,7 +206,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   private class SinkConfigurationImpl implements SinkConfiguration {
 
     private static final String DEFAULT_SSL = "false";
-    private static final String DEFAULT_DISABLE_CERT_CHECK = "false";
+    private static final String DEFAULT_VERIFY_SSL_CERT = "true";
     private static final String DEFAULT_WRITER_POOL_SIZE = "10";
     private static final String DEFAULT_VERSION = "v2";
     private static final String DEFAULT_PACK_SIZE = "1";
@@ -230,11 +230,11 @@ public class PipeConfigurationImpl implements PipeConfiguration {
       String host = getRequiredProperty(this.key + "host");
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
       boolean ssl = Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL));
-      boolean disableCertCheck = Boolean.valueOf(getProperty(this.key + "disableCertCheck",
-                                                             DEFAULT_DISABLE_CERT_CHECK));
+      boolean verifySslCert = Boolean.valueOf(getProperty(this.key + "verify.ssl.cert",
+                                                          DEFAULT_VERIFY_SSL_CERT));
 
       RestStreamClient.Builder builder = RestStreamClient.builder(host, port).ssl(ssl)
-        .verifySSLCert(disableCertCheck);
+        .verifySSLCert(verifySslCert);
 
       String authClientClassPath = getProperty(this.key + "auth_client", DEFAULT_AUTH_CLIENT);
       String authClientPropertiesPath = getProperty(this.key + "auth_client_properties",
