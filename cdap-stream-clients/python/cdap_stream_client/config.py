@@ -75,17 +75,3 @@ class Config(object):
     @property
     def is_auth_enabled(self):
         return self.__authClient is not None and self.__authClient.is_auth_enabled()
-
-    @staticmethod
-    def read_from_file(filename):
-        with open(filename) as configFile:
-            json_config = json.loads(configFile.read())
-
-        new_config = Config()
-
-        new_config.host = json_config.get(u'hostname', new_config.host)
-        new_config.port = json_config.get(u'port', new_config.port)
-        new_config.ssl = json_config.get(u'SSL', new_config.ssl)
-        new_config.ssl_cert_check = json_config.get(u'security_ssl_cert_check', new_config.ssl_cert_check)
-
-        return new_config
