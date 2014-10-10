@@ -15,13 +15,17 @@
 #  the License.
 
 from __future__ import with_statement
-import json
-from io import open
+
+
+DEFAULT_HOST = u'localhost'
+DEFAULT_PORT = 10000
+DEFAULT_SSL = False
+DEFAULT_VERIFY_SSL_CERT = True
 
 
 class Config(object):
 
-    def __init__(self, host=u'localhost', port=10000, ssl=False, verify_ssl_cert=True):
+    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, ssl=DEFAULT_SSL, verify_ssl_cert=DEFAULT_VERIFY_SSL_CERT):
         self.__host = host
         self.__port = port
         self.__ssl = ssl
