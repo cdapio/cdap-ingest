@@ -15,25 +15,23 @@
 #  the License.
 
 from __future__ import with_statement
-import json
-from io import open
-from cdap_auth_client import BasicAuthenticationClient
-from cdap_auth_client import Config as AuthConfig
+
+
+DEFAULT_HOST = u'localhost'
+DEFAULT_PORT = 10000
+DEFAULT_SSL = False
+DEFAULT_VERIFY_SSL_CERT = True
 
 
 class Config(object):
 
-    def __init__(self, host=u'localhost', port=10000, ssl=False,
-                 verify_ssl_cert=True, filename=u''):
+    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, ssl=DEFAULT_SSL,
+                 verify_ssl_cert=DEFAULT_VERIFY_SSL_CERT):
         self.__host = host
         self.__port = port
         self.__ssl = ssl
         self.__verify_ssl_cert = verify_ssl_cert
-        self.__authClient = BasicAuthenticationClient()
-        self.__authClient.set_connection_info(self.__host,
-                                              self.__port, self.__ssl)
-        if filename:
-            self.__authClient.configure(AuthConfig().read_from_file(filename))
+        self.__authClient = None
 
     def set_auth_client(self, client):
         self.__authClient = client
@@ -72,25 +70,10 @@ class Config(object):
 
     @property
     def auth_token(self):
-        try:
-            return self.__authClient.get_access_token()
-        except IOError:
-            return u''
+        if self.__authClient is None:
+            raise AttributeError("Authentication Client is not set.")
+        return self.__authClient.get_access_token()
 
     @property
     def is_auth_enabled(self):
-        return self.__authClient.is_auth_enabled()
-
-    @staticmethod
-    def read_from_file(filename):
-        newConfig = None
-        jsonConfig = None
-
-        with open(filename) as configFile:
-            jsonConfig = json.loads(configFile.read())
-
-        newConfig = Config(jsonConfig[u'hostname'],
-                           jsonConfig[u'port'], jsonConfig[u'SSL'],
-                           jsonConfig[u'security_ssl_cert_check'])
-
-        return newConfig
+        return self.__authClient is not None and self.__authClient.is_auth_enabled()

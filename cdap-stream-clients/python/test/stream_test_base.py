@@ -14,11 +14,11 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-import requests
 
+import inspect
+import json
 import os
 import sys
-import inspect
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -26,11 +26,12 @@ sys.path.insert(0, parentdir)
 
 from cdap_stream_client import Config, StreamWriter, StreamClient
 from cdap_stream_client.serviceconnector import NotFoundError
-from cdap_auth_client import BasicAuthenticationClient, Config as AuthConfig
+from cdap_auth_client import BasicAuthenticationClient
 
 # Should be used as parent class for integration tests.
 # In children 'config_file' property has to be set and
 # 'base_set_up' method called.
+
 
 class StreamTestBase(object):
 
@@ -53,16 +54,31 @@ class StreamTestBase(object):
     def config_file(self, filename):
         self.__config_file = filename
 
+
+    @staticmethod
+    def read_from_file(filename):
+        with open(filename) as configFile:
+            json_config = json.loads(configFile.read())
+
+        new_config = Config()
+        new_config.host = json_config.get(u'hostname', new_config.host)
+        new_config.port = json_config.get(u'port', new_config.port)
+        new_config.ssl = json_config.get(u'SSL', new_config.ssl)
+        new_config.ssl_cert_check = json_config.get(u'security_ssl_cert_check', new_config.ssl_cert_check)
+        return new_config
+
     def base_set_up(self):
-        authConfig = AuthConfig().read_from_file(self.config_file)
-        self.config = Config.read_from_file(self.config_file)
+        with open(self.config_file) as config_file:
+            auth_config = json.loads(config_file.read())
+        self.config = StreamTestBase.read_from_file(self.config_file)
 
-        authClient = BasicAuthenticationClient()
-        authClient.set_connection_info(self.config.host,
+        auth_client = BasicAuthenticationClient()
+        auth_client.set_connection_info(self.config.host,
                                        self.config.port, self.config.ssl)
-        authClient.configure(authConfig)
+        if auth_client.is_auth_enabled():
+            auth_client.configure(auth_config)
+            self.config.set_auth_client(auth_client)
 
-        self.config.set_auth_client(authClient)
         self.sc = StreamClient(self.config)
 
     def test_reactor_successful_connection(self):

@@ -30,7 +30,7 @@ class StreamWriter(object):
         serviceConnector -- reference to connection pool to communicate
                             with gateway server.
         uri -- REST URL part to perform request.
-               Example: '/v2/strems/myStream'
+               Example: '/v2/streams/myStream'
         data -- data to proceed by worker thread.  Please read
                 '__workerTarget' documentation.
         """
