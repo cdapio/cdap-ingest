@@ -59,6 +59,10 @@
             addToResult(src2);
 
             return result;
+        },
+        baseUrl: function (hostname, port, ssl) {
+            return ['', (ssl ? 'https' : 'http'), '://',
+                hostname, ':', port].join('');
         }
     };
 }));
