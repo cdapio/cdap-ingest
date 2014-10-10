@@ -170,6 +170,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       InputStream inStream = null;
       try {
         authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
+        authClient.setConnectionInfo(host, port, sslEnabled);
         if (authClient.isAuthEnabled()) {
           Properties properties = new Properties();
           properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
@@ -177,7 +178,6 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
           properties.load(inStream);
           authClient.configure(properties);
         }
-        authClient.setConnectionInfo(host, port, sslEnabled);
         builder.authClient(authClient);
       } catch (IOException e) {
         LOG.error("Cannot load properties", e);
