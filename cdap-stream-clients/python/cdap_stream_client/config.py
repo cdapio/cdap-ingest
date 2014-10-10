@@ -71,10 +71,7 @@ class Config(object):
     def auth_token(self):
         if self.__authClient is None:
             raise AttributeError("Authentication Client is not set.")
-        try:
-            return self.__authClient.get_access_token()
-        except IOError:
-            return u''
+        return self.__authClient.get_access_token()
 
     @property
     def is_auth_enabled(self):
