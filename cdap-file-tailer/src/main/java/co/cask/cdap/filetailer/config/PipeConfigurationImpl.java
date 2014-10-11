@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -243,18 +244,20 @@ public class PipeConfigurationImpl implements PipeConfiguration {
         AuthenticationClient authClient =
           (AuthenticationClient) Class.forName(authClientClassPath).getConstructor().newInstance();
         authClient.setConnectionInfo(host, port, ssl);
-        File authClientProperties = new File(authClientPropertiesPath);
-        if (!authClientProperties.exists()) {
-          URL authFileUrl = PipeConfigurationImpl.class.getClassLoader().getResource(authClientPropertiesPath);
-          if (authFileUrl != null) {
-            authClientProperties = new File(authFileUrl.toURI());
+        if (authClient.isAuthEnabled()) {
+          File authClientProperties = new File(authClientPropertiesPath);
+          if (!authClientProperties.exists()) {
+            URL authFileUrl = PipeConfigurationImpl.class.getClassLoader().getResource(authClientPropertiesPath);
+            if (authFileUrl != null) {
+              authClientProperties = new File(authFileUrl.toURI());
+            }
           }
+          if (!authClientProperties.exists()) {
+            throw new ConfigurationLoadingException("File " +
+                                                      authClientProperties.getAbsolutePath() + " doesn't exists");
+          }
+          authClient.configure(new ConfigurationLoaderImpl().load(authClientProperties).getProperties());
         }
-        if (!authClientProperties.exists()) {
-          throw new ConfigurationLoadingException("File " +
-                                                    authClientProperties.getAbsolutePath() + " doesn't exists");
-        }
-        authClient.configure(new ConfigurationLoaderImpl().load(authClientProperties).getProperties());
         builder.authClient(authClient);
       } catch (ClassNotFoundException e) {
         LOG.warn("Can not resolve class {}: {}", authClientClassPath, e.getMessage(), e);
@@ -272,6 +275,8 @@ public class PipeConfigurationImpl implements PipeConfiguration {
       } catch (ConfigurationLoadingException e) {
         LOG.warn("Can not load Authentication Client properties file {}: {}",
                   authClientPropertiesPath, e.getMessage(), e);
+      } catch (IOException e) {
+        LOG.warn("Failed to check if authorization is enabled.");
       }
 
       String apiKey = getProperty(this.key + "apiKey");
