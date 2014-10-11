@@ -276,7 +276,7 @@ public class PipeConfigurationImpl implements PipeConfiguration {
         LOG.warn("Can not load Authentication Client properties file {}: {}",
                   authClientPropertiesPath, e.getMessage(), e);
       } catch (IOException e) {
-        LOG.warn("Failed to check if authorization is enabled.");
+        LOG.warn("Failed to check if authorization is enabled.", e);
       }
 
       String apiKey = getProperty(this.key + "apiKey");
