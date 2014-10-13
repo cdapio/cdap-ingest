@@ -22,6 +22,7 @@ import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import org.apache.flume.Channel;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Context;
@@ -175,8 +176,8 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
           Properties properties = new Properties();
           properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
           if ((authClientPropertiesPath == null) || (authClientPropertiesPath.isEmpty())) {
-            LOG.error("Authentication client is enabled, but the path for properties file is either empty or null");
-            return;
+            throw new Exception("Authentication client is enabled, but the path for properties " +
+                                  "file is either empty or null");
           }
           inStream = new FileInputStream(authClientPropertiesPath);
           properties.load(inStream);
@@ -185,8 +186,13 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
         builder.authClient(authClient);
       } catch (IOException e) {
         LOG.error("Cannot load properties", e);
-      } catch (Exception e) {
+        throw Throwables.propagate(e);
+      } catch (ClassNotFoundException e) {
         LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassName, e.getMessage(), e});
+        throw Throwables.propagate(e);
+      } catch (Exception e) {
+        LOG.error(e.getMessage(), e);
+        throw Throwables.propagate(e);
       } finally {
         try {
           if (inStream != null) {
@@ -196,18 +202,18 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
           LOG.warn("Error during closing input stream. {}", e.getMessage(), e);
         }
       }
-    streamClient = builder.build();
-  }
-  try {
-    if (writer == null) {
-      writer = streamClient.createWriter(streamName);
+      streamClient = builder.build();
     }
-  } catch (Throwable t) {
-    closeWriterQuietly();
-    throw new IOException("Can not create stream writer by name: " + streamName, t);
-  }
+    try {
+      if (writer == null) {
+        writer = streamClient.createWriter(streamName);
+      }
+    } catch (Throwable t) {
+      closeWriterQuietly();
+      throw new IOException("Can not create stream writer by name: " + streamName, t);
+    }
 
-}
+  }
 
   private void closeClientQuietly() {
     if (streamClient != null) {
