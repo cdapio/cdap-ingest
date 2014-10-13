@@ -15,69 +15,98 @@
  */
 
 var Fs = require('fs'),
-    Mime = require('mime'),
     Utils = require('./utils'),
     Promise = require('./promise'),
-    connection = params.ssl ? require('https') : require('http');
+    connection = params.ssl ? require('https') : require('http'),
+    responseHandler = function responseHandler(response) {
+        response.setEncoding('utf-8');
 
-/**
- * Performs http request to CDAP Gateway
- *
- * @param {Object} params {
- *   @param {string} host                 - Hostname of the CDAP Gateway.
- *   @param {number} port                 - Port number CDAP Gateway listen to.
- *   @param {string} method               - HTTP method to be used(GET, POST, etc.).
- *   @param {string} path                 - URL to send request to.
- *   @param {boolean} [ssl = false]       - True if connection has to be secured.
- *   @param {object} [headers = {}]       - HTTP headers to send within a request.
- *                                          { Authorization: 'Basic alsdh8asdna03inrd' }
- *   @param {object} [data = {}]          - Data to send within a request.
- *   @param {string} [filename = null]    - Name of a file to be sent within a request.
- *                                          NOTE: This param is supported for NodeJS _only_.
- * }
- *
- * @returns {@link CDAPStreamClient.Promise}
- */
+        promise.notify('Request status: ' + response.statusCode);
 
-module.exports = function request(params) {
-    if (!params.method || !params.path || !params.host || !params.port) {
-        throw Error('"host", "port", "method", "path" properties are required');
+        if (200 === response.statusCode) {
+            response.on('data', function (content) {
+                promise.resolve(content);
+            });
+        } else {
+            promise.reject(response.statusCode);
+        }
+    };
+
+module.exports = {
+    /**
+     * Performs http request to CDAP Gateway
+     *
+     * @param {Object} params {
+     *   @param {string} host                       - Hostname of the CDAP Gateway.
+     *   @param {number} port                       - Port number CDAP Gateway listen to.
+     *   @param {string} method                     - HTTP method to be used(GET, POST, etc.).
+     *   @param {string} path                       - URL to send request to.
+     *   @param {boolean} [ssl = false]             - True if connection has to be secured.
+     *   @param {object} [headers = {}]             - HTTP headers to send within a request.
+     *                                                  { Authorization: 'Basic alsdh8asdna03inrd' }
+     *   @param {object} [data = {}]                - Data to send within a request.
+     * }
+     *
+     * @returns {@link CDAPStreamClient.Promise}
+     */
+    request: function request(params) {
+        if (!params.method || !params.path || !params.host || !params.port) {
+            throw Error('"host", "port", "method", "path" properties are required');
+        }
+
+        var fileStat = null;
+
+        params.ssl = (null != params.ssl) ? params.ssl : false;
+        params.headers = params.headers || {};
+        params.data = params.data || {};
+
+        var promise = new Promise(),
+            request = connection.request(params, responseHandler.bind(this));
+
+        request.write(params.data);
+        request.end();
+
+        return promise;
+    },
+    /**
+     * Performs post request to CDAP Gateway to send files.
+     *
+     * @param {Object} params {
+     *   @param {string} host                       - Hostname of the CDAP Gateway.
+     *   @param {number} port                       - Port number CDAP Gateway listen to.
+     *   @param {string} path                       - URL to send request to.
+     *   @param {boolean} [ssl = false]             - True if connection has to be secured.
+     *   @param {object} [headers = {}]             - HTTP headers to send within a request.
+     *                                                  { Authorization: 'Basic alsdh8asdna03inrd' }
+     *   @param {string|[string]} [files = null]    - Name of a file or files` names list to be sent within a request.
+     * }
+     *
+     * @returns {@link CDAPStreamClient.Promise}
+     */
+    send: function send(params){
+        if (!params.path || !params.host || !params.port) {
+            throw new Error('"host", "port", "path" properties are required');
+        }
+
+        if('string' !== typeof params.files || !(params.files instanceof Array) || !(params.files instanceof FormData)) {
+            throw new Error('"files" property has to be one of the types: String, Array, FormData');
+        }
+
+        params.method = 'POST';
+        params.ssl = (null != params.ssl) ? params.ssl : false;
+        params.headers = params.headers || {};
+
+        var promise = new Promise(),
+            filesToSend = [],
+            request = connection.request(params, responseHandler.bind(this));;
+
+        filesToSend = filesToSend.concat(params.files);
+
+        while (filesToSend.length) {
+            Fs.createReadStream(filesToSend.shift()).pipe(request);
+        }
+        request.end();
+
+        return promise;
     }
-
-    var fileStat = null;
-
-    params.ssl = (null != params.ssl) ? params.ssl : false;
-    params.headers = params.headers || {};
-    params.data = params.data || {};
-
-    if (params.filename) {
-        fileStat = Fs.statSync(params.filename);
-
-        params.headers['Content-Type'] = Mime.lookup(params.filename);
-        params.headers['Content-Length'] = fileStat.length;
-    }
-
-    var promise = new Promise(),
-        request = connection.request(params, function (response) {
-            response.setEncoding('utf-8');
-
-            promise.notify('Request status: ' + response.statusCode);
-
-            if (200 === response.statusCode) {
-                response.on('data', function (content) {
-                    promise.resolve(content);
-                });
-            } else {
-                promise.reject(response.statusCode);
-            }
-        });
-
-    if(params.filename) {
-        request.pipe(Fs.createReadStream(params.filename));
-    }
-
-    request.write(params.data);
-    request.end();
-
-    return promise;
 };

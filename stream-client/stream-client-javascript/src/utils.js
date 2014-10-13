@@ -42,7 +42,7 @@
          * @param {Object} src2
          * @returns {Object}
          */
-        copyObject: function (src1, src2) {
+        copyObject: function copyObject(src1, src2) {
             var result = {};
 
             var addToResult = function (src) {
@@ -60,9 +60,13 @@
 
             return result;
         },
-        baseUrl: function (hostname, port, ssl) {
+        baseUrl: function baseUrl(hostname, port, ssl) {
             return ['', (ssl ? 'https' : 'http'), '://',
                 hostname, ':', port].join('');
+        },
+        fileNameFromPath: function fileNameFromPath(path) {
+            var fileNameRegExp = /(?:(?:[\w-]+\.?)+)$/;
+            return fileNameRegExp.exec(path)[0];
         }
     };
 }));
