@@ -22,7 +22,7 @@ To use the Stream Client Java API, include this Maven dependency in your project
 
     <dependency>
       <groupId>co.cask.cdap</groupId>
-      <artifactId>stream-client-java</artifactId>
+      <artifactId>cdap-stream-client</artifactId>
       <version>1.0.1</version>
     </dependency>
 
