@@ -170,13 +170,17 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       InputStream inStream = null;
       try {
         authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
-
-        Properties properties = new Properties();
-        properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
-        inStream = new FileInputStream(authClientPropertiesPath);
-        properties.load(inStream);
-        authClient.configure(properties);
         authClient.setConnectionInfo(host, port, sslEnabled);
+        if (authClient.isAuthEnabled()) {
+          Properties properties = new Properties();
+          properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
+          if ((authClientPropertiesPath == null) || (authClientPropertiesPath.isEmpty())) {
+            LOG.error("Authentication client is enabled, but the path for properties file is either empty or null");
+          }
+          inStream = new FileInputStream(authClientPropertiesPath);
+          properties.load(inStream);
+          authClient.configure(properties);
+        }
         builder.authClient(authClient);
       } catch (IOException e) {
         LOG.error("Cannot load properties", e);
@@ -191,18 +195,18 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
           LOG.warn("Error during closing input stream. {}", e.getMessage(), e);
         }
       }
-      streamClient = builder.build();
-    }
-    try {
-      if (writer == null) {
-        writer = streamClient.createWriter(streamName);
-      }
-    } catch (Throwable t) {
-      closeWriterQuietly();
-      throw new IOException("Can not create stream writer by name: " + streamName, t);
-    }
-
+    streamClient = builder.build();
   }
+  try {
+    if (writer == null) {
+      writer = streamClient.createWriter(streamName);
+    }
+  } catch (Throwable t) {
+    closeWriterQuietly();
+    throw new IOException("Can not create stream writer by name: " + streamName, t);
+  }
+
+}
 
   private void closeClientQuietly() {
     if (streamClient != null) {
