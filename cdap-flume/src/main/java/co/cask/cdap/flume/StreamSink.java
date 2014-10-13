@@ -176,6 +176,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
           properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
           if ((authClientPropertiesPath == null) || (authClientPropertiesPath.isEmpty())) {
             LOG.error("Authentication client is enabled, but the path for properties file is either empty or null");
+            return;
           }
           inStream = new FileInputStream(authClientPropertiesPath);
           properties.load(inStream);
