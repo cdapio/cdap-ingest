@@ -51,6 +51,11 @@ Path to authentication client properties file:
 
     a1.sinks.sink1.authClientProperties = /usr/local/apache-flume/conf/auth_client.conf
 
+Optional Security configuration:
+
+    a1.sinks.sink1.sslEnabled = false (set true to use HTTPS)
+    a1.sinks.sink1.verifySSLCert = true (set false to suspend certificate checks; this allows self-signed certificates when SSL is true)
+     
 ### Authentication Client Example Configuration
 
     # User name
@@ -76,3 +81,4 @@ Configuration of a Flume agent that reads data from a log file and puts it to CD
     a1.channels.c1.type = memory
     a1.channels.c1.capacity = 1000
     a1.channels.c1.transactionCapacity = 100
+ 
