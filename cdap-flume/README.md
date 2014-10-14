@@ -32,7 +32,8 @@ Secure Socket Layer mode [true | false]
 
 Verify SSL Certificate [true | false]
     
-    a1.sinks.sink1.verifySSLCert = true (set false to suspend certificate checks; this allows self-signed certificates when SSL is true) 
+    a1.sinks.sink1.verifySSLCert = true 
+set it to false to suspend certificate checks; this allows self-signed certificates when SSL is true 
 
 Number of threads to which Stream Client can send events:
 
