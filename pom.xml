@@ -22,9 +22,11 @@
 
   <groupId>co.cask.cdap</groupId>
   <artifactId>cdap-ingest</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <packaging>pom</packaging>
   <name>CDAP ingest</name>
+  <description>CDAP Data ingestion Project</description>
+  <url>https://github.com/caskdata/cdap-ingest</url>
 
   <organization>
     <name>Cask Data, Inc.</name>
@@ -64,7 +66,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <cdap.version>2.5.0</cdap.version>
+    <cdap.version>2.5.1</cdap.version>
     <cdap.clients.version>1.0.0</cdap.clients.version>
     <guava.version>17.0</guava.version>
     <http.component.version>4.3.1</http.component.version>
@@ -76,6 +78,8 @@
     <mockito.version>1.9.5</mockito.version>
     <junit.version>4.11</junit.version>
     <log4j.over.slf4j.version>1.7.7</log4j.over.slf4j.version>
+    <cask.packages.snapshot.repo>http://cask.invalid.snapshot.repo.co</cask.packages.snapshot.repo>
+    <cask.packages.release.repo>http://cask.invalid.release.repo.co</cask.packages.release.repo>
   </properties>
 
   <repositories>
@@ -349,6 +353,197 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.14.1</version>
       </plugin>
+      <!-- Determine the deploy.url for non-standard (e.g. zip, rpm, deb) deployment -->
+      <plugin>
+        <groupId>org.codehaus.gmaven</groupId>
+        <artifactId>gmaven-plugin</artifactId>
+        <version>1.5</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>1.5.8</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>choose-deploy-url</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <source>
+                if (project.version.endsWith("-SNAPSHOT")){
+                  project.properties['deploy.url'] = project.properties['cask.packages.snapshot.repo'];
+                  project.properties['dist.deploy.groupId'] = "co.cask.cdap.distributions.snapshots";
+                } else {
+                  project.properties['deploy.url'] = project.properties['cask.packages.release.repo'];
+                  project.properties['dist.deploy.groupId'] = "co.cask.cdap.distributions.release";
+                }
+              </source>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
+  <profiles>
+    <!-- Profile for generating coverage report -->
+    <profile>
+      <id>coverage</id>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>2.14.1</version>
+              <configuration>
+                <argLine>${argLine} -Xmx512m</argLine>
+              </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.jacoco</groupId>
+              <artifactId>jacoco-maven-plugin</artifactId>
+              <version>0.7.1.201405082137</version>
+              <executions>
+                <execution>
+                  <id>prepare-agent</id>
+                  <goals>
+                    <goal>prepare-agent</goal>
+                  </goals>
+                </execution>
+                <execution>
+                  <id>report</id>
+                  <phase>prepare-package</phase>
+                  <goals>
+                    <goal>report</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.7.1.201405082137</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Profile for creating all deployment artifacts -->
+    <profile>
+      <id>release</id>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <!-- Source jar -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <version>2.2.1</version>
+              <configuration>
+                <excludeResources>true</excludeResources>
+              </configuration>
+              <executions>
+                <execution>
+                  <id>attach-sources</id>
+                  <phase>package</phase>
+                  <goals>
+                    <goal>jar-no-fork</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+
+            <!-- Javadoc jar -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>2.9</version>
+              <configuration>
+                <detectJavaApiLink>true</detectJavaApiLink>
+                <links>
+                  <link>http://docs.oracle.com/javaee/6/api/</link>
+                </links>
+                <excludePackageNames>*.internal.*</excludePackageNames>
+                <bottom>
+                  <![CDATA[Copyright {currentYear} Cask, Inc. <a href="http://www.apache.org/licenses/LICENSE-2.0">Licensed under the Apache License, Version 2.0</a>]]>
+                </bottom>
+              </configuration>
+              <executions>
+                <execution>
+                  <id>attach-javadoc</id>
+                  <phase>package</phase>
+                  <goals>
+                    <goal>jar</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+
+            <!-- GPG signature -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-gpg-plugin</artifactId>
+              <version>1.5</version>
+              <configuration>
+                <passphrase>${gpg.passphrase}</passphrase>
+                <useAgent>${gpg.useagent}</useAgent>
+              </configuration>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>sign</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+
+            <!-- Nexus deploy plugin -->
+            <plugin>
+              <groupId>org.sonatype.plugins</groupId>
+              <artifactId>nexus-staging-maven-plugin</artifactId>
+              <version>1.6.2</version>
+              <extensions>true</extensions>
+              <configuration>
+                <nexusUrl>https://oss.sonatype.org</nexusUrl>
+                <serverId>sonatype.release</serverId>
+                <stagingProfileId>655dc88dc770c3</stagingProfileId>
+              </configuration>
+            </plugin>
+
+          </plugins>
+        </pluginManagement>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.2.1</version>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.5</version>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.2</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
