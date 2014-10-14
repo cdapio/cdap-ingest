@@ -58,7 +58,7 @@ Example:
 
 Create a new Stream with the *stream-id* "newStreamName":
 
-    stream_client.create("newStreamName");
+    stream_client.create("newStreamName")
 
 **Notes:**
 
@@ -69,7 +69,7 @@ Create a new Stream with the *stream-id* "newStreamName":
 
 Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
 
-    stream_writer = stream_client.create_writer("streamName");
+    stream_writer = stream_client.create_writer("streamName")
 
 ### Write Stream Events
 To write new events to the Stream, use the ```write``` method of the ```StreamWriter``` class:
@@ -78,25 +78,25 @@ To write new events to the Stream, use the ```write``` method of the ```StreamWr
 
 Example:
 
-    stream_promise = stream_writer.write("New stream event");
+    stream_promise = stream_writer.write("New stream event")
 
 ### Truncate Stream
 
 To delete all events that were written to the Stream *streamName*, use:
 
-    stream_client.truncate("streamName");
+    stream_client.truncate("streamName")
 
 ### Update Stream Time-to-Live (TTL)
 
 Update TTL for the Stream *streamName*:
 
-    stream_client.set_ttl("streamName", newTTL);
+    stream_client.set_ttl("streamName", newTTL)
 
 ### Get Stream Time-to-Live (TTL)
 
 Get the current TTL value for the Stream *streamName*:
 
-    ttl = stream_client.get_ttl("streamName");
+    ttl = stream_client.get_ttl("streamName")
 
 ### StreamPromise
 
@@ -116,5 +116,5 @@ Example:
         parse response
         ...
 
-    stream_promise = stream_writer.write("New stream event");
+    stream_promise = stream_writer.write("New stream event")
     stream_promise.on_response(on_ok_response, on_error_response)
