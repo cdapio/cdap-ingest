@@ -28,7 +28,11 @@ Enter the host port that is used by the Stream Client:
 
 Secure Socket Layer mode [true | false]
 
-    a1.sinks.sink1.sslEnabled = false 
+    a1.sinks.sink1.sslEnabled = false
+
+Verify SSL Certificate [true | false]
+    
+    a1.sinks.sink1.verifySSLCert = true (set false to suspend certificate checks; this allows self-signed certificates when SSL is true) 
 
 Number of threads to which Stream Client can send events:
 
@@ -49,12 +53,7 @@ Fully qualified class name of the client class:
 
 Path to authentication client properties file:
 
-    a1.sinks.sink1.authClientProperties = /usr/local/apache-flume/conf/auth_client.conf
-
-Optional Security configuration:
-
-    a1.sinks.sink1.sslEnabled = false (set true to use HTTPS)
-    a1.sinks.sink1.verifySSLCert = true (set false to suspend certificate checks; this allows self-signed certificates when SSL is true)
+    a1.sinks.sink1.authClientProperties = /usr/local/apache-flume/conf/auth_client.conf    
      
 ### Authentication Client Example Configuration
 
