@@ -34,37 +34,45 @@
 }(function (target, require) {
     'use strict';
 
-    target = target || function () {
+    /**
+     * @constructor
+     * @returns {Object}
+     */
+    var PromiseConstructor = function PromiseConstructor() {
         var success_handlers_stack = [],
             error_handlers_stack = [],
             notification_handlers_stack = [],
 
             resolve_value = null,
             reject_reason = null,
-            notify_value_stack = [];
+            notify_value_stack = [],
+
+            fired = false;
 
         var fireResolve = function () {
-                if (resolve_value && success_handlers_stack.length) {
+                if (!fired && resolve_value && success_handlers_stack.length) {
                     while (success_handlers_stack.length) {
                         success_handlers_stack.shift()(resolve_value);
                     }
 
                     error_handlers_stack = [];
                     notification_handlers_stack = [];
+                    fired = true;
                 }
             },
             fireReject = function () {
-                if (reject_reason && error_handlers_stack.length) {
+                if (!fired && reject_reason && error_handlers_stack.length) {
                     while (error_handlers_stack.length) {
                         error_handlers_stack.shift()(reject_reason);
                     }
 
                     success_handlers_stack = [];
                     notification_handlers_stack = [];
+                    fired = true;
                 }
             },
             fireNotify = function () {
-                if (notify_value_stack.length && notification_handlers_stack.length) {
+                if (!fired && notify_value_stack.length && notification_handlers_stack.length) {
                     var message = null;
 
                     while (notify_value_stack.length > 0) {
@@ -89,7 +97,7 @@
                     if ('function' === typeof success) {
                         success_handlers_stack.push(success);
                     } else {
-                        throw TypeError('"success" parameter have to be a function.');
+                        throw new TypeError('"success" parameter have to be a function.');
                     }
                 }
 
@@ -97,7 +105,7 @@
                     if ('function' === typeof error) {
                         error_handlers_stack.push(error);
                     } else {
-                        throw TypeError('"error" parameter have to be a function.');
+                        throw new TypeError('"error" parameter have to be a function.');
                     }
                 }
 
@@ -105,7 +113,7 @@
                     if ('function' === typeof notify) {
                         notification_handlers_stack.push(notify);
                     } else {
-                        throw TypeError('"notify" parameter have to be a function.');
+                        throw new TypeError('"notify" parameter have to be a function.');
                     }
                 }
 
@@ -131,7 +139,7 @@
              * @param {any} value
              */
             resolveImpl = function (value) {
-                resolve_value = !resolve_value ? value : resolve_value;
+                resolve_value = resolve_value || value;
 
                 fireResolve();
             },
@@ -164,4 +172,10 @@
             'notify': notifyImpl
         };
     };
+
+    if (('undefined' !== typeof module) && module.exports) {
+        module.exports = PromiseConstructor;
+    } else {
+        target = target || PromiseConstructor;
+    }
 }));

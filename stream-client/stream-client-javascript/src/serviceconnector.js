@@ -39,12 +39,15 @@
      * @constructor
      *
      * @param {Object} config {
-     *   @param {string} [host='localhost']   - hostname of a server we are going to connect to.
-     *   @param {number} [port=10000]         - port number of a service at the server we are going to connect to.
-     *   @param {boolean} [ssl=false]         - should be connection secured or not (true / false)
+     *   @param {string} [host='localhost']     - hostname of a server we are going to connect to.
+     *   @param {number} [port=10000]           - port number of a service at the server we are going to connect to.
+     *   @param {boolean} [ssl=false]           - should be connection secured or not (true / false)
+     *   @param {@link CDAPAuthManager} [authManager=null]
      * }
      */
-    target = target || function ServiceConnector(config) {
+    var ServiceConnector = function ServiceConnector(config) {
+        config = config || {};
+
         var defaultHeaders = {
                 Authorization: ''
             },
@@ -53,52 +56,86 @@
                 port: config.port ? config.port : 10000,
                 ssl: (null != config.ssl) ? config.ssl : false
             },
-            platformSpecificRequest = ('undefined' !== typeof window) ? CDAPStreamClient.request
+            authenticationManager = config.authManager || null,
+            platformSpecific = ('undefined' !== typeof window) ? CDAPStreamClient
                 : require('./request-node');
 
         /**
-         * @param {string} method
-         * @param {string} uri
-         * @param {any} [body = null]
-         * @param {Object} [headers = null]
+         * @param {Object} config {
+         *   @param {string} method
+         *   @param {string} path
+         *   @param {*} [body = null]
+         *   @param {Object} [headers = null]
+         *   @param {boolean} [async = true]
+         * }
          *
          * @returns {@link CDAPStreamClient.Promise}
          */
-        var requestImpl = function requestImpl(method, uri, body, headers) {
+        var requestImpl = function requestImpl(config) {
+                if (authenticationManager) {
+                    if (authenticationManager.isAuthEnabled()) {
+                        var token = authenticationManager.getToken();
+                        defaultHeaders.Authorization = [token.type, token.token].join(' ');
+                    }
+                }
+
                 var config = Utils.copyObject(connectionInfo, {
-                    method: method,
-                    path: uri,
-                    headers: Utils.copyObject(defaultHeaders, headers ? headers : {})
+                    method: config.method,
+                    path: config.path,
+                    headers: Utils.copyObject(defaultHeaders, config.headers ? config.headers : {}),
+                    async: (null != config.async) ? config.async : true
                 });
 
-                return platformSpecificRequest(config);
+                return platformSpecific.request(config);
             },
 
             /**
-             * This method is supported on NodeJS _only_.
-             *
              * @param {string} uri,
-             * @param {string} file,
+             * @param {FormData|string|[string]} file,            - Browser: FormData.
+             *                                                      NodeJS: string|[string]
              * @param {Object} headers
              *
              * @returns {@link CDAPStreamClient.Promise}
              */
             sendImpl = function sendImpl(uri, file, headers) {
+                if (authenticationManager) {
+                    if (authenticationManager.isAuthEnabled()) {
+                        var token = authenticationManager.getToken();
+                        defaultHeaders.Authorization = [token.type, token.token].join(' ');
+                    }
+                }
+
                 var config = Utils.copyObject(connectionInfo, {
                     method: 'POST',
                     path: uri,
                     headers: Utils.copyObject(defaultHeaders, headers ? headers : {}),
                     filename: file
                 });
+
+                return platformSpecific.send(config);
             },
             objectToReturn = {
                 request: requestImpl
             };
 
-        if('undefined' === typeof window) {
+        var isFormDataSupported = false;
+
+        try {
+            isFormDataSupported = 'FormData' in window;
+        } catch(e) {
+            // Nothig to do
+        }
+
+        if ('undefined' === typeof window || isFormDataSupported) {
             objectToReturn.send = sendImpl;
         }
 
         return objectToReturn;
     };
+
+    if (('undefined' !== typeof module) && module.exports) {
+        module.exports = ServiceConnector;
+    } else {
+        target = target || ServiceConnector;
+    }
 }));

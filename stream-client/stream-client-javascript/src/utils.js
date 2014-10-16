@@ -34,39 +34,37 @@
 }(function (target, require) {
     'use strict';
 
-    target = {
-        /**
-         * Simple object copying implementation without deep copy.
-         *
-         * @param {Object} src1
-         * @param {Object} src2
-         * @returns {Object}
-         */
-        copyObject: function copyObject(src1, src2) {
-            var result = {};
+    /**
+     * Simple object copying implementation without deep copy.
+     *
+     * @param {Object} src1
+     * @param {Object} src2
+     * @returns {Object}
+     */
+    target.copyObject = function copyObject
+        (src1, src2) {
+        var result = {};
 
-            var addToResult = function (src) {
-                var srcKeys = Object.keys(src),
-                    prop = '';
+        var addToResult = function (src) {
+            var srcKeys = Object.keys(src),
+                prop = '';
 
-                while (srcKeys.length) {
-                    prop = srcKeys.shift();
-                    result[prop] = src[prop];
-                }
-            };
+            while (srcKeys.length) {
+                prop = srcKeys.shift();
+                result[prop] = src[prop];
+            }
+        };
 
-            addToResult(src1);
-            addToResult(src2);
+        addToResult(src1);
+        addToResult(src2);
 
-            return result;
-        },
-        baseUrl: function baseUrl(hostname, port, ssl) {
-            return ['', (ssl ? 'https' : 'http'), '://',
-                hostname, ':', port].join('');
-        },
-        fileNameFromPath: function fileNameFromPath(path) {
-            var fileNameRegExp = /(?:(?:[\w-]+\.?)+)$/;
-            return fileNameRegExp.exec(path)[0];
-        }
+        return result;
+    };
+    target.baseUrl = function baseUrl(hostname, port, ssl) {
+        return [(ssl ? 'https' : 'http'), '://', hostname, ':', port].join('');
+    };
+    target.formRequest = function formRequest() {
+        var args = Array.prototype.slice.call(arguments);
+        return args.join('/');
     };
 }));
