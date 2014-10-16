@@ -19,21 +19,16 @@ package co.cask.cdap.client.rest;
 import co.cask.cdap.client.StreamWriter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.net.MediaType;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -65,7 +60,7 @@ public class RestStreamWriter implements StreamWriter {
   @Override
   public ListenableFuture<Void> write(String str, Charset charset, Map<String, String> headers) throws
     IllegalArgumentException {
-    Preconditions.checkArgument(StringUtils.isNotEmpty(str), "Input string parameter is empty.");
+    Preconditions.checkArgument(str != null, "Input string parameter is null.");
     return write(new ByteArrayEntity(charset != null ? str.getBytes(charset) : str.getBytes()), headers);
   }
 
@@ -76,7 +71,7 @@ public class RestStreamWriter implements StreamWriter {
 
   @Override
   public ListenableFuture<Void> write(ByteBuffer buffer, Map<String, String> headers) throws IllegalArgumentException {
-    Preconditions.checkArgument(buffer != null, "ByteBuffer parameter is empty.");
+    Preconditions.checkArgument(buffer != null, "ByteBuffer parameter is null.");
     HttpEntity content;
     if (buffer.hasArray()) {
       content = new ByteArrayEntity(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());

@@ -45,9 +45,6 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
 
     class TestStreamClient(unittest.TestCase):
-
-        # Should be the same as 'hostname' and 'port' fields in 'default-config.json'
-        # file to make tests work right.
         __dummy_host = u'dummy.host'
         __dummy_port = 65000
         __BASE_URL = u'http://{0}:{1}/v2'.format(__dummy_host, __dummy_port)
@@ -79,8 +76,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
         exit_code = 404
 
         def setUp(self):
-            config = Config.read_from_file(os.path.join(os.path.dirname(__file__), u"default-config.json"))
-
+            config = Config(self.__dummy_host, self.__dummy_port)
             self.sc = StreamClient(config)
 
         @httpretty.activate
