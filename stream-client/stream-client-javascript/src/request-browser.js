@@ -37,7 +37,7 @@ window.CDAPStreamClient = window.CDAPStreamClient || {};
 window.CDAPStreamClient = window.CDAPStreamClient || (function () {
     var requestAsync = function requestSync(params) {
             if (!params.method || !params.path || !params.host || !params.port) {
-                throw Error('"host", "port", "method", "path" properties are required');
+                throw new Error('"host", "port", "method", "path" properties are required');
             }
 
             params.ssl = (null != params.ssl) ? params.ssl : false;
@@ -77,7 +77,7 @@ window.CDAPStreamClient = window.CDAPStreamClient || (function () {
         },
         requestSync = function requestAsync(params) {
             if (!params.method || !params.path || !params.host || !params.port) {
-                throw Error('"host", "port", "method", "path" properties are required');
+                throw new Error('"host", "port", "method", "path" properties are required');
             }
 
             params.ssl = (null != params.ssl) ? params.ssl : false;

@@ -136,7 +136,7 @@
             /**
              * Resolves the derived promise with the value.
              *
-             * @param {any} value
+             * @param {*} value
              */
             resolveImpl = function (value) {
                 resolve_value = resolve_value || value;
@@ -147,7 +147,7 @@
             /**
              * Rejects the derived promise with the reason.
              *
-             * @param {any} reason
+             * @param {*} reason
              */
             rejectImpl = function (reason) {
                 reject_reason = !reject_reason ? reason : reject_reason;
@@ -157,7 +157,7 @@
             /**
              * Notifies the derived promise with the value.
              *
-             * @param {any} value
+             * @param {*} value
              */
             notifyImpl = function (value) {
                 notify_value_stack.push(value);

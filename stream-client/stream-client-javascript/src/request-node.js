@@ -22,7 +22,7 @@ var requestAsync = function requestAsync(params) {
         var connection = params.ssl ? require('https') : require('http');
 
         if (!params.method || !params.path || !params.host || !params.port) {
-            throw Error('"host", "port", "method", "path" properties are required');
+            throw new Error('"host", "port", "method", "path" properties are required');
         }
 
         params.ssl = (null != params.ssl) ? params.ssl : false;
@@ -55,7 +55,7 @@ var requestAsync = function requestAsync(params) {
     },
     requestSync = function requestSync(params) {
         if (!params.method || !params.path || !params.host || !params.port) {
-            throw Error('"host", "port", "method", "path" properties are required');
+            throw new Error('"host", "port", "method", "path" properties are required');
         }
 
         var httpSync = require('http-sync');
