@@ -17,14 +17,13 @@ In command shell type this:
 ```> python stream_integration_test_ssl.py```
 
 ## To configure tests change these files:
-```config.json```                  - for unit tests.
-```cdap_config.json```             - for integration with Singlenode reactor
-```cdap_ssl_config.json```         - for integration with SSL and Auth enabled reactor
+```cdap_config.json```             - for integration with Standalone CDAP
+```cdap_ssl_config.json```         - for integration with SSL and Auth enabled CDAP
 
 ## More server instances to tests.
-New tests should be derived from *BasicReactor* and *unittest.TestCase* classes.
+New tests should be derived from *StreamTestBase* and *unittest.TestCase* classes.
 The child object should initialize *self.config_file* variable in *setUp* method
-and call *base_set_up* of *BasicReactor* to initialize tests.
+and call *base_set_up* of *StreamTestBase* to initialize tests.
 
 Example:
 
@@ -32,7 +31,7 @@ Example:
 class TestStreamClient(unittest.TestCase, StreamTestBase):
 
     def setUp(self):
-        self.config_file = 'config_reactor.json'
+        self.config_file = 'cdap_config.json'
         self.base_set_up()
 ```
 
