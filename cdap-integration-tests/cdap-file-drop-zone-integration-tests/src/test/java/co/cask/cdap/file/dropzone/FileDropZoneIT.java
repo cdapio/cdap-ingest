@@ -51,6 +51,14 @@ public class FileDropZoneIT {
   private static final String EVENT = "165.225.156.91 - - [09/Jan/2014:21:28:53 -0400]" +
     " \"GET /index.html HTTP/1.1\" 200 225 \"http://continuuity.com\" \"Mozilla/4.08 [en] (Win98; I ;Nav)\"";
 
+  private static final String MULTILINE_EVENT = String.format("%s\n%s\n%s\n%s\n%s\n%s",
+                                                              "First line of event",
+                                                              "Second line of event",
+                                                              "Third line of event. Next line is empty line",
+                                                              "",
+                                                              "Line after empty line",
+                                                              "Sixth line of event");
+
   private static final AtomicInteger read = new AtomicInteger(0);
   private static final AtomicInteger ingest = new AtomicInteger(0);
 
@@ -91,6 +99,7 @@ public class FileDropZoneIT {
     try {
       writer = new PrintWriter(file);
       writer.println(EVENT);
+      writer.println(MULTILINE_EVENT);
     } catch (IOException ignored) {
     } finally {
       if (writer != null) {

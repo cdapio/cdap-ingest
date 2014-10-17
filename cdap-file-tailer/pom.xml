@@ -21,7 +21,7 @@
   <parent>
     <groupId>co.cask.cdap</groupId>
     <artifactId>cdap-ingest</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
 
   <artifactId>cdap-file-tailer</artifactId>
@@ -44,7 +44,7 @@
     </dependency>
     <dependency>
       <groupId>co.cask.cdap</groupId>
-      <artifactId>authentication-client-java</artifactId>
+      <artifactId>cdap-authentication-client</artifactId>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -211,6 +211,7 @@
                 <copyright>Cask</copyright>
                 <distribution>development</distribution>
                 <group>Applications/File Tailer</group>
+                <needarch>false</needarch>
                 <packager>${user.name}</packager>
                 <changelogFile>CHANGELOG</changelogFile>
                 <defaultDirmode>500</defaultDirmode>

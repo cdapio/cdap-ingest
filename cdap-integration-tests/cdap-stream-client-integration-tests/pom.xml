@@ -23,12 +23,12 @@
   <parent>
     <groupId>co.cask.cdap</groupId>
     <artifactId>cdap-integration-tests</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
 
   <artifactId>cdap-stream-client-integration-tests</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
   <name>Stream Client Java API IT</name>
 
   <dependencies>
