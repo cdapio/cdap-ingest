@@ -21,7 +21,6 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest as unittest
-import requests
 
 from stream_test_base import StreamTestBase
 
