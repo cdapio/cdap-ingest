@@ -28,27 +28,6 @@ Repository information can be found at http://docs.cask.co/cdap/current/en/admin
 
 Once installed, configure the daemon by editing the file:
 
-<<<<<<< HEAD
- Once installed, configure the daemon by editing the file:
- 
- ```
-    /etc/cdap/file-tailer/conf/file-tailer.properties
- ```
- 
- These parameters must be specified:
-
-  - pipes=<pipe1-name, pipe2-name, ...>
-  - pipes.<pipe1-name>.source.work_dir=<source-work-directory>
-  - pipes.<pipe1-name>.source.file_name=<source-file-name>
-  - pipes.<pipe1-name>.sink.stream_name=<stream-name>
-  - pipes.<pipe1-name>.sink.host=<host-name>
-  - pipes.<pipe1-name>.sink.port=<port-number>
- 
- Please note that the target file must be accessible to the File Tailer user.
- To check, you can use the more command with the File Tailer user:
- 
- ``` 
-=======
     /etc/file-tailer/conf/file-tailer.properties
 
 These parameters must be specified:
@@ -64,7 +43,6 @@ These parameters must be specified:
 Please note that the target file must be accessible to the File Tailer user.
 To check, you can use the ```more``` command with the File Tailer user:
 
->>>>>>> release/1.0.0
     sudo -u file-tailer more path_to_target_file
 
 To start the daemon, execute the command:
