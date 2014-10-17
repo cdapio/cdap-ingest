@@ -74,7 +74,8 @@ public class StreamHttpRequestHandler implements HttpRequestHandler {
         HttpEntity requestEntity = request.getEntity();
         if (requestEntity != null) {
           String content = RestClient.toString(requestEntity);
-          if (StringUtils.isEmpty(content) || !RestTest.EXPECTED_WRITER_CONTENT.equals(content)) {
+          if (!RestTest.EXPECTED_WRITER_CONTENT.equals(content) &&
+            !TestUtils.ALLOW_ANY_EVENT_STREAM.equals(streamName)) {
             statusCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
           }
         } else {
