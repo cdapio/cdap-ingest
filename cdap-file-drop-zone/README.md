@@ -28,17 +28,7 @@ Repository information can be found at http://docs.cask.co/cdap/current/en/admin
 
 Once installed, configure the daemon by editing the file:
 
-<<<<<<< HEAD
- once installed, configure the daemon by editing the file:
- 
- ```
-    /etc/cdap/file-drop-zone/conf/file-drop-zone.properties
- ```
- 
- These parameters must be specified:
-=======
     /etc/file-drop-zone/conf/file-drop-zone.properties
->>>>>>> release/1.0.0
 
 These parameters must be specified:
 
