@@ -17,6 +17,12 @@ To install CDAP Stream Client, run
 
     $ pip install cdap-stream-client
 
+or clone the repository
+
+    $ git clone https://github.com/caskdata/cdap-ingest.git
+    $ cd cdap-ingest/cdap-stream-clients/python/
+    $ python setup.py install
+
 
 ## Usage
 
