@@ -19,7 +19,7 @@ from setuptools import find_packages
 
 
 setup(name='cdap-stream-client',
-      version='${project.version}',
+      version='1.1.0-SNAPSHOT',
       description='Stream ingestion client for Cask Data Application Platform',
       author='Cask Data',
       author_email='cask-dev@googlegroups.com',
