@@ -27,8 +27,9 @@
         define(['exports', 'Promise'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
-        window['CDAPStreamClient'] = window['CDAPStreamClient'] || { ServiceConnector: null };
-        factory(window['CDAPStreamClient']['ServiceConnector']);
+        window['CDAPStreamClient'] = window['CDAPStreamClient'] || {};
+        window['CDAPStreamClient']['StreamWriter'] = window['CDAPStreamClient']['StreamWriter'] || {};
+        factory(window['CDAPStreamClient']['StreamWriter']);
     }
 }(function (target, require) {
     'use strict';
@@ -66,7 +67,7 @@
             return connector.request({
                 method: 'POST',
                 path: serviceUri,
-                body: message,
+                data: message,
                 headers: headers
             });
         };
@@ -79,6 +80,6 @@
     if (('undefined' !== typeof module) && module.exports) {
         module.exports = StreamWriter;
     } else {
-        target = target || StreamWriter;
+        window['CDAPStreamClient']['StreamWriter'] = StreamWriter;
     }
 }));

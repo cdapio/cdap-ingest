@@ -27,8 +27,9 @@
         define(['exports', 'Promise'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
-        window['CDAPStreamClient'] = window['CDAPStreamClient'] || { ServiceConnector: null };
-        factory(window['CDAPStreamClient']['ServiceConnector']);
+        window['CDAPStreamClient'] = window['CDAPStreamClient'] || {};
+        window['CDAPStreamClient']['StreamClient'] = window['CDAPStreamClient']['StreamClient'] || {};
+        factory(window['CDAPStreamClient']['StreamClient']);
     }
 }(function (target, require) {
     'use strict';
@@ -74,10 +75,13 @@
             return REQUESTS[params.request].replace(REQUEST_PLACEHOLDERS[params.placeholder], params.data);
         },
         checkErrorResponse = function checkErrorResponse(response) {
-            if (200 !== response.status) {
+            var status = ('status' in response) ? response.status : response.statusCode,
+                responseText = ('responseText' in response) ? response.responseText : response.body.toString();
+
+            if (200 !== status) {
                 throw {
-                    status: response.status,
-                    message: response.responseText
+                    status: status,
+                    message: responseText
                 };
             }
 
@@ -95,6 +99,9 @@
      * }
      */
     var StreamClient = function StreamClient(config) {
+        if (!config.host || !config.port) {
+            throw new Error('"host" and "port" fields are required');
+        }
         config.ssl = (null != config.ssl) ? config.ssl : false;
 
         authManager = config.authManager || null;
@@ -136,7 +143,7 @@
                     serviceConnector.request({
                         method: 'PUT',
                         path: uri,
-                        body: objectToSend,
+                        data: objectToSend,
                         async: false
                     })
                 );
@@ -213,11 +220,11 @@
             truncate: truncateImpl,
             createWriter: createWriterImpl
         };
-    }
+    };
 
     if (('undefined' !== typeof module) && module.exports) {
         module.exports = StreamClient;
     } else {
-        target = target || StreamClient;
+        window['CDAPStreamClient']['StreamClient'] = StreamClient;
     }
 }));

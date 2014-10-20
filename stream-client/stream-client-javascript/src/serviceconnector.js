@@ -27,7 +27,8 @@
         define(['exports', 'Promise'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
-        window['CDAPStreamClient'] = window['CDAPStreamClient'] || { ServiceConnector: null };
+        window['CDAPStreamClient'] = window['CDAPStreamClient'] || {};
+        window['CDAPStreamClient']['ServiceConnector'] = window['CDAPStreamClient']['ServiceConnector'] || {};
         factory(window['CDAPStreamClient']['ServiceConnector']);
     }
 }(function (target, require) {
@@ -64,7 +65,7 @@
          * @param {Object} config {
          *   @param {string} method
          *   @param {string} path
-         *   @param {*} [body = null]
+         *   @param {*} [data = null]
          *   @param {Object} [headers = null]
          *   @param {boolean} [async = true]
          * }
@@ -83,6 +84,7 @@
                     method: config.method,
                     path: config.path,
                     headers: Utils.copyObject(defaultHeaders, config.headers ? config.headers : {}),
+                    data: config.data || {},
                     async: (null != config.async) ? config.async : true
                 });
 
@@ -136,6 +138,6 @@
     if (('undefined' !== typeof module) && module.exports) {
         module.exports = ServiceConnector;
     } else {
-        target = target || ServiceConnector;
+        window['CDAPStreamClient']['ServiceConnector'] = ServiceConnector;
     }
 }));

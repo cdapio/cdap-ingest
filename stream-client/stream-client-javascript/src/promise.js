@@ -28,7 +28,8 @@
         define(['exports', 'Promise'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
-        window['CDAPStreamClient'] = window['CDAPStreamClient'] || { Promise: null };
+        window['CDAPStreamClient'] = window['CDAPStreamClient'] || {};
+        window['CDAPStreamClient']['Promise'] = window['CDAPStreamClient']['Promise'] || {};
         factory(window['CDAPStreamClient']['Promise']);
     }
 }(function (target, require) {
@@ -47,10 +48,11 @@
             reject_reason = null,
             notify_value_stack = [],
 
-            fired = false;
+            fired = false,
+            methodChanging = false;
 
         var fireResolve = function () {
-                if (!fired && resolve_value && success_handlers_stack.length) {
+                if (!fired && !methodChanging && resolve_value && success_handlers_stack.length) {
                     while (success_handlers_stack.length) {
                         success_handlers_stack.shift()(resolve_value);
                     }
@@ -61,7 +63,7 @@
                 }
             },
             fireReject = function () {
-                if (!fired && reject_reason && error_handlers_stack.length) {
+                if (!fired && !methodChanging && reject_reason && error_handlers_stack.length) {
                     while (error_handlers_stack.length) {
                         error_handlers_stack.shift()(reject_reason);
                     }
@@ -72,7 +74,7 @@
                 }
             },
             fireNotify = function () {
-                if (!fired && notify_value_stack.length && notification_handlers_stack.length) {
+                if (!fired && !methodChanging && notify_value_stack.length && notification_handlers_stack.length) {
                     var message = null;
 
                     while (notify_value_stack.length > 0) {
@@ -93,6 +95,8 @@
              * @param {function} [notify=null]  - used to notify about promise working progress.
              */
             thenImpl = function (success, error, notify) {
+                methodChanging = true;
+
                 if (null != success) {
                     if ('function' === typeof success) {
                         success_handlers_stack.push(success);
@@ -116,6 +120,8 @@
                         throw new TypeError('"notify" parameter have to be a function.');
                     }
                 }
+
+                methodChanging = false;
 
                 fireResolve();
                 fireReject();
@@ -150,7 +156,7 @@
              * @param {*} reason
              */
             rejectImpl = function (reason) {
-                reject_reason = !reject_reason ? reason : reject_reason;
+                reject_reason = reject_reason || reason;
                 fireReject();
             },
 
@@ -161,6 +167,7 @@
              */
             notifyImpl = function (value) {
                 notify_value_stack.push(value);
+
                 fireNotify();
             };
 
@@ -176,6 +183,6 @@
     if (('undefined' !== typeof module) && module.exports) {
         module.exports = PromiseConstructor;
     } else {
-        target = target || PromiseConstructor;
+        window['CDAPStreamClient']['Promise'] = PromiseConstructor;
     }
 }));

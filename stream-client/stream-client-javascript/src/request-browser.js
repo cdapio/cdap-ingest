@@ -34,7 +34,7 @@ window.CDAPStreamClient = window.CDAPStreamClient || {};
  * @returns {@link CDAPStreamClient.Promise}
  */
 
-window.CDAPStreamClient = window.CDAPStreamClient || (function () {
+(function () {
     var requestAsync = function requestSync(params) {
             if (!params.method || !params.path || !params.host || !params.port) {
                 throw new Error('"host", "port", "method", "path" properties are required');
@@ -45,10 +45,11 @@ window.CDAPStreamClient = window.CDAPStreamClient || (function () {
             params.data = params.data || {};
 
             var connection = new XMLHttpRequest(),
-                Promise = CDAPStreamClient.Promise,
                 Utils = CDAPStreamClient.Utils,
-                promiseInst = new Promise(),
+                promiseInst = new CDAPStreamClient.Promise(),
                 requestUrl = Utils.baseUrl(params.host, params.port, params.ssl) + params.path;
+
+            connection.open(params.method, requestUrl, true);
 
             connection.onreadystatechange = function responseHandler(response) {
                 var readyStates = [
@@ -63,14 +64,19 @@ window.CDAPStreamClient = window.CDAPStreamClient || (function () {
 
                 if (XMLHttpRequest.DONE === connection.readyState) {
                     if (200 === connection.status) {
-                        promiseInst.resolve(connection.responseText);
+                        promiseInst.resolve(connection.responseText || connection.status);
                     } else {
                         promiseInst.reject(connection.status);
                     }
                 }
             };
 
-            connection.open(params.method, requestUrl, true);
+            for(var prop in params.headers) {
+                if(params.headers.hasOwnProperty(prop)) {
+                    connection.setRequestHeader(prop, params.headers[prop]);
+                }
+            }
+
             connection.send(params.data);
 
             return promiseInst;
@@ -89,6 +95,13 @@ window.CDAPStreamClient = window.CDAPStreamClient || (function () {
                 requestUrl = Utils.baseUrl(params.host, params.port, params.ssl) + params.path;
 
             connection.open(params.method, requestUrl, false);
+
+            for(var prop in params.headers) {
+                if(params.headers.hasOwnProperty(prop)) {
+                    connection.setRequestHeader(prop, params.headers[prop]);
+                }
+            }
+
             connection.send(params.data);
 
             if (XMLHttpRequest.DONE === connection.readyState) {
@@ -101,19 +114,17 @@ window.CDAPStreamClient = window.CDAPStreamClient || (function () {
             return {
                 status: 404
             };
-        },
-
-        objectToReturn = {
-            request: function request(params) {
-                params.async = (null != params.async) ? params.async : true;
-
-                if (params.async) {
-                    return requestAsync(params);
-                } else {
-                    return requestSync(params);
-                }
-            }
         };
+
+    CDAPStreamClient.request = function request(params) {
+        params.async = (null != params.async) ? params.async : true;
+
+        if (params.async) {
+            return requestAsync(params);
+        } else {
+            return requestSync(params);
+        }
+    };
 
     if (window.FormData) {
         /**
@@ -131,7 +142,7 @@ window.CDAPStreamClient = window.CDAPStreamClient || (function () {
          *
          * @returns {@link CDAPStreamClient.Promise}
          */
-        objectToReturn.send = function send(params) {
+        CDAPStreamClient.send = function send(params) {
             if (!params.path || !params.host || !params.port) {
                 throw new Error('"host", "port", "path" properties are required');
             }
@@ -164,7 +175,5 @@ window.CDAPStreamClient = window.CDAPStreamClient || (function () {
             return promiseInst;
         };
     }
-
-    return objectToReturn;
 })();
 

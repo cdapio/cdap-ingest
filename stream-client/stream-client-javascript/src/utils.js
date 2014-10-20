@@ -28,7 +28,8 @@
         define(['exports', 'Promise'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
-        window['CDAPStreamClient'] = window['CDAPStreamClient'] || { Utils: null };
+        window['CDAPStreamClient'] = window['CDAPStreamClient'];
+        window['CDAPStreamClient']['Utils'] = window['CDAPStreamClient']['Utils'] || {};
         factory(window['CDAPStreamClient']['Utils']);
     }
 }(function (target, require) {
