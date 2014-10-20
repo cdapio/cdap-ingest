@@ -13,11 +13,11 @@ The Stream Client Python API is for managing Streams from Python applications.
 
 ## Installation
 
-To install CDAP Stream Client, run
+To install the latest release version CDAP Stream Client, run
 
     $ pip install cdap-stream-client
 
-or clone the repository
+To install the development version, clone the repository
 
     $ git clone https://github.com/caskdata/cdap-ingest.git
     $ cd cdap-ingest/cdap-stream-clients/python/
