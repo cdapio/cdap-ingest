@@ -23,11 +23,10 @@
   <parent>
     <groupId>co.cask.cdap</groupId>
     <artifactId>cdap-ingest</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>cdap-stream-clients</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Stream Client API</name>
 
