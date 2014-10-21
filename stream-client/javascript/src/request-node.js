@@ -27,7 +27,7 @@ var requestAsync = function requestAsync(params) {
 
         params.ssl = (null != params.ssl) ? params.ssl : false;
         params.headers = params.headers || {};
-        params.data = JSON.stringify(params.data || {});
+        params.data = params.data;
         params.rejectUnauthorized = false;
 
         var promise = new Promise(),
@@ -62,7 +62,7 @@ var requestAsync = function requestAsync(params) {
 
         params.ssl = (null != params.ssl) ? params.ssl : false;
         params.headers = params.headers || {};
-        params.data = JSON.stringify(params.data || {});
+        params.data = params.data;
 
         var request = httpSync.request(params),
             response;
