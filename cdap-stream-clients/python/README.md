@@ -23,6 +23,7 @@ To install the development version, clone the repository
     $ cd cdap-ingest/cdap-stream-clients/python/
     $ python setup.py install
 
+Supported Python versions: 2.6, 2.7
 
 ## Usage
 
