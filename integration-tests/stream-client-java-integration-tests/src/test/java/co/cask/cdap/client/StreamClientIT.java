@@ -21,8 +21,10 @@ import co.cask.cdap.common.http.exception.HttpFailureException;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import org.apache.commons.httpclient.HttpStatus;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -40,7 +42,7 @@ public class StreamClientIT {
 
   private StreamClient streamClient;
 
-  @BeforeClass
+  @Before
   public void setUp() throws IOException {
     streamClient = getTestClient();
   }
@@ -105,7 +107,7 @@ public class StreamClientIT {
     streamClient.truncate(TEST_STREAM);
   }
 
-  @AfterClass
+  @After
   public void shutDown() throws IOException {
     streamClient.close();
   }
