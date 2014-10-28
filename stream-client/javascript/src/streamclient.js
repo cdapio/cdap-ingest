@@ -81,7 +81,13 @@
             if (200 !== status) {
                 throw {
                     status: status,
-                    message: responseText
+                    message: responseText,
+                    toString: function () {
+                        return [
+                            'Error code: ', this.status, ' ',
+                            'Error message: ', this.message
+                        ].join('');
+                    }
                 };
             }
 
