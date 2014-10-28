@@ -84,7 +84,7 @@
                     method: config.method,
                     path: config.path,
                     headers: Utils.copyObject(defaultHeaders, config.headers ? config.headers : {}),
-                    data: config.data || {},
+                    data: config.data || '',
                     async: (null != config.async) ? config.async : true
                 });
 

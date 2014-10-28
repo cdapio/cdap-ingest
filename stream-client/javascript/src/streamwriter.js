@@ -67,7 +67,7 @@
             return connector.request({
                 method: 'POST',
                 path: serviceUri,
-                data: message,
+                data: JSON.stringify(message),
                 headers: headers
             });
         };

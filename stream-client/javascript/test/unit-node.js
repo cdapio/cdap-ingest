@@ -59,7 +59,7 @@ describe('CDAP ingest tests', function () {
                     path: requestUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'PUT',
                     async: false
                 },
@@ -100,7 +100,7 @@ describe('CDAP ingest tests', function () {
                     path: createUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'PUT',
                     async: false
                 },
@@ -207,7 +207,7 @@ describe('CDAP ingest tests', function () {
                     path: createUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'PUT',
                     async: false
                 },
@@ -217,7 +217,7 @@ describe('CDAP ingest tests', function () {
                     path: configUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'GET',
                     async: false
                 },
@@ -273,7 +273,7 @@ describe('CDAP ingest tests', function () {
                     path: createUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'PUT',
                     async: false
                 },
@@ -283,7 +283,7 @@ describe('CDAP ingest tests', function () {
                     path: configUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'GET',
                     async: false
                 },
@@ -337,7 +337,7 @@ describe('CDAP ingest tests', function () {
                     path: configUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'GET',
                     async: false
                 },
@@ -378,7 +378,7 @@ describe('CDAP ingest tests', function () {
                     path: createUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'PUT',
                     async: false
                 },
@@ -388,7 +388,7 @@ describe('CDAP ingest tests', function () {
                     path: truncateUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'POST',
                     async: false
                 },
@@ -438,7 +438,7 @@ describe('CDAP ingest tests', function () {
                     path: truncateUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'POST',
                     async: false
                 },
@@ -478,7 +478,7 @@ describe('CDAP ingest tests', function () {
                     path: configUrl,
                     ssl: false,
                     headers: { Authorization: '' },
-                    data: '{}',
+                    data: '',
                     method: 'GET',
                     async: false
                 },
@@ -523,7 +523,7 @@ describe('CDAP ingest tests', function () {
                         path: configUrl,
                         ssl: false,
                         headers: { Authorization: '' },
-                        data: '{}',
+                        data: '',
                         method: 'GET',
                         async: false
                     },
@@ -579,7 +579,7 @@ describe('CDAP ingest tests', function () {
                             path: configUrl,
                             ssl: false,
                             headers: { Authorization: '' },
-                            data: '{}',
+                            data: '',
                             method: 'GET',
                             async: false
                         },
@@ -638,7 +638,7 @@ describe('CDAP ingest tests', function () {
                             path: configUrl,
                             ssl: false,
                             headers: { Authorization: '' },
-                            data: '{}',
+                            data: '',
                             method: 'GET',
                             async: false
                         },
@@ -697,7 +697,7 @@ describe('CDAP ingest tests', function () {
                             path: configUrl,
                             ssl: false,
                             headers: { Authorization: '' },
-                            data: '{}',
+                            data: '',
                             method: 'GET',
                             async: false
                         },

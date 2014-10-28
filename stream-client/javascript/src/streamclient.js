@@ -143,7 +143,7 @@
                     serviceConnector.request({
                         method: 'PUT',
                         path: uri,
-                        data: objectToSend,
+                        data: JSON.stringify(objectToSend),
                         async: false
                     })
                 );

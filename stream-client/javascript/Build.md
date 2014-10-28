@@ -6,32 +6,13 @@ to set up all dependencies use next shell commands:
 
 ```
 # npm install -g grunt-cli
-# npm unstall -g bower
+# npm install -g bower
 $ npm install
 $ bower install
 ```
 
-## Tests
-
-```
-$ grunt test
-```
-
-## Build
-
-```
-$ grunt build
-```
-
-## Default behaviour
+Next command would run building and testing processes.
 
 ```
 $ grunt
 ```
-
-Is equal to:
-```
-$ grunt test && grunt build
-```
-
-To run tests
