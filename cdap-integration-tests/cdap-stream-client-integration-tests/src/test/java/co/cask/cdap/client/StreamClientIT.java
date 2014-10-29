@@ -22,10 +22,8 @@ import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -49,19 +47,11 @@ public class StreamClientIT {
 
   @Test
   public void testCreateStream() throws IOException {
-    //Try to get TTL to make sure, that such stream doesn't already exist
-    try {
-      streamClient.getTTL(TEST_STREAM);
-      Assert.fail("HttpFailureException expected");
-    } catch (HttpFailureException e) {
-      Assert.assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
-    }
-
+    String newStreamName = "newStream";
     //Test that we are able to create a stream
-    streamClient.create(TEST_STREAM);
-    long ttl = streamClient.getTTL(TEST_STREAM);
+    streamClient.create(newStreamName);
+    long ttl = streamClient.getTTL(newStreamName);
     Assert.assertTrue(ttl > 0);
-    streamClient.truncate(TEST_STREAM);
   }
 
   @Test
@@ -71,7 +61,6 @@ public class StreamClientIT {
     long ttl = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
     streamClient.setTTL(TEST_STREAM, ttl);
     Assert.assertEquals(ttl, streamClient.getTTL(TEST_STREAM));
-    streamClient.truncate(TEST_STREAM);
   }
 
   @Test
@@ -81,30 +70,27 @@ public class StreamClientIT {
     Assert.assertTrue(ttl > 0);
     //Test that we are able to truncate stream
     streamClient.truncate(TEST_STREAM);
-    try {
-      streamClient.getTTL(TEST_STREAM);
-      Assert.fail("HttpFailureException expected");
-    } catch (HttpFailureException e) {
-      Assert.assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
-    }
   }
 
   @Test
   public void testCreateWriterAndWriteEvent() throws IOException {
+    String newWriterStreamName = "newWriterStream";
+    streamClient.create(newWriterStreamName);
+    //Test that we are able to create writer with new stream
+    StreamWriter writer = streamClient.createWriter(newWriterStreamName);
+    //Test that we are able to write to a stream
+    writer.write("test", Charset.forName("UTF8"), Collections.singletonMap("key", "value"));
+    writer.close();
+  }
+
+  @Test
+  public void testCreateWriterWithNotExistingStream() throws IOException {
     try {
-      streamClient.getTTL(TEST_STREAM);
+      streamClient.createWriter("test");
       Assert.fail("HttpFailureException expected");
     } catch (HttpFailureException e) {
       Assert.assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
     }
-    //Test that we are able to create writer with new stream
-    StreamWriter writer = streamClient.createWriter(TEST_STREAM);
-    long ttl = streamClient.getTTL(TEST_STREAM);
-    Assert.assertTrue(ttl > 0);
-    //Test that we are able to write to a stream
-    writer.write("test", Charset.forName("UTF8"), Collections.singletonMap("key", "value"));
-    writer.close();
-    streamClient.truncate(TEST_STREAM);
   }
 
   @After
