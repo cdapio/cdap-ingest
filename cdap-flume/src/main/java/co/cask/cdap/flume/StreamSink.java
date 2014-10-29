@@ -22,6 +22,8 @@ import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.io.Closeables;
 import org.apache.flume.Channel;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Context;
@@ -167,29 +169,34 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       builder.verifySSLCert(verifySSLCert);
       builder.writerPoolSize(writerPoolSize);
       builder.version(version);
-      InputStream inStream = null;
       try {
         authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
-
-        Properties properties = new Properties();
-        properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
-        inStream = new FileInputStream(authClientPropertiesPath);
-        properties.load(inStream);
-        authClient.configure(properties);
         authClient.setConnectionInfo(host, port, sslEnabled);
+        if (authClient.isAuthEnabled()) {
+          Properties properties = new Properties();
+          properties.setProperty(BasicAuthenticationClient.VERIFY_SSL_CERT_PROP_NAME, String.valueOf(verifySSLCert));
+          if ((authClientPropertiesPath == null) || (authClientPropertiesPath.isEmpty())) {
+            throw new Exception("Authentication client is enabled, but the path for properties " +
+                                  "file is either empty or null");
+          }
+          InputStream inStream = new FileInputStream(authClientPropertiesPath);
+          try {
+            properties.load(inStream);
+          } finally {
+            Closeables.closeQuietly(inStream);
+          }
+          authClient.configure(properties);
+        }
         builder.authClient(authClient);
       } catch (IOException e) {
         LOG.error("Cannot load properties", e);
-      } catch (Exception e) {
+        throw Throwables.propagate(e);
+      } catch (ClassNotFoundException e) {
         LOG.error("Can not resolve class {}: {}", new Object[]{authClientClassName, e.getMessage(), e});
-      } finally {
-        try {
-          if (inStream != null) {
-            inStream.close();
-          }
-        } catch (IOException e) {
-          LOG.warn("Error during closing input stream. {}", e.getMessage(), e);
-        }
+        throw Throwables.propagate(e);
+      } catch (Exception e) {
+        LOG.error(e.getMessage(), e);
+        throw Throwables.propagate(e);
       }
       streamClient = builder.build();
     }
@@ -201,7 +208,6 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       closeWriterQuietly();
       throw new IOException("Can not create stream writer by name: " + streamName, t);
     }
-
   }
 
   private void closeClientQuietly() {
