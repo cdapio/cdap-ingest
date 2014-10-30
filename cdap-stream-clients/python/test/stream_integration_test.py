@@ -30,6 +30,7 @@ class TestStreamClient(unittest.TestCase, StreamTestBase):
 
     def setUp(self):
         self.config_file = u'cdap_config.json'
+        self.auth_config_file = u'auth_config.json'
         self.base_set_up()
 
 if u'__main__' == __name__:

@@ -17,23 +17,16 @@
 from __future__ import with_statement
 import json
 from io import open
-from cdap_auth_client.BasicAuthenticationClient import BasicAuthenticationClient
-from cdap_auth_client.Config import Config as AuthConfig
 
 
 class Config(object):
 
     def __init__(self, host=u'localhost', port=10000, ssl=False,
-                 ssl_disable_check=True, filename=u''):
+                 ssl_disable_check=True):
         self.__host = host
         self.__port = port
         self.__ssl = ssl
         self.__ssl_disable_check = ssl_disable_check
-        self.__authClient = BasicAuthenticationClient()
-        self.__authClient.set_connection_info(self.__host,
-                                              self.__port, self.__ssl)
-        if filename:
-            self.__authClient.configure(AuthConfig().read_from_file(filename))
 
     def set_auth_client(self, client):
         self.__authClient = client

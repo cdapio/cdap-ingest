@@ -1,0 +1,5 @@
+{
+    "security_auth_client_username": "admin",
+    "security_auth_client_password": "realtime",
+    "security_ssl_cert_check": false
+}
