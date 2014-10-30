@@ -1,13 +1,17 @@
-var StreamClient = CDAPStreamClient.StreamClient,
-    AuthManager = CASKAuthManager,
+var expect = require('expect.js'),
+    http = require('http-sync'),
+    StreamClient = require('cdap-stream-client'),
+    AuthManager = require('cdap-auth-client'),
 
-    user = 'kpovetkin',
-    pass = 'RhtcE808',
-
-    host = '107.178.222.50',
+    /**
+     * Server connection info
+     */
+//    host = '107.178.222.50',
+    host = 'localhost',
     port = '10000',
     ssl = false,
-
+    user = 'kpovetkin',
+    pass = 'RhtcE808',
     authManager = new AuthManager();
 
 authManager.setConnectionInfo(host, port, ssl);
@@ -17,10 +21,8 @@ authManager.configure({
 });
 
 console.log('Authentication info');
-console.group();
 console.log('Enabled: ', authManager.isAuthEnabled());
 console.log('Token: ', authManager.getToken());
-console.groupEnd();
 
 describe('CDAP ingest tests', function () {
     describe('StreamClient object creation', function () {
@@ -75,11 +77,8 @@ describe('CDAP ingest tests', function () {
                     ssl: ssl,
                     authManager: authManager
                 });
-
             streamClient.create(streamName);
-            expect(function () {
-                streamClient.setTTL(streamName, ttl);
-            }).not.to.throwError();
+            streamClient.setTTL(streamName, ttl);
         });
 
         it('"setTTL" for an invalid stream', function () {
@@ -107,7 +106,6 @@ describe('CDAP ingest tests', function () {
                     authManager: authManager
                 });
 
-            streamClient.create(streamName);
             var respTTL = streamClient.getTTL(streamName);
 
             expect(respTTL).to.be.equal(ttl);
@@ -131,6 +129,8 @@ describe('CDAP ingest tests', function () {
 
         it('"getTTL" for an invalid stream', function () {
             var streamName = 'invalidStream',
+                ttl = 86400,
+
                 streamClient = new StreamClient({
                     host: host,
                     port: port,
@@ -153,9 +153,7 @@ describe('CDAP ingest tests', function () {
                 });
 
             streamClient.create(streamName);
-            expect(function () {
-                streamClient.truncate(streamName);
-            }).not.to.throwError();
+            streamClient.truncate(streamName);
         });
 
         it('"truncate" for an invalid stream', function () {
@@ -207,8 +205,60 @@ describe('CDAP ingest tests', function () {
                 expect(promise).to.have.property('resolve');
             });
 
+            it('Event data validation', function (done) {
+                /**
+                 * We are testing http request. So we need to wait.
+                 */
+                this.timeout(10000);
+
+                var streamName = 'newStream',
+                    textToSend = 'data sent to CDAP',
+                    streamClient = new StreamClient({
+                        host: host,
+                        port: port,
+                        ssl: ssl,
+                        authManager: authManager
+                    });
+
+                var streamWriter = streamClient.createWriter(streamName),
+                    promise = streamWriter.write(textToSend);
+
+                promise.then(function () {
+                    var authToken = authManager.getToken(),
+                        isDataConsistent = false,
+                        response = http.request({
+                            method: 'GET',
+                            host: host,
+                            port: port,
+                            protocol: ssl ? 'https' : 'http',
+                            headers: {
+                                Authorization: [authToken.type, ':', authToken.token].join('')
+                            },
+                            body: '',
+
+                            path: '/v2/streams/' + streamName + '/events'
+                        }).end();
+
+                    if (200 === response.statusCode) {
+                        var events = JSON.parse(response.body.toString());
+
+                        while (events.length) {
+                            if (isDataConsistent) {
+                                break;
+                            }
+
+                            var event = events.shift();
+                            isDataConsistent = (event.body == JSON.stringify(textToSend));
+                        }
+                    }
+
+                    expect(isDataConsistent).to.be.ok();
+                    done();
+                });
+            });
+
             describe('Promise states', function () {
-                it('"resolve" fires a handler', function () {
+                it('"resolve" fires a handler', function (done) {
                     var streamName = 'newStream',
                         textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
                         streamClient = new StreamClient({
@@ -226,12 +276,13 @@ describe('CDAP ingest tests', function () {
                         },
                         promiseChecker = function () {
                             expect(resolved).to.be.ok();
+                            done();
                         };
 
                     promise.then(promiseHandler).then(promiseChecker, promiseChecker);
                 });
 
-                it('"catch" fires a handler', function () {
+                it('"notify" fires a handler', function (done) {
                     var streamName = 'newStream',
                         textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
                         streamClient = new StreamClient({
@@ -249,29 +300,7 @@ describe('CDAP ingest tests', function () {
                         },
                         promiseChecker = function () {
                             expect(resolved).to.be.ok();
-                        };
-
-                    promise.catch(promiseHandler).then(promiseChecker, promiseChecker);
-                });
-
-                it('"notify" fires a handler', function () {
-                    var streamName = 'newStream',
-                        textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
-                        streamClient = new StreamClient({
-                            host: host,
-                            port: port,
-                            ssl: ssl,
-                            authManager: authManager
-                        });
-
-                    var streamWriter = streamClient.createWriter(streamName),
-                        promise = streamWriter.write(textToSend),
-                        resolved = false,
-                        promiseHandler = function (status) {
-                            resolved = true;
-                        },
-                        promiseChecker = function () {
-                            expect(resolved).to.be.ok();
+                            done();
                         };
 
                     promise.then(null, null, promiseHandler).then(promiseChecker, promiseChecker);
