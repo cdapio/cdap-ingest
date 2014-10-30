@@ -36,21 +36,11 @@ import co.cask.cdap.filetailer.sink.SinkStrategy;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
-import co.cask.cdap.security.authentication.client.AccessToken;
-import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
+import co.cask.cdap.utils.EventUtil;
 import com.google.common.base.Preconditions;
-import com.google.common.io.Closeables;
-import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.ServiceManager;
-import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -61,18 +51,14 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -92,22 +78,21 @@ public class FileTailerIT {
   private static final  AtomicInteger ingest = new AtomicInteger();
   private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
 
-  private static String cdapHost;
-  private static String cdapPort;
-  private static Boolean ssl;
-  private static String streamName;
-  private static Properties tailerProperties;
-  private static String authClientPropertiesPath;
+  private static EventUtil eventUtil;
 
   @BeforeClass
-  public static void beforeClass() throws URISyntaxException {
+  public static void beforeClass() throws URISyntaxException, IOException {
     File configFile = getConfigFile();
-    tailerProperties = getProperties(configFile);
-    cdapHost = tailerProperties.getProperty("pipes.pipe1.sink.host");
-    cdapPort = tailerProperties.getProperty("pipes.pipe1.sink.port");
-    ssl = Boolean.parseBoolean(tailerProperties.getProperty("pipes.pipe1.sink.ssl"));
-    streamName = tailerProperties.getProperty("pipes.pipe1.sink.stream_name");
-    authClientPropertiesPath = tailerProperties.getProperty("pipes.pipe1.sink.auth_client_properties");
+    Properties tailerProperties = getProperties(configFile);
+    EventUtil.Builder builder = EventUtil.builder();
+    builder.setProperties(tailerProperties);
+    builder.setCdapHost(tailerProperties.getProperty("pipes.pipe1.sink.host"));
+    builder.setCdapPort(tailerProperties.getProperty("pipes.pipe1.sink.port"));
+    builder.setSSL(Boolean.parseBoolean(tailerProperties.getProperty("pipes.pipe1.sink.ssl")));
+    builder.setStreamName(tailerProperties.getProperty("pipes.pipe1.sink.stream_name"));
+    builder.setAuthClientPropertiesPath(tailerProperties.getProperty("pipes.pipe1.sink.auth_client_properties"));
+    builder.setDefaultAuthClient(DEFAULT_AUTH_CLIENT);
+    eventUtil = builder.build();
   }
 
   @Before
@@ -143,7 +128,11 @@ public class FileTailerIT {
     manager.stopAsync();
     Thread.sleep(SLEEP_TIME);
     Assert.assertEquals(read.get(), ingest.get());
-    checkDeliveredEvents(ENTRY_NUMBER * 2, startTime, System.currentTimeMillis());
+    List<String> events = eventUtil.getDeliveredEvents(startTime, System.currentTimeMillis());
+    Assert.assertEquals(ENTRY_NUMBER * 2, events.size());
+    for (int i = 0; i < ENTRY_NUMBER * 2; i++) {
+      Assert.assertTrue(events.get(i).equals(LOG_MESSAGE));
+    }
   }
 
   @Test
@@ -153,7 +142,7 @@ public class FileTailerIT {
 
     String logFilePath = pipeConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + pipeConfig.getSourceConfiguration().getFileName();
-    Logger logger =  getTimeLogger(logFilePath);
+    Logger logger = getTimeLogger(logFilePath);
 
     PipeManager manager = new PipeManager(configFile);
     mockMetricsProcessor(manager);
@@ -167,7 +156,11 @@ public class FileTailerIT {
     manager.stopAsync();
     Thread.sleep(SLEEP_TIME);
     Assert.assertEquals(read.get(), ingest.get());
-    checkDeliveredEvents(ENTRY_NUMBER, startTime, System.currentTimeMillis());
+    List<String> events = eventUtil.getDeliveredEvents(startTime, System.currentTimeMillis());
+    Assert.assertEquals(ENTRY_NUMBER, events.size());
+    for (int i = 0; i < ENTRY_NUMBER; i++) {
+      Assert.assertTrue(events.get(i).equals(LOG_MESSAGE));
+    }
   }
 
   private static File getConfigFile() throws URISyntaxException {
@@ -293,82 +286,9 @@ public class FileTailerIT {
     }
   }
 
-  private static Properties getProperties(File file) {
+  private static Properties getProperties(File file) throws IOException {
     Properties properties = new Properties();
-    try {
-      InputStream is = new FileInputStream(file);
-      try {
-        properties.load(is);
-      } finally {
-        Closeables.closeQuietly(is);
-      }
-    } catch (IOException ignored) {
-    }
+    properties.load(new FileInputStream(file));
     return properties;
-  }
-
-  private void checkDeliveredEvents(int entryNumber, long startTime, long endTime) throws Exception {
-    String eventsStr = readFromStream(startTime, endTime);
-    Type listType = new TypeToken<List<StreamEvent>>() { }.getType();
-    List<StreamEvent> eventList = new Gson().fromJson(eventsStr, listType);
-    Assert.assertEquals(entryNumber, eventList.size());
-    for (int i = 0; i < entryNumber; i++) {
-      Assert.assertTrue(eventList.get(i).getBody().equals(LOG_MESSAGE));
-    }
-  }
-
-  private String readFromStream(long startTime, long endTime) throws Exception {
-    URI baseUrl = URI.create(String.format("%s://%s:%s", ssl ? "https" : "http",
-                                           cdapHost, cdapPort));
-    HttpGet getRequest = new HttpGet(baseUrl.resolve(String.format("/v2/streams/%s/events?start=%s&end=%s",
-                                                                   streamName, startTime, endTime)));
-    if (authClientPropertiesPath != null) {
-      AuthenticationClient authClient = configureAuthClient();
-      AccessToken token = authClient.getAccessToken();
-      getRequest.setHeader("Authorization", token.getTokenType() + " " + token.getValue());
-    }
-    CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(
-      new BasicHttpClientConnectionManager()).build();
-    HttpResponse response = httpClient.execute(getRequest);
-    String res = EntityUtils.toString(response.getEntity());
-    Closeables.close(httpClient, true);
-    return res;
-  }
-
-  private AuthenticationClient configureAuthClient() throws Exception {
-    String authClientClassName = getProperty("pipes.pipe1.sink.auth_client", DEFAULT_AUTH_CLIENT);
-    AuthenticationClient authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
-    InputStream inStream = null;
-    try {
-      URL resource = FileTailerIT.class.getClassLoader().getResource(authClientPropertiesPath);
-      inStream = new FileInputStream(new File(resource.toURI()));
-      Properties properties = new Properties();
-      properties.load(inStream);
-      authClient.configure(properties);
-      authClient.setConnectionInfo(cdapHost, Integer.parseInt(cdapPort), ssl);
-    } finally {
-      try {
-        if (inStream != null) {
-          inStream.close();
-        }
-      } catch (IOException ignored) {
-      }
-    }
-    return authClient;
-  }
-
-  private static String getProperty(String key, String defaultValue) {
-    String value = tailerProperties.getProperty(key);
-    return value != null && !value.equals("") ? value : defaultValue;
-  }
-
-  private class StreamEvent {
-    private Map<String, String> headers;
-    private String body;
-    long timestamp;
-
-    public String getBody() {
-      return body;
-    }
   }
 }
