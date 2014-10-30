@@ -44,8 +44,9 @@ import java.util.concurrent.TimeUnit;
 
 public class StreamClientIT {
 
-  public static final String CONFIG_NAME = "streamClientITConfig";
-  public static final String TEST_STREAM = "testStream";
+  private static final String CONFIG_NAME = "streamClientITConfig";
+  private static final String TEST_STREAM = "testStream";
+  private static final String EVENT_STR_PREFIX = "Test event number: ";
 
   private StreamClient streamClient;
   private StreamClientTestHelper streamClientTestHelper;
@@ -98,13 +99,17 @@ public class StreamClientIT {
     int expectedEventsNum = 10;
     try {
       for (int i = 0; i < expectedEventsNum; i++) {
-        writer.write("test" + i, Charset.forName("UTF8"), Collections.singletonMap("key", "value")).get();
+        writer.write(EVENT_STR_PREFIX + i, Charset.forName("UTF8"), Collections.singletonMap("key", "value")).get();
       }
     } finally {
       writer.close();
     }
+    //Check events from the stream
     List<JsonObject> streamEvents = streamClientTestHelper.getStreamEvents(TEST_STREAM);
     Assert.assertEquals(expectedEventsNum, streamEvents.size());
+    for (int i = 0; i < expectedEventsNum; i++) {
+      Assert.assertEquals(EVENT_STR_PREFIX + i, streamEvents.get(i).get("body").getAsString());
+    }
 
     //Test that we are able to truncate stream
     streamClient.truncate(TEST_STREAM);
