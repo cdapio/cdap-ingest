@@ -32,13 +32,10 @@ import inspect
 current_dir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
-src_dir = parent_dir + '/cdap_stream_client'
-sys.path.insert(0, src_dir)
+sys.path.insert(0, parent_dir)
 
-from config import Config
-from serviceconnector import NotFoundError
-from streamwriter import StreamWriter
-from streamclient import StreamClient
+from cdap_stream_client import Config, StreamWriter, StreamClient
+from cdap_stream_client.serviceconnector import NotFoundError
 
 with mock.patch('__main__.Config.is_auth_enabled',
                         new_callable=mock.PropertyMock) \
@@ -48,9 +45,6 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
 
     class TestStreamClient(unittest.TestCase):
-
-        # Should be the same as 'hostname' and 'port' fields in 'default-config.json'
-        # file to make tests work right.
         __dummy_host = u'dummy.host'
         __dummy_port = 65000
         __BASE_URL = u'http://{0}:{1}/v2'.format(__dummy_host, __dummy_port)
@@ -82,8 +76,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
         exit_code = 404
 
         def setUp(self):
-            config = Config.read_from_file(u'default-config.json')
-
+            config = Config(self.__dummy_host, self.__dummy_port)
             self.sc = StreamClient(config)
 
         @httpretty.activate

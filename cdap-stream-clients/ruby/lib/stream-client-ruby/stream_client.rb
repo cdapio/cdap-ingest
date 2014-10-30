@@ -23,6 +23,11 @@ module CDAPIngest
       @rest = Rest.new
     end
 
+    # Set authentication client
+    def set_auth_client auth_client
+      @rest.set_auth_client auth_client
+    end
+
     ###
       # Creates a stream with the given name.
     def create(stream)

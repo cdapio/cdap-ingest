@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -206,13 +207,13 @@ public class PipeConfigurationImpl implements PipeConfiguration {
   private class SinkConfigurationImpl implements SinkConfiguration {
 
     private static final String DEFAULT_SSL = "false";
-    private static final String DEFAULT_DISABLE_CERT_CHECK = "false";
+    private static final String DEFAULT_VERIFY_SSL_CERT = "true";
     private static final String DEFAULT_WRITER_POOL_SIZE = "10";
     private static final String DEFAULT_VERSION = "v2";
     private static final String DEFAULT_PACK_SIZE = "1";
     private static final String DEFAULT_FAILURE_RETRY_LIMIT = "0";
     private static final String DEFAULT_FAILURE_SLEEP_INTERVAL = "60000";
-    private static final String DEFAULT_AUTH_CLIENT_PROPERTIES = "/etc/file-tailer/conf/auth-client.properties";
+    private static final String DEFAULT_AUTH_CLIENT_PROPERTIES = "/etc/cdap/file-tailer/conf/auth-client.properties";
 
     private final String key;
 
@@ -230,11 +231,11 @@ public class PipeConfigurationImpl implements PipeConfiguration {
       String host = getRequiredProperty(this.key + "host");
       int port = Integer.parseInt(getRequiredProperty(this.key + "port"));
       boolean ssl = Boolean.valueOf(getProperty(this.key + "ssl", DEFAULT_SSL));
-      boolean disableCertCheck = Boolean.valueOf(getProperty(this.key + "disableCertCheck",
-                                                             DEFAULT_DISABLE_CERT_CHECK));
+      boolean verifySslCert = Boolean.valueOf(getProperty(this.key + "verify.ssl.cert",
+                                                          DEFAULT_VERIFY_SSL_CERT));
 
       RestStreamClient.Builder builder = RestStreamClient.builder(host, port).ssl(ssl)
-        .verifySSLCert(disableCertCheck);
+        .verifySSLCert(verifySslCert);
 
       String authClientClassPath = getProperty(this.key + "auth_client", DEFAULT_AUTH_CLIENT);
       String authClientPropertiesPath = getProperty(this.key + "auth_client_properties",
@@ -243,18 +244,20 @@ public class PipeConfigurationImpl implements PipeConfiguration {
         AuthenticationClient authClient =
           (AuthenticationClient) Class.forName(authClientClassPath).getConstructor().newInstance();
         authClient.setConnectionInfo(host, port, ssl);
-        File authClientProperties = new File(authClientPropertiesPath);
-        if (!authClientProperties.exists()) {
-          URL authFileUrl = PipeConfigurationImpl.class.getClassLoader().getResource(authClientPropertiesPath);
-          if (authFileUrl != null) {
-            authClientProperties = new File(authFileUrl.toURI());
+        if (authClient.isAuthEnabled()) {
+          File authClientProperties = new File(authClientPropertiesPath);
+          if (!authClientProperties.exists()) {
+            URL authFileUrl = PipeConfigurationImpl.class.getClassLoader().getResource(authClientPropertiesPath);
+            if (authFileUrl != null) {
+              authClientProperties = new File(authFileUrl.toURI());
+            }
           }
+          if (!authClientProperties.exists()) {
+            throw new ConfigurationLoadingException("File " +
+                                                      authClientProperties.getAbsolutePath() + " doesn't exists");
+          }
+          authClient.configure(new ConfigurationLoaderImpl().load(authClientProperties).getProperties());
         }
-        if (!authClientProperties.exists()) {
-          throw new ConfigurationLoadingException("File " +
-                                                    authClientProperties.getAbsolutePath() + " doesn't exists");
-        }
-        authClient.configure(new ConfigurationLoaderImpl().load(authClientProperties).getProperties());
         builder.authClient(authClient);
       } catch (ClassNotFoundException e) {
         LOG.warn("Can not resolve class {}: {}", authClientClassPath, e.getMessage(), e);
@@ -272,6 +275,8 @@ public class PipeConfigurationImpl implements PipeConfiguration {
       } catch (ConfigurationLoadingException e) {
         LOG.warn("Can not load Authentication Client properties file {}: {}",
                   authClientPropertiesPath, e.getMessage(), e);
+      } catch (IOException e) {
+        LOG.warn("Failed to check if authorization is enabled.", e);
       }
 
       String apiKey = getProperty(this.key + "apiKey");

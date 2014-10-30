@@ -43,6 +43,7 @@ public final class TestUtils {
   public static final String WRITER_TEST_STREAM_NAME_POSTFIX = "WriterTest";
   public static final String FILE_STREAM_NAME = "file";
   public static final String WITH_CUSTOM_HEADER_STREAM_NAME = "withHeader";
+  public static final String ALLOW_ANY_EVENT_STREAM = "anyEventAllowed";
 
   private TestUtils() {
   }
@@ -64,7 +65,8 @@ public final class TestUtils {
     int code;
     if (StringUtils.isEmpty(streamName)) {
       code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-    } else if (SUCCESS_STREAM_NAME.equals(streamName) || TestUtils.FILE_STREAM_NAME.equals(streamName)) {
+    } else if (SUCCESS_STREAM_NAME.equals(streamName) || TestUtils.FILE_STREAM_NAME.equals(streamName)
+      || ALLOW_ANY_EVENT_STREAM.equals(streamName)) {
       code = HttpStatus.SC_OK;
     } else if (NOT_FOUND_STREAM_NAME.equals(streamName)) {
       code = HttpStatus.SC_NOT_FOUND;

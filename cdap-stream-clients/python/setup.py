@@ -19,10 +19,13 @@ from setuptools import find_packages
 
 
 setup(name='cdap-stream-client',
-    version='${project.version}',
-    description='Stream ingestion client for Cask Data Application Platform',
-    author='Cask Data',
-    author_email='cask-dev@googlegroups.com',
-    packages=find_packages(),
-    install_requires=['cdap_auth_client'],
-    )
+      version='1.1.0-SNAPSHOT',
+      description='Stream ingestion client for Cask Data Application Platform',
+      author='Cask Data',
+      author_email='cask-dev@googlegroups.com',
+      url='https://github.com/caskdata/cdap-ingest/tree/develop/cdap-stream-clients/python',
+      license='The Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0',
+      packages=find_packages(),
+      install_requires=['cdap_auth_client'],
+      tests_require=['httpretty', 'mock'],
+      )

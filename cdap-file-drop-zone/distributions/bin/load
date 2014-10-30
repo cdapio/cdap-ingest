@@ -18,7 +18,7 @@
 
 function load(){
  if [ -z $FDZ_CONF_DIR ]; then
- 	    FDZ_CONF_DIR=/etc/file-drop-zone/conf
+ 	    FDZ_CONF_DIR=/etc/cdap/file-drop-zone/conf
  fi
  if [ $# -gt 2 ] || [ $# -eq 0 ]; then
     log_failure_msg "wrong number of args $#"

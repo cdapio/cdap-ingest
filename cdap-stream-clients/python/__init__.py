@@ -1,4 +1,6 @@
-#  Copyright 2014 Cask Data, Inc.
+# -*- coding: utf-8 -*-
+
+#  Copyright © 2014 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -12,22 +14,3 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-source "http://rubygems.org"
-
-gemspec
-
-gem "rake"
-
-gem 'httparty'
-gem 'thread'
-gem 'promise.rb'
-gem 'pry'
-
-group :test do
-  gem 'rspec'
-  gem "simplecov"
-  gem "simplecov-rcov"
-  gem "vcr"
-  gem "webmock"
-  gem 'cdap-authentication-client'
-end

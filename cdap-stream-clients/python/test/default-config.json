@@ -1,6 +1,0 @@
-{
-    "hostname": "dummy.host",
-    "port": 65000,
-    "SSL": false,
-    "security_ssl_cert_check": false
-}

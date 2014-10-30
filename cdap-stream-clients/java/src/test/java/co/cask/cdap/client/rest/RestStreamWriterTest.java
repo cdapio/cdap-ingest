@@ -22,16 +22,12 @@ import co.cask.cdap.common.http.exception.HttpFailureException;
 import co.cask.cdap.security.authentication.client.AccessToken;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.base.Charsets;
-import com.google.common.net.MediaType;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -58,6 +54,18 @@ public class RestStreamWriterTest extends RestTest {
   public void testSuccessStringWrite() throws Exception {
     streamWriter = streamClient.createWriter(TestUtils.SUCCESS_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
+  }
+
+  @Test
+  public void testEmptyEventWrite() throws Exception {
+    streamWriter = streamClient.createWriter(TestUtils.ALLOW_ANY_EVENT_STREAM);
+    streamWriter.write("", Charsets.UTF_8).get();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullEventWrite() throws Exception {
+    streamWriter = streamClient.createWriter(TestUtils.ALLOW_ANY_EVENT_STREAM);
+    streamWriter.write(null, Charsets.UTF_8).get();
   }
 
   @Test

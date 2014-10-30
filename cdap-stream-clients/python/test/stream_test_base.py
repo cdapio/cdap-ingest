@@ -15,13 +15,14 @@
 #  the License.
 import json
 
-import requests
 
+import json
 import os
 import sys
 import inspect
 import time
 import httplib
+import requests
 
 
 currentdir = os.path.dirname(
@@ -36,10 +37,10 @@ from cdap_stream_client.streamclient import StreamClient
 from cdap_auth_client.BasicAuthenticationClient \
     import BasicAuthenticationClient
 
-
 # Should be used as parent class for integration tests.
 # In children 'config_file' property has to be set and
 # 'base_set_up' method called.
+
 
 class StreamTestBase(object):
 
@@ -67,22 +68,35 @@ class StreamTestBase(object):
         return self.__auth_config_file
 
     @auth_config_file.setter
-    def auth_config_file(self, auth_filename):
-        self.__auth_config_file = auth_filename
+    def auth_config_file(self, filename):
+        self.__auth_config_file = filename
+
+    @staticmethod
+    def read_from_file(filename):
+        with open(filename) as configFile:
+            json_config = json.loads(configFile.read())
+
+        new_config = Config()
+        new_config.host = json_config.get(u'hostname',
+                                          new_config.host)
+        new_config.port = json_config.get(u'port', new_config.port)
+        new_config.ssl = json_config.get(u'SSL', new_config.ssl)
+        new_config.ssl_cert_check = \
+            json_config.get(u'security_ssl_cert_check',
+                            new_config.ssl_cert_check)
+        return new_config
 
     def base_set_up(self):
-
-        self.config = Config.read_from_file(self.config_file)
-        self.authClient = BasicAuthenticationClient()
-        self.authClient.set_connection_info(self.config.host,
-                                            self.config.port,
-                                            self.config.ssl)
         with open(self.auth_config_file) as auth_conf_file:
-            self.auth_properties = json.loads(auth_conf_file.read())
-
-        self.authClient.configure(self.auth_properties)
-
-        self.config.set_auth_client(self.authClient)
+            auth_config = json.loads(auth_conf_file.read())
+        self.config = StreamTestBase.read_from_file(self.config_file)
+        self.auth_client = BasicAuthenticationClient()
+        self.auth_client.set_connection_info(self.config.host,
+                                             self.config.port,
+                                             self.config.ssl)
+        if self.auth_client.is_auth_enabled():
+            self.auth_client.configure(auth_config)
+            self.config.set_auth_client(self.auth_client)
         self.sc = StreamClient(self.config)
 
     def test_reactor_successful_connection(self):
@@ -164,9 +178,12 @@ class StreamTestBase(object):
         base_url = u'%s://%s:%d' % ("http" if self.config.ssl else "http",
                                     self.config.host, self.config.port)
         url = base_url + request_url
-        token = self.authClient.get_access_token()
-        headers = {'Authorization': token.token_type + " " + token.value}
-        response = requests.get(url, headers=headers)
+        if self.auth_client.is_auth_enabled():
+            token = self.auth_client.get_access_token()
+            headers = {'Authorization': token.token_type + " " + token.value}
+            response = requests.get(url, headers=headers)
+        else:
+            response = requests.get(url)
         if response.status_code == httplib.NO_CONTENT:
             return None
         else:
