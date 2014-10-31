@@ -52,7 +52,7 @@ module CDAPIngest
       # @throws NotFoundException If the stream does not exists
     def get_ttl(stream)
       response = rest.request 'get', "#{stream}/info"
-      humanize response['ttl']
+      response['ttl']
     end
 
     ###
@@ -74,10 +74,5 @@ module CDAPIngest
       StreamWriter.new stream, rest, pool_size
     end
 
-    private
-
-      def humanize ttl
-        ttl / 1000 if ttl
-      end
   end
 end
