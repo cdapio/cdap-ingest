@@ -172,7 +172,7 @@ public class StreamReader {
   }
 
   /**
-   * Builder for EventUtil
+   * Builder for StreamReader
    */
   public static class Builder {
 
