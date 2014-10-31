@@ -1,0 +1,21 @@
+{
+  "name": "stream-client-javascript",
+  "version": "1.0.0",
+  "homepage": "https://github.com/cybervisiontech/cdap-ingest",
+  "authors": [
+    "kpovetkin@cack.com"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "expect": "~0.3.1",
+    "mocha": "~1.21.5"
+  }
+}
