@@ -1,18 +1,18 @@
 /*
- * Copyright © 2014 Cask Data, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
+* Copyright © 2014 Cask Data, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*/
 
 package co.cask.cdap.filetailer;
 
@@ -37,7 +37,7 @@ import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
 import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
-import co.cask.cdap.utils.EventUtil;
+import co.cask.cdap.utils.StreamReader;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ServiceManager;
 import org.apache.commons.io.FileUtils;
@@ -63,8 +63,8 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * File Tailer integration test
- */
+* File Tailer integration test
+*/
 public class FileTailerIT {
 
   public static final String CONFIG_NAME = "fileTailerITConfig";
@@ -78,21 +78,20 @@ public class FileTailerIT {
   private static final  AtomicInteger ingest = new AtomicInteger();
   private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
 
-  private static EventUtil eventUtil;
+  private static StreamReader streamReader;
 
   @BeforeClass
   public static void beforeClass() throws URISyntaxException, IOException {
     File configFile = getConfigFile();
     Properties tailerProperties = getProperties(configFile);
-    EventUtil.Builder builder = EventUtil.builder();
-    builder.setProperties(tailerProperties);
-    builder.setCdapHost(tailerProperties.getProperty("pipes.pipe1.sink.host"));
-    builder.setCdapPort(tailerProperties.getProperty("pipes.pipe1.sink.port"));
-    builder.setSSL(Boolean.parseBoolean(tailerProperties.getProperty("pipes.pipe1.sink.ssl")));
-    builder.setStreamName(tailerProperties.getProperty("pipes.pipe1.sink.stream_name"));
-    builder.setAuthClientPropertiesPath(tailerProperties.getProperty("pipes.pipe1.sink.auth_client_properties"));
-    builder.setDefaultAuthClient(DEFAULT_AUTH_CLIENT);
-    eventUtil = builder.build();
+    streamReader = StreamReader.builder()
+      .setProperties(tailerProperties)
+      .setCdapHost(tailerProperties.getProperty("pipes.pipe1.sink.host"))
+      .setCdapPort(tailerProperties.getProperty("pipes.pipe1.sink.port"))
+      .setSSL(Boolean.parseBoolean(tailerProperties.getProperty("pipes.pipe1.sink.ssl")))
+      .setStreamName(tailerProperties.getProperty("pipes.pipe1.sink.stream_name"))
+      .setAuthClientPropertiesPath(tailerProperties.getProperty("pipes.pipe1.sink.auth_client_properties"))
+      .setDefaultAuthClient(DEFAULT_AUTH_CLIENT).build();
   }
 
   @Before
@@ -128,11 +127,7 @@ public class FileTailerIT {
     manager.stopAsync();
     Thread.sleep(SLEEP_TIME);
     Assert.assertEquals(read.get(), ingest.get());
-    List<String> events = eventUtil.getDeliveredEvents(startTime, System.currentTimeMillis());
-    Assert.assertEquals(ENTRY_NUMBER * 2, events.size());
-    for (int i = 0; i < ENTRY_NUMBER * 2; i++) {
-      Assert.assertTrue(events.get(i).equals(LOG_MESSAGE));
-    }
+    checkDeliveredEvents(ENTRY_NUMBER * 2, startTime);
   }
 
   @Test
@@ -156,9 +151,13 @@ public class FileTailerIT {
     manager.stopAsync();
     Thread.sleep(SLEEP_TIME);
     Assert.assertEquals(read.get(), ingest.get());
-    List<String> events = eventUtil.getDeliveredEvents(startTime, System.currentTimeMillis());
-    Assert.assertEquals(ENTRY_NUMBER, events.size());
-    for (int i = 0; i < ENTRY_NUMBER; i++) {
+    checkDeliveredEvents(ENTRY_NUMBER, startTime);
+  }
+
+  private void checkDeliveredEvents(int entryNumber, long startTime) throws Exception {
+    List<String> events = streamReader.getDeliveredEvents(startTime, System.currentTimeMillis());
+    Assert.assertEquals(entryNumber, events.size());
+    for (int i = 0; i < entryNumber; i++) {
       Assert.assertTrue(events.get(i).equals(LOG_MESSAGE));
     }
   }

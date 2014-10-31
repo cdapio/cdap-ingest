@@ -42,7 +42,7 @@ import java.util.Properties;
 /**
  * Utility class for getting delivered events
  */
-public class EventUtil {
+public class StreamReader {
 
   private final String cdapHost;
   private final String cdapPort;
@@ -52,8 +52,8 @@ public class EventUtil {
   private final String defaultAuthClient;
   private final String authClientPropertiesPath;
 
-  private EventUtil(Properties properties, String cdapHost, String cdapPort, Boolean ssl, String streamName,
-                    String defaultAuthClient, String authClientPropertiesPath) {
+  private StreamReader(Properties properties, String cdapHost, String cdapPort, Boolean ssl, String streamName,
+                       String defaultAuthClient, String authClientPropertiesPath) {
     this.properties = properties;
     this.cdapHost = cdapHost;
     this.cdapPort = cdapPort;
@@ -91,6 +91,15 @@ public class EventUtil {
     return authClientPropertiesPath;
   }
 
+  /**
+   * Retrieves events from specified Stream in Cdap Server that were delivered in time
+   *  between {@code startTime} and {@code endTime}
+   *
+   * @param startTime the start time
+   * @param endTime the end time
+   * @return delivered events
+   * @throws Exception
+   */
   public List<String> getDeliveredEvents(long startTime, long endTime) throws Exception {
     String eventsStr = readFromStream(startTime, endTime);
     Type listType = new TypeToken<List<StreamEvent>>() { }.getType();
@@ -100,10 +109,6 @@ public class EventUtil {
       events.add(event.getBody());
     }
     return events;
-//    Assert.assertEquals(expectedEvents.size(), eventList.size());
-//    for (int i = 0; i < expectedEvents.size(); i++) {
-//      Assert.assertTrue(eventList.get(i).getBody().equals(expectedEvents.get(i)));
-//    }
   }
 
   private String readFromStream(long startTime, long endTime) throws Exception {
@@ -124,12 +129,18 @@ public class EventUtil {
     return result;
   }
 
+  /**
+   * Configure {@link AuthenticationClient} for specified Cdap Server
+   *
+   * @return configured {@link AuthenticationClient}
+   * @throws Exception
+   */
   public AuthenticationClient configureAuthClient() throws Exception {
     String authClientClassName = getProperty("pipes.pipe1.sink.auth_client", defaultAuthClient);
     AuthenticationClient authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
     InputStream inStream = null;
     try {
-      URL resource = EventUtil.class.getClassLoader().getResource(authClientPropertiesPath);
+      URL resource = StreamReader.class.getClassLoader().getResource(authClientPropertiesPath);
       inStream = new FileInputStream(new File(resource.toURI()));
       Properties properties = new Properties();
       properties.load(inStream);
@@ -211,8 +222,8 @@ public class EventUtil {
       return this;
     }
 
-    public EventUtil build() {
-      return new EventUtil(properties, cdapHost, cdapPort, ssl, streamName, defaultAuthClient,
+    public StreamReader build() {
+      return new StreamReader(properties, cdapHost, cdapPort, ssl, streamName, defaultAuthClient,
                               authClientPropertiesPath);
     }
   }
