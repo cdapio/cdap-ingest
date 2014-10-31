@@ -232,7 +232,7 @@ describe('CDAP ingest tests', function () {
                             port: port,
                             protocol: ssl ? 'https' : 'http',
                             headers: {
-                                Authorization: [authToken.type, ':', authToken.token].join('')
+                                Authorization: [authToken.type, ' ', authToken.token].join('')
                             },
                             body: '',
 

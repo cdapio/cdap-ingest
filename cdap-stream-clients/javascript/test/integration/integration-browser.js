@@ -236,7 +236,7 @@ describe('CDAP ingest tests', function () {
                         host, ':', port,
                         '/v2/streams/', streamName, '/events'
                     ].join(''), false);
-                    httpRequest.setRequestHeader('Authorization', [authToken.type, ':', authToken.token].join(''));
+                    httpRequest.setRequestHeader('Authorization', [authToken.type, ' ', authToken.token].join(''));
                     httpRequest.send();
 
                     if (XMLHttpRequest.DONE === httpRequest.readyState && 200 === httpRequest.status) {
