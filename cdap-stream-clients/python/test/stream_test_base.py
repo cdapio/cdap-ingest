@@ -175,7 +175,7 @@ class StreamTestBase(object):
             self.invalidStream)
 
     def get_data_from_cdap(self, request_url):
-        base_url = u'%s://%s:%d' % ("http" if self.config.ssl else "http",
+        base_url = u'%s://%s:%d' % ("https" if self.config.ssl else "http",
                                     self.config.host, self.config.port)
         url = base_url + request_url
         if self.auth_client.is_auth_enabled():
