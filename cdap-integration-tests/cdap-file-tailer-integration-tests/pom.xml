@@ -38,7 +38,7 @@
     </dependency>
     <dependency>
       <groupId>co.cask.cdap</groupId>
-      <artifactId>cdap-ingest-integration-tests-common</artifactId>
+      <artifactId>cdap-common-integration-tests</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

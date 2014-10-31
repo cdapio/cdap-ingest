@@ -26,9 +26,9 @@
     <version>1.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>cdap-ingest-integration-tests-common</artifactId>
+  <artifactId>cdap-common-integration-tests</artifactId>
   <packaging>jar</packaging>
-  <name>Cdap Ingest IT Common</name>
+  <name>Cdap Common IT</name>
 
   <dependencies>
     <dependency>
