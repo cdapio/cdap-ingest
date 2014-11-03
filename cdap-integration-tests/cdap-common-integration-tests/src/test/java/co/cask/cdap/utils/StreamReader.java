@@ -32,6 +32,7 @@ import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.security.KeyManagementException;
@@ -44,7 +45,7 @@ import java.util.Properties;
 /**
  * Utility class for getting delivered events
  */
-public class StreamReader {
+public class StreamReader implements Closeable {
 
   private static final String DEFAULT_VERSION = "v2";
   private static final String DEFAULT_AUTH_CLIENT_CLASS_NAME = BasicAuthenticationClient.class.getName();
@@ -207,6 +208,11 @@ public class StreamReader {
 
   public static Builder builder() {
     return new Builder();
+  }
+
+  @Override
+  public void close() throws IOException {
+    restClient.close();
   }
 
   /**

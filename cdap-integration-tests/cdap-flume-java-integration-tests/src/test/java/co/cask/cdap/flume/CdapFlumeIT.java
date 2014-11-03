@@ -26,6 +26,8 @@ import org.apache.flume.EventDeliveryException;
 import org.apache.flume.agent.embedded.EmbeddedAgent;
 import org.apache.flume.agent.embedded.EmbeddedAgentConfiguration;
 import org.apache.flume.event.SimpleEvent;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -159,5 +161,10 @@ public class CdapFlumeIT {
     }
     StreamClient streamClient = builder.build();
     streamClient.create(streamName);
+  }
+
+  @After
+  public void shutDown() throws Exception {
+    streamReader.close();
   }
 }

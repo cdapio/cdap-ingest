@@ -42,6 +42,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ServiceManager;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -106,6 +107,11 @@ public class FileTailerIT {
   @After
   public void clean() throws Exception {
     deleteTestDir();
+  }
+
+  @AfterClass
+  public static void shutDown() throws Exception {
+    streamReader.close();
   }
 
   @Test
