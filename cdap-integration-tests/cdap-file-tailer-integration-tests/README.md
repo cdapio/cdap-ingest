@@ -21,6 +21,12 @@ contains information about project-specific configuration files.
  src/main/resources/local_auth.conf 
  ```
  
+ To configure integration tests against Standalone CDAP instance with authentication enabled and ssl turned on, edit:
+  
+  ```
+  src/main/resources/local_auth_ssl.conf 
+  ```
+ 
  To configure integration tests against Distributed CDAP instance, edit:
  
  ```
@@ -32,5 +38,11 @@ contains information about project-specific configuration files.
  ```
  src/main/resources/remote_auth.conf 
  ```
+ 
+ To configure integration tests against Distributed CDAP instance with authentication enabled and ssl turned on, edit:
+  
+  ```
+  src/main/resources/remote_auth_ssl.conf 
+  ```
  
  Please refer to the [CDAP File Tailer](docs.cask.co/cdap/current) for additional documentation.

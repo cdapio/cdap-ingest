@@ -81,6 +81,25 @@
       </build>
     </profile>
 
+    <!-- Profile to run IT over local cdap instance with auth turned ON and ssl true -->
+    <profile>
+      <id>it-local-auth-ssl</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <fileTailerITConfig>local_auth_ssl.conf</fileTailerITConfig>
+                <cdapFlumeITConfig>local_auth_ssl.conf</cdapFlumeITConfig>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Profile to run IT over remote cdap instance -->
     <profile>
       <id>it-remote</id>
@@ -116,6 +135,25 @@
                 <fileTailerITConfig>remote_auth.conf</fileTailerITConfig>
                 <fileDropZoneITConfig>remote_auth.conf</fileDropZoneITConfig>
                 <cdapFlumeITConfig>remote_auth.conf</cdapFlumeITConfig>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Profile to run IT over remote cdap instance with auth turned ON and ssl true-->
+    <profile>
+      <id>it-remote-auth-ssl</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <fileTailerITConfig>remote_auth_ssl.conf</fileTailerITConfig>
+                <cdapFlumeITConfig>remote_auth_ssl.conf</cdapFlumeITConfig>
               </systemPropertyVariables>
             </configuration>
           </plugin>

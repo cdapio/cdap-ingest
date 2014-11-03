@@ -55,6 +55,7 @@ public class CdapFlumeIT {
 
   private static StreamReader streamReader;
   private static String streamName;
+  private static Properties properties;
 
   @Before
   public void setUP() throws Exception {
@@ -66,20 +67,20 @@ public class CdapFlumeIT {
     modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     String sinkList[] = {"co.cask.cdap.flume.StreamSink"};
     field.set(null, sinkList);
-    Properties flumeProperties = StreamReader.getProperties(System.getProperty(CONFIG_NAME));
+    properties = StreamReader.getProperties(System.getProperty(CONFIG_NAME));
     streamReader = StreamReader.builder()
-      .setProperties(flumeProperties)
-      .setCdapHost(flumeProperties.getProperty("sink1.host"))
-      .setCdapPort(Integer.valueOf(flumeProperties.getProperty("sink1.port")))
-      .setSSL(Boolean.parseBoolean(flumeProperties.getProperty("sink1.ssl")))
-      .setAuthClientPropertiesPath(flumeProperties.getProperty("sink1.authClientProperties"))
+      .setCdapHost(properties.getProperty("sink1.host"))
+      .setCdapPort(Integer.valueOf(properties.getProperty("sink1.port")))
+      .setSSL(Boolean.parseBoolean(properties.getProperty("sink1.ssl")))
+      .setAuthClientPropertiesPath(properties.getProperty("sink1.authClientProperties"))
+      .setVerifySSLCert(Boolean.parseBoolean(properties.getProperty("sink1.verify.ssl.cert")))
       .build();
 
-    streamName = flumeProperties.getProperty("sink1.streamName");
+    streamName = properties.getProperty("sink1.streamName");
 
     if (streamReader.getAuthClientPropertiesPath() != null) {
       URL url = Thread.currentThread().getContextClassLoader().getResource(streamReader.getAuthClientPropertiesPath());
-      flumeProperties.setProperty(AUTH_PROPERTIES, url != null ? url.getPath() : StringUtils.EMPTY);
+      properties.setProperty(AUTH_PROPERTIES, url != null ? url.getPath() : StringUtils.EMPTY);
     }
     createStream();
   }
@@ -88,8 +89,8 @@ public class CdapFlumeIT {
   public void baseEventProcessingTest() throws Exception {
     EmbeddedAgent agent = new EmbeddedAgent("test-flume");
     Map<String, String> propertyMap = new HashMap<String, String>();
-    for (final String name : streamReader.getProperties().stringPropertyNames()) {
-      propertyMap.put(name, streamReader.getProperties().getProperty(name));
+    for (final String name : properties.stringPropertyNames()) {
+      propertyMap.put(name, properties.getProperty(name));
     }
     agent.configure(propertyMap);
     agent.start();
@@ -111,8 +112,8 @@ public class CdapFlumeIT {
     Method method = agent.getClass().getDeclaredMethod("doConfigure", Map.class);
     method.setAccessible(true);
     Map<String, String> propertyMap = new HashMap<String, String>();
-    for (final String name : streamReader.getProperties().stringPropertyNames()) {
-      propertyMap.put(name, streamReader.getProperties().getProperty(name));
+    for (final String name : properties.stringPropertyNames()) {
+      propertyMap.put(name, properties.getProperty(name));
     }
     agent.configure(propertyMap);
     agent.start();
