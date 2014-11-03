@@ -21,6 +21,7 @@ import co.cask.cdap.client.rest.RestClientConnectionConfig;
 import co.cask.cdap.client.rest.RestUtil;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -50,6 +51,7 @@ public class StreamReader implements Closeable {
   private static final String DEFAULT_VERSION = "v2";
   private static final String DEFAULT_AUTH_CLIENT_CLASS_NAME = BasicAuthenticationClient.class.getName();
   private static final Gson GSON = new Gson();
+  private static final Type STREAM_EVENTS_TYPE = new TypeToken<List<StreamEvent>>() { }.getType();
 
   private final String cdapHost;
   private final int cdapPort;
@@ -130,8 +132,10 @@ public class StreamReader implements Closeable {
    */
   public List<String> getDeliveredEvents(String streamName, long startTime, long endTime) throws Exception {
     String eventsStr = readFromStream(streamName, startTime, endTime);
-    Type listType = new TypeToken<List<StreamEvent>>() { }.getType();
-    List<StreamEvent> eventList = GSON.fromJson(eventsStr, listType);
+    List<StreamEvent> eventList = Lists.newArrayList();
+    if (StringUtils.isNotEmpty(eventsStr)) {
+      eventList = GSON.fromJson(eventsStr, STREAM_EVENTS_TYPE);
+    }
     List<String> events = new ArrayList<String>(eventList.size());
     for (StreamEvent event : eventList) {
       events.add(event.getBody());
@@ -172,7 +176,7 @@ public class StreamReader implements Closeable {
     }
     HttpGet getRequest =  new HttpGet(restClient.getBaseURL().resolve(urlPostfix));
     HttpResponse response = restClient.execute(getRequest);
-    return EntityUtils.toString(response.getEntity());
+    return response.getEntity() != null ? EntityUtils.toString(response.getEntity()) : null;
   }
 
   /**
