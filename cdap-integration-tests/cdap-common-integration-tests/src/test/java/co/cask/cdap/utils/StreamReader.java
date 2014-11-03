@@ -56,18 +56,16 @@ public class StreamReader implements Closeable {
   private final String cdapHost;
   private final int cdapPort;
   private final Boolean ssl;
-  private final Properties properties;
   private final String authClientClassName;
   private final String authClientPropertiesPath;
   private final String version;
   private final RestClient restClient;
   private final boolean verifySSLCert;
 
-  private StreamReader(Properties properties, String cdapHost, int cdapPort, Boolean ssl, String authClientClassName,
+  private StreamReader(String cdapHost, int cdapPort, Boolean ssl, String authClientClassName,
                        String authClientPropertiesPath, String version, boolean verifySSLCert)
     throws Exception {
 
-    this.properties = properties;
     this.cdapHost = cdapHost;
     this.cdapPort = cdapPort;
     this.ssl = ssl;
@@ -110,10 +108,6 @@ public class StreamReader implements Closeable {
 
   public Boolean getSsl() {
     return ssl;
-  }
-
-  public Properties getProperties() {
-    return properties;
   }
 
   public String getAuthClientPropertiesPath() {
@@ -228,17 +222,12 @@ public class StreamReader implements Closeable {
 
     private int cdapPort;
     private Boolean ssl;
-    private Properties properties;
     private String authClientClassName = DEFAULT_AUTH_CLIENT_CLASS_NAME;
     private String authClientPropertiesPath;
     private String version = DEFAULT_VERSION;
     private boolean verifySSLCert = true;
-    private Builder() {
-    }
 
-    public Builder setProperties(Properties properties) {
-      this.properties = properties;
-      return this;
+    private Builder() {
     }
 
     public Builder setCdapHost(String cdapHost) {
@@ -277,7 +266,7 @@ public class StreamReader implements Closeable {
     }
 
     public StreamReader build() throws Exception {
-      return new StreamReader(properties, cdapHost, cdapPort, ssl, authClientClassName, authClientPropertiesPath,
+      return new StreamReader(cdapHost, cdapPort, ssl, authClientClassName, authClientPropertiesPath,
                               version, verifySSLCert);
     }
 

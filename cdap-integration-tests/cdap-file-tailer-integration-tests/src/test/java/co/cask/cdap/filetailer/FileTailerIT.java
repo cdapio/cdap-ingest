@@ -86,12 +86,12 @@ public class FileTailerIT {
     Properties tailerProperties = StreamReader.getProperties(System.getProperty(CONFIG_NAME));
 
     streamReader = StreamReader.builder()
-      .setProperties(tailerProperties)
       .setCdapHost(tailerProperties.getProperty("pipes.pipe1.sink.host"))
       .setCdapPort(Integer.valueOf(tailerProperties.getProperty("pipes.pipe1.sink.port")))
       .setSSL(Boolean.parseBoolean(tailerProperties.getProperty("pipes.pipe1.sink.ssl")))
       .setAuthClientPropertiesPath(tailerProperties.getProperty("pipes.pipe1.sink.auth_client_properties"))
       .setAuthClientClassName(tailerProperties.getProperty("pipes.pipe1.sink.auth_client", DEFAULT_AUTH_CLIENT))
+      .setVerifySSLCert(Boolean.parseBoolean(tailerProperties.getProperty("pipes.pipe1.sink.verify.ssl.cert")))
       .build();
 
     streamName = tailerProperties.getProperty("pipes.pipe1.sink.stream_name");
