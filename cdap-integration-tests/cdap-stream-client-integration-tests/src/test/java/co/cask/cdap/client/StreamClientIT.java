@@ -16,17 +16,13 @@
 
 package co.cask.cdap.client;
 
-import co.cask.cdap.client.rest.RestClientConnectionConfig;
 import co.cask.cdap.client.rest.RestStreamClient;
-import co.cask.cdap.client.rest.RestUtil;
 import co.cask.cdap.common.http.exception.HttpFailureException;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
-import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
+import co.cask.cdap.utils.StreamReader;
 import com.google.gson.JsonObject;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.config.Registry;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,12 +30,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class StreamClientIT {
@@ -49,7 +42,7 @@ public class StreamClientIT {
   private static final String EVENT_STR_PREFIX = "Test event number: ";
 
   private StreamClient streamClient;
-  private StreamClientTestHelper streamClientTestHelper;
+  private StreamReader streamReader;
   private AuthenticationClient authClient;
   private String host;
   private int port;
@@ -61,10 +54,9 @@ public class StreamClientIT {
   private String authProperties;
 
   @Before
-  public void setUp() throws IOException, KeyManagementException, NoSuchAlgorithmException {
+  public void setUp() throws Exception {
     init();
     streamClient = createTestStreamClient();
-    streamClientTestHelper = createTestHelper();
   }
 
   @Test
@@ -73,7 +65,7 @@ public class StreamClientIT {
     //Test that we are able to create a stream
     streamClient.create(newStreamName);
     //Get created stream by the name
-    JsonObject stream = streamClientTestHelper.getStream(newStreamName);
+    JsonObject stream = streamReader.getStream(newStreamName);
     Assert.assertNotNull(stream);
     Assert.assertEquals(newStreamName, stream.get("name").getAsString());
   }
@@ -88,7 +80,7 @@ public class StreamClientIT {
   }
 
   @Test
-  public void testStreamWriter() throws IOException, ExecutionException, InterruptedException {
+  public void testStreamWriter() throws Exception {
     //Create new stream if such stream does not already exist
     streamClient.create(TEST_STREAM);
     //Truncate the stream in the case, if some events already exists
@@ -105,15 +97,15 @@ public class StreamClientIT {
       writer.close();
     }
     //Check events from the stream
-    List<JsonObject> streamEvents = streamClientTestHelper.getStreamEvents(TEST_STREAM);
+    List<String> streamEvents = streamReader.getDeliveredEvents(TEST_STREAM);
     Assert.assertEquals(expectedEventsNum, streamEvents.size());
     for (int i = 0; i < expectedEventsNum; i++) {
-      Assert.assertEquals(EVENT_STR_PREFIX + i, streamEvents.get(i).get("body").getAsString());
+      Assert.assertEquals(EVENT_STR_PREFIX + i, streamEvents.get(i));
     }
 
     //Test that we are able to truncate stream
     streamClient.truncate(TEST_STREAM);
-    streamEvents = streamClientTestHelper.getStreamEvents(TEST_STREAM);
+    streamEvents = streamReader.getDeliveredEvents(TEST_STREAM);
     Assert.assertEquals(0, streamEvents.size());
   }
 
@@ -130,12 +122,12 @@ public class StreamClientIT {
 
   @After
   public void shutDown() throws IOException {
-    streamClientTestHelper.close();
+    streamReader.close();
     streamClient.close();
   }
 
-  private void init() throws IOException {
-    Properties properties = getProperties(System.getProperty(CONFIG_NAME));
+  private void init() throws Exception {
+    Properties properties = StreamReader.getProperties(System.getProperty(CONFIG_NAME));
     host = properties.getProperty("host");
     port = Integer.valueOf(properties.getProperty("port"));
     ssl = Boolean.valueOf(properties.getProperty("ssl", "false"));
@@ -144,46 +136,27 @@ public class StreamClientIT {
     verifySSLCert = Boolean.valueOf(properties.getProperty("verify.ssl.cert", "false"));
     authProperties = properties.getProperty("auth_properties");
     writePoolSize = Integer.valueOf(properties.getProperty("writerPoolSize", "10"));
-    authClient = createAuthClient(host, port, ssl);
+    streamReader = createStreamReader();
   }
 
-  private StreamClient createTestStreamClient() throws IOException {
+  private StreamClient createTestStreamClient() throws Exception {
     RestStreamClient.Builder clientBuilder = RestStreamClient.builder(host, port)
       .ssl(ssl)
       .verifySSLCert(verifySSLCert)
       .version(version)
       .writerPoolSize(writePoolSize)
-      .authClient(authClient)
+      .authClient(streamReader.createAuthClient())
       .apiKey(apiKey);
     return clientBuilder.build();
   }
 
-  private AuthenticationClient createAuthClient(String host, int port, boolean ssl) throws IOException {
-    AuthenticationClient authClient = new BasicAuthenticationClient();
-    if (StringUtils.isNotEmpty(host)) {
-      authClient.setConnectionInfo(host, port, ssl);
-      if (authProperties != null) {
-        Properties authClientProperties = getProperties(authProperties);
-        authClient.configure(authClientProperties);
-      }
-    }
-    return authClient;
-  }
-
-  private StreamClientTestHelper createTestHelper() throws IOException, NoSuchAlgorithmException,
-    KeyManagementException {
-    Registry<ConnectionSocketFactory> connectionRegistry = null;
-    RestClientConnectionConfig connectionConfig =
-      new RestClientConnectionConfig(host, port, authClient, apiKey, ssl, version);
-    if (!verifySSLCert) {
-      connectionRegistry = RestUtil.getRegistryWithDisabledCertCheck();
-    }
-    return new StreamClientTestHelper(connectionConfig, connectionRegistry);
-  }
-
-  private Properties getProperties(String fileName) throws IOException {
-    Properties properties = new Properties();
-    properties.load(StreamClientIT.class.getClassLoader().getResourceAsStream(fileName));
-    return properties;
+  private StreamReader createStreamReader() throws Exception {
+    return StreamReader.builder()
+      .setCdapHost(host)
+      .setCdapPort(port)
+      .setAuthClientPropertiesPath(authProperties)
+      .setSSL(ssl)
+      .setVerifySSLCert(verifySSLCert)
+      .build();
   }
 }
