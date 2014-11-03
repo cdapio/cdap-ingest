@@ -16,9 +16,15 @@ contains information about project-specific configuration files.
  ```
 
  To configure integration tests against Standalone CDAP instance with authentication enabled, edit:
+  
+  ```
+  src/test/resources/local_auth.conf 
+  ```
+ 
+ To configure integration tests against Standalone CDAP instance with authentication enabled and ssl turned on, edit:
  
  ```
- src/test/resources/local_auth.conf 
+ src/test/resources/local_auth_ssl.conf 
  ```
  
  To configure integration tests against Distributed CDAP instance, edit:
@@ -32,3 +38,9 @@ contains information about project-specific configuration files.
  ```
  src/test/resources/remote_auth.conf 
  ```
+ 
+ To configure integration tests against Distributed CDAP instance with authentication enabled and ssl turned on, edit:
+  
+  ```
+  src/test/resources/remote_auth_ssl.conf 
+  ```
