@@ -18,7 +18,6 @@ package co.cask.cdap.client;
 
 import co.cask.cdap.client.rest.RestStreamClient;
 import co.cask.cdap.common.http.exception.HttpFailureException;
-import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import co.cask.cdap.utils.StreamReader;
 import com.google.gson.JsonObject;
 import org.apache.commons.httpclient.HttpStatus;
@@ -43,7 +42,6 @@ public class StreamClientIT {
 
   private StreamClient streamClient;
   private StreamReader streamReader;
-  private AuthenticationClient authClient;
   private String host;
   private int port;
   private boolean ssl;
