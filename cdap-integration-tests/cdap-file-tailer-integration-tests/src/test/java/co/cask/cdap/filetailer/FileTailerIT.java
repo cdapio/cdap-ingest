@@ -36,12 +36,16 @@ import co.cask.cdap.filetailer.sink.SinkStrategy;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessor;
 import co.cask.cdap.filetailer.state.FileTailerStateProcessorImpl;
 import co.cask.cdap.filetailer.tailer.LogTailer;
+import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
+import co.cask.cdap.utils.StreamReader;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ServiceManager;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +59,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -71,6 +76,26 @@ public class FileTailerIT {
     " \"GET /index.html HTTP/1.1\" 200 225 \"http://example.com\" \"Mozilla/4.08 [en] (Win98; I ;Nav)\"";
   private static final AtomicInteger read = new AtomicInteger();
   private static final  AtomicInteger ingest = new AtomicInteger();
+  private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
+
+  private static StreamReader streamReader;
+  private static String streamName;
+
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    Properties tailerProperties = StreamReader.getProperties(System.getProperty(CONFIG_NAME));
+
+    streamReader = StreamReader.builder()
+      .setCdapHost(tailerProperties.getProperty("pipes.pipe1.sink.host"))
+      .setCdapPort(Integer.valueOf(tailerProperties.getProperty("pipes.pipe1.sink.port")))
+      .setSSL(Boolean.parseBoolean(tailerProperties.getProperty("pipes.pipe1.sink.ssl")))
+      .setAuthClientPropertiesPath(tailerProperties.getProperty("pipes.pipe1.sink.auth_client_properties"))
+      .setAuthClientClassName(tailerProperties.getProperty("pipes.pipe1.sink.auth_client", DEFAULT_AUTH_CLIENT))
+      .setVerifySSLCert(Boolean.parseBoolean(tailerProperties.getProperty("pipes.pipe1.sink.verify.ssl.cert")))
+      .build();
+
+    streamName = tailerProperties.getProperty("pipes.pipe1.sink.stream_name");
+  }
 
   @Before
   public void prepare() throws Exception {
@@ -82,6 +107,11 @@ public class FileTailerIT {
   @After
   public void clean() throws Exception {
     deleteTestDir();
+  }
+
+  @AfterClass
+  public static void shutDown() throws Exception {
+    streamReader.close();
   }
 
   @Test
@@ -96,6 +126,7 @@ public class FileTailerIT {
 
     PipeManager manager = new PipeManager(configFile);
     mockMetricsProcessor(manager);
+    long startTime = System.currentTimeMillis();
     manager.startAsync();
 
     writeLogs(logger, ENTRY_NUMBER);
@@ -104,6 +135,7 @@ public class FileTailerIT {
     manager.stopAsync();
     Thread.sleep(SLEEP_TIME);
     Assert.assertEquals(read.get(), ingest.get());
+    checkDeliveredEvents(ENTRY_NUMBER * 2, startTime);
   }
 
   @Test
@@ -113,10 +145,11 @@ public class FileTailerIT {
 
     String logFilePath = pipeConfig.getSourceConfiguration().getWorkDir().getAbsolutePath() + "/"
       + pipeConfig.getSourceConfiguration().getFileName();
-    Logger logger =  getTimeLogger(logFilePath);
+    Logger logger = getTimeLogger(logFilePath);
 
     PipeManager manager = new PipeManager(configFile);
     mockMetricsProcessor(manager);
+    long startTime = System.currentTimeMillis();
     manager.startAsync();
     Thread.sleep(SLEEP_TIME);
 
@@ -126,9 +159,18 @@ public class FileTailerIT {
     manager.stopAsync();
     Thread.sleep(SLEEP_TIME);
     Assert.assertEquals(read.get(), ingest.get());
+    checkDeliveredEvents(ENTRY_NUMBER, startTime);
   }
 
-  private File getConfigFile() throws URISyntaxException {
+  private void checkDeliveredEvents(int entryNumber, long startTime) throws Exception {
+    List<String> events = streamReader.getDeliveredEvents(streamName, startTime, System.currentTimeMillis());
+    Assert.assertEquals(entryNumber, events.size());
+    for (int i = 0; i < entryNumber; i++) {
+      Assert.assertTrue(events.get(i).equals(LOG_MESSAGE));
+    }
+  }
+
+  private static File getConfigFile() throws URISyntaxException {
     String configFileName = System.getProperty(CONFIG_NAME);
     Preconditions.checkNotNull(configFileName, CONFIG_NAME + " must be set");
     URL resource = FileTailerIT.class.getClassLoader().getResource(configFileName);
