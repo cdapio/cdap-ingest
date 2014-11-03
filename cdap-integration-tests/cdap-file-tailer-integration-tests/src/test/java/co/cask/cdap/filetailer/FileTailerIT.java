@@ -49,7 +49,6 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -79,19 +78,22 @@ public class FileTailerIT {
   private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
 
   private static StreamReader streamReader;
+  private static String streamName;
 
   @BeforeClass
-  public static void beforeClass() throws URISyntaxException, IOException {
-    File configFile = getConfigFile();
-    Properties tailerProperties = getProperties(configFile);
+  public static void beforeClass() throws Exception {
+    Properties tailerProperties = StreamReader.getProperties(System.getProperty(CONFIG_NAME));
+
     streamReader = StreamReader.builder()
       .setProperties(tailerProperties)
       .setCdapHost(tailerProperties.getProperty("pipes.pipe1.sink.host"))
-      .setCdapPort(tailerProperties.getProperty("pipes.pipe1.sink.port"))
+      .setCdapPort(Integer.valueOf(tailerProperties.getProperty("pipes.pipe1.sink.port")))
       .setSSL(Boolean.parseBoolean(tailerProperties.getProperty("pipes.pipe1.sink.ssl")))
-      .setStreamName(tailerProperties.getProperty("pipes.pipe1.sink.stream_name"))
       .setAuthClientPropertiesPath(tailerProperties.getProperty("pipes.pipe1.sink.auth_client_properties"))
-      .setDefaultAuthClient(DEFAULT_AUTH_CLIENT).build();
+      .setAuthClientClassName(tailerProperties.getProperty("pipes.pipe1.sink.auth_client", DEFAULT_AUTH_CLIENT))
+      .build();
+
+    streamName = tailerProperties.getProperty("pipes.pipe1.sink.stream_name");
   }
 
   @Before
@@ -155,7 +157,7 @@ public class FileTailerIT {
   }
 
   private void checkDeliveredEvents(int entryNumber, long startTime) throws Exception {
-    List<String> events = streamReader.getDeliveredEvents(startTime, System.currentTimeMillis());
+    List<String> events = streamReader.getDeliveredEvents(streamName, startTime, System.currentTimeMillis());
     Assert.assertEquals(entryNumber, events.size());
     for (int i = 0; i < entryNumber; i++) {
       Assert.assertTrue(events.get(i).equals(LOG_MESSAGE));
@@ -283,11 +285,5 @@ public class FileTailerIT {
         writer.close();
       }
     }
-  }
-
-  private static Properties getProperties(File file) throws IOException {
-    Properties properties = new Properties();
-    properties.load(new FileInputStream(file));
-    return properties;
   }
 }
