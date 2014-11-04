@@ -153,6 +153,41 @@ describe('CDAP ingest tests', function () {
 
             streamClient.create(streamName);
             streamClient.truncate(streamName);
+
+            var authToken = {
+                type: '',
+                token: ''
+            };
+
+            if (authManager) {
+                authToken = authManager.getToken();
+            }
+
+            var isDataConsistent = false,
+                response = http.request({
+                    method: 'GET',
+                    host: config.host,
+                    port: config.port,
+                    protocol: config.ssl ? 'https' : 'http',
+                    headers: {
+                        Authorization: [authToken.type, ' ', authToken.token].join('')
+                    },
+                    body: '',
+
+                    path: '/v2/streams/' + streamName + '/events'
+                }).end();
+
+            if (200 === response.statusCode) {
+                var events = JSON.parse(response.body.toString());
+                isDataConsistent = (0 == events.length);
+                /**
+                 * HTTP status = 204 means there is NO CONTENT
+                 */
+            } else if (204 == response.statusCode) {
+                isDataConsistent = true;
+            }
+
+            expect(isDataConsistent).to.be.ok();
         });
 
         it('"truncate" for an invalid stream', function () {
@@ -220,6 +255,7 @@ describe('CDAP ingest tests', function () {
                     });
 
                 var streamWriter = streamClient.createWriter(streamName),
+                    startTime = Date.now(),
                     promise = streamWriter.write(textToSend);
 
                 promise.then(function () {
@@ -243,7 +279,7 @@ describe('CDAP ingest tests', function () {
                             },
                             body: '',
 
-                            path: '/v2/streams/' + streamName + '/events'
+                            path: '/v2/streams/' + streamName + '/events?start=' + startTime + '&end=' + Date.now()
                         }).end();
 
                     if (200 === response.statusCode) {

@@ -1,4 +1,5 @@
-var StreamClient = CDAPStreamClient.StreamClient,
+var CDAPAuthManager = CDAPAuthManager || null,
+    StreamClient = CDAPStreamClient.StreamClient,
     AuthManager = CDAPAuthManager,
     authManager = null;
 
@@ -142,9 +143,40 @@ describe('CDAP ingest tests', function () {
                 });
 
             streamClient.create(streamName);
-            expect(function () {
-                streamClient.truncate(streamName);
-            }).not.to.throwError();
+            streamClient.truncate(streamName);
+
+            var authToken = {
+                type: '',
+                token: ''
+            };
+
+            if (authManager) {
+                authToken = authManager.getToken();
+            }
+
+            var isDataConsistent = false,
+                httpRequest = new XMLHttpRequest();
+
+            httpRequest.open('GET', [
+                config.ssl ? 'https' : 'http', "://",
+                config.host, ':', config.port,
+                '/v2/streams/', streamName, '/events'
+            ].join(''), false);
+            httpRequest.setRequestHeader('Authorization', [authToken.type, ' ', authToken.token].join(''));
+            httpRequest.send();
+
+            if (XMLHttpRequest.DONE === httpRequest.readyState && 200 === httpRequest.status) {
+                var events = JSON.parse(httpRequest.responseText);
+                isDataConsistent = (0 == events.length);
+
+                /**
+                 * HTTP status = 204 means there is NO CONTENT
+                 */
+            } else if (204 == httpRequest.readyState) {
+                isDataConsistent = true;
+            }
+
+            expect(isDataConsistent).to.be.ok();
         });
 
         it('"truncate" for an invalid stream', function () {
@@ -212,6 +244,7 @@ describe('CDAP ingest tests', function () {
                     });
 
                 var streamWriter = streamClient.createWriter(streamName),
+                    startTime = Date.now(),
                     promise = streamWriter.write(textToSend);
 
                 promise.then(function () {
@@ -230,7 +263,8 @@ describe('CDAP ingest tests', function () {
                     httpRequest.open('GET', [
                         config.ssl ? 'https' : 'http', "://",
                         config.host, ':', config.port,
-                        '/v2/streams/', streamName, '/events'
+                        '/v2/streams/', streamName, '/events?start=',
+                        startTime, '&end=', Date.now()
                     ].join(''), false);
                     httpRequest.setRequestHeader('Authorization', [authToken.type, ' ', authToken.token].join(''));
                     httpRequest.send();
