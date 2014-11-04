@@ -139,7 +139,6 @@ class StreamTestBase(object):
             q = sw.write(event)
             q.on_response(on_response)
             q.on_response(check_exit_code, check_exit_code)
-        # time.sleep(1)
         self.event_latch.wait_for_complete()
         end_time = int(round(time.time() * 1000))
         event_request_url = \
