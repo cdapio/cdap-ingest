@@ -29,10 +29,8 @@ currentdir = os.path.dirname(
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from cdap_stream_client.config import Config
+from cdap_stream_client import Config, StreamWriter, StreamClient
 from cdap_stream_client.serviceconnector import NotFoundError
-from cdap_stream_client.streamwriter import StreamWriter
-from cdap_stream_client.streamclient import StreamClient
 from cdap_auth_client import BasicAuthenticationClient
 
 # Should be used as parent class for integration tests.
