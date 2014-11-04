@@ -27,10 +27,14 @@ import co.cask.cdap.filetailer.config.ConfigurationLoader;
 import co.cask.cdap.filetailer.config.ConfigurationLoaderImpl;
 import co.cask.cdap.filetailer.config.exception.ConfigurationLoadingException;
 import co.cask.cdap.filetailer.metrics.FileTailerMetricsProcessor;
+import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
+import co.cask.cdap.utils.StreamReader;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,10 +43,11 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * File Tailer integration test
+ * File DropZone integration test
  */
 public class FileDropZoneIT {
 
@@ -50,21 +55,33 @@ public class FileDropZoneIT {
   private static final int SLEEP_TIME = 5000;
   private static final String EVENT = "165.225.156.91 - - [09/Jan/2014:21:28:53 -0400]" +
     " \"GET /index.html HTTP/1.1\" 200 225 \"http://continuuity.com\" \"Mozilla/4.08 [en] (Win98; I ;Nav)\"";
-
-  private static final String MULTILINE_EVENT = String.format("%s\n%s\n%s\n%s\n%s\n%s",
-                                                              "First line of event",
-                                                              "Second line of event",
-                                                              "Third line of event. Next line is empty line",
-                                                              "",
-                                                              "Line after empty line",
-                                                              "Sixth line of event");
-
+  private static final String EMPTY_EVENT = "";
+  private static final int EVENT_NUMBER = 3;
+  private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
   private static final AtomicInteger read = new AtomicInteger(0);
   private static final AtomicInteger ingest = new AtomicInteger(0);
+
+  private static StreamReader streamReader;
+  private static String streamName;
+
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    Properties dropZoneProperties = StreamReader.getProperties(System.getProperty(CONFIG_NAME));
+    streamReader = StreamReader.builder().setCdapHost(dropZoneProperties.getProperty("pipes.pipe1.sink.host"))
+      .setCdapPort(Integer.valueOf(dropZoneProperties.getProperty("pipes.pipe1.sink.port")))
+      .setSSL(Boolean.parseBoolean(dropZoneProperties.getProperty("pipes.pipe1.sink.ssl")))
+      .setVerifySSLCert(Boolean.valueOf(dropZoneProperties.getProperty("pipes.pipe1.sink.verify.ssl.cert")))
+      .setAuthClientPropertiesPath(dropZoneProperties.getProperty("pipes.pipe1.sink.auth_client_properties"))
+      .setAuthClientClassName(dropZoneProperties.getProperty("pipes.pipe1.sink.auth_client", DEFAULT_AUTH_CLIENT))
+      .build();
+    streamName = dropZoneProperties.getProperty("pipes.pipe1.sink.stream_name");
+  }
 
   @Before
   public void prepare() throws Exception {
     deleteTestDir();
+    read.set(0);
+    ingest.set(0);
   }
 
   @Test
@@ -86,11 +103,20 @@ public class FileDropZoneIT {
     myMonitor.registerDirMonitor(observerConf.getPipeConf().getSourceConfiguration().getWorkDir(), myPollingListener);
 
     createFile(observerConf.getPipeConf().getSourceConfiguration().getWorkDir().getAbsolutePath());
+    long start = System.currentTimeMillis();
     pollingServiceManager.startMonitor();
     Thread.sleep(SLEEP_TIME);
     pollingServiceManager.stopMonitor();
-
+    checkDeliveredEvents(start, System.currentTimeMillis());
     Assert.assertEquals(read.get(), ingest.get());
+  }
+
+  private void checkDeliveredEvents(long startTime, long endTime) throws Exception {
+    List<String> eventList = streamReader.getDeliveredEvents(streamName, startTime, endTime);
+    Assert.assertEquals(EVENT_NUMBER, eventList.size());
+    Assert.assertTrue(eventList.get(0).equals(EVENT));
+    Assert.assertTrue(eventList.get(1).equals(EMPTY_EVENT));
+    Assert.assertTrue(eventList.get(2).equals(EVENT));
   }
 
   private File createFile(String filePath) {
@@ -99,7 +125,8 @@ public class FileDropZoneIT {
     try {
       writer = new PrintWriter(file);
       writer.println(EVENT);
-      writer.println(MULTILINE_EVENT);
+      writer.println(EMPTY_EVENT);
+      writer.println(EVENT);
     } catch (IOException ignored) {
     } finally {
       if (writer != null) {
@@ -108,7 +135,6 @@ public class FileDropZoneIT {
     }
     return file;
   }
-
 
   private FileTailerMetricsProcessor getMetricsProcessor(ObserverConfiguration observerConf) {
     return new FileTailerMetricsProcessor(observerConf.getDaemonDir(),
@@ -158,5 +184,10 @@ public class FileDropZoneIT {
   @After
   public void clean() throws Exception {
     deleteTestDir();
+  }
+
+  @AfterClass
+  public static void shutDown() throws Exception {
+    streamReader.close();
   }
 }
