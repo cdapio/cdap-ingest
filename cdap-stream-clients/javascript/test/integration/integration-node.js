@@ -2,22 +2,13 @@ var expect = require('expect.js'),
     http = require('http-sync'),
     StreamClient = require('cdap-stream-client'),
     AuthManager = require('cdap-auth-client'),
-
-    /**
-     * Server connection info
-     */
-//    host = '107.178.222.50',
-    host = 'localhost',
-    port = '10000',
-    ssl = false,
-    user = 'kpovetkin',
-    pass = 'RhtcE808',
+    config = require('./config-node'),
     authManager = new AuthManager();
 
-authManager.setConnectionInfo(host, port, ssl);
+authManager.setConnectionInfo(config.host, config.port, config.ssl);
 authManager.configure({
-    username: user,
-    password: pass
+    username: config.user,
+    password: config.pass
 });
 
 console.log('Authentication info');
@@ -28,8 +19,8 @@ describe('CDAP ingest tests', function () {
     describe('StreamClient object creation', function () {
         it('Constructor creates an object', function () {
             var streamClient = new StreamClient({
-                host: host,
-                port: port
+                host: config.host,
+                port: config.port
             });
 
             expect(streamClient).to.be.an('object');
@@ -37,8 +28,8 @@ describe('CDAP ingest tests', function () {
 
         it('Constructor creates a valid object', function () {
             var streamClient = new StreamClient({
-                host: host,
-                port: port
+                host: config.host,
+                port: config.port
             });
 
             expect(streamClient).to.have.property('create');
@@ -56,13 +47,13 @@ describe('CDAP ingest tests', function () {
 
         it('"config" object for the constructor should contain "host" field', function () {
             expect(function () {
-                var streamClient = new StreamClient({port: port});
+                var streamClient = new StreamClient({port: config.port});
             }).to.throwError();
         });
 
         it('"config" object for the constructor should contain "port" field', function () {
             expect(function () {
-                var streamClient = new StreamClient({host: host});
+                var streamClient = new StreamClient({host: config.host});
             }).to.throwError();
         });
     });
@@ -72,9 +63,9 @@ describe('CDAP ingest tests', function () {
             var streamName = 'newStream',
                 ttl = 86400,
                 streamClient = new StreamClient({
-                    host: host,
-                    port: port,
-                    ssl: ssl,
+                    host: config.host,
+                    port: config.port,
+                    ssl: config.ssl,
                     authManager: authManager
                 });
             streamClient.create(streamName);
@@ -85,9 +76,9 @@ describe('CDAP ingest tests', function () {
             var streamName = 'invalidStream',
                 ttl = 86400,
                 streamClient = new StreamClient({
-                    host: host,
-                    port: port,
-                    ssl: ssl,
+                    host: config.host,
+                    port: config.port,
+                    ssl: config.ssl,
                     authManager: authManager
                 });
 
@@ -100,9 +91,9 @@ describe('CDAP ingest tests', function () {
             var streamName = 'newStream',
                 ttl = 86400,
                 streamClient = new StreamClient({
-                    host: host,
-                    port: port,
-                    ssl: ssl,
+                    host: config.host,
+                    port: config.port,
+                    ssl: config.ssl,
                     authManager: authManager
                 });
 
@@ -115,9 +106,9 @@ describe('CDAP ingest tests', function () {
             var streamName = 'newStream',
                 invalidTTL = -1,
                 streamClient = new StreamClient({
-                    host: host,
-                    port: port,
-                    ssl: ssl,
+                    host: config.host,
+                    port: config.port,
+                    ssl: config.ssl,
                     authManager: authManager
                 });
 
@@ -132,9 +123,9 @@ describe('CDAP ingest tests', function () {
                 ttl = 86400,
 
                 streamClient = new StreamClient({
-                    host: host,
-                    port: port,
-                    ssl: ssl,
+                    host: config.host,
+                    port: config.port,
+                    ssl: config.ssl,
                     authManager: authManager
                 });
 
@@ -146,9 +137,9 @@ describe('CDAP ingest tests', function () {
         it('"truncate" for a valid stream', function () {
             var streamName = 'newStream',
                 streamClient = new StreamClient({
-                    host: host,
-                    port: port,
-                    ssl: ssl,
+                    host: config.host,
+                    port: config.port,
+                    ssl: config.ssl,
                     authManager: authManager
                 });
 
@@ -159,9 +150,9 @@ describe('CDAP ingest tests', function () {
         it('"truncate" for an invalid stream', function () {
             var streamName = 'invalidStream',
                 streamClient = new StreamClient({
-                    host: host,
-                    port: port,
-                    ssl: ssl,
+                    host: config.host,
+                    port: config.port,
+                    ssl: config.ssl,
                     authManager: authManager
                 });
 
@@ -173,9 +164,9 @@ describe('CDAP ingest tests', function () {
         it('"createWriter" creates a valid object', function () {
             var streamName = 'newStream',
                 streamClient = new StreamClient({
-                    host: host,
-                    port: port,
-                    ssl: ssl,
+                    host: config.host,
+                    port: config.port,
+                    ssl: config.ssl,
                     authManager: authManager
                 });
 
@@ -189,9 +180,9 @@ describe('CDAP ingest tests', function () {
                 var streamName = 'newStream',
                     textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
                     streamClient = new StreamClient({
-                        host: host,
-                        port: port,
-                        ssl: ssl,
+                        host: config.host,
+                        port: config.port,
+                        ssl: config.ssl,
                         authManager: authManager
                     });
 
@@ -214,9 +205,9 @@ describe('CDAP ingest tests', function () {
                 var streamName = 'newStream',
                     textToSend = 'data sent to CDAP',
                     streamClient = new StreamClient({
-                        host: host,
-                        port: port,
-                        ssl: ssl,
+                        host: config.host,
+                        port: config.port,
+                        ssl: config.ssl,
                         authManager: authManager
                     });
 
@@ -228,9 +219,9 @@ describe('CDAP ingest tests', function () {
                         isDataConsistent = false,
                         response = http.request({
                             method: 'GET',
-                            host: host,
-                            port: port,
-                            protocol: ssl ? 'https' : 'http',
+                            host: config.host,
+                            port: config.port,
+                            protocol: config.ssl ? 'https' : 'http',
                             headers: {
                                 Authorization: [authToken.type, ' ', authToken.token].join('')
                             },
@@ -262,9 +253,9 @@ describe('CDAP ingest tests', function () {
                     var streamName = 'newStream',
                         textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
                         streamClient = new StreamClient({
-                            host: host,
-                            port: port,
-                            ssl: ssl,
+                            host: config.host,
+                            port: config.port,
+                            ssl: config.ssl,
                             authManager: authManager
                         });
 
@@ -286,9 +277,9 @@ describe('CDAP ingest tests', function () {
                     var streamName = 'newStream',
                         textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
                         streamClient = new StreamClient({
-                            host: host,
-                            port: port,
-                            ssl: ssl,
+                            host: config.host,
+                            port: config.port,
+                            ssl: config.ssl,
                             authManager: authManager
                         });
 

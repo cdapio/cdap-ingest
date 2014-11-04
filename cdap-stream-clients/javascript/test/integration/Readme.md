@@ -9,5 +9,5 @@ Open file *integration-browser.html* in your browser.
 ## NodeJS
 Run next command from the *integration* directory:
 ```
-$ mocha mocha integration-node.js
+$ mocha integration-node.js
 ```
