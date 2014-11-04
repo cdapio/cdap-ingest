@@ -1,12 +1,15 @@
 var StreamClient = CDAPStreamClient.StreamClient,
     AuthManager = CDAPAuthManager,
-    authManager = new AuthManager();
+    authManager = null;
 
-authManager.setConnectionInfo(config.host, config.port, config.ssl);
-authManager.configure({
-    username: config.user,
-    password: config.pass
-});
+if (AuthManager) {
+    authManager = new AuthManager();
+    authManager.setConnectionInfo(config.host, config.port, config.ssl);
+    authManager.configure({
+        username: config.user,
+        password: config.pass
+    });
+}
 
 describe('CDAP ingest tests', function () {
     describe('StreamClient object creation', function () {
@@ -212,8 +215,16 @@ describe('CDAP ingest tests', function () {
                     promise = streamWriter.write(textToSend);
 
                 promise.then(function () {
-                    var authToken = authManager.getToken(),
-                        isDataConsistent = false,
+                    var authToken = {
+                        type: '',
+                        token: ''
+                    };
+
+                    if (authManager) {
+                        authToken = authManager.getToken();
+                    }
+
+                    var isDataConsistent = false,
                         httpRequest = new XMLHttpRequest();
 
                     httpRequest.open('GET', [

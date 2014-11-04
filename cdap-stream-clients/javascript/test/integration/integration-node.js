@@ -1,19 +1,27 @@
 var expect = require('expect.js'),
     http = require('http-sync'),
     StreamClient = require('cdap-stream-client'),
-    AuthManager = require('cdap-auth-client'),
     config = require('./config-node'),
-    authManager = new AuthManager();
+    authManager = null;
 
-authManager.setConnectionInfo(config.host, config.port, config.ssl);
-authManager.configure({
-    username: config.user,
-    password: config.pass
-});
+try {
+    AuthManager = require('cdap-auth-client');
 
-console.log('Authentication info');
-console.log('Enabled: ', authManager.isAuthEnabled());
-console.log('Token: ', authManager.getToken());
+    authManager.setConnectionInfo(config.host, config.port, config.ssl);
+    authManager.configure({
+        username: config.user,
+        password: config.pass
+    });
+
+    console.log('Authentication info');
+    console.log('Enabled: ', authManager.isAuthEnabled());
+    console.log('Token: ', authManager.getToken());
+} catch(e) {
+    /**
+     * AuthManager is not installed.
+     * Nothing to do.
+     */
+}
 
 describe('CDAP ingest tests', function () {
     describe('StreamClient object creation', function () {
@@ -215,8 +223,16 @@ describe('CDAP ingest tests', function () {
                     promise = streamWriter.write(textToSend);
 
                 promise.then(function () {
-                    var authToken = authManager.getToken(),
-                        isDataConsistent = false,
+                    var authToken = {
+                        type: '',
+                        token: ''
+                    };
+
+                    if (authManager) {
+                        authToken = authManager.getToken();
+                    }
+
+                    var isDataConsistent = false,
                         response = http.request({
                             method: 'GET',
                             host: config.host,
