@@ -14,11 +14,16 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-
-import inspect
 import json
 import os
 import sys
+import inspect
+import threading
+import time
+import httplib
+
+import requests
+
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -35,14 +40,14 @@ from cdap_auth_client import BasicAuthenticationClient
 
 class StreamTestBase(object):
 
+    valid_stream = u'validStream'
+    invalid_stream = u'invalidStream'
 
-    validStream = u'validStream'
-    invalidStream = u'invalidStream'
+    valid_file = u'some.log'
+    invalid_file = u'invalid.file'
 
-    validFile = u'some.log'
-    invalidFile = u'invalid.file'
-
-    messageToWrite = u'some message'
+    message_to_write = u'some_message'
+    event_number = 50
 
     exit_code = 404
 
@@ -54,6 +59,13 @@ class StreamTestBase(object):
     def config_file(self, filename):
         self.__config_file = filename
 
+    @property
+    def auth_config_file(self):
+        return self.__auth_config_file
+
+    @auth_config_file.setter
+    def auth_config_file(self, filename):
+        self.__auth_config_file = filename
 
     @staticmethod
     def read_from_file(filename):
@@ -61,55 +73,83 @@ class StreamTestBase(object):
             json_config = json.loads(configFile.read())
 
         new_config = Config()
-        new_config.host = json_config.get(u'hostname', new_config.host)
+        new_config.host = json_config.get(u'hostname',
+                                          new_config.host)
         new_config.port = json_config.get(u'port', new_config.port)
         new_config.ssl = json_config.get(u'SSL', new_config.ssl)
-        new_config.ssl_cert_check = json_config.get(u'security_ssl_cert_check', new_config.ssl_cert_check)
+        new_config.ssl_cert_check = \
+            json_config.get(u'security_ssl_cert_check',
+                            new_config.ssl_cert_check)
         return new_config
 
     def base_set_up(self):
-        with open(self.config_file) as config_file:
-            auth_config = json.loads(config_file.read())
+        with open(self.auth_config_file) as auth_conf_file:
+            auth_config = json.loads(auth_conf_file.read())
         self.config = StreamTestBase.read_from_file(self.config_file)
-
-        auth_client = BasicAuthenticationClient()
-        auth_client.set_connection_info(self.config.host,
-                                       self.config.port, self.config.ssl)
-        if auth_client.is_auth_enabled():
-            auth_client.configure(auth_config)
-            self.config.set_auth_client(auth_client)
-
+        self.auth_client = BasicAuthenticationClient()
+        self.auth_client.set_connection_info(self.config.host,
+                                             self.config.port,
+                                             self.config.ssl)
+        if self.auth_client.is_auth_enabled():
+            self.auth_client.configure(auth_config)
+            self.config.set_auth_client(self.auth_client)
         self.sc = StreamClient(self.config)
+        self.event_latch = EventLatch(self.event_number)
 
     def test_reactor_successful_connection(self):
+
         # Create stream
-        self.sc.create(self.validStream)
+        self.sc.create(self.valid_stream)
+        get_stream_url = '/v2/streams/%s' % self.valid_stream
+        res_stream = self.get_data_from_cdap(get_stream_url)
+        self.assertEqual(res_stream["name"], self.valid_stream)
 
         # Set ttl
         ttl = 88888
-        self.sc.set_ttl(self.validStream, ttl)
+        self.sc.set_ttl(self.valid_stream, ttl)
+        self.assertEqual(self.sc.get_ttl(self.valid_stream), ttl)
 
         #Get ttl and verify
-        self.sc.get_ttl(self.validStream)
+        self.sc.get_ttl(self.valid_stream)
 
         # Succesfully create a writer for the stream
         self.assertIsInstance(
-            self.sc.create_writer(self.validStream),
+            self.sc.create_writer(self.valid_stream),
             StreamWriter
         )
 
         # Write to this stream
-        sw = self.sc.create_writer(self.validStream)
+        sw = self.sc.create_writer(self.valid_stream)
 
         def on_response(response):
             self.exit_code = response.status_code
+            self.event_latch.count_down()
 
         def check_exit_code(response):
             self.assertEqual(self.exit_code, 200)
 
-        q = sw.write(self.messageToWrite)
-        q.on_response(on_response)
-        q.on_response(check_exit_code, check_exit_code)
+        start_time = int(round(time.time() * 1000))
+        event_bodies = [self.message_to_write + str(i)
+                        for i in xrange(self.event_number)]
+
+        for event in event_bodies:
+            q = sw.write(event)
+            q.on_response(on_response)
+            q.on_response(check_exit_code, check_exit_code)
+        self.event_latch.wait_for_complete()
+        end_time = int(round(time.time() * 1000))
+        event_request_url = \
+            u'/v2/streams/%s/events?start=%s&end=%s' % (self.valid_stream,
+                                                        start_time, end_time)
+        received_events = self.get_data_from_cdap(event_request_url)
+        received_event_bodies = [event['body'] for event in received_events]
+        self.assertTrue(set(event_bodies) == set(received_event_bodies))
+
+        # Truncate from the stream
+        self.sc.truncate(self.valid_stream)
+        event_request_url = u'/v2/streams/%s/events' % self.valid_stream
+        received_events = self.get_data_from_cdap(event_request_url)
+        self.assertIsNone(received_events)
 
     def test_set_ttl_invalid_stream(self):
         ttl = 88888
@@ -117,17 +157,51 @@ class StreamTestBase(object):
         self.assertRaises(
             NotFoundError,
             self.sc.set_ttl,
-            self.invalidStream,
+            self.invalid_stream,
             ttl
         )
 
         self.assertRaises(
             NotFoundError,
             self.sc.get_ttl,
-            self.invalidStream
+            self.invalid_stream
         )
 
         self.assertRaises(
             NotFoundError,
             self.sc.create_writer,
-            self.invalidStream)
+            self.invalid_stream)
+
+    def get_data_from_cdap(self, request_url):
+        base_url = u'%s://%s:%d' % ("https" if self.config.ssl else "http",
+                                    self.config.host, self.config.port)
+        url = base_url + request_url
+        if self.auth_client.is_auth_enabled():
+            token = self.auth_client.get_access_token()
+            headers = {'Authorization': token.token_type + " " + token.value}
+            response = requests.get(url, headers=headers)
+        else:
+            response = requests.get(url)
+        if response.status_code == httplib.NO_CONTENT:
+            return None
+        else:
+            return response.json()
+
+
+class EventLatch(object):
+    def __init__(self, events_count):
+        self.events_count = events_count
+        self.lock = threading.Condition()
+
+    def count_down(self):
+        self.lock.acquire()
+        self.events_count -= 1
+        if self.events_count <= 0:
+            self.lock.notifyAll()
+        self.lock.release()
+
+    def wait_for_complete(self):
+        self.lock.acquire()
+        while self.events_count > 0:
+            self.lock.wait()
+        self.lock.release()

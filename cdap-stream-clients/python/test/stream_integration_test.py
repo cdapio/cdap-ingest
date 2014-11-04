@@ -25,10 +25,14 @@ import os
 
 from stream_test_base import StreamTestBase
 
+
 class TestStreamClient(unittest.TestCase, StreamTestBase):
 
     def setUp(self):
-        self.config_file = os.path.join(os.path.dirname(__file__), u"cdap_config.json")
+        self.auth_config_file = os.path.join(os.path.dirname(__file__),
+                                             u'auth_config.json')
+        self.config_file = os.path.join(os.path.dirname(__file__),
+                                        u"cdap_config.json")
         self.base_set_up()
 
 if u'__main__' == __name__:
