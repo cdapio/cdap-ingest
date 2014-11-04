@@ -18,6 +18,15 @@ describe CDAPIngest::StreamClient do
   let(:stream_client){ CDAPIngest::StreamClient.new }
   let(:stream) {"LogAnalyticsFlow"}
 
+  def read_from_stream stream_id, start_time, end_time
+    if start_time == 0 && end_time == 0
+      url = "#{stream_id}/events"
+    else
+      url = "#{stream_id}/events?start=#{start_time}&end=#{end_time}"
+    end
+    rest.request('get', url).parsed_response
+  end
+
   def test_create_stream stream_id
     stream_client.create stream_id
     data = rest.request('get', '').parsed_response
@@ -26,9 +35,18 @@ describe CDAPIngest::StreamClient do
   end
 
   def test_truncate_stream stream_id
+    # write to the stream
+    writer = stream_client.create_writer stream_id
+    writer.write 'test_value'
+    writer.close
+    # check that the stream is not empty
+    data = read_from_stream stream_id, 0, 0
+    expect(data).not_to be_nil
+    # truncate the stream
     stream_client.truncate stream_id
-    response = rest.request('get', "#{stream_id}/events")
-    expect(response.code).to eq 204
+    # check that the stream is empty
+    data = read_from_stream stream_id, 0, 0
+    expect(data).to be_nil
   end
 
   def test_ttl stream_id
@@ -39,11 +57,18 @@ describe CDAPIngest::StreamClient do
   end
 
   def test_writer stream_id
-    writer_test_value = 'test_body'
+    # first truncate the stream
+    stream_client.truncate stream_id
+    data = read_from_stream stream_id, 0, 0
+    expect(data).to be_nil
+    # write to the stream
+    writer_test_value = 'test_value'
     writer = stream_client.create_writer stream_id
     writer.write writer_test_value
-    data = rest.request('get', "#{stream_id}/events").parsed_response
-    found = data.find {|e| e['body'] == writer_test_value}
+    writer.close
+    # check events from the stream
+    data = read_from_stream stream_id, 0, 0
+    found = data == nil ? nil : data.find {|e| e['body'] == writer_test_value}
     expect(found).not_to be_nil
   end
 
