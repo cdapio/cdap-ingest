@@ -21,8 +21,8 @@ import inspect
 import threading
 import time
 import httplib
-import requests
 
+import requests
 
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -132,23 +132,22 @@ class StreamTestBase(object):
             self.assertEqual(self.exit_code, 200)
 
         start_time = int(round(time.time() * 1000))
-        event_bodies = [self.message_to_write + str(i) for i in xrange(50)]
+        event_bodies = [self.message_to_write + str(i)
+                        for i in xrange(self.event_number)]
 
         for event in event_bodies:
             q = sw.write(event)
             q.on_response(on_response)
             q.on_response(check_exit_code, check_exit_code)
         # time.sleep(1)
-        self.event_latch.wait_for_complite()
+        self.event_latch.wait_for_complete()
         end_time = int(round(time.time() * 1000))
         event_request_url = \
             u'/v2/streams/%s/events?start=%s&end=%s' % (self.valid_stream,
                                                         start_time, end_time)
         received_events = self.get_data_from_cdap(event_request_url)
-        self.assertEqual(self.event_number, len(received_events))
-        expected_events = [self.message_to_write + str(i) for i in xrange(50)]
         received_event_bodies = [event['body'] for event in received_events]
-        self.assertTrue(set(expected_events) == set(received_event_bodies))
+        self.assertTrue(set(event_bodies) == set(received_event_bodies))
 
         # Truncate from the stream
         self.sc.truncate(self.valid_stream)
@@ -205,7 +204,7 @@ class EventLatch(object):
             self.lock.notifyAll()
         self.lock.release()
 
-    def wait_for_complite(self):
+    def wait_for_complete(self):
         self.lock.acquire()
         while self.events_count > 0:
             self.lock.wait()
