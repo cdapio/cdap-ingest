@@ -156,4 +156,26 @@ writer.close
 
 ## Testing
 
-To run RSpec tests, run ```rspec``` command in your shell.
+To launch unit tests only, execute:
+
+ ```
+ rspec --tag ~it
+ ``` 
+
+To launch integration tests against Standalone CDAP instance, execute:
+ 
+ ```
+ rspec --tag type:it-local
+ ```
+
+ To launch integration tests against Standalone CDAP instance with authentication enabled, execute:
+ 
+ ```
+ rspec --tag type:it-local-auth
+ ```
+ 
+ To launch integration tests against Standalone CDAP instance with authentication enabled and ssl turned on, execute:
+  
+ ```
+ rspec --tag type:it-local-auth-ssl
+ ```

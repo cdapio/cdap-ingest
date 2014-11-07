@@ -14,7 +14,6 @@ describe CDAPIngest::StreamClient do
     CDAPIngest::Rest.ssl         = config['ssl']
   end
 
-  let(:rest) {CDAPIngest::Rest.new}
   let(:stream_client){ CDAPIngest::StreamClient.new }
   let(:stream) {"LogAnalyticsFlow"}
 
@@ -24,12 +23,12 @@ describe CDAPIngest::StreamClient do
     else
       url = "#{stream_id}/events?start=#{start_time}&end=#{end_time}"
     end
-    rest.request('get', url).parsed_response
+    stream_client.rest.request('get', url).parsed_response
   end
 
   def test_create_stream stream_id
     stream_client.create stream_id
-    data = rest.request('get', '').parsed_response
+    data = stream_client.rest.request('get', '').parsed_response
     found = data.find {|e| e['name'] == stream_id}
     expect(found).not_to be_nil
   end
@@ -72,7 +71,7 @@ describe CDAPIngest::StreamClient do
     expect(found).not_to be_nil
   end
 
-  it 'test client without ssl and authentication' do
+  it 'test client without ssl and authentication', :type => 'it-local', :it => true do
 
     load_config 'spec/reactor.yml'
     # test stream creating
@@ -87,29 +86,43 @@ describe CDAPIngest::StreamClient do
     true.should == true
   end
 
-  it 'test client with authentication without ssl' do
+  it 'test client with authentication without ssl', :type => 'it-local-auth', :it => true do
 
     auth_client = AuthenticationClient::AuthenticationClient.new
     config = YAML.load_file('spec/auth_config.yml')
-    auth_client.configure(config)
+    auth_client.configure config
     load_config 'spec/reactor.yml'
-    stream_client.set_auth_client(auth_client)
-    result = stream_client.create stream
-    res = stream_client.create_writer(stream)
+    stream_client.set_auth_client auth_client
+
+    # test stream creating
+    test_create_stream stream
+    # test ttl
+    test_ttl stream
+    #test writer
+    test_writer stream
+    #test stream truncating
+    test_truncate_stream stream
 
     true.should == true
   end
 
 
-  it 'test client with authentication and ssl' do
+  it 'test client with authentication and ssl', :type => 'it-local-auth-ssl', :it => true do
 
     auth_client = AuthenticationClient::AuthenticationClient.new
     config = YAML.load_file('spec/auth_config.yml')
     auth_client.configure(config)
     load_config 'spec/reactor_ssh.yml'
     stream_client.set_auth_client(auth_client)
-    result = stream_client.create stream
-    res = stream_client.create_writer(stream)
+
+    # test stream creating
+    test_create_stream stream
+    # test ttl
+    test_ttl stream
+    #test writer
+    test_writer stream
+    #test stream truncating
+    test_truncate_stream stream
 
     true.should == true
   end
