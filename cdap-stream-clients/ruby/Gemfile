@@ -20,7 +20,7 @@ gem "rake"
 
 gem 'httparty'
 gem 'thread'
-gem 'promise.rb'
+gem 'promise.rb', '~> 0.6.1'
 gem 'pry'
 
 group :test do
