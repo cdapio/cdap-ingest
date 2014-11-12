@@ -83,7 +83,7 @@ describe CDAPIngest::StreamClient do
     #test stream truncating
     test_truncate_stream stream
 
-    true.should == true
+    expect(true).to eq(true)
   end
 
   it 'test client with authentication without ssl', :type => 'it-local-auth', :it => true do
@@ -103,7 +103,7 @@ describe CDAPIngest::StreamClient do
     #test stream truncating
     test_truncate_stream stream
 
-    true.should == true
+    expect(true).to eq(true)
   end
 
 
@@ -124,7 +124,7 @@ describe CDAPIngest::StreamClient do
     #test stream truncating
     test_truncate_stream stream
 
-    true.should == true
+    expect(true).to eq(true)
   end
 
 end
