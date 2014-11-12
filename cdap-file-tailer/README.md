@@ -24,7 +24,8 @@ To install File Tailer, execute one of these commands:
 
         sudo rpm -ivh --force cdap-file-tailer-1.0.1.rpm
 
-Repository information can be found at http://docs.cask.co/cdap/current/en/admin.html#packaging
+Repository information can be found in the
+[Distributed CDAP Installation instructions](http://docs.cask.co/cdap/current/en/admin-manual/installation/installation.html#packaging).
 
 Once installed, configure the daemon by editing the file:
 
@@ -132,7 +133,7 @@ Description of configuration parameters:
 - ```pipes.<pipe-name>.sink.stream_name``` : name of target stream
 - ```pipes.<pipe-name>.sink.host``` : server host
 - ```pipes.<pipe-name>.sink.port``` : server port
-- ```pipes.<pipe-name>.sink.ssl``` : Secure Socket Layer mode [true|false] (default false)
+- ```pipes.<pipe-name>.sink.ssl``` : Secure Socket Layer mode \[true|false] (default false)
 - ```pipes.<pipe-name>.sink.apiKey``` : SSL security key
 - ```pipes.<pipe-name>.sink.writerPoolSize``` : number of threads with which Stream Client sends events (default 10)
 - ```pipes.<pipe-name>.sink.version``` : CDAP server version (default "v2")
