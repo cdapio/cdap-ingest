@@ -22,7 +22,7 @@
 
   <groupId>co.cask.cdap</groupId>
   <artifactId>cdap-ingest</artifactId>
-  <version>2.5.2</version>
+  <version>1.0.2</version>
   <packaging>pom</packaging>
   <name>CDAP ingest</name>
   <description>CDAP Data ingestion Project</description>
