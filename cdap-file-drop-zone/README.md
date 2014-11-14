@@ -24,7 +24,8 @@ To install File DropZone, execute one of these commands:
 
         sudo rpm -ivh --force cdap-file-drop-zone-{version}.rpm
 
-Repository information can be found at http://docs.cask.co/cdap/current/en/admin.html#packaging
+Repository information can be found in the
+[Distributed CDAP Installation instructions](http://docs.cask.co/cdap/current/en/admin-manual/installation/installation.html#packaging).
 
 Once installed, configure the daemon by editing the file:
 
