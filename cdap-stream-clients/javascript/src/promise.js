@@ -25,12 +25,12 @@
         factory(target, require);
     } else if (typeof define === 'function' && define['amd']) {
         // [2] AMD anonymous module
-        define(['exports', 'Promise'], factory);
+        define(['exports', 'CDAPAuth.Promise'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
-        window['CDAPStreamClient'] = window['CDAPStreamClient'] || {};
-        window['CDAPStreamClient']['Promise'] = window['CDAPStreamClient']['Promise'] || {};
-        factory(window['CDAPStreamClient']['Promise']);
+        window['CDAPAuth'] = window['CDAPAuth'] || {};
+        window['CDAPAuth']['Promise'] = window['CDAPAuth']['Promise'] || {};
+        factory(window['CDAPAuth']['Promise']);
     }
 }(function (target, require) {
     'use strict';
@@ -52,7 +52,7 @@
             methodChanging = false;
 
         var fireResolve = function () {
-                if (!fired && !methodChanging && resolve_value && success_handlers_stack.length) {
+                if (!fired && !methodChanging && success_handlers_stack.length) {
                     while (success_handlers_stack.length) {
                         success_handlers_stack.shift()(resolve_value);
                     }
@@ -63,7 +63,7 @@
                 }
             },
             fireReject = function () {
-                if (!fired && !methodChanging && reject_reason && error_handlers_stack.length) {
+                if (!fired && !methodChanging && error_handlers_stack.length) {
                     while (error_handlers_stack.length) {
                         error_handlers_stack.shift()(reject_reason);
                     }
@@ -123,10 +123,6 @@
 
                 methodChanging = false;
 
-                fireResolve();
-                fireReject();
-                fireNotify();
-
                 return this;
             },
 
@@ -183,6 +179,6 @@
     if (('undefined' !== typeof module) && module.exports) {
         module.exports = PromiseConstructor;
     } else {
-        window['CDAPStreamClient']['Promise'] = PromiseConstructor;
+        window['CDAPAuth']['Promise'] = PromiseConstructor;
     }
 }));

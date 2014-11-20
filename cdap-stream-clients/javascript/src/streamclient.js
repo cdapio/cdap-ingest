@@ -127,7 +127,7 @@
                 return serviceConnector.request({
                     method: 'PUT',
                     path: uri,
-                    async: false
+                    async: true
                 });
             },
             /**
@@ -145,14 +145,13 @@
                         ttl: ttl
                     };
 
-                checkErrorResponse(
-                    serviceConnector.request({
-                        method: 'PUT',
-                        path: uri,
-                        data: JSON.stringify(objectToSend),
-                        async: false
-                    })
-                );
+
+                return serviceConnector.request({
+                    method: 'PUT',
+                    path: uri,
+                    data: JSON.stringify(objectToSend),
+                    async: true
+                });
             },
             /**
              * Retrieves the Time-To-Live (TTL) property of the given stream.
@@ -167,15 +166,11 @@
                     data: stream
                 });
 
-                var response = checkErrorResponse(
-                    serviceConnector.request({
-                        method: 'GET',
-                        path: uri,
-                        async: false
-                    })
-                );
-
-                return JSON.parse(response.responseText)['ttl'];
+                return serviceConnector.request({
+                    method: 'GET',
+                    path: uri,
+                    async: true
+                });
             },
             /**
              * Truncates all existing events in the give stream.
@@ -188,13 +183,11 @@
                     data: stream
                 });
 
-                checkErrorResponse(
-                    serviceConnector.request({
-                        method: 'POST',
-                        path: uri,
-                        async: false
-                    })
-                );
+                return serviceConnector.request({
+                    method: 'POST',
+                    path: uri,
+                    async: false
+                });
             },
             /**
              * Creates a {@link CDAPStreamClient.StreamWriter} instance for writing events to the given stream.
