@@ -26,6 +26,9 @@ Stream Client JavaScript API for managing Streams via external JavaScript applic
 
 ## Example
 
+NOTE: All methods return ```Promise``` object. Use ```then```, ```catch```, ```notify``` methods of ```Promise``` to
+interact with the returned data.
+
 Create a ```StreamClient``` instance, specifying the fields 'host' and 'port' of the gateway server. 
 Optional configurations that can be set (and their default values):
 
@@ -56,13 +59,23 @@ Optional configurations that can be set (and their default values):
  Update TTL for the Stream "streamName"; ```newTTL``` is a long value:
 
  ```
-   streamClient.setTTL("streamName", newTTL);
+   var ttlPromise = streamClient.setTTL("streamName", newTTL);
+   ttlPromise.then(function onOk(ttlValue) {
+     //TTL has been set up. 
+   }, function onError(statusCode) {
+     //actions on error
+   });
  ```
 
  Get the current TTL value for the Stream "streamName":
 
  ```
-   var ttl = streamClient.getTTL("streamName");
+   var ttlPromise = streamClient.getTTL("streamName");
+   ttlPromise.then(function onOk(ttlValue) {
+     //use TTL value
+   }, function onError(statusCode) {
+     //actions on error
+   });
  ```
 
  Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
@@ -93,6 +106,7 @@ Optional configurations that can be set (and their default values):
  ```
 
  ### StreamPromise
+ 
  StreamPromise's goal is to implement deferred code execution.
 
 For error handling, create a handler for each case and set it using the ```then``` method.
@@ -117,10 +131,7 @@ streamPromise.then(onOkResponse, onErrorResponse)
 
 ## Additional Notes
 
- All methods from the ```StreamClient``` and ```StreamWriter``` throw exceptions using response code analysis from the 
- gateway server. These exceptions help determine if the request was processed successfully or not.
+ All methods from the ```StreamClient``` and ```StreamWriter``` return errors using ```Promise```s. Please use ```Promise```'s
+ ```catch``` method to interact with errors. These errors help determine if the request was processed successfully or not.
 
- In the case of a **200 OK** response, no exception will be thrown; other cases will throw the exception.
-
-```status``` method of the exception class returns HTTP error code.
-```message``` method of the exception class returns text representation of an error.
+ In the case of a **200 OK** response, no error will be thrown; in other cases HTTP status code will be return.
