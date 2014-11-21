@@ -1,12 +1,13 @@
 var StreamClient = CDAPStreamClient.StreamClient;
-/*
+
 sinon.log = function (data) {
     console.log(data);
 };
-*/
+
 describe('CDAP ingest tests', function () {
     beforeEach(function () {
         this.server = sinon.fakeServer.create();
+        this.server.autoRespond = true;
     });
 
     afterEach(function () {
@@ -56,40 +57,28 @@ describe('CDAP ingest tests', function () {
     });
 
     describe('Functionality', function () {
-        it('"create" request url is valid', function () {
-            var host = 'localhost',
-                port = 10000,
-                streamName = 'newStream',
-                requestUrl = '/v2/streams/' + streamName,
-                streamClient = new StreamClient({
-                    host: host,
-                    port: port
-                });
-
-            this.server.respondWith('PUT', requestUrl, [200, {}, 'OK']);
-
-            streamClient.create(streamName);
-        });
-
         it('"setTTL" for a valid stream', function () {
             var host = 'localhost',
                 port = 10000,
                 streamName = 'newStream',
-                createUrl = '/v2/streams/' + streamName,
                 configUrl = '/v2/streams/' + streamName + '/config',
                 ttl = 86400,
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                resolved = false,
+                checker = function () {
+                    expect(resolved).to.be.ok();
+                };
 
-            this.server.respondWith(new RegExp(createUrl), [200, {}, 'OK']);
-            this.server.respondWith(new RegExp(configUrl), [200, {}, 'OK']);
+            this.server.respondWith('PUT', new RegExp(configUrl), [200, {}, 'OK']);
 
-            streamClient.create(streamName);
-            expect(function () {
-                streamClient.setTTL(streamName, ttl);
-            }).not.to.throwError();
+            var configPromise = streamClient.setTTL(streamName, ttl);
+
+            configPromise.then(function () {
+                resolved = true;
+            }).then(checker, checker);
 
         });
 
@@ -102,58 +91,69 @@ describe('CDAP ingest tests', function () {
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                rejected = false,
+                checker = function () {
+                    expect(rejected).to.be.ok();
+                };
 
             this.server.respondWith(new RegExp(configUrl), [404, {}, 'OK']);
 
-            expect(function () {
-                streamClient.setTTL(streamName, ttl);
-            }).to.throwError();
+            var promise = streamClient.setTTL(streamName, ttl);
+            promise.catch(function () {
+                rejected = true;
+            }).then(checker, checker);
         });
 
         it('"getTTL" for a valid stream and a valid TTL value', function () {
             var host = 'localhost',
                 port = 10000,
                 streamName = 'newStream',
-                createUrl = '/v2/streams/' + streamName,
                 configUrl = '/v2/streams/' + streamName + '/info',
                 ttl = 86400,
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                respTTL = -1,
+                checker = function () {
+                    expect(respTTL).to.be.equal(ttl);
+                };
 
-            this.server.respondWith(new RegExp(createUrl), [200, {}, 'OK']);
             this.server.respondWith(new RegExp(configUrl), [200, { "Content-Type": "application/json" },
                 JSON.stringify({ttl: ttl})]);
 
-            streamClient.create(streamName);
-            var respTTL = streamClient.getTTL(streamName);
+            var configPromise = streamClient.getTTL(streamName);
 
-            expect(respTTL).to.be.equal(ttl);
+            configPromise.then(function (configTTL) {
+                respTTL = configTTL;
+            }).then(checker, checker);
         });
 
         it('"getTTL" for a valid stream and a wrong TTL value', function () {
             var host = 'localhost',
                 port = 10000,
                 streamName = 'newStream',
-                createUrl = '/v2/streams/' + streamName,
                 configUrl = '/v2/streams/' + streamName + '/info',
                 validTTL = 86400,
                 invalidTTL = -1,
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                respTTL = -1,
+                checker = function () {
+                    expect(respTTL).not.to.be.equal(validTTL);
+                };
 
-            this.server.respondWith(new RegExp(createUrl), [200, {}, 'OK']);
             this.server.respondWith(new RegExp(configUrl), [200, { "Content-Type": "application/json" },
                 JSON.stringify({ttl: invalidTTL})]);
 
-            streamClient.create(streamName);
-            var respTTL = streamClient.getTTL(streamName);
+            var configPromise = streamClient.getTTL(streamName);
 
-            expect(respTTL).not.to.be.equal(validTTL);
+            configPromise.then(function (configTTL) {
+                respTTL = configTTL;
+            }).then(checker, checker);
         });
 
         it('"getTTL" for an invalid stream', function () {
@@ -164,33 +164,40 @@ describe('CDAP ingest tests', function () {
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                rejected = false,
+                checker = function () {
+                    expect(rejected).to.be.ok();
+                };
 
             this.server.respondWith(new RegExp(configUrl), [404, {}, '']);
 
-            expect(function () {
-                streamClient.getTTL(streamName);
-            }).to.throwError();
+            var configPromise = streamClient.getTTL(streamName);
+            configPromise.catch(function () {
+                rejected = true;
+            }).then(checker, checker);
         });
 
         it('"truncate" for a valid stream', function () {
             var host = 'localhost',
                 port = 10000,
                 streamName = 'newStream',
-                createUrl = '/v2/streams/' + streamName,
                 truncateUrl = '/v2/streams/' + streamName + '/truncate',
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                resolved = false,
+                checker = function () {
+                    expect(resolved).to.be.ok();
+                };
 
-            this.server.respondWith(new RegExp(createUrl), [200, {}, 'OK']);
             this.server.respondWith(new RegExp(truncateUrl), [200, {}, 'OK']);
 
-            streamClient.create(streamName);
-            expect(function () {
-                streamClient.truncate(streamName);
-            }).not.to.throwError();
+            var truncatePromise = streamClient.truncate(streamName);
+            truncatePromise.then(function () {
+                resolved = true;
+            }).then(checker, checker);
         });
 
         it('"truncate" for an invalid stream', function () {
@@ -201,13 +208,18 @@ describe('CDAP ingest tests', function () {
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                rejected = false,
+                checker = function () {
+                    expect(rejected).to.be.ok();
+                };
 
             this.server.respondWith(new RegExp(truncateUrl), [404, {}, '']);
 
-            expect(function () {
-                streamClient.truncate(streamName);
-            }).to.throwError();
+            var truncatePromise = streamClient.truncate(streamName);
+            truncatePromise.catch(function () {
+                rejected = true;
+            }).then(checker, checker);
         });
 
         it('"createWriter" creates a valid object', function () {
@@ -218,19 +230,26 @@ describe('CDAP ingest tests', function () {
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                streamWriter = null,
+                checker = function () {
+                    expect(streamWriter).to.be.an('object');
+                    expect(streamWriter).to.have.property('write');
+                };
 
             this.server.respondWith(new RegExp(configUrl), [200, { "Content-Type": "application/json" },
                 JSON.stringify({ttl: 86400})]);
 
-            var streamWriter = streamClient.createWriter(streamName);
-
-            expect(streamWriter).to.have.property('write');
+            var writerPromise = streamClient.createWriter(streamName);
+            writerPromise.then(function (writer) {
+                streamWriter = writer;
+            }).then(checker, checker);
         });
 
         describe('StreamWriter', function () {
             it('"write" returns valid Promise object', function () {
-                var host = 'localhost',
+                var self = this,
+                    host = 'localhost',
                     port = 10000,
                     streamName = 'newStream',
                     configUrl = '/v2/streams/' + streamName + '/info',
@@ -241,18 +260,25 @@ describe('CDAP ingest tests', function () {
                         port: port
                     });
 
-                this.server.respondWith(new RegExp(writeUrl), [200, {}, 'OK']);
                 this.server.respondWith(new RegExp(configUrl), [200, { "Content-Type": "application/json" },
                     JSON.stringify({ttl: 86400})]);
+                this.server.respondWith(new RegExp(writeUrl), [200, {}, '']);
 
-                var streamWriter = streamClient.createWriter(streamName),
-                    promise = streamWriter.write(textToSend);
+                var writerPromise = streamClient.createWriter(streamName);
 
-                expect(promise).to.have.property('then');
-                expect(promise).to.have.property('catch');
-                expect(promise).to.have.property('notify');
-                expect(promise).to.have.property('reject');
-                expect(promise).to.have.property('resolve');
+                writerPromise.then(function (newWriter) {
+                    var promise = newWriter.write(textToSend);
+
+                    expect(promise).to.have.property('then');
+                    expect(promise).to.have.property('catch');
+                    expect(promise).to.have.property('notify');
+                    expect(promise).to.have.property('reject');
+                    expect(promise).to.have.property('resolve');
+                }, function () {
+                    expect().fail();
+                });
+
+                this.server.respond();
             });
 
             describe('Promise states', function () {
@@ -272,19 +298,23 @@ describe('CDAP ingest tests', function () {
                     this.server.respondWith(new RegExp(configUrl), [200, { "Content-Type": "application/json" },
                         JSON.stringify({ttl: 86400})]);
 
-                    var streamWriter = streamClient.createWriter(streamName),
-                        promise = streamWriter.write(textToSend),
+                    var writerPromise = streamClient.createWriter(streamName),
                         resolved = false,
-                        promiseHandler = function (status) {
-                            resolved = true;
-                        },
-                        promiseChecker = function () {
+                        checker = function () {
                             expect(resolved).to.be.ok();
                         };
 
-                    this.server.respond();
+                    writerPromise.then(function (newWriter) {
+                        var writePromise = newWriter.write(textToSend);
 
-                    promise.then(promiseHandler).then(promiseChecker, promiseChecker);
+                        writePromise.then(function () {
+                            resolved = true;
+                        }).then(checker, checker);
+                    }, function () {
+                        expect().fail();
+                    });
+
+                    this.server.respond();
                 });
 
                 it('"catch" fires a handler', function () {
@@ -303,19 +333,23 @@ describe('CDAP ingest tests', function () {
                     this.server.respondWith(new RegExp(configUrl), [200, { "Content-Type": "application/json" },
                         JSON.stringify({ttl: 86400})]);
 
-                    var streamWriter = streamClient.createWriter(streamName),
-                        promise = streamWriter.write(textToSend),
-                        resolved = false,
-                        promiseHandler = function (status) {
-                            resolved = true;
-                        },
-                        promiseChecker = function () {
-                            expect(resolved).to.be.ok();
+                    var writerPromise = streamClient.createWriter(streamName),
+                        rejected = false,
+                        checker = function () {
+                            expect(rejected).to.be.ok();
                         };
 
-                    this.server.respond();
+                    writerPromise.then(function (newWriter) {
+                        var writePromise = newWriter.write(textToSend);
 
-                    promise.catch(promiseHandler).then(promiseChecker, promiseChecker);
+                        writePromise.catch(function () {
+                            rejected = true;
+                        }).then(checker, checker);
+                    }, function () {
+                        expect().fail();
+                    });
+
+                    this.server.respond();
                 });
 
                 it('"notify" fires a handler', function () {
@@ -334,19 +368,23 @@ describe('CDAP ingest tests', function () {
                     this.server.respondWith(new RegExp(configUrl), [200, { "Content-Type": "application/json" },
                         JSON.stringify({ttl: 86400})]);
 
-                    var streamWriter = streamClient.createWriter(streamName),
-                        promise = streamWriter.write(textToSend),
-                        resolved = false,
-                        promiseHandler = function (status) {
-                            resolved = true;
-                        },
-                        promiseChecker = function () {
-                            expect(resolved).to.be.ok();
+                    var writerPromise = streamClient.createWriter(streamName),
+                        rejected = false,
+                        checker = function () {
+                            expect(rejected).to.be.ok();
                         };
 
-                    this.server.respond();
+                    writerPromise.then(function (newWriter) {
+                        var writePromise = newWriter.write(textToSend);
 
-                    promise.then(null, null, promiseHandler).then(promiseChecker, promiseChecker);
+                        writePromise.then(null, null, function () {
+                            rejected = true;
+                        }).then(checker, checker);
+                    }, function () {
+                        expect().fail();
+                    });
+
+                    this.server.respond();
                 });
             });
         });

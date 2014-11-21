@@ -28,9 +28,9 @@
         define(['exports', 'CDAPAuth.Promise'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
-        window['CDAPAuth'] = window['CDAPAuth'] || {};
-        window['CDAPAuth']['Promise'] = window['CDAPAuth']['Promise'] || {};
-        factory(window['CDAPAuth']['Promise']);
+        window['CDAPStreamClient'] = window['CDAPStreamClient'] || {};
+        window['CDAPStreamClient']['Promise'] = window['CDAPStreamClient']['Promise'] || {};
+        factory(window['CDAPStreamClient']['Promise']);
     }
 }(function (target, require) {
     'use strict';
@@ -179,6 +179,6 @@
     if (('undefined' !== typeof module) && module.exports) {
         module.exports = PromiseConstructor;
     } else {
-        window['CDAPAuth']['Promise'] = PromiseConstructor;
+        window['CDAPStreamClient']['Promise'] = PromiseConstructor;
     }
 }));
