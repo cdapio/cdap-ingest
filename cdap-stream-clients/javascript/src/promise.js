@@ -44,15 +44,15 @@
             error_handlers_stack = [],
             notification_handlers_stack = [],
 
-            resolve_value = null,
-            reject_reason = null,
+            resolve_value = undefined,
+            reject_reason = undefined,
             notify_value_stack = [],
 
             fired = false,
             methodChanging = false;
 
         var fireResolve = function () {
-                if (!fired && !methodChanging && success_handlers_stack.length) {
+                if (!fired && !methodChanging && success_handlers_stack.length && undefined !== resolve_value) {
                     while (success_handlers_stack.length) {
                         success_handlers_stack.shift()(resolve_value);
                     }
@@ -63,7 +63,7 @@
                 }
             },
             fireReject = function () {
-                if (!fired && !methodChanging && error_handlers_stack.length) {
+                if (!fired && !methodChanging && error_handlers_stack.length && undefined !== reject_reason) {
                     while (error_handlers_stack.length) {
                         error_handlers_stack.shift()(reject_reason);
                     }
@@ -122,6 +122,10 @@
                 }
 
                 methodChanging = false;
+
+                fireResolve();
+                fireReject();
+                fireNotify();
 
                 return this;
             },

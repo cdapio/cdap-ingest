@@ -268,9 +268,9 @@ describe('CDAP ingest tests', function () {
                         port: port
                     });
 
+                this.server.respondWith(new RegExp(writeUrl), [200, {}, '']);
                 this.server.respondWith(new RegExp(configUrl), [200, { "Content-Type": "application/json" },
                     JSON.stringify({ttl: 86400})]);
-                this.server.respondWith(new RegExp(writeUrl), [200, {}, '']);
 
                 var writerPromise = streamClient.createWriter(streamName);
 
