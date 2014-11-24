@@ -1,5 +1,4 @@
 var expect = require('expect.js'),
-    httpsync = require('http-sync'),
     sinon = require('sinon'),
     nock = require('nock'),
     StreamClient = require('../src/streamclient');
