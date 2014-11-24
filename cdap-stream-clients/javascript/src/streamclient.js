@@ -127,8 +127,7 @@
 
                 return serviceConnector.request({
                     method: 'PUT',
-                    path: uri,
-                    async: true
+                    path: uri
                 });
             },
             /**
@@ -150,8 +149,7 @@
                 return serviceConnector.request({
                     method: 'PUT',
                     path: uri,
-                    data: JSON.stringify(objectToSend),
-                    async: true
+                    data: JSON.stringify(objectToSend)
                 });
             },
             /**
@@ -168,8 +166,7 @@
                     }),
                     reqPromise = serviceConnector.request({
                         method: 'GET',
-                        path: uri,
-                        async: true
+                        path: uri
                     }),
                     retPromise = new Promise();
 
@@ -194,8 +191,7 @@
 
                 return serviceConnector.request({
                     method: 'POST',
-                    path: uri,
-                    async: true
+                    path: uri
                 });
             },
             /**

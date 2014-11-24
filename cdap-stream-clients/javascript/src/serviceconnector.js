@@ -84,8 +84,7 @@
                     method: config.method,
                     path: config.path,
                     headers: Utils.copyObject(defaultHeaders, config.headers ? config.headers : {}),
-                    data: config.data || '',
-                    async: (null != config.async) ? config.async : true
+                    data: config.data || ''
                 });
 
                 return platformSpecific.request(config);
