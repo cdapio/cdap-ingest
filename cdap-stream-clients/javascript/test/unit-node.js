@@ -1,5 +1,4 @@
 var expect = require('expect.js'),
-    httpsync = require('http-sync'),
     sinon = require('sinon'),
     nock = require('nock'),
     StreamClient = require('../src/streamclient');
@@ -48,44 +47,6 @@ describe('CDAP ingest tests', function () {
     });
 
     describe('Functionality', function () {
-        it('"create" request url is valid', function () {
-            var host = 'localhost',
-                port = 10000,
-                streamName = 'newStream',
-                requestUrl = '/v2/streams/' + streamName,
-                createArgs = {
-                    host: host,
-                    port: port,
-                    path: requestUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'PUT',
-                    async: false
-                },
-
-                mock = sinon.mock(httpsync),
-                streamClient = new StreamClient({
-                    host: host,
-                    port: port
-                });
-
-            mock.expects('request').withArgs(createArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: ''
-                    };
-                }
-            });
-
-            streamClient.create(streamName);
-
-            mock.verify();
-            mock.restore();
-        });
 
         it('"setTTL" for a valid stream', function () {
             var host = 'localhost',
@@ -94,61 +55,33 @@ describe('CDAP ingest tests', function () {
                 createUrl = '/v2/streams/' + streamName,
                 configUrl = '/v2/streams/' + streamName + '/config',
                 ttl = 86400,
-                createArgs = {
-                    host: host,
-                    port: port,
-                    path: createUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'PUT',
-                    async: false
-                },
-                ttlArgs = {
-                    host: host,
-                    port: port,
-                    path: configUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: JSON.stringify({
-                        ttl: ttl
-                    }),
-                    method: 'PUT',
-                    async: false
-                },
 
-                mock = sinon.mock(httpsync),
+                mockCreate = nock('http://' + host + ':' + port)
+                    .put(createUrl)
+                    .reply(200),
+                mockConfig = nock('http://' + host + ':' + port)
+                    .put(configUrl)
+                    .reply(200),
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                resolved = false,
+                checker = function () {
+                    expect(resolved).to.be.ok();
+                };
 
-            mock.expects('request').withArgs(createArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: ''
-                    };
-                }
+            var createPromise = streamClient.create(streamName);
+
+            createPromise.then(function () {
+                var configPromise = streamClient.setTTL(streamName, ttl);
+
+                configPromise.then(function () {
+                    resolved = true;
+                }).then(checker, checker);
+            }).catch(function () {
+                expect().fail();
             });
-            mock.expects('request').withArgs(ttlArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: ''
-                    };
-                }
-            });
-
-            streamClient.create(streamName);
-            streamClient.setTTL(streamName, ttl);
-
-            mock.verify();
-            mock.restore();
         });
 
         it('"setTTL" for an invalid stream', function () {
@@ -157,41 +90,23 @@ describe('CDAP ingest tests', function () {
                 streamName = 'invalidStream',
                 configUrl = '/v2/streams/' + streamName + '/config',
                 ttl = 86400,
-                ttlArgs = {
-                    host: host,
-                    port: port,
-                    path: configUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: JSON.stringify({
-                        ttl: ttl
-                    }),
-                    method: 'PUT',
-                    async: false
-                },
 
-                mock = sinon.mock(httpsync),
+                mock = nock('http://' + host + ':' + port)
+                    .put(configUrl)
+                    .reply(404),
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                rejected = false,
+                checker = function () {
+                    expect(rejected).to.be.ok();
+                };
 
-            mock.expects('request').withArgs(ttlArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 404,
-                        body: ''
-                    };
-                }
-            });
-
-            expect(function () {
-                streamClient.setTTL(streamName, ttl);
-            }).to.throwError();
-
-            mock.restore();
+            var promise = streamClient.setTTL(streamName, ttl);
+            promise.catch(function () {
+                rejected = true;
+            }).then(checker, checker);
         });
 
         it('"getTTL" for a valid stream and a valid TTL value', function () {
@@ -201,62 +116,34 @@ describe('CDAP ingest tests', function () {
                 createUrl = '/v2/streams/' + streamName,
                 configUrl = '/v2/streams/' + streamName + '/info',
                 ttl = 86400,
-                createArgs = {
-                    host: host,
-                    port: port,
-                    path: createUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'PUT',
-                    async: false
-                },
-                ttlArgs = {
-                    host: host,
-                    port: port,
-                    path: configUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'GET',
-                    async: false
-                },
+                respTTL = -1,
 
-                mock = sinon.mock(httpsync),
+                mockCreate = nock('http://' + host + ':' + port)
+                    .put(createUrl)
+                    .reply(200),
+                mockConfig = nock('http://' + host + ':' + port)
+                    .get(configUrl)
+                    .reply(200, JSON.stringify({
+                        ttl: ttl
+                    })),
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                checker = function () {
+                    expect(respTTL).to.be.equal(ttl);
+                };
 
-            mock.expects('request').withArgs(createArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: ''
-                    };
-                }
+            var createPromise = streamClient.create(streamName);
+            createPromise.then(function () {
+                var configPromise = streamClient.getTTL(streamName);
+
+                configPromise.then(function (configTTL) {
+                    respTTL = configTTL;
+                }).then(checker, checker);
+            }).catch(function () {
+                except().fail();
             });
-            mock.expects('request').withArgs(ttlArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: JSON.stringify({
-                            ttl: ttl
-                        })
-                    };
-                }
-            });
-
-            streamClient.create(streamName);
-            var respTTL = streamClient.getTTL(streamName);
-
-            expect(respTTL).to.be.equal(ttl);
-
-            mock.restore();
         });
 
         it('"getTTL" for a valid stream and a wrong TTL value', function () {
@@ -267,62 +154,34 @@ describe('CDAP ingest tests', function () {
                 configUrl = '/v2/streams/' + streamName + '/info',
                 validTTL = 86400,
                 invalidTTL = -1,
-                createArgs = {
-                    host: host,
-                    port: port,
-                    path: createUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'PUT',
-                    async: false
-                },
-                ttlArgs = {
-                    host: host,
-                    port: port,
-                    path: configUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'GET',
-                    async: false
-                },
+                respTTL = 0,
 
-                mock = sinon.mock(httpsync),
+                mockCreate = nock('http://' + host + ':' + port)
+                    .put(createUrl)
+                    .reply(200),
+                mockConfig = nock('http://' + host + ':' + port)
+                    .get(configUrl)
+                    .reply(200, JSON.stringify({
+                        ttl: invalidTTL
+                    })),
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                checker = function () {
+                    expect(respTTL).not.to.be.equal(validTTL);
+                };
 
-            mock.expects('request').withArgs(createArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: ''
-                    };
-                }
+            var createPromise = streamClient.create(streamName);
+            createPromise.then(function () {
+                var configPromise = streamClient.getTTL(streamName);
+
+                configPromise.then(function (configTTL) {
+                    respTTL = configTTL;
+                }).then(checker, checker);
+            }).catch(function () {
+                except().fail();
             });
-            mock.expects('request').withArgs(ttlArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: JSON.stringify({
-                            ttl: invalidTTL
-                        })
-                    };
-                }
-            });
-
-            streamClient.create(streamName);
-            var respTTL = streamClient.getTTL(streamName);
-
-            expect(respTTL).not.to.be.equal(validTTL);
-
-            mock.restore();
         });
 
         it('"getTTL" for an invalid stream', function () {
@@ -330,7 +189,6 @@ describe('CDAP ingest tests', function () {
                 port = 10000,
                 streamName = 'invalidStream',
                 configUrl = '/v2/streams/' + streamName + '/info',
-                ttl = 86400,
                 ttlArgs = {
                     host: host,
                     port: port,
@@ -342,28 +200,22 @@ describe('CDAP ingest tests', function () {
                     async: false
                 },
 
-                mock = sinon.mock(httpsync),
+                mock = nock('http://' + host + ':' + port)
+                    .get(configUrl)
+                    .reply(404),
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                rejected = false,
+                checker = function () {
+                    expect(rejected).to.be.ok();
+                };
 
-            mock.expects('request').withArgs(ttlArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 404,
-                        body: ''
-                    };
-                }
-            });
-
-            expect(function () {
-                streamClient.getTTL(streamName);
-            }).to.throwError();
-
-            mock.restore();
+            var configPromise = streamClient.getTTL(streamName);
+            configPromise.catch(function () {
+                rejected = true;
+            }).then(checker, checker);
         });
 
         it('"truncate" for a valid stream', function () {
@@ -372,59 +224,31 @@ describe('CDAP ingest tests', function () {
                 streamName = 'newStream',
                 createUrl = '/v2/streams/' + streamName,
                 truncateUrl = '/v2/streams/' + streamName + '/truncate',
-                createArgs = {
-                    host: host,
-                    port: port,
-                    path: createUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'PUT',
-                    async: false
-                },
-                truncateArgs = {
-                    host: host,
-                    port: port,
-                    path: truncateUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'POST',
-                    async: false
-                },
 
-                mock = sinon.mock(httpsync),
+                mockCreate = nock('http://' + host + ':' + port)
+                    .put(createUrl)
+                    .reply(200),
+                mockTruncate = nock('http://' + host + ':' + port)
+                    .post(truncateUrl)
+                    .reply(200),
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                resolved = false,
+                checker = function () {
+                    expect(resolved).to.be.ok();
+                };
 
-            mock.expects('request').withArgs(createArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: ''
-                    };
-                }
+            var createPromise = streamClient.create(streamName);
+            createPromise.then(function () {
+                var truncatePromise = streamClient.truncate(streamName);
+                truncatePromise.then(function () {
+                    resolved = true;
+                }).then(checker, checker);
+            }).catch(function () {
+                expect().fail();
             });
-            mock.expects('request').withArgs(truncateArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: ''
-                    };
-                }
-            });
-
-            streamClient.create(streamName);
-            streamClient.truncate(streamName);
-
-            mock.verify();
-            mock.restore();
         });
 
         it('"truncate" for an invalid stream', function () {
@@ -432,39 +256,23 @@ describe('CDAP ingest tests', function () {
                 port = 10000,
                 streamName = 'invalidStream',
                 truncateUrl = '/v2/streams/' + streamName + '/truncate',
-                truncateArgs = {
-                    host: host,
-                    port: port,
-                    path: truncateUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'POST',
-                    async: false
-                },
 
-                mock = sinon.mock(httpsync),
+                mockTruncate = nock('http://' + host + ':' + port)
+                    .post(truncateUrl)
+                    .reply(404),
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                rejected = false,
+                checker = function () {
+                    expect(rejected).to.be.ok();
+                };
 
-            mock.expects('request').withArgs(truncateArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 404,
-                        body: ''
-                    };
-                }
-            });
-
-            expect(function () {
-                streamClient.truncate(streamName);
-            }).to.throwError();
-
-            mock.restore();
+            var truncatePromise = streamClient.truncate(streamName);
+            truncatePromise.catch(function () {
+                rejected = true;
+            }).then(checker, checker);
         });
 
         it('"createWriter" creates a valid object', function () {
@@ -472,41 +280,26 @@ describe('CDAP ingest tests', function () {
                 port = 10000,
                 streamName = 'newStream',
                 configUrl = '/v2/streams/' + streamName + '/info',
-                ttlArgs = {
-                    host: host,
-                    port: port,
-                    path: configUrl,
-                    ssl: false,
-                    headers: { Authorization: '' },
-                    data: '',
-                    method: 'GET',
-                    async: false
-                },
 
-                mock = sinon.mock(httpsync),
+                mockConfig = nock('http://' + host + ':' + port)
+                    .get(configUrl)
+                    .reply(200, JSON.stringify({
+                        ttl: 86400
+                    })),
                 streamClient = new StreamClient({
                     host: host,
                     port: port
-                });
+                }),
+                streamWriter = null,
+                checker = function () {
+                    expect(streamWriter).to.be.an('object');
+                    expect(streamWriter).to.have.property('write');
+                };
 
-            mock.expects('request').withArgs(ttlArgs).returns({
-                write: function (data) {
-                },
-                end: function () {
-                    return {
-                        statusCode: 200,
-                        body: JSON.stringify({
-                            ttl: 86400
-                        })
-                    };
-                }
-            });
-
-            var streamWriter = streamClient.createWriter(streamName);
-
-            expect(streamWriter).to.have.property('write');
-
-            mock.restore();
+            var writerPromise = streamClient.createWriter(streamName);
+            writerPromise.then(function (writer) {
+                streamWriter = writer;
+            }).then(checker, checker);
         });
 
         describe('StreamWriter', function () {
@@ -517,52 +310,31 @@ describe('CDAP ingest tests', function () {
                     configUrl = '/v2/streams/' + streamName + '/info',
                     writeUrl = '/v2/streams/' + streamName,
                     textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
-                    ttlArgs = {
-                        host: host,
-                        port: port,
-                        path: configUrl,
-                        ssl: false,
-                        headers: { Authorization: '' },
-                        data: '',
-                        method: 'GET',
-                        async: false
-                    },
 
-                    mock = sinon.mock(httpsync),
-                    r = nock('http://' + host + ':' + port)
-                        .defaultReplyHeaders({
-                            'Content-Type': 'application/json'
-                        })
+                    mockConfig = nock('http://' + host + ':' + port)
+                        .get(configUrl)
+                        .reply(200),
+                    mockWrite = nock('http://' + host + ':' + port)
                         .post(writeUrl)
-                        .reply(200, "{}"),
+                        .reply(200),
                     streamClient = new StreamClient({
                         host: host,
                         port: port
                     });
 
-                mock.expects('request').withArgs(ttlArgs).returns({
-                    write: function (data) {
-                    },
-                    end: function () {
-                        return {
-                            statusCode: 200,
-                            body: JSON.stringify({
-                                ttl: 86400
-                            })
-                        };
-                    }
+                var writerPromise = streamClient.createWriter(streamName);
+
+                writerPromise.then(function (newWriter) {
+                    var promise = newWriter.write(textToSend);
+
+                    expect(promise).to.have.property('then');
+                    expect(promise).to.have.property('catch');
+                    expect(promise).to.have.property('notify');
+                    expect(promise).to.have.property('reject');
+                    expect(promise).to.have.property('resolve');
+                }, function () {
+                    expect().fail();
                 });
-
-                var streamWriter = streamClient.createWriter(streamName),
-                    promise = streamWriter.write(textToSend);
-
-                expect(promise).to.have.property('then');
-                expect(promise).to.have.property('catch');
-                expect(promise).to.have.property('notify');
-                expect(promise).to.have.property('reject');
-                expect(promise).to.have.property('resolve');
-
-                mock.restore();
             });
 
             describe('Promise states', function () {
@@ -573,22 +345,11 @@ describe('CDAP ingest tests', function () {
                         configUrl = '/v2/streams/' + streamName + '/info',
                         writeUrl = '/v2/streams/' + streamName,
                         textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
-                        ttlArgs = {
-                            host: host,
-                            port: port,
-                            path: configUrl,
-                            ssl: false,
-                            headers: { Authorization: '' },
-                            data: '',
-                            method: 'GET',
-                            async: false
-                        },
 
-                        mock = sinon.mock(httpsync),
-                        r = nock('http://' + host + ':' + port)
-                            .defaultReplyHeaders({
-                                'Content-Type': 'application/json'
-                            })
+                        mockConfig = nock('http://' + host + ':' + port)
+                            .get(configUrl)
+                            .reply(200),
+                        mockWrite = nock('http://' + host + ':' + port)
                             .post(writeUrl)
                             .reply(200, "{}"),
 
@@ -597,32 +358,21 @@ describe('CDAP ingest tests', function () {
                             port: port
                         });
 
-                    mock.expects('request').withArgs(ttlArgs).returns({
-                        write: function (data) {
-                        },
-                        end: function () {
-                            return {
-                                statusCode: 200,
-                                body: JSON.stringify({
-                                    ttl: 86400
-                                })
-                            };
-                        }
-                    });
-
-                    var streamWriter = streamClient.createWriter(streamName),
-                        promise = streamWriter.write(textToSend),
+                    var writerPromise = streamClient.createWriter(streamName),
                         resolved = false,
-                        promiseHandler = function (status) {
-                            resolved = true;
-                        },
-                        promiseChecker = function () {
+                        checker = function () {
                             expect(resolved).to.be.ok();
                         };
 
-                    promise.then(promiseHandler).then(promiseChecker, promiseChecker);
+                    writerPromise.then(function (newWriter) {
+                        var writePromise = newWriter.write(textToSend);
 
-                    mock.restore();
+                        writePromise.then(function () {
+                            resolved = true;
+                        }).then(checker, checker);
+                    }, function () {
+                        expect().fail();
+                    });
                 });
 
                 it('"catch" fires a handler', function () {
@@ -632,56 +382,34 @@ describe('CDAP ingest tests', function () {
                         configUrl = '/v2/streams/' + streamName + '/info',
                         writeUrl = '/v2/streams/' + streamName,
                         textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
-                        ttlArgs = {
-                            host: host,
-                            port: port,
-                            path: configUrl,
-                            ssl: false,
-                            headers: { Authorization: '' },
-                            data: '',
-                            method: 'GET',
-                            async: false
-                        },
 
-                        mock = sinon.mock(httpsync),
-                        r = nock('http://' + host + ':' + port)
-                            .defaultReplyHeaders({
-                                'Content-Type': 'application/json'
-                            })
+                        mockConfig = nock('http://' + host + ':' + port)
+                            .get(configUrl)
+                            .reply(200),
+                        mockWrite = nock('http://' + host + ':' + port)
                             .post(writeUrl)
-                            .reply(404, "{}"),
+                            .reply(404),
 
                         streamClient = new StreamClient({
                             host: host,
                             port: port
                         });
 
-                    mock.expects('request').withArgs(ttlArgs).returns({
-                        write: function (data) {
-                        },
-                        end: function () {
-                            return {
-                                statusCode: 200,
-                                body: JSON.stringify({
-                                    ttl: 86400
-                                })
-                            };
-                        }
-                    });
-
-                    var streamWriter = streamClient.createWriter(streamName),
-                        promise = streamWriter.write(textToSend),
-                        resolved = false,
-                        promiseHandler = function (status) {
-                            resolved = true;
-                        },
-                        promiseChecker = function () {
-                            expect(resolved).to.be.ok();
+                    var writerPromise = streamClient.createWriter(streamName),
+                        rejected = false,
+                        checker = function () {
+                            expect(rejected).to.be.ok();
                         };
 
-                    promise.catch(promiseHandler).then(promiseChecker, promiseChecker);
+                    writerPromise.then(function (newWriter) {
+                        var writePromise = newWriter.write(textToSend);
 
-                    mock.restore();
+                        writePromise.catch(function () {
+                            rejected = true;
+                        }).then(checker, checker);
+                    }, function () {
+                        expect().fail();
+                    });
                 });
 
                 it('"notify" fires a handler', function () {
@@ -691,56 +419,35 @@ describe('CDAP ingest tests', function () {
                         configUrl = '/v2/streams/' + streamName + '/info',
                         writeUrl = '/v2/streams/' + streamName,
                         textToSend = 'klasj ddkjas ldjas kljfasklj fklasfj a',
-                        ttlArgs = {
-                            host: host,
-                            port: port,
-                            path: configUrl,
-                            ssl: false,
-                            headers: { Authorization: '' },
-                            data: '',
-                            method: 'GET',
-                            async: false
-                        },
 
-                        mock = sinon.mock(httpsync),
-                        r = nock('http://' + host + ':' + port)
-                            .defaultReplyHeaders({
-                                'Content-Type': 'application/json'
-                            })
+                        mockConfig = nock('http://' + host + ':' + port)
+                            .get(configUrl)
+                            .reply(200),
+                        mockWrite = nock('http://' + host + ':' + port)
                             .post(writeUrl)
-                            .reply(404, "{}"),
+                            .reply(404),
 
                         streamClient = new StreamClient({
                             host: host,
                             port: port
                         });
 
-                    mock.expects('request').withArgs(ttlArgs).returns({
-                        write: function (data) {
-                        },
-                        end: function () {
-                            return {
-                                statusCode: 200,
-                                body: JSON.stringify({
-                                    ttl: 86400
-                                })
-                            };
-                        }
-                    });
 
-                    var streamWriter = streamClient.createWriter(streamName),
-                        promise = streamWriter.write(textToSend),
-                        resolved = false,
-                        promiseHandler = function (status) {
-                            resolved = true;
-                        },
-                        promiseChecker = function () {
-                            expect(resolved).to.be.ok();
+                    var writerPromise = streamClient.createWriter(streamName),
+                        rejected = false,
+                        checker = function () {
+                            expect(rejected).to.be.ok();
                         };
 
-                    promise.then(null, null, promiseHandler).then(promiseChecker, promiseChecker);
+                    writerPromise.then(function (newWriter) {
+                        var writePromise = newWriter.write(textToSend);
 
-                    mock.restore();
+                        writePromise.then(null, null, function () {
+                            rejected = true;
+                        }).then(checker, checker);
+                    }, function () {
+                        expect().fail();
+                    });
                 });
             });
         });

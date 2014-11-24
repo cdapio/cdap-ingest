@@ -19,62 +19,40 @@ var Fs = require('fs'),
     Promise = require('./promise');
 
 var requestAsync = function requestAsync(params) {
-        var connection = params.ssl ? require('https') : require('http');
+    var connection = params.ssl ? require('https') : require('http');
 
-        if (!params.method || !params.path || !params.host || !params.port) {
-            throw new Error('"host", "port", "method", "path" properties are required');
-        }
+    if (!params.method || !params.path || !params.host || !params.port) {
+        throw new Error('"host", "port", "method", "path" properties are required');
+    }
 
-        params.ssl = (null != params.ssl) ? params.ssl : false;
-        params.headers = params.headers || {};
-        params.data = params.data;
-        params.rejectUnauthorized = false;
+    params.ssl = (null != params.ssl) ? params.ssl : false;
+    params.headers = params.headers || {};
+    params.data = params.data;
+    params.rejectUnauthorized = false;
 
-        var promise = new Promise(),
-            request = connection.request(params, function responseHandler(response) {
-                response.setEncoding('utf-8');
+    var promise = new Promise(),
+        request = connection.request(params, function responseHandler(response) {
+            response.setEncoding('utf-8');
 
-                promise.notify('Request status: ' + response.statusCode);
+            promise.notify('Request status: ' + response.statusCode);
 
-                if (200 === response.statusCode) {
-                    response.on('data', function (chunk) {
-                        promise.resolve(chunk);
-                    });
-                    response.on('end', function () {
-                        promise.resolve(response.statusCode);
-                    });
-                } else {
-                    promise.reject(response.statusCode);
-                }
-            });
+            if (200 === response.statusCode) {
+                response.on('data', function (chunk) {
+                    promise.resolve(chunk);
+                });
+                response.on('end', function () {
+                    promise.resolve(response.statusCode);
+                });
+            } else {
+                promise.reject(response.statusCode);
+            }
+        });
 
-        request.write(params.data);
-        request.end();
+    request.write(params.data);
+    request.end();
 
-        return promise;
-    },
-    requestSync = function requestSync(params) {
-        if (!params.method || !params.path || !params.host || !params.port) {
-            throw new Error('"host", "port", "method", "path" properties are required');
-        }
-
-        var httpSync = require('http-sync');
-
-        params.ssl = (null != params.ssl) ? params.ssl : false;
-        params.headers = params.headers || {};
-        params.data = params.data;
-
-        var request = httpSync.request(params),
-            response;
-
-        request.write(params.data);
-        response = request.end();
-
-        return {
-            status: response.statusCode,
-            responseText: response.body.toString()
-        };
-    };
+    return promise;
+};
 
 module.exports = {
     /**
@@ -95,13 +73,7 @@ module.exports = {
      * @returns {@link CDAPStreamClient.Promise}
      */
     request: function request(params) {
-        params.async = (null != params.async) ? params.async : true;
-
-        if (params.async) {
-            return requestAsync(params);
-        } else {
-            return requestSync(params);
-        }
+        return requestAsync(params);
     },
     /**
      * Performs post request to CDAP Gateway to send files.

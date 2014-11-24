@@ -35,6 +35,7 @@
     'use strict';
 
     var Utils = ('undefined' !== typeof window) ? CDAPStreamClient.Utils : require('./utils'),
+        Promise = ('undefined' !== typeof window) ? CDAPStreamClient.Promise : require('./promise'),
         ServiceConnector = ('undefined' !== typeof window) ? CDAPStreamClient.ServiceConnector :
             require('./serviceconnector'),
         StreamWriter = ('undefined' !== typeof window) ? CDAPStreamClient.StreamWriter :
@@ -126,8 +127,7 @@
 
                 return serviceConnector.request({
                     method: 'PUT',
-                    path: uri,
-                    async: false
+                    path: uri
                 });
             },
             /**
@@ -145,37 +145,38 @@
                         ttl: ttl
                     };
 
-                checkErrorResponse(
-                    serviceConnector.request({
-                        method: 'PUT',
-                        path: uri,
-                        data: JSON.stringify(objectToSend),
-                        async: false
-                    })
-                );
+
+                return serviceConnector.request({
+                    method: 'PUT',
+                    path: uri,
+                    data: JSON.stringify(objectToSend)
+                });
             },
             /**
              * Retrieves the Time-To-Live (TTL) property of the given stream.
              *
-             * @param {string} stream           - stream name to retrieve ttl for
+             * @param {string} stream               - stream name to retrieve ttl for
              *
-             * @returns {number}                - Time-To-Live property in seconds
+             * @returns {CDAPStreamClient.Promise}  - Time-To-Live property in seconds
              */
             getTTLImpl = function getTTLImpl(stream) {
                 var uri = prepareUri({
-                    request: 'Info',
-                    data: stream
+                        request: 'Info',
+                        data: stream
+                    }),
+                    reqPromise = serviceConnector.request({
+                        method: 'GET',
+                        path: uri
+                    }),
+                    retPromise = new Promise();
+
+                reqPromise.then(function (configObj) {
+                    retPromise.resolve(JSON.parse(configObj)['ttl']);
+                }, function (reason) {
+                    retPromise.reject(reason);
                 });
 
-                var response = checkErrorResponse(
-                    serviceConnector.request({
-                        method: 'GET',
-                        path: uri,
-                        async: false
-                    })
-                );
-
-                return JSON.parse(response.responseText)['ttl'];
+                return retPromise;
             },
             /**
              * Truncates all existing events in the give stream.
@@ -188,13 +189,10 @@
                     data: stream
                 });
 
-                checkErrorResponse(
-                    serviceConnector.request({
-                        method: 'POST',
-                        path: uri,
-                        async: false
-                    })
-                );
+                return serviceConnector.request({
+                    method: 'POST',
+                    path: uri
+                });
             },
             /**
              * Creates a {@link CDAPStreamClient.StreamWriter} instance for writing events to the given stream.
@@ -209,14 +207,21 @@
                  * The main idea is there is could not be presented info for
                  * invalid stream.
                  */
-                getTTLImpl.apply(this, [stream]);
+                var configPromise = getTTLImpl.apply(this, [stream]),
+                    retPromise = new Promise();
+
+                configPromise.then(function () {
+                        retPromise.resolve(new StreamWriter(serviceConnector, uri));
+                    }, function (reason) {
+                        retPromise.reject(reason);
+                    });
 
                 var uri = prepareUri({
                     request: 'Stream',
                     data: stream
                 });
 
-                return new StreamWriter(serviceConnector, uri);
+                return retPromise;
             };
 
         return {

@@ -25,7 +25,7 @@
         factory(target, require);
     } else if (typeof define === 'function' && define['amd']) {
         // [2] AMD anonymous module
-        define(['exports', 'Promise'], factory);
+        define(['exports', 'CDAPAuth.Promise'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
         window['CDAPStreamClient'] = window['CDAPStreamClient'] || {};
@@ -44,15 +44,15 @@
             error_handlers_stack = [],
             notification_handlers_stack = [],
 
-            resolve_value = null,
-            reject_reason = null,
+            resolve_value = undefined,
+            reject_reason = undefined,
             notify_value_stack = [],
 
             fired = false,
             methodChanging = false;
 
         var fireResolve = function () {
-                if (!fired && !methodChanging && resolve_value && success_handlers_stack.length) {
+                if (!fired && !methodChanging && success_handlers_stack.length && undefined !== resolve_value) {
                     while (success_handlers_stack.length) {
                         success_handlers_stack.shift()(resolve_value);
                     }
@@ -63,7 +63,7 @@
                 }
             },
             fireReject = function () {
-                if (!fired && !methodChanging && reject_reason && error_handlers_stack.length) {
+                if (!fired && !methodChanging && error_handlers_stack.length && undefined !== reject_reason) {
                     while (error_handlers_stack.length) {
                         error_handlers_stack.shift()(reject_reason);
                     }
@@ -101,7 +101,7 @@
                     if ('function' === typeof success) {
                         success_handlers_stack.push(success);
                     } else {
-                        throw new TypeError('"success" parameter have to be a function.');
+                        throw new TypeError('"success" parameter has to be a function.');
                     }
                 }
 
@@ -109,7 +109,7 @@
                     if ('function' === typeof error) {
                         error_handlers_stack.push(error);
                     } else {
-                        throw new TypeError('"error" parameter have to be a function.');
+                        throw new TypeError('"error" parameter has to be a function.');
                     }
                 }
 
@@ -117,7 +117,7 @@
                     if ('function' === typeof notify) {
                         notification_handlers_stack.push(notify);
                     } else {
-                        throw new TypeError('"notify" parameter have to be a function.');
+                        throw new TypeError('"notify" parameter has to be a function.');
                     }
                 }
 

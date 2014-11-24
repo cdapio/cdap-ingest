@@ -36,94 +36,54 @@ window.CDAPStreamClient = window.CDAPStreamClient || {};
 
 (function () {
     var requestAsync = function requestSync(params) {
-            if (!params.method || !params.path || !params.host || !params.port) {
-                throw new Error('"host", "port", "method", "path" properties are required');
-            }
+        if (!params.method || !params.path || !params.host || !params.port) {
+            throw new Error('"host", "port", "method", "path" properties are required');
+        }
 
-            params.ssl = (null != params.ssl) ? params.ssl : false;
-            params.headers = params.headers || {};
-            params.data = params.data || {};
+        params.ssl = (null != params.ssl) ? params.ssl : false;
+        params.headers = params.headers || {};
+        params.data = params.data || {};
 
-            var connection = new XMLHttpRequest(),
-                Utils = CDAPStreamClient.Utils,
-                promiseInst = new CDAPStreamClient.Promise(),
-                requestUrl = Utils.baseUrl(params.host, params.port, params.ssl) + params.path;
+        var connection = new XMLHttpRequest(),
+            Utils = CDAPStreamClient.Utils,
+            promiseInst = new CDAPStreamClient.Promise(),
+            requestUrl = Utils.baseUrl(params.host, params.port, params.ssl) + params.path;
 
-            connection.open(params.method, requestUrl, true);
+        connection.open(params.method, requestUrl, true);
 
-            connection.onreadystatechange = function responseHandler(response) {
-                var readyStates = [
-                    'Request not initialized',
-                    'Server connection established',
-                    'Request received',
-                    'Processing request',
-                    'Request finished and response is ready'
-                ];
+        connection.onreadystatechange = function responseHandler(response) {
+            var readyStates = [
+                'Request not initialized',
+                'Server connection established',
+                'Request received',
+                'Processing request',
+                'Request finished and response is ready'
+            ];
 
-                promiseInst.notify(readyStates[connection.readyState]);
-
-                if (XMLHttpRequest.DONE === connection.readyState) {
-                    if (200 === connection.status) {
-                        promiseInst.resolve(connection.responseText || connection.status);
-                    } else {
-                        promiseInst.reject(connection.status);
-                    }
-                }
-            };
-
-            for(var prop in params.headers) {
-                if(params.headers.hasOwnProperty(prop)) {
-                    connection.setRequestHeader(prop, params.headers[prop]);
-                }
-            }
-
-            connection.send(params.data);
-
-            return promiseInst;
-        },
-        requestSync = function requestAsync(params) {
-            if (!params.method || !params.path || !params.host || !params.port) {
-                throw new Error('"host", "port", "method", "path" properties are required');
-            }
-
-            params.ssl = (null != params.ssl) ? params.ssl : false;
-            params.headers = params.headers || {};
-            params.data = params.data || {};
-
-            var connection = new XMLHttpRequest(),
-                Utils = CDAPStreamClient.Utils,
-                requestUrl = Utils.baseUrl(params.host, params.port, params.ssl) + params.path;
-
-            connection.open(params.method, requestUrl, false);
-
-            for(var prop in params.headers) {
-                if(params.headers.hasOwnProperty(prop)) {
-                    connection.setRequestHeader(prop, params.headers[prop]);
-                }
-            }
-
-            connection.send(params.data);
+            promiseInst.notify(readyStates[connection.readyState]);
 
             if (XMLHttpRequest.DONE === connection.readyState) {
-                return {
-                    status: connection.status,
-                    responseText: connection.responseText
-                };
+                if (200 === connection.status) {
+                    promiseInst.resolve(connection.responseText || connection.status);
+                } else {
+                    promiseInst.reject(connection.status);
+                }
             }
-
-            return {
-                status: 404
-            };
         };
 
-    CDAPStreamClient.request = function request(params) {
-        params.async = (null != params.async) ? params.async : true;
-
-        if (params.async) {
-            return requestAsync(params);
-        } else {
-            return requestSync(params);
+        for (var prop in params.headers) {
+            if (params.headers.hasOwnProperty(prop)) {
+                connection.setRequestHeader(prop, params.headers[prop]);
+            }
         }
+
+        connection.send(params.data);
+
+        return promiseInst;
+    };
+
+    CDAPStreamClient.request = function request(params) {
+        return requestAsync(params);
     };
 
     if (window.FormData) {
