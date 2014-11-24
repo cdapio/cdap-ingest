@@ -81,7 +81,10 @@ Optional configurations that can be set (and their default values):
  Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
 
  ```
-   var streamWriter = streamClient.createWriter("streamName");
+   var streamWriterPromise = streamClient.createWriter("streamName");
+   streamWriterPromise.then(function(writer){
+       console.log('new writer instance has been created:', writer);
+   })
  ```
 
  To write new events to the Stream, you can use either of these these methods of the ```StreamWriter``` class:
@@ -96,13 +99,21 @@ Optional configurations that can be set (and their default values):
  Example:
 
  ```
-   var streamPromise = streamWriter.write("New log event");
+   var streamWriter = streamClient.createWriter("streamName");
+   streamWriter.then(function(writer){
+       writer.write("Many messages sent to stream.");
+       writer.write("Another message sent to stream.");
+       writer.write("Multiple messages sent to stream.");
+   })
  ```
 
  To truncate the Stream *streamName*, use:
 
  ```
-   streamClient.truncate("streamName");
+   var truncatePromise = streamClient.truncate("streamName");
+   truncatePromise.then(function () {
+       console.log('truncated successfully');
+   });
  ```
 
  ### StreamPromise
