@@ -101,7 +101,7 @@
                     if ('function' === typeof success) {
                         success_handlers_stack.push(success);
                     } else {
-                        throw new TypeError('"success" parameter have to be a function.');
+                        throw new TypeError('"success" parameter has to be a function.');
                     }
                 }
 
@@ -109,7 +109,7 @@
                     if ('function' === typeof error) {
                         error_handlers_stack.push(error);
                     } else {
-                        throw new TypeError('"error" parameter have to be a function.');
+                        throw new TypeError('"error" parameter has to be a function.');
                     }
                 }
 
@@ -117,7 +117,7 @@
                     if ('function' === typeof notify) {
                         notification_handlers_stack.push(notify);
                     } else {
-                        throw new TypeError('"notify" parameter have to be a function.');
+                        throw new TypeError('"notify" parameter has to be a function.');
                     }
                 }
 
