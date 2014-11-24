@@ -257,12 +257,9 @@ describe('CDAP ingest tests', function () {
                 };
 
             var truncatePromise = streamClient.truncate(streamName);
-            truncatePromise.catch(fucntion()
-            {
+            truncatePromise.catch(function () {
                 rejected = true;
-            }
-            ).
-            then(checker, checker);
+            }).then(checker, checker);
         });
 
         it('"createWriter" creates a valid object', function () {
