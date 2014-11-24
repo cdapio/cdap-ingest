@@ -58,7 +58,7 @@
          * }
          */
         var writeImpl = function writeImpl(message, headers) {
-            if (!message) {
+            if (null == message) {
                 throw new Error('"message" is required');
             }
 
