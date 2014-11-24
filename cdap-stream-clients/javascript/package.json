@@ -2,7 +2,6 @@
   "name": "cdap-stream-client",
   "version": "1.0.0",
   "dependencies": {
-    "http-sync": "0.0.5"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",

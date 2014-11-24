@@ -1,5 +1,5 @@
 var expect = require('expect.js'),
-    http = require('http-sync'),
+    http = require('http'),
     StreamClient = require('cdap-stream-client'),
     config = require('./config-node'),
     authManager = null;
@@ -222,19 +222,19 @@ describe('CDAP ingest tests', function () {
                             body: '',
 
                             path: '/v2/streams/' + streamName + '/events'
+                        }, function () {
+                            if (200 === response.statusCode) {
+                                var events = JSON.parse(response.body.toString());
+                                isDataConsistent = (0 == events.length);
+                                /**
+                                 * HTTP status = 204 means there is NO CONTENT
+                                 */
+                            } else if (204 == response.statusCode) {
+                                isDataConsistent = true;
+                            }
+
+                            expect(isDataConsistent).to.be.ok();
                         }).end();
-
-                    if (200 === response.statusCode) {
-                        var events = JSON.parse(response.body.toString());
-                        isDataConsistent = (0 == events.length);
-                        /**
-                         * HTTP status = 204 means there is NO CONTENT
-                         */
-                    } else if (204 == response.statusCode) {
-                        isDataConsistent = true;
-                    }
-
-                    expect(isDataConsistent).to.be.ok();
                 }, function () {
                     expect().fail();
                 });
@@ -354,23 +354,23 @@ describe('CDAP ingest tests', function () {
                                 body: '',
 
                                 path: '/v2/streams/' + streamName + '/events?start=' + startTime + '&end=' + Date.now()
-                            }).end();
+                            }, function () {
+                                if (200 === response.statusCode) {
+                                    var events = JSON.parse(response.body.toString());
 
-                        if (200 === response.statusCode) {
-                            var events = JSON.parse(response.body.toString());
+                                    while (events.length) {
+                                        if (isDataConsistent) {
+                                            break;
+                                        }
 
-                            while (events.length) {
-                                if (isDataConsistent) {
-                                    break;
+                                        var event = events.shift();
+                                        isDataConsistent = (event.body == JSON.stringify(textToSend));
+                                    }
                                 }
 
-                                var event = events.shift();
-                                isDataConsistent = (event.body == JSON.stringify(textToSend));
-                            }
-                        }
-
-                        expect(isDataConsistent).to.be.ok();
-                        done();
+                                expect(isDataConsistent).to.be.ok();
+                                done();
+                            }).end();
                     });
                 }, function () {
                     expect().fail();
