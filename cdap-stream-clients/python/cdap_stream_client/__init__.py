@@ -14,6 +14,6 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-from streamclient import StreamClient
-from streamwriter import StreamWriter
-from config import Config
+from .streamclient import StreamClient
+from .streamwriter import StreamWriter
+from .config import Config
