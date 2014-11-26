@@ -27,5 +27,5 @@ setup(name='cdap-stream-client',
       license='The Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0',
       packages=find_packages(),
       install_requires=['six', 'cdap_auth_client'],
-      tests_require=['httpretty', 'mock'],
+      tests_require=['six', 'httpretty', 'mock'],
       )

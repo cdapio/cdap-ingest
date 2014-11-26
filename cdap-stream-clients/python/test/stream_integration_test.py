@@ -22,6 +22,7 @@ try:
 except ImportError:
     import unittest as unittest
 import os
+import six
 
 from stream_test_base import StreamTestBase
 
@@ -36,4 +37,8 @@ class TestStreamClient(unittest.TestCase, StreamTestBase):
         self.base_set_up()
 
 if u'__main__' == __name__:
-    unittest.main()
+    if six.PY2:
+        unittest.main()
+
+    if six.PY3:
+        unittest.main(warnings=False)
