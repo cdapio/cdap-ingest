@@ -16,8 +16,8 @@
 
 
 import locale
-from serviceconnector import ServiceConnector, ConnectionErrorChecker
-from streampromise import StreamPromise
+from .serviceconnector import ServiceConnector, ConnectionErrorChecker
+from .streampromise import StreamPromise
 
 
 class StreamWriter(object):

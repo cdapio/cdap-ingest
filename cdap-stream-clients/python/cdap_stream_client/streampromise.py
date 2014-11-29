@@ -16,13 +16,14 @@
 
 
 from os import path
+from io import open
 import mimetypes
+import six
 import logging
 from threading import Thread, Lock
 from types import FunctionType
-from serviceconnector import ServiceConnector, ConnectionErrorChecker,\
+from .serviceconnector import ServiceConnector, ConnectionErrorChecker,\
     NotFoundError
-from io import open
 
 logging.basicConfig()
 LOG = logging.getLogger(__name__)
@@ -96,11 +97,11 @@ class StreamPromise(ConnectionErrorChecker):
             raise TypeError(u'parameter should contain "message" \
                             or "file" field')
 
-        if u'message' in dataDict and not isinstance(dataDict[u'message'], (unicode, str)):
+        if u'message' in dataDict and not isinstance(dataDict[u'message'], six.string_types):
             raise TypeError(u'"message" field should be of type \
                             "string" or "bytes"')
 
-        if u'message' in dataDict and isinstance(dataDict[u'message'], unicode) \
+        if u'message' in dataDict and isinstance(dataDict[u'message'], six.string_types) \
            and u'charset' not in dataDict:
             raise TypeError(u'parameter should contain "charset" field \
                             in case if "message" is string')
@@ -116,7 +117,7 @@ class StreamPromise(ConnectionErrorChecker):
         if u'message' in dataDict:
             dataToSend = dataDict[u'message']
 
-        if u'message' in dataDict and isinstance(dataDict[u'message'], unicode):
+        if u'message' in dataDict and isinstance(dataDict[u'message'], six.string_types):
             if u'charset' in dataDict and dataDict[u'charset']:
                 dataToSend = dataDict[u'message'].encode(dataDict[u'charset'])
             else:

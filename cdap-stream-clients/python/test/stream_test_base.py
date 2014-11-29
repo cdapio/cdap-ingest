@@ -20,9 +20,17 @@ import sys
 import inspect
 import threading
 import time
-import httplib
+try:
+    import httplib as httplib
+except ImportError:
+    import http.client as httplib
 
 import requests
+
+try:
+    xrange = xrange
+except:
+    xrange = range
 
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))

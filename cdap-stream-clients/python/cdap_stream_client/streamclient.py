@@ -16,9 +16,9 @@
 
 
 import json
-from config import Config
-from serviceconnector import ServiceConnector, ConnectionErrorChecker
-from streamwriter import StreamWriter
+from .config import Config
+from .serviceconnector import ServiceConnector, ConnectionErrorChecker
+from .streamwriter import StreamWriter
 
 
 class StreamClient(ConnectionErrorChecker):
