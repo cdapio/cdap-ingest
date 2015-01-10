@@ -16,7 +16,6 @@
 
 package co.cask.cdap.client.rest;
 
-import co.cask.cdap.common.http.exception.HttpFailureException;
 import com.google.common.base.Charsets;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang.StringUtils;
