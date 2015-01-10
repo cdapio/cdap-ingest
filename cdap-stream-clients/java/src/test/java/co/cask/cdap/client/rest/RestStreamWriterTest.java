@@ -18,9 +18,9 @@ package co.cask.cdap.client.rest;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
-import co.cask.cdap.common.http.exception.HttpFailureException;
 import co.cask.cdap.security.authentication.client.AccessToken;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
+import co.cask.common.http.exception.HttpFailureException;
 import com.google.common.base.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;

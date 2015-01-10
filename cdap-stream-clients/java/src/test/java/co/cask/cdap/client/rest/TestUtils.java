@@ -16,7 +16,7 @@
 
 package co.cask.cdap.client.rest;
 
-import co.cask.cdap.common.http.exception.HttpFailureException;
+import co.cask.common.http.exception.HttpFailureException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;

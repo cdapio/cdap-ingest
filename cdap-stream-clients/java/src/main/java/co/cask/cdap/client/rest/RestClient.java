@@ -16,7 +16,7 @@
 
 package co.cask.cdap.client.rest;
 
-import co.cask.cdap.common.http.exception.HttpFailureException;
+import co.cask.common.http.exception.HttpFailureException;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.gson.JsonObject;

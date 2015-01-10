@@ -17,8 +17,8 @@
 package co.cask.cdap.client;
 
 import co.cask.cdap.client.rest.RestStreamClient;
-import co.cask.cdap.common.http.exception.HttpFailureException;
 import co.cask.cdap.utils.StreamReader;
+import co.cask.common.http.exception.HttpFailureException;
 import com.google.gson.JsonObject;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
