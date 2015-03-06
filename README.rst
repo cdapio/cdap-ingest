@@ -29,7 +29,7 @@ Build debian for packages (File Tailer and DropZone)
   mvn clean package -P deb
 
 
-For details, please see the README file in each submodule.
+For details, please see the README.rst file in each submodule.
 
 
 ## License and Trademarks
