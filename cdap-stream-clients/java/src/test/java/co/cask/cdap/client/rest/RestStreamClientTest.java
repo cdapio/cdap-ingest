@@ -39,13 +39,22 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit tests for the {@link co.cask.cdap.client.rest.RestStreamClient} class.
  */
-public class RestStreamClientTest extends RestTest {
+public abstract class RestStreamClientTest extends RestTest {
   private StreamClient streamClient;
+
+  protected abstract RestStreamClient buildClient(AuthenticationClient authClient);
+
+  private void createClient(AuthenticationClient authClient) throws IOException {
+    if (streamClient != null) {
+      streamClient.close();
+    }
+    streamClient = buildClient(authClient);
+  }
 
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).build();
+    createClient(null);
   }
 
   @Test
@@ -91,7 +100,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     try {
       streamClient.getTTL(TestUtils.AUTH_STREAM_NAME);
       Assert.fail("Expected HttpFailureException");
@@ -107,7 +116,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn("test");
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     try {
       streamClient.getTTL(TestUtils.AUTH_STREAM_NAME);
       Assert.fail("Expected HttpFailureException");
@@ -123,7 +132,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn(AUTH_TOKEN);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     long ttl = streamClient.getTTL(TestUtils.SUCCESS_STREAM_NAME);
     assertTrue(ttl == STREAM_TTL);
   }
@@ -215,7 +224,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     try {
       streamClient.setTTL(TestUtils.AUTH_STREAM_NAME, STREAM_TTL);
       Assert.fail("Expected HttpFailureException");
@@ -231,7 +240,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn("test");
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     try {
       streamClient.setTTL(TestUtils.AUTH_STREAM_NAME, STREAM_TTL);
       Assert.fail("Expected HttpFailureException");
@@ -247,7 +256,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn(AUTH_TOKEN);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     streamClient.setTTL(TestUtils.SUCCESS_STREAM_NAME, STREAM_TTL);
   }
 
@@ -343,7 +352,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     try {
       streamClient.truncate(TestUtils.AUTH_STREAM_NAME);
       Assert.fail("Expected HttpFailureException");
@@ -359,7 +368,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn("test");
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     try {
       streamClient.truncate(TestUtils.AUTH_STREAM_NAME);
       Assert.fail("Expected HttpFailureException");
@@ -375,7 +384,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn(AUTH_TOKEN);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     streamClient.truncate(TestUtils.SUCCESS_STREAM_NAME);
   }
 
@@ -461,7 +470,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     try {
       streamClient.create(TestUtils.AUTH_STREAM_NAME);
       Assert.fail("Expected HttpFailureException");
@@ -477,7 +486,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn("test");
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     try {
       streamClient.create(TestUtils.AUTH_STREAM_NAME);
       Assert.fail("Expected HttpFailureException");
@@ -493,7 +502,7 @@ public class RestStreamClientTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn(AUTH_TOKEN);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     streamClient.create(TestUtils.SUCCESS_STREAM_NAME);
   }
 

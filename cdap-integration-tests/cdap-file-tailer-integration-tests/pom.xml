@@ -23,12 +23,12 @@
   <parent>
     <groupId>co.cask.cdap</groupId>
     <artifactId>cdap-integration-tests</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>cdap-file-tailer-integration-tests</artifactId>
   <packaging>jar</packaging>
-  <name>File Tailer IT</name>
+  <name>CDAP File Tailer Integration Tests</name>
 
   <dependencies>
     <dependency>

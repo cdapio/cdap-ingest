@@ -54,8 +54,9 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
   private static final int DEFAULT_WRITER_POOL_SIZE = 1;
   private static final boolean DEFAULT_SSL = false;
   private static final boolean DEFAULT_VERIFY_SSL_CERT = true;
-  private static final String DEFAULT_VERSION = "v2";
+  private static final String DEFAULT_VERSION = "v3";
   private static final int DEFAULT_PORT = 10000;
+  private static final String DEFAULT_NAMESPACE = "default";
   private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
 
   private String host;
@@ -64,6 +65,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
   private boolean verifySSLCert;
   private int writerPoolSize;
   private String version;
+  private String namespace;
   private String streamName;
   private StreamWriter writer;
   private StreamClient streamClient;
@@ -85,6 +87,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
     verifySSLCert = context.getBoolean("verifySSLCert", DEFAULT_VERIFY_SSL_CERT);
     version = context.getString("version", DEFAULT_VERSION);
     writerPoolSize = context.getInteger("writerPoolSize", DEFAULT_WRITER_POOL_SIZE);
+    namespace = context.getString("namespace", DEFAULT_NAMESPACE);
     streamName = context.getString("streamName");
     authClientClassName = context.getString("authClientClass", DEFAULT_AUTH_CLIENT);
     authClientPropertiesPath = context.getString("authClientProperties", "");
@@ -169,6 +172,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
       builder.verifySSLCert(verifySSLCert);
       builder.writerPoolSize(writerPoolSize);
       builder.version(version);
+      builder.namespace(namespace);
       try {
         authClient = (AuthenticationClient) Class.forName(authClientClassName).newInstance();
         authClient.setConnectionInfo(host, port, sslEnabled);

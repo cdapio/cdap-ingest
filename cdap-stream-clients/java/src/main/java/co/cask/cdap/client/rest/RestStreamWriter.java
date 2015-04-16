@@ -60,7 +60,7 @@ public class RestStreamWriter implements StreamWriter {
   @Override
   public ListenableFuture<Void> write(String str, Charset charset, Map<String, String> headers) throws
     IllegalArgumentException {
-    Preconditions.checkArgument(str != null, "Input string parameter is null.");
+    Preconditions.checkNotNull(str, "Input string parameter is null.");
     return write(new ByteArrayEntity(charset != null ? str.getBytes(charset) : str.getBytes()), headers);
   }
 
@@ -71,7 +71,7 @@ public class RestStreamWriter implements StreamWriter {
 
   @Override
   public ListenableFuture<Void> write(ByteBuffer buffer, Map<String, String> headers) throws IllegalArgumentException {
-    Preconditions.checkArgument(buffer != null, "ByteBuffer parameter is null.");
+    Preconditions.checkNotNull(buffer, "ByteBuffer parameter is null.");
     HttpEntity content;
     if (buffer.hasArray()) {
       content = new ByteArrayEntity(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
@@ -84,8 +84,7 @@ public class RestStreamWriter implements StreamWriter {
   }
 
   private ListenableFuture<Void> write(HttpEntity entity, Map<String, String> headers) {
-    final HttpPost postRequest = new HttpPost(restClient.getBaseURL().resolve(
-      String.format("/%s/streams/%s", restClient.getVersion(), streamName)));
+    final HttpPost postRequest = new HttpPost(restClient.resolve(String.format("/streams/%s", streamName)));
 
     for (Map.Entry<String, String> entry : headers.entrySet()) {
       postRequest.setHeader(streamName + "." + entry.getKey(), entry.getValue());

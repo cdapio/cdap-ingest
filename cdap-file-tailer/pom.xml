@@ -21,13 +21,13 @@
   <parent>
     <groupId>co.cask.cdap</groupId>
     <artifactId>cdap-ingest</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>cdap-file-tailer</artifactId>
   <packaging>jar</packaging>
 
-  <name>File Tailer</name>
+  <name>CDAP File Tailer</name>
 
   <properties>
     <script.app.mainclass>co.cask.cdap.filetailer.FileTailerMain</script.app.mainclass>

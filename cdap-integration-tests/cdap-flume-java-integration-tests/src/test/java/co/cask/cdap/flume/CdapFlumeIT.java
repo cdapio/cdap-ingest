@@ -27,7 +27,6 @@ import org.apache.flume.agent.embedded.EmbeddedAgent;
 import org.apache.flume.agent.embedded.EmbeddedAgentConfiguration;
 import org.apache.flume.event.SimpleEvent;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +47,7 @@ public class CdapFlumeIT {
   private static final String CONFIG_NAME = "cdapFlumeITConfig";
   private static final String AUTH_PROPERTIES = "sink1.authClientProperties";
   private static final String EVENT_STR = "Test event number: ";
-  private static final long SLEEP_INTERVAL = 1000;
+  private static final long SLEEP_INTERVAL = 2000;
   public static final String INVALID_PORT = "11111";
   public static final int EVENT_FAIL_START_NUMBER = 10;
   public static final int FAIL_EVENT_END_NUMBER = 20;

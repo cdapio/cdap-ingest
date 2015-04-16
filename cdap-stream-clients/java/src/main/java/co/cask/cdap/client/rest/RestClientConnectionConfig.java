@@ -31,15 +31,17 @@ public class RestClientConnectionConfig {
   private final String apiKey;
   private final boolean ssl;
   private final String version;
+  private final String namespace;
 
   public RestClientConnectionConfig(String host, int port, AuthenticationClient authClient, String apiKey,
-                                    boolean ssl, String version) {
+                                    boolean ssl, String version, String namespace) {
     this.host = host;
     this.port = port;
     this.authClient = authClient;
     this.apiKey = apiKey;
     this.ssl = ssl;
     this.version = version;
+    this.namespace = namespace;
   }
 
   public String getHost() {
@@ -48,6 +50,10 @@ public class RestClientConnectionConfig {
 
   public String getVersion() {
     return version;
+  }
+
+  public String getNamespace() {
+    return namespace;
   }
 
   public boolean isSSL() {

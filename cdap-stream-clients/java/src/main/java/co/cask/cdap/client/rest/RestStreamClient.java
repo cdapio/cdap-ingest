@@ -18,6 +18,7 @@ package co.cask.cdap.client.rest;
 
 import co.cask.cdap.client.StreamClient;
 import co.cask.cdap.client.StreamWriter;
+import co.cask.cdap.common.conf.Constants;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -44,7 +45,8 @@ import javax.ws.rs.core.MediaType;
 public class RestStreamClient implements StreamClient {
   private static final Logger LOG = LoggerFactory.getLogger(RestStreamClient.class);
 
-  private static final String DEFAULT_VERSION = "v2";
+  private static final String DEFAULT_VERSION = "v3";
+  private static final String DEFAULT_NAMESPACE = Constants.DEFAULT_NAMESPACE;
   private static final String TTL_ATTRIBUTE_NAME = "ttl";
   private static final int DEFAULT_WRITER_POOL_SIZE = 10;
   private static final Gson GSON = new Gson();
@@ -57,7 +59,7 @@ public class RestStreamClient implements StreamClient {
   private RestStreamClient(Builder builder) {
     writerPoolSize = builder.writerPoolSize;
     config = new RestClientConnectionConfig(builder.host, builder.port, builder.authClient, builder.apiKey,
-                                            builder.ssl, builder.version);
+                                            builder.ssl, builder.version, builder.namespace);
     if (!builder.verifySSLCert) {
       try {
         connectionRegistry = RestUtil.getRegistryWithDisabledCertCheck();
@@ -73,8 +75,7 @@ public class RestStreamClient implements StreamClient {
 
   @Override
   public void create(String stream) throws IOException {
-    HttpPut putRequest = new HttpPut(restClient.getBaseURL().resolve(String.format("/%s/streams/%s",
-                                                                                   restClient.getVersion(), stream)));
+    HttpPut putRequest = new HttpPut(restClient.resolve(String.format("/streams/%s", stream)));
     CloseableHttpResponse httpResponse = restClient.execute(putRequest);
     try {
       LOG.debug("Create Stream Response Code : {}", httpResponse.getStatusLine().getStatusCode());
@@ -86,8 +87,10 @@ public class RestStreamClient implements StreamClient {
 
   @Override
   public void setTTL(String stream, long ttl) throws IOException {
-    HttpPut putRequest = new HttpPut(restClient.getBaseURL().resolve(String.format("/%s/streams/%s/config",
-                                                                                   restClient.getVersion(), stream)));
+    String path = "v2".equals(restClient.getVersion())
+      ? String.format("/streams/%s/config", stream)
+      : String.format("/streams/%s/properties", stream);
+    HttpPut putRequest = new HttpPut(restClient.resolve(path));
     StringEntity entity = new StringEntity(GSON.toJson(ImmutableMap.of(TTL_ATTRIBUTE_NAME, ttl)));
     entity.setContentType(MediaType.APPLICATION_JSON);
     putRequest.setEntity(entity);
@@ -103,8 +106,10 @@ public class RestStreamClient implements StreamClient {
 
   @Override
   public long getTTL(String stream) throws IOException {
-    HttpGet getRequest = new HttpGet(restClient.getBaseURL().resolve(String.format("/%s/streams/%s/info",
-                                                                                   restClient.getVersion(), stream)));
+    String path = "v2".equals(restClient.getVersion())
+      ? String.format("/streams/%s/info", stream)
+      : String.format("/streams/%s", stream);
+    HttpGet getRequest = new HttpGet(restClient.resolve(path));
     CloseableHttpResponse httpResponse = restClient.execute(getRequest);
     long ttl;
     try {
@@ -121,8 +126,7 @@ public class RestStreamClient implements StreamClient {
 
   @Override
   public void truncate(String stream) throws IOException {
-    HttpPost postRequest = new HttpPost(restClient.getBaseURL().resolve(
-      String.format("/%s/streams/%s/truncate", restClient.getVersion(), stream)));
+    HttpPost postRequest = new HttpPost(restClient.resolve(String.format("/streams/%s/truncate", stream)));
     CloseableHttpResponse httpResponse = restClient.execute(postRequest);
     try {
       int responseCode = httpResponse.getStatusLine().getStatusCode();
@@ -184,6 +188,7 @@ public class RestStreamClient implements StreamClient {
     private boolean verifySSLCert = true;
     private int writerPoolSize = DEFAULT_WRITER_POOL_SIZE;
     private String version = DEFAULT_VERSION;
+    private String namespace = DEFAULT_NAMESPACE;
 
     public Builder(String host, int port) {
       this.host = host;
@@ -217,6 +222,11 @@ public class RestStreamClient implements StreamClient {
 
     public Builder version(String version) {
       this.version = version;
+      return this;
+    }
+
+    public Builder namespace(String namespace) {
+      this.namespace = namespace;
       return this;
     }
 
