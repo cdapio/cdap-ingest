@@ -46,6 +46,7 @@ public class StreamClientIT {
   private int port;
   private boolean ssl;
   private String version;
+  private String namespace;
   private String apiKey;
   private boolean verifySSLCert;
   private int writePoolSize;
@@ -65,7 +66,9 @@ public class StreamClientIT {
     //Get created stream by the name
     JsonObject stream = streamReader.getStream(newStreamName);
     Assert.assertNotNull(stream);
-    Assert.assertEquals(newStreamName, stream.get("name").getAsString());
+    if ("v2".equals(version)) {
+      Assert.assertEquals(newStreamName, stream.get("id").getAsString());
+    }
   }
 
   @Test
@@ -129,7 +132,8 @@ public class StreamClientIT {
     host = properties.getProperty("host");
     port = Integer.valueOf(properties.getProperty("port"));
     ssl = Boolean.valueOf(properties.getProperty("ssl", "false"));
-    version = properties.getProperty("version", "v2");
+    version = properties.getProperty("version", "v3");
+    namespace = properties.getProperty("namespace", "default");
     apiKey = properties.getProperty("apiKey", StringUtils.EMPTY);
     verifySSLCert = Boolean.valueOf(properties.getProperty("verify.ssl.cert", "false"));
     authProperties = properties.getProperty("auth_properties");
@@ -142,6 +146,7 @@ public class StreamClientIT {
       .ssl(ssl)
       .verifySSLCert(verifySSLCert)
       .version(version)
+      .namespace(namespace)
       .writerPoolSize(writePoolSize)
       .authClient(streamReader.createAuthClient())
       .apiKey(apiKey);
@@ -155,6 +160,8 @@ public class StreamClientIT {
       .setAuthClientPropertiesPath(authProperties)
       .setSSL(ssl)
       .setVerifySSLCert(verifySSLCert)
+      .setVersion(version)
+      .setNamespace(namespace)
       .build();
   }
 }

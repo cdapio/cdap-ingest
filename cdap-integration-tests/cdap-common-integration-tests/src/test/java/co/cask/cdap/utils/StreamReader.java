@@ -19,6 +19,7 @@ package co.cask.cdap.utils;
 import co.cask.cdap.client.rest.RestClient;
 import co.cask.cdap.client.rest.RestClientConnectionConfig;
 import co.cask.cdap.client.rest.RestUtil;
+import co.cask.cdap.common.conf.Constants;
 import co.cask.cdap.security.authentication.client.AuthenticationClient;
 import co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient;
 import com.google.common.collect.Lists;
@@ -48,7 +49,8 @@ import java.util.Properties;
  */
 public class StreamReader implements Closeable {
 
-  private static final String DEFAULT_VERSION = "v2";
+  private static final String DEFAULT_VERSION = "v3";
+  private static final String DEFAULT_NAMESPACE = Constants.DEFAULT_NAMESPACE;
   private static final String DEFAULT_AUTH_CLIENT_CLASS_NAME = BasicAuthenticationClient.class.getName();
   private static final Gson GSON = new Gson();
   private static final Type STREAM_EVENTS_TYPE = new TypeToken<List<StreamEvent>>() { }.getType();
@@ -58,12 +60,11 @@ public class StreamReader implements Closeable {
   private final Boolean ssl;
   private final String authClientClassName;
   private final String authClientPropertiesPath;
-  private final String version;
   private final RestClient restClient;
   private final boolean verifySSLCert;
 
   private StreamReader(String cdapHost, int cdapPort, Boolean ssl, String authClientClassName,
-                       String authClientPropertiesPath, String version, boolean verifySSLCert)
+                       String authClientPropertiesPath, String version, String namespace, boolean verifySSLCert)
     throws Exception {
 
     this.cdapHost = cdapHost;
@@ -71,13 +72,12 @@ public class StreamReader implements Closeable {
     this.ssl = ssl;
     this.authClientClassName = authClientClassName;
     this.authClientPropertiesPath = authClientPropertiesPath;
-    this.version = version;
     this.verifySSLCert = verifySSLCert;
 
     AuthenticationClient authClient = createAuthClient();
 
     RestClientConnectionConfig connectionConfig =
-      new RestClientConnectionConfig(cdapHost, cdapPort, authClient, StringUtils.EMPTY, ssl, version);
+      new RestClientConnectionConfig(cdapHost, cdapPort, authClient, StringUtils.EMPTY, ssl, version, namespace);
 
     restClient = new RestClient(connectionConfig, createConnectionManager());
   }
@@ -156,7 +156,7 @@ public class StreamReader implements Closeable {
    * @throws IOException in case of a problem or the connection was aborted
    */
   public JsonObject getStream(String name) throws IOException {
-    HttpGet httpGet = new HttpGet(restClient.getBaseURL().resolve(String.format("/%s/streams/%s", version, name)));
+    HttpGet httpGet = new HttpGet(restClient.resolve(String.format("/streams/%s", name)));
     HttpResponse httpResponse = restClient.execute(httpGet);
     return GSON.fromJson(EntityUtils.toString(httpResponse.getEntity()), JsonObject.class);
   }
@@ -164,11 +164,11 @@ public class StreamReader implements Closeable {
   private String readFromStream(String streamName, long startTime, long endTime) throws Exception {
     String urlPostfix;
     if (startTime == 0 && endTime == 0) {
-      urlPostfix = String.format("/%s/streams/%s/events", version, streamName);
+      urlPostfix = String.format("/streams/%s/events", streamName);
     } else {
-      urlPostfix = String.format("/%s/streams/%s/events?start=%s&end=%s", version, streamName, startTime, endTime);
+      urlPostfix = String.format("/streams/%s/events?start=%s&end=%s", streamName, startTime, endTime);
     }
-    HttpGet getRequest =  new HttpGet(restClient.getBaseURL().resolve(urlPostfix));
+    HttpGet getRequest =  new HttpGet(restClient.resolve(urlPostfix));
     HttpResponse response = restClient.execute(getRequest);
     return response.getEntity() != null ? EntityUtils.toString(response.getEntity()) : null;
   }
@@ -225,6 +225,7 @@ public class StreamReader implements Closeable {
     private String authClientClassName = DEFAULT_AUTH_CLIENT_CLASS_NAME;
     private String authClientPropertiesPath;
     private String version = DEFAULT_VERSION;
+    private String namespace = DEFAULT_NAMESPACE;
     private boolean verifySSLCert = true;
 
     private Builder() {
@@ -260,6 +261,11 @@ public class StreamReader implements Closeable {
       return this;
     }
 
+    public Builder setNamespace(String namespace) {
+      this.namespace = namespace;
+      return this;
+    }
+
     public Builder setVerifySSLCert(boolean verifySSLCert) {
       this.verifySSLCert = verifySSLCert;
       return this;
@@ -267,7 +273,7 @@ public class StreamReader implements Closeable {
 
     public StreamReader build() throws Exception {
       return new StreamReader(cdapHost, cdapPort, ssl, authClientClassName, authClientPropertiesPath,
-                              version, verifySSLCert);
+                              version, namespace, verifySSLCert);
     }
 
   }
