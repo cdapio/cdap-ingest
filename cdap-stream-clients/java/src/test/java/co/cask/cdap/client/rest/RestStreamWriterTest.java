@@ -39,15 +39,24 @@ import static org.junit.Assert.assertEquals;
 /**
  * Unit tests for the {@link co.cask.cdap.client.rest.RestStreamWriter} class.
  */
-public class RestStreamWriterTest extends RestTest {
+public abstract class RestStreamWriterTest extends RestTest {
 
   private StreamClient streamClient;
   private StreamWriter streamWriter;
 
+  protected abstract RestStreamClient buildClient(AuthenticationClient authClient);
+
+  private void createClient(AuthenticationClient authClient) throws IOException {
+    if (streamClient != null) {
+      streamClient.close();
+    }
+    streamClient = buildClient(authClient);
+  }
+
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).build();
+    createClient(null);
   }
 
   @Test
@@ -62,7 +71,7 @@ public class RestStreamWriterTest extends RestTest {
     streamWriter.write("", Charsets.UTF_8).get();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullEventWrite() throws Exception {
     streamWriter = streamClient.createWriter(TestUtils.ALLOW_ANY_EVENT_STREAM);
     streamWriter.write(null, Charsets.UTF_8).get();
@@ -130,7 +139,7 @@ public class RestStreamWriterTest extends RestTest {
     Mockito.when(authClient.isAuthEnabled()).thenReturn(true);
     Mockito.when(accessToken.getValue()).thenReturn(RestTest.AUTH_TOKEN);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
   }
@@ -142,7 +151,7 @@ public class RestStreamWriterTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn(StringUtils.EMPTY);
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();
@@ -158,7 +167,7 @@ public class RestStreamWriterTest extends RestTest {
     Mockito.when(authClient.getAccessToken()).thenReturn(accessToken);
     Mockito.when(accessToken.getValue()).thenReturn("test");
     Mockito.when(accessToken.getTokenType()).thenReturn("Bearer");
-    streamClient = RestStreamClient.builder(testServerHost, testServerPort).authClient(authClient).build();
+    createClient(authClient);
     streamWriter = streamClient.createWriter(TestUtils.AUTH_STREAM_NAME + TestUtils.WRITER_TEST_STREAM_NAME_POSTFIX);
     try {
       streamWriter.write(RestTest.EXPECTED_WRITER_CONTENT, Charsets.UTF_8).get();

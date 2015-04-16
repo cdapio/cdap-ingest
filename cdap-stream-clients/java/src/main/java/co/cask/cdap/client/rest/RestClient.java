@@ -54,14 +54,18 @@ public class RestClient {
 
   private final RestClientConnectionConfig config;
   private final URI baseUrl;
+  private final String basePath;
   private final CloseableHttpClient httpClient;
-  private final String version;
 
   public RestClient(RestClientConnectionConfig config, HttpClientConnectionManager connectionManager) {
     this.config = config;
     this.baseUrl = URI.create(String.format("%s://%s:%d", config.isSSL() ? HTTPS_PROTOCOL : HTTP_PROTOCOL,
-                                         config.getHost(), config.getPort()));
-    this.version = config.getVersion();
+                        config.getHost(), config.getPort()));
+    this.basePath =
+      "v2".equals(config.getVersion())
+        ? String.format("/%s", config.getVersion())
+        : String.format("/%s/namespaces/%s", config.getVersion(), config.getNamespace());
+
     this.httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
   }
 
@@ -168,14 +172,14 @@ public class RestClient {
   /**
    * @return the base URL of Rest Service API
    */
-  public URI getBaseURL() {
-    return baseUrl;
+  public URI resolve(String relativePath) {
+    return baseUrl.resolve(basePath + relativePath);
   }
 
   /**
-   * @return the version of gateway server
+   * @return the version of the API
    */
   public String getVersion() {
-    return version;
+    return config.getVersion();
   }
 }

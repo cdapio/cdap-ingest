@@ -25,8 +25,6 @@ import org.apache.http.HttpStatus;
 import org.junit.Assert;
 
 import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.ws.rs.core.HttpHeaders;
 
 /**
@@ -49,16 +47,15 @@ public final class TestUtils {
   }
 
   public static String getStreamNameFromUri(String uri) {
-    String streamName = StringUtils.EMPTY;
-    if (StringUtils.isNotEmpty(uri)) {
-      Pattern p = Pattern.compile("streams/.*?/");
-      Matcher m = p.matcher(uri);
-      if (m.find()) {
-        String b = m.group();
-        streamName = b.substring(b.indexOf("/") + 1, b.length() - 1);
+    String[] validPrefixes = { "/v2/streams/", "/v3/namespaces/default/streams/" };
+    for (String prefix : validPrefixes) {
+      if (uri.startsWith(prefix)) {
+        uri = uri.substring(prefix.length());
+        int pos = uri.indexOf("/");
+        return pos < 0 ? uri : uri.substring(0, pos);
       }
     }
-    return streamName;
+    return StringUtils.EMPTY;
   }
 
   public static int getStatusCodeByStreamName(String streamName) {
