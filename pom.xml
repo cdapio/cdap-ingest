@@ -58,8 +58,6 @@
 
   <modules>
     <module>cdap-stream-clients</module>
-    <module>cdap-file-tailer</module>
-    <module>cdap-file-drop-zone</module>
     <module>cdap-flume</module>
     <module>cdap-integration-tests</module>
   </modules>
