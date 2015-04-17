@@ -13,26 +13,11 @@ Build all packages
   mvn clean package 
 
 
-Build rpm for packages (File Tailer and DropZone)
--------------------------------------------------
-
-::
-
-  mvn clean package -P rpm
-
-
-Build debian for packages (File Tailer and DropZone)
-----------------------------------------------------
-
-::
-
-  mvn clean package -P deb
-
-
 For details, please see the README.rst file in each submodule.
 
 
-## License and Trademarks
+License and Trademarks
+----------------------
 
 Copyright © 2014-2015 Cask Data, Inc.
 
