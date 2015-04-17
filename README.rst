@@ -32,8 +32,8 @@ Build debian for packages (File Tailer and DropZone)
 For details, please see the README.rst file in each submodule.
 
 
-## License and Trademarks
-
+License and Trademarks
+----------------------
 Copyright © 2014-2015 Cask Data, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
