@@ -43,8 +43,8 @@ Examples
 Create a ``StreamClient`` instance, specifying the fields 'host' and 'port' of the gateway
 server. Optional configurations that can be set (and their default values):
 
-  - ssl: false (use HTTP protocol)
-  - authManager: null (a reference to the AutheticationManager)
+- ``ssl: false`` (use HTTP protocol)
+- ``authManager: null`` (a reference to the AutheticationManager)
 
 ::
 
