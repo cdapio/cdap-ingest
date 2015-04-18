@@ -2,6 +2,10 @@
 CDAP File Tailer
 ================
 
+*Note*: The File DropZone is no longer supported for CDAP 3.0. Most likely, it will still
+work, but because File Drop Zone is not aware of CDAP Namespaces, it would only work with
+the default namespace.
+
 File Tailer is a daemon process that performs tailing of sets of local files. As soon as a
 new record has been appended to the end of a file that the daemon is monitoring, it sends
 it to a Stream via the CDAP RESTful API.

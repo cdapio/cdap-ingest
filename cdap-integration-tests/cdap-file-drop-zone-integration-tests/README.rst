@@ -4,6 +4,10 @@ Cask Data Application Platform (CDAP) File DropZone Integration Tests
 
 This project contains integration tests for the CDAP File DropZone.
 
+*Note*: The File DropZone is no longer supported for CDAP 3.0. Most likely, it will still
+work, but because File DropZone is not aware of CDAP Namespaces, it would only work with
+the default namespace.
+
 Usage
 =====
 

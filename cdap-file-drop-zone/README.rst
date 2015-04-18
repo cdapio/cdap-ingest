@@ -2,6 +2,10 @@
 CDAP File DropZone
 ==================
 
+*Note*: The File DropZone is no longer supported for CDAP 3.0. Most likely, it will still
+work, but because File Drop Zone is not aware of CDAP Namespaces, it would only work with
+the default namespace.
+
 File DropZone allows users to easily perform the bulk ingestion of local files.
 Files can either be directly uploaded, or they can be copied to a *work_dir*, 
 where they will automatically be ingested by a daemon process.
