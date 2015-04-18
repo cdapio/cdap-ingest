@@ -4,6 +4,10 @@ Cask Data Application Platform (CDAP) File Tailer Integration Tests
 
 This project contains integration tests for the CDAP File Tailer.
 
+*Note*: The File Tailer is no longer supported for CDAP 3.0. Most likely, it will still
+work, but because File Tailer is not aware of CDAP Namespaces, it would only work with
+the default namespace.
+
 Usage
 =====
 
