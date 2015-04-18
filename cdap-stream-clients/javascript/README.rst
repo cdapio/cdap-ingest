@@ -1,8 +1,8 @@
-=====================================
-CDAP Stream Client JavaScript library
-=====================================
+=================================
+CDAP Stream Client for JavaScript
+=================================
 
-Stream Client JavaScript API for managing Streams via external JavaScript applications.
+The Stream Client JavaScript API is for managing Streams via external JavaScript applications.
 
 Supported Actions
 =================
