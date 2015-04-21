@@ -30,8 +30,8 @@ DEFAULT_VERIFY_SSL_CERT = True
 class Config(object):
 
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT,
-                 version=DEFAULT_VERSION, namespace=DEFAULT_NAMESPACE,
-                 ssl=DEFAULT_SSL, verify_ssl_cert=DEFAULT_VERIFY_SSL_CERT):
+                 ssl=DEFAULT_SSL, verify_ssl_cert=DEFAULT_VERIFY_SSL_CERT,
+                 version=DEFAULT_VERSION, namespace=DEFAULT_NAMESPACE):
         self.__host = host
         self.__port = port
         self.__version = version
