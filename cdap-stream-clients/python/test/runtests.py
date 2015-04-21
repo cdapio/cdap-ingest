@@ -1,7 +1,7 @@
 #! /usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-#  Copyright © 2014 Cask Data, Inc.
+#  Copyright © 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -47,23 +47,15 @@ with mock.patch('__main__.Config.is_auth_enabled',
     class TestStreamClient(unittest.TestCase):
         __dummy_host = u'dummy.host'
         __dummy_port = 65000
-        __BASE_URL = u'http://{0}:{1}/v2'.format(__dummy_host, __dummy_port)
+        __dummy_namespace = u'dummy'
+        __BASE_URL = u'http://{0}:{1}/v3/namespaces/{2}'.format(__dummy_host, __dummy_port, __dummy_namespace)
         __REQUEST_PLACEHOLDERS = {
             u'streamid': u'<streamid>'
         }
         __REQUESTS = {u'base_stream_path': __BASE_URL + u'/streams'}
-        __REQUESTS[u'stream'] = u'{0}/{1}'.format(
-            __REQUESTS[u'base_stream_path'],
-            __REQUEST_PLACEHOLDERS[u'streamid'])
-        __REQUESTS[u'consumerid'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
-                                                      u'consumer-id')
-        __REQUESTS[u'dequeue'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
-                                                   u'dequeue')
-        __REQUESTS[u'config'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
-                                                  u'config')
-        __REQUESTS[u'info'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'info')
-        __REQUESTS[u'truncate'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
-                                                    u'truncate')
+        __REQUESTS[u'stream'] = u'{0}/{1}'.format(__REQUESTS[u'base_stream_path'], __REQUEST_PLACEHOLDERS[u'streamid'])
+        __REQUESTS[u'properties'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'properties')
+        __REQUESTS[u'truncate'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'truncate')
 
         validStream = u'validStream'
         invalidStream = u'invalidStream'
@@ -76,7 +68,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
         exit_code = 404
 
         def setUp(self):
-            config = Config(self.__dummy_host, self.__dummy_port)
+            config = Config(host=self.__dummy_host, port=self.__dummy_port, namespace=self.__dummy_namespace)
             self.sc = StreamClient(config)
 
         @httpretty.activate
@@ -115,7 +107,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
         @httpretty.activate
         def test_set_ttl_valid_stream(self):
-            url = self.__REQUESTS[u'config'].replace(
+            url = self.__REQUESTS[u'properties'].replace(
                 self.__REQUEST_PLACEHOLDERS[u'streamid'],
                 self.validStream
             )
@@ -134,7 +126,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
         @httpretty.activate
         def test_set_ttl_invalid_stream(self):
-            url = self.__REQUESTS[u'config'].replace(
+            url = self.__REQUESTS[u'properties'].replace(
                 self.__REQUEST_PLACEHOLDERS[u'streamid'],
                 self.invalidStream
             )
@@ -155,7 +147,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
         @httpretty.activate
         def test_get_ttl_valid_stream(self):
-            url = self.__REQUESTS[u'info'].replace(
+            url = self.__REQUESTS[u'stream'].replace(
                 self.__REQUEST_PLACEHOLDERS[u'streamid'],
                 self.validStream
             )
@@ -174,7 +166,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
         @httpretty.activate
         def test_get_ttl_invalid_stream(self):
-            url = self.__REQUESTS[u'info'].replace(
+            url = self.__REQUESTS[u'stream'].replace(
                 self.__REQUEST_PLACEHOLDERS[u'streamid'],
                 self.invalidStream
             )
@@ -194,7 +186,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
         @httpretty.activate
         def test_create_writer_successful(self):
-            url = self.__REQUESTS[u'info'].replace(
+            url = self.__REQUESTS[u'stream'].replace(
                 self.__REQUEST_PLACEHOLDERS[u'streamid'],
                 self.validStream
             )
@@ -213,7 +205,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
 
         @httpretty.activate
         def test_create_writer_invalid_stream(self):
-            url = self.__REQUESTS[u'info'].replace(
+            url = self.__REQUESTS[u'stream'].replace(
                 self.__REQUEST_PLACEHOLDERS[u'streamid'],
                 self.invalidStream
             )
@@ -237,7 +229,7 @@ with mock.patch('__main__.Config.is_auth_enabled',
                 self.validStream
             )
 
-            urlInfo = self.__REQUESTS[u'info'].replace(
+            urlInfo = self.__REQUESTS[u'stream'].replace(
                 self.__REQUEST_PLACEHOLDERS[u'streamid'],
                 self.validStream
             )

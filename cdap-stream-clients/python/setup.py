@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright © 2014 Cask Data, Inc.
+#  Copyright © 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -19,7 +19,7 @@ from setuptools import find_packages
 
 
 setup(name='cdap-stream-client',
-      version='1.1.0-SNAPSHOT',
+      version='1.3.0-SNAPSHOT',
       description='Stream ingestion client for Cask Data Application Platform',
       author='Cask Data',
       author_email='cask-dev@googlegroups.com',
