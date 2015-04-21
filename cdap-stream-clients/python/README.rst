@@ -52,6 +52,7 @@ Optional configurations that can be set (and their default values):
 
 - host: 'localhost'
 - port: 10000
+- namespace: default
 - ssl: False (set true to use HTTPS protocol)
 - ssl_cert_check: True (set False to suspend certificate checks; this allows self-signed
   certificates when SSL is True)
@@ -64,6 +65,7 @@ Example::
   config = Config()
   config.host = 'localhost'
   config.port = 10000
+  config.namespace = example
   config.ssl = True
   config.set_auth_client(authentication_client)
 

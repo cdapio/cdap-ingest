@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright © 2014 Cask Data, Inc.
+#  Copyright © 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -54,7 +54,7 @@ class ServiceConnector(object):
     }
 
     def __init__(self, config=Config()):
-        self.__base_url = u'{0}://{1}:{2}'
+        self.__base_url = u'{0}://{1}:{2}/{3}/namespaces/{4}'
 
         if not isinstance(config, Config):
             raise TypeError(u'parameter should be of type Config')
@@ -69,8 +69,9 @@ class ServiceConnector(object):
         self.__base_url = self.__base_url.format(
             self.__protocol,
             self.__connectionConfig.host,
-            self.__connectionConfig.port
-        )
+            self.__connectionConfig.port,
+            self.__connectionConfig.version,
+            self.__connectionConfig.namespace)
 
     def request(self, method, uri, body=None, headers=None):
         headersToSend = self.__defaultHeaders

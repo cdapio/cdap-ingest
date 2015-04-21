@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright © 2014 Cask Data, Inc.
+#  Copyright © 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -23,27 +23,22 @@ from .streamwriter import StreamWriter
 
 class StreamClient(ConnectionErrorChecker):
 
-    __GATEWAY_VERSION = u'/v2'
     __REQUEST_PLACEHOLDERS = {
         u'streamid': u'<streamid>'
     }
-    __REQUESTS = {u'streams': __GATEWAY_VERSION + u'/streams'}
+    __REQUESTS = {u'streams': u'/streams'}
     __REQUESTS[u'stream'] = u'{0}/{1}'.format(__REQUESTS[u'streams'],
-                                            __REQUEST_PLACEHOLDERS[u'streamid'])
-    __REQUESTS[u'consumerid'] = u'{0}/{1}'.format(__REQUESTS[u'stream'],
-                                                u'consumer-id')
-    __REQUESTS[u'dequeue'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'dequeue')
-    __REQUESTS[u'config'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'config')
-    __REQUESTS[u'info'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'info')
+                                              __REQUEST_PLACEHOLDERS[u'streamid'])
+    __REQUESTS[u'properties'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'properties')
     __REQUESTS[u'truncate'] = u'{0}/{1}'.format(__REQUESTS[u'stream'], u'truncate')
 
     def __init__(self, config=Config()):
         self.__serviceConfig = config
         self.__serviceConnector = ServiceConnector(self.__serviceConfig)
 
-    def __prepare_uri(self, requestName, placeholderName=u'streamid', data=u''):
-        return self.__REQUESTS[requestName].replace(
-            self.__REQUEST_PLACEHOLDERS[placeholderName], data)
+    def __prepare_uri(self, requestName, data=u''):
+        return self.__REQUESTS[requestName] \
+            .replace(self.__REQUEST_PLACEHOLDERS[u'streamid'], data)
 
     def create(self, stream):
         u"""
@@ -67,7 +62,7 @@ class StreamClient(ConnectionErrorChecker):
         objectToSend = {
             u'ttl': ttl
         }
-        uri = self.__prepare_uri(u'config', data=stream)
+        uri = self.__prepare_uri(u'properties', data=stream)
         data = json.dumps(objectToSend)
 
         self.check_response_errors(
@@ -84,7 +79,7 @@ class StreamClient(ConnectionErrorChecker):
         Return value:
         Time-To-Live property in seconds
         """
-        uri = self.__prepare_uri(u'info', data=stream)
+        uri = self.__prepare_uri(u'stream', data=stream)
         response = self.check_response_errors(
             self.__serviceConnector.request(u'GET', uri)
         )

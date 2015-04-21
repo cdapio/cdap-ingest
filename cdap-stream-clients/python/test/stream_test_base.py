@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright © 2014 Cask Data, Inc.
+#  Copyright © 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -84,6 +84,7 @@ class StreamTestBase(object):
         new_config.host = json_config.get(u'hostname',
                                           new_config.host)
         new_config.port = json_config.get(u'port', new_config.port)
+        new_config.namespace = json_config.get(u'namespace', new_config.namespace)
         new_config.ssl = json_config.get(u'SSL', new_config.ssl)
         new_config.ssl_cert_check = \
             json_config.get(u'security_ssl_cert_check',
@@ -108,9 +109,8 @@ class StreamTestBase(object):
 
         # Create stream
         self.sc.create(self.valid_stream)
-        get_stream_url = '/v2/streams/%s' % self.valid_stream
+        get_stream_url = u'/v3/namespaces/{0}/streams/{1}'.format(self.config.namespace, self.valid_stream)
         res_stream = self.get_data_from_cdap(get_stream_url)
-        self.assertEqual(res_stream["name"], self.valid_stream)
 
         # Set ttl
         ttl = 88888
@@ -147,15 +147,15 @@ class StreamTestBase(object):
         self.event_latch.wait_for_complete()
         end_time = int(round(time.time() * 1000))
         event_request_url = \
-            u'/v2/streams/%s/events?start=%s&end=%s' % (self.valid_stream,
-                                                        start_time, end_time)
+            u'/v3/namespaces/%s/streams/%s/events?start=%s&end=%s' % (self.config.namespace, self.valid_stream,
+                                                                      start_time, end_time)
         received_events = self.get_data_from_cdap(event_request_url)
         received_event_bodies = [event['body'] for event in received_events]
         self.assertTrue(set(event_bodies) == set(received_event_bodies))
 
         # Truncate from the stream
         self.sc.truncate(self.valid_stream)
-        event_request_url = u'/v2/streams/%s/events' % self.valid_stream
+        event_request_url = u'/v3/namespaces/%s/streams/%s/events' % (self.config.namespace, self.valid_stream)
         received_events = self.get_data_from_cdap(event_request_url)
         self.assertIsNone(received_events)
 
@@ -193,6 +193,7 @@ class StreamTestBase(object):
         if response.status_code == httplib.NO_CONTENT:
             return None
         else:
+            self.assertEqual(httplib.OK, response.status_code)
             return response.json()
 
 
