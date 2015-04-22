@@ -44,11 +44,11 @@ Create a StreamClient instance, specifying the fields 'host' and 'port' of the C
 
 Optional configurations that can be set (and their default values):
 
-- ssl: false (set true to use HTTPS protocol)
-- verifySSLCert: true (set false to suspend certificate checks; this allows self-signed
-  certificates when SSL is true)
-- authClient: null (`CDAP Authentication Client
-  <https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/java>`__)
+- ``ssl``: ``false`` (set to ``true`` to use HTTPS protocol)
+- ``verifySSLCert``: ``true`` (set to ``false`` to suspend certificate checks; this allows self-signed
+  certificates to be used when SSL is ``true``)
+- ``authClient``: ``null`` (`CDAP Authentication Client
+  <https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/java>`__
   to interact with a secure CDAP instance)
 
 Example::
@@ -60,7 +60,7 @@ Example::
 
 Creating a Stream
 -----------------
-Create a new Stream with the *stream id* "streamName"::
+Create a new Stream with the *stream-id* "streamName"::
 
     streamClient.create("streamName");
 
@@ -101,8 +101,26 @@ Get the current TTL value for the Stream *streamName*::
 
 Close the Clients
 -----------------
-When you are finished, release all resources by calling these two methods:
+When you are finished, release all resources by calling these two methods::
 
      streamWriter.close();
      streamClient.close();
 
+License and Trademarks
+----------------------
+Copyright © 2014-2015 Cask Data, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+in compliance with the License. You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.
+
+Cask is a trademark of Cask Data, Inc. All rights reserved.
+
+Apache, Apache HBase, and HBase are trademarks of The Apache Software Foundation. Used with
+permission. No endorsement by The Apache Software Foundation is implied by the use of these marks.

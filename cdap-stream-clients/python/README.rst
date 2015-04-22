@@ -50,14 +50,14 @@ Create a StreamClient instance with default parameters::
 
 Optional configurations that can be set (and their default values):
 
-- host: 'localhost'
-- port: 10000
-- namespace: default
-- ssl: False (set true to use HTTPS protocol)
-- ssl_cert_check: True (set False to suspend certificate checks; this allows self-signed
-  certificates when SSL is True)
-- authClient: null (`CDAP Authentication Client
-  <https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/python>`__)
+- ``host``: ``localhost``
+- ``port``: ``10000``
+- ``namespace``: ``default``
+- ``ssl``: ``False`` (set to ``True`` to use HTTPS protocol)
+- ``ssl_cert_check``: ``True`` (set to ``False`` to suspend certificate checks; this allows self-signed
+  certificates when SSL is ``True``)
+- ``authClient``: ``null`` (`CDAP Authentication Client
+  <https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/python>`__
   to interact with a secure CDAP instance)
 
 Example::
@@ -85,7 +85,7 @@ Create a new Stream with the ``stream-id`` *newStreamName*::
 
 Creating a StreamWriter
 -----------------------
-Create a ```StreamWriter``` instance for writing events to the Stream "streamName":
+Create a ``StreamWriter`` instance for writing events to the Stream *streamName*:
 
     stream_writer = stream_client.create_writer("streamName")
 
@@ -119,7 +119,7 @@ Get the current TTL value for the Stream *streamName*::
 
 StreamPromise
 -------------
-StreamPromise's goal is to implement deferred code execution.
+``StreamPromise``'s goal is to implement deferred code execution.
 
 For error handling, create a handler for each case and set it using the ``onResponse``
 method. The error handling callback function is optional.

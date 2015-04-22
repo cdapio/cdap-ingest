@@ -2,13 +2,13 @@
 CDAP Flume
 ==========
 
-The CDAP Sink is a Flume Sink implementation using REST Stream interface to write events
+The CDAP Sink is a Flume Sink implementation using the CDAP RESTful Stream interface to write events
 received from a source.
 
 Usage
 =====
 
-To use, put the CDAP Sink jar file in the Flume classpath (for example, in the Flume lib
+To use, put the CDAP Sink jar file in the Flume classpath (for example, in the Flume ``lib``
 directory). The JAR can be obtained from `Maven Central
 <http://search.maven.org/#search|ga|1|cdap-flume>`__.
  
@@ -16,7 +16,7 @@ Specify the fully-qualified name of your CDAP Sink class in the Flume configurat
 
   a1.sinks.sink1.type = co.cask.cdap.flume.StreamSink
 
-Enter the host name that is used by the stream client::
+Enter the host name that is used by the Stream Client::
 
   a1.sinks.sink1.host = <hostname or host ip>  
 
@@ -46,7 +46,12 @@ Optional parameters that can be specified are listed below, with their default v
 
 - CDAP Router server version::
 
-    a1.sinks.sink1.version = v2
+    a1.sinks.sink1.version = v3
+    
+- CDAP Namespace::
+
+    a1.sinks.sink1.namespace = default
+
 
 
 Authentication Client
@@ -59,7 +64,7 @@ Fully qualified class name of the client class::
 
   a1.sinks.sink1.authClientClass = co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient
 
-Path to authentication client properties file::
+Path to the authentication client properties file::
 
   a1.sinks.sink1.authClientProperties = /usr/local/apache-flume/conf/auth_client.conf    
      
@@ -92,3 +97,22 @@ Configuration of a Flume agent that reads data from a log file and puts it to CD
   a1.channels.c1.type = memory
   a1.channels.c1.capacity = 1000
   a1.channels.c1.transactionCapacity = 100
+
+License and Trademarks
+----------------------
+Copyright © 2014-2015 Cask Data, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+in compliance with the License. You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.
+
+Cask is a trademark of Cask Data, Inc. All rights reserved.
+
+Apache, Apache HBase, and HBase are trademarks of The Apache Software Foundation. Used with
+permission. No endorsement by The Apache Software Foundation is implied by the use of these marks.
