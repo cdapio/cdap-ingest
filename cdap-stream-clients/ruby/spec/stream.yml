@@ -1,5 +1,6 @@
 gateway: 'localhost'
 port: 10000
-api_version: 'v2'
+api_version: 'v3'
+namespace: 'test'
 api_key:
 ssl: false

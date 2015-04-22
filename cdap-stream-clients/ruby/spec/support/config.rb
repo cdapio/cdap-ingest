@@ -1,4 +1,4 @@
-#  Copyright 2014 Cask Data, Inc.
+#  Copyright 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -19,4 +19,5 @@ config = YAML.load_file("spec/stream.yml")
 CDAPIngest::Rest.gateway     = config['gateway']
 CDAPIngest::Rest.port        = config['port']
 CDAPIngest::Rest.api_version = config['api_version']
+CDAPIngest::Rest.namespace   = config['namespace']
 CDAPIngest::Rest.ssl         = config['ssl']

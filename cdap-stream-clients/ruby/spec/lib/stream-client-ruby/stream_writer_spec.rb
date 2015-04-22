@@ -1,4 +1,4 @@
-#  Copyright 2014 Cask Data, Inc.
+#  Copyright 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -32,17 +32,10 @@ describe CDAPIngest::StreamWriter do
   it {
     VCR.use_cassette('stream_writer_write') {
       result = stream_writer.write "test_body"
-      expect(result).to be_a Promise
+      expect(result).to be_a Thread::Future
     }
   }
 
   it { expect(stream_writer).to respond_to(:close) }
-
-  it {
-    VCR.use_cassette('stream_writer_close') {
-      result = stream_writer.close
-      expect(result).to be_a Thread::Pool
-    }
-  }
 
 end

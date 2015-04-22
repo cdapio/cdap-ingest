@@ -1,4 +1,4 @@
-#  Copyright 2014 Cask Data, Inc.
+#  Copyright 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -30,7 +30,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'httparty'
   s.add_dependency 'thread'
-  s.add_dependency 'promise.rb'
   s.add_dependency 'em-http-request'
 
   s.add_development_dependency 'pry'

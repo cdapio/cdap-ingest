@@ -1,4 +1,4 @@
-#  Copyright 2014 Cask Data, Inc.
+#  Copyright 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -27,11 +27,12 @@ module CDAPIngest
       attr_accessor :port
       attr_accessor :api_version
       attr_accessor :ssl
+      attr_accessor :namespace
     end
 
     def initialize
       protocol = self.class.ssl ? 'https' : 'http'
-      self.class.base_uri "#{protocol}://#{self.class.gateway}:#{self.class.port}/#{self.class.api_version}/streams"
+      self.class.base_uri "#{protocol}://#{self.class.gateway}:#{self.class.port}/#{self.class.api_version}/namespaces/#{self.class.namespace}/streams"
       @auth_client = nil
     end
 

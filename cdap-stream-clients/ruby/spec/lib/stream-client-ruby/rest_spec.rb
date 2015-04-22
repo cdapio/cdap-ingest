@@ -1,4 +1,4 @@
-#  Copyright 2014 Cask Data, Inc.
+#  Copyright 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -33,7 +33,7 @@ describe CDAPIngest::Rest do
 
   it {
     VCR.use_cassette('rest_request_get') {
-      result = rest.request 'get', "text/info"
+      result = rest.request 'get', "text"
       expect(result.class).to eq HTTParty::Response
     }
   }
