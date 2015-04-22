@@ -74,14 +74,14 @@ If authentication is required, set authentication client::
   client.set_auth_client auth_client
 
 
-Create a new Stream with the *stream-id* "new_stream_name"::
+Create a new Stream with the ``<stream-id>`` *new_stream_name*::
 
   client.create "new_stream_name"
 
 
 Notes:
 
-- The <stream-id> must only contain ASCII letters, digits and hyphens.
+- The ``<stream-id>`` must only contain ASCII letters, digits and hyphens.
 - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
 

@@ -79,13 +79,13 @@ Example::
 
 Creating a Stream
 -----------------
-Create a new Stream with the ``stream-id`` *newStreamName*::
+Create a new Stream with the ``<stream-id>`` *newStreamName*::
 
     stream_client.create("newStreamName")
 
 **Notes:**
 
-- The ``stream-id`` should only contain ASCII letters, digits and hyphens.
+- The ``<stream-id>`` should only contain ASCII letters, digits and hyphens.
 - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
 Creating a StreamWriter

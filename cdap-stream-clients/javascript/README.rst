@@ -61,15 +61,15 @@ server. Optional configurations that can be set (and their default values):
    var streamClient = new StreamClient(config)
 
 
-Create a new Stream with the *stream-id* "newStreamName"::
+Create a new Stream with the ``<stream-id>`` *newStreamName*::
 
   streamClient.create("newStreamName");
 
 **Notes:**
-- The *stream-id* can only contain ASCII letters, digits and hyphens.
+- The ``<stream-id>`` can only contain ASCII letters, digits and hyphens.
 - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
-Update TTL for the Stream "streamName"; ``newTTL`` is a long value::
+Update TTL for the Stream *streamName*; ``newTTL`` is a long value::
 
    var ttlPromise = streamClient.setTTL("streamName", newTTL);
    ttlPromise.then(function onOk(ttlValue) {
@@ -79,7 +79,7 @@ Update TTL for the Stream "streamName"; ``newTTL`` is a long value::
    });
 
 
-Get the current TTL value for the Stream "streamName"::
+Get the current TTL value for the Stream *streamName*::
 
    var ttlPromise = streamClient.getTTL("streamName");
    ttlPromise.then(function onOk(ttlValue) {
@@ -89,7 +89,7 @@ Get the current TTL value for the Stream "streamName"::
    });
 
 
-Create a ``StreamWriter`` instance for writing events to the Stream "streamName"::
+Create a ``StreamWriter`` instance for writing events to the Stream *streamName*::
 
    var streamWriterPromise = streamClient.createWriter("streamName");
    streamWriterPromise.then(function(writer){
@@ -124,7 +124,7 @@ To truncate the Stream *streamName*, use::
 StreamPromise
 -------------
  
-StreamPromise's goal is to implement deferred code execution.
+``StreamPromise``\ 's goal is to implement deferred code execution.
 
 For error handling, create a handler for each case and set it using the ``then`` method.
 

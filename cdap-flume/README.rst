@@ -22,13 +22,13 @@ Specify the fully-qualified name of your CDAP Sink class in the Flume configurat
 
   a1.sinks.sink1.type = co.cask.cdap.flume.StreamSink
 
-Enter the host name that is used by the Stream Client::
+Enter the ``host`` name or host-ip that is used by the Stream Client::
 
-  a1.sinks.sink1.host = <hostname or host ip>  
+  a1.sinks.sink1.host = <hostname | host-ip>  
 
 Set the target Stream name::
 
-  a1.sinks.sink1.streamName = <Stream name>
+  a1.sinks.sink1.streamName = <stream-name>
 
 Optional parameters that can be specified are listed below, with their default values.
 

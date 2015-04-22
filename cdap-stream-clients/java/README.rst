@@ -43,7 +43,7 @@ Examples
 
 Creating a StreamClient
 -----------------------
-Create a StreamClient instance, specifying the fields 'host' and 'port' of the CDAP instance::
+Create a StreamClient instance, specifying the fields ``host`` and ``port`` of the CDAP instance::
 
     StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000).build();
 
@@ -65,13 +65,13 @@ Example::
 
 Creating a Stream
 -----------------
-Create a new Stream with the *stream-id* "streamName"::
+Create a new Stream with the ``<stream-id>`` *streamName*::
 
     streamClient.create("streamName");
 
 **Notes:**
 
-- The *stream-id* should only contain ASCII letters, digits and hyphens.
+- The ``<stream-id>`` should only contain ASCII letters, digits and hyphens.
 - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
 Creating a StreamWriter
