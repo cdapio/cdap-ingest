@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:10000/v2/streams/rspec_text
+    uri: http://localhost:10000/v3/namespaces/test/streams/rspec_text
     body:
       encoding: US-ASCII
       string: ''

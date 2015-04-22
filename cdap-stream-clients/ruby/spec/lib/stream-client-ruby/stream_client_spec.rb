@@ -1,4 +1,4 @@
-#  Copyright 2014 Cask Data, Inc.
+#  Copyright 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -55,10 +55,11 @@ describe CDAPIngest::StreamClient do
     }
   }
 
-  xit {
+  it {
     VCR.use_cassette('no_stream_client_get_ttl') {
-      result = stream_client.get_ttl non_existing_stream
-      expect(result).to raise "The request did not address any of the known URIs"
+      expect {
+        result = stream_client.get_ttl non_existing_stream
+      }.to raise_error 'The request did not address any of the known URIs'
     }
   }
 
@@ -71,10 +72,11 @@ describe CDAPIngest::StreamClient do
     }
   }
 
-  xit {
+  it {
     VCR.use_cassette('no_stream_client_truncate') {
-      result = stream_client.truncate non_existing_stream
-      expect(result).to raise "The request did not address any of the known URIs"
+      expect {
+        result = stream_client.truncate non_existing_stream
+      }.to raise_error 'The request did not address any of the known URIs'
     }
   }
 

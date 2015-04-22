@@ -1,4 +1,4 @@
-#  Copyright 2014 Cask Data, Inc.
+#  Copyright 2014-2015 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -13,7 +13,7 @@
 #  the License.
 
 require 'thread/pool'
-require 'promise'
+require 'thread/future'
 
 module CDAPIngest
   ###
@@ -33,7 +33,7 @@ module CDAPIngest
     end
 
     ###
-      #Ingest a stream event with a set of headers and a string as body.
+      # Ingest a stream event with a set of headers and a string as body.
       #
       # @param body The string body or
       #               Contains the content for the stream event body. All remaining bytes of the {@link ByteBuffer}
@@ -44,30 +44,20 @@ module CDAPIngest
       # @return A future that will be completed when the ingestion is completed. The future will fail if the ingestion
       #         failed. Cancelling the returning future has no effect.
     def write(body, charset = 'utf-8', headers = {})
-      promise_request {
-        body = rest.to_s(body).encode(charset).force_encoding(Encoding::BINARY)
-        rest.request 'post', stream, body: body, headers: headers
+      pool.future {
+        begin
+          body = rest.to_s(body).encode(charset).force_encoding(Encoding::BINARY)
+          rest.request 'post', stream, body: body, headers: headers
+        rescue Rest::ResponseError => e
+          result.reject e
+        rescue Exception => e
+          parent_thread.raise e
+        end
       }
     end
 
     def close
       pool.shutdown
-    end
-
-  private
-
-    def promise_request
-      promise = Promise.new
-      pool.process {
-        begin
-          promise.fulfill yield
-        rescue Rest::ResponseError => e
-          promise.reject e
-        rescue Exception => e
-          parent_thread.raise e
-        end
-      }
-      promise
     end
 
   end

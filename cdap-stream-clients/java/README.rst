@@ -104,4 +104,5 @@ Close the Clients
 When you are finished, release all resources by calling these two methods:
 
      streamWriter.close();
-     streamClient.close();  
+     streamClient.close();
+
