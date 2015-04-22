@@ -1,3 +1,8 @@
+.. meta::
+    :author: Cask Data, Inc.
+    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :license: See LICENSE file in this repository
+
 ==================
 CDAP File DropZone
 ==================
@@ -69,7 +74,7 @@ To upload a file that is outside of the *work_dir*, execute the command::
 
   file-drop-zone load <file-path> <observer>
 
-If only one observer is configured, the *observer* parameter is not required::
+If only one observer is configured, the ``<observer>`` parameter is not required::
 
   file-drop-zone load <file-path>
 

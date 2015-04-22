@@ -1,3 +1,8 @@
+.. meta::
+    :author: Cask Data, Inc.
+    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :license: See LICENSE file in this repository
+
 ===========================
 CDAP Stream Client for Ruby
 ===========================
@@ -37,7 +42,7 @@ If you use gem outside Rails, you should require gem files in your application f
 Example
 =======
 
-You can configure StreamClient settings in your config files, for example::
+You can configure ``StreamClient`` settings in your config files. For example::
 
   # config/stream.yml
   gateway: 'localhost'
@@ -69,14 +74,14 @@ If authentication is required, set authentication client::
   client.set_auth_client auth_client
 
 
-Create a new Stream with the *stream id* "new_stream_name"::
+Create a new Stream with the ``<stream-id>`` *new_stream_name*::
 
   client.create "new_stream_name"
 
 
 Notes:
 
-- The <stream-id> must only contain ASCII letters, digits and hyphens.
+- The ``<stream-id>`` must only contain ASCII letters, digits and hyphens.
 - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
 
@@ -130,17 +135,17 @@ All methods from the ``StreamClient`` and ``StreamWriter`` throw exceptions usin
 code analysis from the gateway server. These exceptions help determine if the request was
 processed successfully or not.
 
-In the case of a **200 OK** response, no exception will be thrown; other cases will throw
+In the case of a ``200 OK`` response, no exception will be thrown; other cases will throw
 these exceptions:
 
-- 400: 'The request had a combination of parameters that is not recognized'
-- 401: 'The request did not contain an authentication token'
-- 403: 'The request was authenticated but the client does not have permission'
-- 404: 'The request did not address any of the known URIs'
-- 405: 'A request was received with a method not supported for the URI'
-- 409: 'A request could not be completed due to a conflict with the current resource state'
-- 500: 'An internal error occurred while processing the request'
-- 501: 'A request contained a query that is not supported by this API'
+- ``400``: The request had a combination of parameters that is not recognized
+- ``401``: The request did not contain an authentication token
+- ``403``: The request was authenticated but the client does not have permission
+- ``404``: The request did not address any of the known URIs
+- ``405``: A request was received with a method not supported for the URI
+- ``409``: A request could not be completed due to a conflict with the current resource state
+- ``500``: An internal error occurred while processing the request
+- ``501``: A request contained a query that is not supported by this API
 
 
 Testing
@@ -151,38 +156,18 @@ To launch unit tests only, execute::
   rspec --tag ~it
 
 
-To launch integration tests against Standalone CDAP instance, execute::
+To launch integration tests against a Standalone CDAP instance, execute::
 
   rspec --tag type:it-local
 
 
-To launch integration tests against Standalone CDAP instance with authentication enabled,
+To launch integration tests against a Standalone CDAP instance with authentication enabled,
 execute::
 
   rspec --tag type:it-local-auth
 
 
-To launch integration tests against Standalone CDAP instance with authentication enabled
-and ssl turned on, execute::
+To launch integration tests against a Standalone CDAP instance with authentication enabled
+and SSL turned on, execute::
 
   rspec --tag type:it-local-auth-ssl
-
-
-License and Trademarks
-----------------------
-Copyright © 2014-2015 Cask Data, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
-in compliance with the License. You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed under the
-License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
-
-Cask is a trademark of Cask Data, Inc. All rights reserved.
-
-Apache, Apache HBase, and HBase are trademarks of The Apache Software Foundation. Used with
-permission. No endorsement by The Apache Software Foundation is implied by the use of these marks.

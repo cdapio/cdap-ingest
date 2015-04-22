@@ -1,3 +1,8 @@
+.. meta::
+    :author: Cask Data, Inc.
+    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :license: See LICENSE file in this repository
+
 ===========================
 CDAP Stream Client for Java
 ===========================
@@ -38,17 +43,17 @@ Examples
 
 Creating a StreamClient
 -----------------------
-Create a StreamClient instance, specifying the fields 'host' and 'port' of the CDAP instance::
+Create a StreamClient instance, specifying the fields ``host`` and ``port`` of the CDAP instance::
 
     StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000).build();
 
 Optional configurations that can be set (and their default values):
 
-- ssl: false (set true to use HTTPS protocol)
-- verifySSLCert: true (set false to suspend certificate checks; this allows self-signed
-  certificates when SSL is true)
-- authClient: null (`CDAP Authentication Client
-  <https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/java>`__)
+- ``ssl``: ``false`` (set to ``true`` to use HTTPS protocol)
+- ``verifySSLCert``: ``true`` (set to ``false`` to suspend certificate checks; this allows self-signed
+  certificates to be used when SSL is ``true``)
+- ``authClient``: ``null`` (`CDAP Authentication Client
+  <https://github.com/caskdata/cdap-clients/tree/develop/cdap-authentication-clients/java>`__
   to interact with a secure CDAP instance)
 
 Example::
@@ -60,13 +65,13 @@ Example::
 
 Creating a Stream
 -----------------
-Create a new Stream with the *stream id* "streamName"::
+Create a new Stream with the ``<stream-id>`` *streamName*::
 
     streamClient.create("streamName");
 
 **Notes:**
 
-- The *stream-id* should only contain ASCII letters, digits and hyphens.
+- The ``<stream-id>`` should only contain ASCII letters, digits and hyphens.
 - If the Stream already exists, no error is returned, and the existing Stream remains in place.
 
 Creating a StreamWriter
@@ -101,8 +106,7 @@ Get the current TTL value for the Stream *streamName*::
 
 Close the Clients
 -----------------
-When you are finished, release all resources by calling these two methods:
+When you are finished, release all resources by calling these two methods::
 
      streamWriter.close();
      streamClient.close();
-

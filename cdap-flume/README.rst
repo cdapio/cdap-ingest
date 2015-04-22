@@ -1,14 +1,20 @@
+.. meta::
+    :author: Cask Data, Inc.
+    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :license: See LICENSE file in this repository
+
 ==========
 CDAP Flume
 ==========
 
-The CDAP Sink is a Flume Sink implementation using REST Stream interface to write events
+The CDAP Sink is a Flume Sink implementation using the CDAP RESTful Stream interface to write events
 received from a source.
+
 
 Usage
 =====
 
-To use, put the CDAP Sink jar file in the Flume classpath (for example, in the Flume lib
+To use, put the CDAP Sink jar file in the Flume classpath (for example, in the Flume ``lib``
 directory). The JAR can be obtained from `Maven Central
 <http://search.maven.org/#search|ga|1|cdap-flume>`__.
  
@@ -16,13 +22,13 @@ Specify the fully-qualified name of your CDAP Sink class in the Flume configurat
 
   a1.sinks.sink1.type = co.cask.cdap.flume.StreamSink
 
-Enter the host name that is used by the stream client::
+Enter the ``host`` name or host-ip that is used by the Stream Client::
 
-  a1.sinks.sink1.host = <hostname or host ip>  
+  a1.sinks.sink1.host = <hostname | host-ip>  
 
 Set the target Stream name::
 
-  a1.sinks.sink1.streamName = <Stream name>
+  a1.sinks.sink1.streamName = <stream-name>
 
 Optional parameters that can be specified are listed below, with their default values.
 
@@ -46,7 +52,11 @@ Optional parameters that can be specified are listed below, with their default v
 
 - CDAP Router server version::
 
-    a1.sinks.sink1.version = v2
+    a1.sinks.sink1.version = v3
+    
+- CDAP Namespace::
+
+    a1.sinks.sink1.namespace = default
 
 
 Authentication Client
@@ -59,7 +69,7 @@ Fully qualified class name of the client class::
 
   a1.sinks.sink1.authClientClass = co.cask.cdap.security.authentication.client.basic.BasicAuthenticationClient
 
-Path to authentication client properties file::
+Path to the authentication client properties file::
 
   a1.sinks.sink1.authClientProperties = /usr/local/apache-flume/conf/auth_client.conf    
      
