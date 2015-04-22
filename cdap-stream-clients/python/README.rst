@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2015 Cask Data, Inc.
+    :copyright: Copyright © 2014-2015 Cask Data, Inc.
     :license: See LICENSE file in this repository
 
 =============================
