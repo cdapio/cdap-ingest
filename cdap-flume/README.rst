@@ -1,9 +1,15 @@
+.. meta::
+    :author: Cask Data, Inc.
+    :copyright: Copyright © 2015 Cask Data, Inc.
+    :license: See LICENSE file in this repository
+
 ==========
 CDAP Flume
 ==========
 
 The CDAP Sink is a Flume Sink implementation using the CDAP RESTful Stream interface to write events
 received from a source.
+
 
 Usage
 =====
@@ -53,7 +59,6 @@ Optional parameters that can be specified are listed below, with their default v
     a1.sinks.sink1.namespace = default
 
 
-
 Authentication Client
 =====================
 
@@ -97,22 +102,3 @@ Configuration of a Flume agent that reads data from a log file and puts it to CD
   a1.channels.c1.type = memory
   a1.channels.c1.capacity = 1000
   a1.channels.c1.transactionCapacity = 100
-
-License and Trademarks
-----------------------
-Copyright © 2014-2015 Cask Data, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
-in compliance with the License. You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed under the
-License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
-
-Cask is a trademark of Cask Data, Inc. All rights reserved.
-
-Apache, Apache HBase, and HBase are trademarks of The Apache Software Foundation. Used with
-permission. No endorsement by The Apache Software Foundation is implied by the use of these marks.
