@@ -90,7 +90,7 @@ Create a new Stream with the ``<stream-id>`` *newStreamName*::
 
 Creating a StreamWriter
 -----------------------
-Create a ``StreamWriter`` instance for writing events to the Stream *streamName*:
+Create a ``StreamWriter`` instance for writing events to the Stream *streamName*::
 
     stream_writer = stream_client.create_writer("streamName")
 
