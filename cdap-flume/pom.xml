@@ -23,7 +23,7 @@
   <parent>
     <groupId>co.cask.cdap</groupId>
     <artifactId>cdap-ingest</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>${cdap.ingest.version}</version>
   </parent>
   <artifactId>cdap-flume</artifactId>
   <packaging>jar</packaging>
