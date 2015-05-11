@@ -280,7 +280,7 @@
                   <exclude>build-number.txt</exclude>
                   <exclude>LICENSE*.txt</exclude>
                   <exclude>ruby/**</exclude>
-                  <exclude>*.rst</exclude>
+                  <exclude>**/*.rst</exclude>
                   <exclude>**/*.md</exclude>
                   <exclude>logs/**</exclude>
                   <exclude>docs/**</exclude>
