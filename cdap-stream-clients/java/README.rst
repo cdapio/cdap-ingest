@@ -13,8 +13,8 @@ Supported Actions
 =================
 
 - Create a Stream
-- Update TTL (time-to-live) for an existing Stream
-- Retrieve the current Stream TTL
+- Update TTL (time-to-live, in seconds) for an existing Stream
+- Retrieve the current Stream TTL (in seconds)
 - Truncate an existing Stream (the deletion of all events that were written to the Stream)
 - Write an event to an existing Stream
 
@@ -94,13 +94,13 @@ To delete all events that were written to the Stream *streamName*, use::
 
 Update the Stream Time-to-Live (TTL)
 ------------------------------------
-Update TTL for the Stream *streamName*::
+Update TTL (in seconds) for the Stream *streamName*::
 
     streamClient.setTTL("streamName", newTTL);
 
 Get the Stream Time-to-Live (TTL)
 ---------------------------------
-Get the current TTL value for the Stream *streamName*::
+Get the current TTL value (in seconds) for the Stream *streamName*::
 
     long ttl = streamClient.getTTL("streamName");
 
