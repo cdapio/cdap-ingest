@@ -23,7 +23,7 @@
   <parent>
     <groupId>co.cask.cdap</groupId>
     <artifactId>cdap-integration-tests</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>${cdap.ingest.version}</version>
   </parent>
 
   <artifactId>cdap-file-tailer-integration-tests</artifactId>
