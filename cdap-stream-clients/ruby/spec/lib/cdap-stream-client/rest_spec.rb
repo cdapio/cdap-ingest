@@ -14,35 +14,33 @@
 
 require 'spec_helper'
 
-describe CDAPIngest::Rest do
-  
-  let(:rest){ VCR.use_cassette('rest') { CDAPIngest::Rest.new } }
+describe CDAP::RestClient do
+  let(:rest) { VCR.use_cassette('rest') { CDAP::RestClient.new } }
 
-  it { expect(rest).to be_a CDAPIngest::Rest }
+  it { expect(rest).to be_a CDAP::RestClient }
 
-  it { expect(CDAPIngest::Rest).to respond_to(:new) }
+  it { expect(CDAP::RestClient).to respond_to(:new) }
 
   it { expect(rest).to respond_to(:ssl?) }
 
-  it {
+  it do
     result = rest.ssl?
     expect(result).to eq false
-  }
+  end
 
   it { expect(rest).to respond_to(:request) }
 
-  it {
-    VCR.use_cassette('rest_request_get') {
-      result = rest.request 'get', "text"
+  it do
+    VCR.use_cassette('rest_request_get') do
+      result = rest.request 'get', 'text'
       expect(result.class).to eq HTTParty::Response
-    }
-  }
+    end
+  end
 
   it { expect(rest).to respond_to(:to_s) }
 
-  it {
-    result = rest.to_s "test_str"
-    expect(result).to eq "test_str"
-  }
-  
+  it do
+    result = rest.to_s 'test_str'
+    expect(result).to eq 'test_str'
+  end
 end

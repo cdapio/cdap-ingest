@@ -14,86 +14,84 @@
 
 require 'spec_helper'
 
-describe CDAPIngest::StreamClient do
-  
-  let(:stream_client){ CDAPIngest::StreamClient.new }
-  let(:stream) {"rspec_text"}
-  let(:non_existing_stream) {"non_existing_stream"}
+describe CDAP::StreamClient do
+  let(:stream_client) { CDAP::StreamClient.new }
+  let(:stream) { 'rspec_text' }
+  let(:non_existing_stream) { 'non_existing_stream' }
 
-  it {
-    VCR.use_cassette('stream_client') { 
-      expect(stream_client).to be_a CDAPIngest::StreamClient
-    }
-  }
+  it do
+    VCR.use_cassette('stream_client') do
+      expect(stream_client).to be_a CDAP::StreamClient
+    end
+  end
 
-  it { expect(CDAPIngest::StreamClient).to respond_to(:new) }
+  it { expect(CDAP::StreamClient).to respond_to(:new) }
 
   it { expect(stream_client).to respond_to(:create) }
 
-  it {
-    VCR.use_cassette('stream_client_create') {
+  it do
+    VCR.use_cassette('stream_client_create') do
       result = stream_client.create stream
       expect(result.class).to eq HTTParty::Response
-    }
-  }
+    end
+  end
 
   it { expect(stream_client).to respond_to(:set_ttl) }
 
-  it {
-    VCR.use_cassette('stream_client_set_ttl') {
-      result = stream_client.set_ttl stream, 22500
+  it do
+    VCR.use_cassette('stream_client_set_ttl') do
+      result = stream_client.set_ttl stream, 22_500
       expect(result.class).to eq HTTParty::Response
-    }
-  }
+    end
+  end
 
   it { expect(stream_client).to respond_to(:get_ttl) }
 
-  it {
-    VCR.use_cassette('stream_client_get_ttl') {
+  it do
+    VCR.use_cassette('stream_client_get_ttl') do
       result = stream_client.get_ttl stream
-      expect(result).to eq 22500
-    }
-  }
+      expect(result).to eq 22_500
+    end
+  end
 
-  it {
-    VCR.use_cassette('no_stream_client_get_ttl') {
-      expect {
+  it do
+    VCR.use_cassette('no_stream_client_get_ttl') do
+      expect do
         result = stream_client.get_ttl non_existing_stream
-      }.to raise_error 'The request did not address any of the known URIs'
-    }
-  }
+      end.to raise_error 'The request did not address any of the known URIs'
+    end
+  end
 
   it { expect(stream_client).to respond_to(:truncate) }
 
-  it {
-    VCR.use_cassette('stream_client_truncate') {
+  it do
+    VCR.use_cassette('stream_client_truncate') do
       result = stream_client.truncate stream
       expect(result.class).to eq HTTParty::Response
-    }
-  }
+    end
+  end
 
-  it {
-    VCR.use_cassette('no_stream_client_truncate') {
-      expect {
+  it do
+    VCR.use_cassette('no_stream_client_truncate') do
+      expect do
         result = stream_client.truncate non_existing_stream
-      }.to raise_error 'The request did not address any of the known URIs'
-    }
-  }
+      end.to raise_error 'The request did not address any of the known URIs'
+    end
+  end
 
   it { expect(stream_client).to respond_to(:create_writer) }
 
-  it {
-    VCR.use_cassette('stream_client_create_writer') {
+  it do
+    VCR.use_cassette('stream_client_create_writer') do
       result = stream_client.create_writer stream
-      expect(result.class).to eq CDAPIngest::StreamWriter
-    }
-  }
+      expect(result.class).to eq CDAP::StreamWriter
+    end
+  end
 
-  it {
-    VCR.use_cassette('stream_client_create_writer') {
+  it do
+    VCR.use_cassette('stream_client_create_writer') do
       result = stream_client.create_writer non_existing_stream
-      expect(result.class).to eq CDAPIngest::StreamWriter
-    }
-  }
-
+      expect(result.class).to eq CDAP::StreamWriter
+    end
+  end
 end

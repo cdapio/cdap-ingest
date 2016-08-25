@@ -1,0 +1,6 @@
+AllCops:
+  Exclude:
+    - vendor/bundle/**/*
+# Disable specific cops below
+AsciiComments:
+  Enabled: false
