@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :copyright: Copyright © 2014-2016 Cask Data, Inc.
     :license: See LICENSE file in this repository
 
 =============================
@@ -56,7 +56,7 @@ Create a StreamClient instance with default parameters::
 Optional configurations that can be set (and their default values):
 
 - ``host``: ``localhost``
-- ``port``: ``10000``
+- ``port``: ``11015``
 - ``namespace``: ``default``
 - ``ssl``: ``False`` (set to ``True`` to use HTTPS protocol)
 - ``ssl_cert_check``: ``True`` (set to ``False`` to suspend certificate checks; this allows self-signed
@@ -69,7 +69,7 @@ Example::
 
   config = Config()
   config.host = 'localhost'
-  config.port = 10000
+  config.port = 11015
   config.namespace = example
   config.ssl = True
   config.set_auth_client(authentication_client)

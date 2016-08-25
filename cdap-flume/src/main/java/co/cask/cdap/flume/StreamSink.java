@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014-2015 Cask Data, Inc.
+ * Copyright © 2014-2016 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -55,7 +55,7 @@ public class StreamSink implements Sink, LifecycleAware, Configurable {
   private static final boolean DEFAULT_SSL = false;
   private static final boolean DEFAULT_VERIFY_SSL_CERT = true;
   private static final String DEFAULT_VERSION = "v3";
-  private static final int DEFAULT_PORT = 10000;
+  private static final int DEFAULT_PORT = 11015;
   private static final String DEFAULT_NAMESPACE = "default";
   private static final String DEFAULT_AUTH_CLIENT = BasicAuthenticationClient.class.getName();
 

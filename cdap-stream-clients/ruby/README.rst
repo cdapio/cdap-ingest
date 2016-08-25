@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :copyright: Copyright © 2014-2016 Cask Data, Inc.
     :license: See LICENSE file in this repository
 
 ===========================
@@ -46,7 +46,7 @@ You can configure ``StreamClient`` settings in your config files. For example::
 
   # config/stream.yml
   gateway: 'localhost'
-  port: 10000
+  port: 11015
   api_version: 'v3'
   namespace: 'example'
   api_key:

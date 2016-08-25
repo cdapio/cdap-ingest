@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :copyright: Copyright © 2014-2016 Cask Data, Inc.
     :license: See LICENSE file in this repository
 
 ==========
@@ -34,7 +34,7 @@ Optional parameters that can be specified are listed below, with their default v
 
 - Enter the host port that is used by the Stream Client::
 
-    a1.sinks.sink1.port = 10000
+    a1.sinks.sink1.port = 11015
 
 - Secure Socket Layer mode [true | false] ::
 
@@ -97,7 +97,7 @@ Configuration of a Flume agent that reads data from a log file and puts it to CD
   a1.sinks.k1.type = co.cask.cdap.flume.StreamSink
   a1.sinks.k1.channel = c1
   a1.sinks.k1.host  = 127.0.0.1
-  a1.sinks.k1.port = 10000
+  a1.sinks.k1.port = 11015
   a1.sinks.k1.streamName = logEventStream
   a1.channels.c1.type = memory
   a1.channels.c1.capacity = 1000

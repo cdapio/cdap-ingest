@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :copyright: Copyright © 2014-2016 Cask Data, Inc.
     :license: See LICENSE file in this repository
 
 ================
@@ -95,7 +95,7 @@ streams.
   # Host name that is used by stream client
   pipes.app1pipe.sink.host=cdap_host.example.com
   # Host port that is used by stream client
-  pipes.app1pipe.sink.port=10000
+  pipes.app1pipe.sink.port=11015
 
   # Pipe 2 source properties
   # Working directory (where to monitor files)
@@ -109,7 +109,7 @@ streams.
   # Host name that is used by stream client
   pipes.app2pipe.sink.host=cdap_host.example.com
   # Host port that is used by stream client
-  pipes.app2pipe.sink.port=10000
+  pipes.app2pipe.sink.port=11015
 
 
 Authentication Client
