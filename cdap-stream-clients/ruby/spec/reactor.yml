@@ -1,5 +1,5 @@
 gateway: 'localhost'
-port: 10000
+port: 11015
 api_version: 'v3'
 namespace: 'test'
 ssl: false

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright © 2014-2015 Cask Data, Inc.
+#  Copyright © 2014-2016 Cask Data, Inc.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -20,7 +20,7 @@ from io import open
 
 
 DEFAULT_HOST = u'localhost'
-DEFAULT_PORT = 10000
+DEFAULT_PORT = 11015
 DEFAULT_VERSION = u'v3'
 DEFAULT_NAMESPACE = u'default'
 DEFAULT_SSL = False

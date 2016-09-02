@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:10000/v3/namespaces/test/streams/non_existing_stream/truncate
+    uri: http://localhost:11015/v3/namespaces/test/streams/non_existing_stream/truncate
     body:
       encoding: US-ASCII
       string: ''

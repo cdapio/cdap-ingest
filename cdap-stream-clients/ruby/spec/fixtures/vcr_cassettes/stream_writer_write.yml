@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:10000/v3/namespaces/test/streams/text
+    uri: http://localhost:11015/v3/namespaces/test/streams/text
     body:
       encoding: ASCII-8BIT
       string: test_body

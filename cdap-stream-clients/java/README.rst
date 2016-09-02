@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :copyright: Copyright © 2014-2016 Cask Data, Inc.
     :license: See LICENSE file in this repository
 
 ===========================
@@ -45,7 +45,7 @@ Creating a StreamClient
 -----------------------
 Create a StreamClient instance, specifying the fields ``host`` and ``port`` of the CDAP instance::
 
-    StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000).build();
+    StreamClient streamClient = new RestStreamClient.Builder("localhost", 11015).build();
 
 Optional configurations that can be set (and their default values):
 
@@ -58,7 +58,7 @@ Optional configurations that can be set (and their default values):
 
 Example::
 
-    StreamClient streamClient = new RestStreamClient.Builder("localhost", 10000)
+    StreamClient streamClient = new RestStreamClient.Builder("localhost", 11015)
                                                     .ssl(true)
                                                     .authClient(authenticationClient)
                                                     .build();

@@ -8,7 +8,7 @@ describe('CDAP ingest tests', function () {
         it('Constructor creates an object', function () {
             var streamClient = new StreamClient({
                 host: 'localhost',
-                port: 10000
+                port: 11015
             });
 
             expect(streamClient).to.be.an('object');
@@ -17,7 +17,7 @@ describe('CDAP ingest tests', function () {
         it('Constructor creates a valid object', function () {
             var streamClient = new StreamClient({
                 host: 'localhost',
-                port: 10000
+                port: 11015
             });
 
             expect(streamClient).to.have.property('create');
@@ -35,7 +35,7 @@ describe('CDAP ingest tests', function () {
 
         it('"config" object for the constructor should contain "host" field', function () {
             expect(function () {
-                var streamClient = new StreamClient({port: 10000});
+                var streamClient = new StreamClient({port: 11015});
             }).to.throwError();
         });
 
@@ -50,7 +50,7 @@ describe('CDAP ingest tests', function () {
 
         it('"setTTL" for a valid stream', function () {
             var host = 'localhost',
-                port = 10000,
+                port = 11015,
                 streamName = 'newStream',
                 createUrl = '/v2/streams/' + streamName,
                 configUrl = '/v2/streams/' + streamName + '/config',
@@ -86,7 +86,7 @@ describe('CDAP ingest tests', function () {
 
         it('"setTTL" for an invalid stream', function () {
             var host = 'localhost',
-                port = 10000,
+                port = 11015,
                 streamName = 'invalidStream',
                 configUrl = '/v2/streams/' + streamName + '/config',
                 ttl = 86400,
@@ -111,7 +111,7 @@ describe('CDAP ingest tests', function () {
 
         it('"getTTL" for a valid stream and a valid TTL value', function () {
             var host = 'localhost',
-                port = 10000,
+                port = 11015,
                 streamName = 'newStream',
                 createUrl = '/v2/streams/' + streamName,
                 configUrl = '/v2/streams/' + streamName + '/info',
@@ -148,7 +148,7 @@ describe('CDAP ingest tests', function () {
 
         it('"getTTL" for a valid stream and a wrong TTL value', function () {
             var host = 'localhost',
-                port = 10000,
+                port = 11015,
                 streamName = 'newStream',
                 createUrl = '/v2/streams/' + streamName,
                 configUrl = '/v2/streams/' + streamName + '/info',
@@ -186,7 +186,7 @@ describe('CDAP ingest tests', function () {
 
         it('"getTTL" for an invalid stream', function () {
             var host = 'localhost',
-                port = 10000,
+                port = 11015,
                 streamName = 'invalidStream',
                 configUrl = '/v2/streams/' + streamName + '/info',
                 ttlArgs = {
@@ -220,7 +220,7 @@ describe('CDAP ingest tests', function () {
 
         it('"truncate" for a valid stream', function () {
             var host = 'localhost',
-                port = 10000,
+                port = 11015,
                 streamName = 'newStream',
                 createUrl = '/v2/streams/' + streamName,
                 truncateUrl = '/v2/streams/' + streamName + '/truncate',
@@ -253,7 +253,7 @@ describe('CDAP ingest tests', function () {
 
         it('"truncate" for an invalid stream', function () {
             var host = 'localhost',
-                port = 10000,
+                port = 11015,
                 streamName = 'invalidStream',
                 truncateUrl = '/v2/streams/' + streamName + '/truncate',
 
@@ -277,7 +277,7 @@ describe('CDAP ingest tests', function () {
 
         it('"createWriter" creates a valid object', function () {
             var host = 'localhost',
-                port = 10000,
+                port = 11015,
                 streamName = 'newStream',
                 configUrl = '/v2/streams/' + streamName + '/info',
 
@@ -305,7 +305,7 @@ describe('CDAP ingest tests', function () {
         describe('StreamWriter', function () {
             it('"write" returns valid Promise object', function () {
                 var host = 'localhost',
-                    port = 10000,
+                    port = 11015,
                     streamName = 'newStream',
                     configUrl = '/v2/streams/' + streamName + '/info',
                     writeUrl = '/v2/streams/' + streamName,
@@ -340,7 +340,7 @@ describe('CDAP ingest tests', function () {
             describe('Promise states', function () {
                 it('"resolve" fires a handler', function () {
                     var host = 'localhost',
-                        port = 10000,
+                        port = 11015,
                         streamName = 'newStream',
                         configUrl = '/v2/streams/' + streamName + '/info',
                         writeUrl = '/v2/streams/' + streamName,
@@ -377,7 +377,7 @@ describe('CDAP ingest tests', function () {
 
                 it('"catch" fires a handler', function () {
                     var host = 'localhost',
-                        port = 10000,
+                        port = 11015,
                         streamName = 'newStream',
                         configUrl = '/v2/streams/' + streamName + '/info',
                         writeUrl = '/v2/streams/' + streamName,
@@ -414,7 +414,7 @@ describe('CDAP ingest tests', function () {
 
                 it('"notify" fires a handler', function () {
                     var host = 'localhost',
-                        port = 10000,
+                        port = 11015,
                         streamName = 'newStream',
                         configUrl = '/v2/streams/' + streamName + '/info',
                         writeUrl = '/v2/streams/' + streamName,

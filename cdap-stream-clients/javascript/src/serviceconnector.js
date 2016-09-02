@@ -1,5 +1,5 @@
 /**
- * Copyright © 2014 Cask Data, Inc.
+ * Copyright © 2014-2016 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -41,7 +41,7 @@
      *
      * @param {Object} config {
      *   @param {string} [host='localhost']     - hostname of a server we are going to connect to.
-     *   @param {number} [port=10000]           - port number of a service at the server we are going to connect to.
+     *   @param {number} [port=11015]           - port number of a service at the server we are going to connect to.
      *   @param {boolean} [ssl=false]           - should be connection secured or not (true / false)
      *   @param {@link CDAPAuthManager} [authManager=null]
      * }
@@ -54,7 +54,7 @@
             },
             connectionInfo = {
                 host: config.host ? config.host : 'localhost',
-                port: config.port ? config.port : 10000,
+                port: config.port ? config.port : 11015,
                 ssl: (null != config.ssl) ? config.ssl : false
             },
             authenticationManager = config.authManager || null,

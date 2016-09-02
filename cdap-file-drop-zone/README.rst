@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :copyright: Copyright © 2014-2016 Cask Data, Inc.
     :license: See LICENSE file in this repository
 
 ==================
@@ -129,7 +129,7 @@ using 2 pipes::
   # Host name that is used by stream client
   pipes.pipe1.sink.host=localhost
   # Host port that is used by stream client
-  pipes.pipe1.sink.port=10000
+  pipes.pipe1.sink.port=11015
   # Whether or not the sink endpoint uses SSL
   pipes.pipe1.sink.ssl=true
   # Whether or not the certificate should be checked if using SSL
