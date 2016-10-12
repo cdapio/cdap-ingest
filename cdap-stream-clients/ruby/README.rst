@@ -1,7 +1,7 @@
 .. meta::
     :author: Cask Data, Inc.
     :copyright: Copyright © 2014-2016 Cask Data, Inc.
-    :license: See LICENSE file in this repository
+    :license: See LICENSE.txt file in this repository
 
 ===========================
 CDAP Stream Client for Ruby
@@ -31,12 +31,12 @@ Usage
 
 To use the Stream Client Ruby API, just add to your application Gemfile::
 
-  gem 'stream-client-ruby'
+  gem 'cdap-stream-client'
 
 
 If you use gem outside Rails, you should require gem files in your application files::
 
-  require 'stream-client-ruby'
+  require 'cdap-stream-client'
 
 
 Example
@@ -57,16 +57,20 @@ You can configure ``StreamClient`` settings in your config files. For example::
 
   config = YAML.load_file("config/stream.yml")
 
-  CDAPIngest::Rest.gateway     = config['gateway']
-  CDAPIngest::Rest.port        = config['port']
-  CDAPIngest::Rest.api_version = config['api_version']
-  CDAPIngest::Rest.namespace   = config['namespace']
-  CDAPIngest::Rest.ssl         = config['ssl']
+Setting the configuration in Ruby::
+
+  config = { 'gateway' => 'localhost', 'port' => 11015, 'api_version' => 'v3', 'namespace' => 'example', 'ssl' => false }
+
+  CDAP::RestClient.gateway     = config['gateway']
+  CDAP::RestClient.port        = config['port']
+  CDAP::RestClient.api_version = config['api_version']
+  CDAP::RestClient.namespace   = config['namespace']
+  CDAP::RestClient.ssl         = config['ssl']
 
 
 Create a StreamClient instance and use it as any Ruby object::
 
-  client = CDAPIngest::StreamClient.new
+  client = CDAP::StreamClient.new
 
 
 If authentication is required, set authentication client::

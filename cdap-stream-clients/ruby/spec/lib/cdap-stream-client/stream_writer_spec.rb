@@ -12,6 +12,28 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-module CDAPIngest
-  VERSION = '1.3.0'
+require 'spec_helper'
+
+describe CDAP::StreamWriter do
+  let(:stream_writer) { CDAP::StreamWriter.new 'text' }
+  let(:file) { 'spec/fixtures/1MB' }
+
+  it do
+    VCR.use_cassette('stream_writer') do
+      expect(stream_writer).to be_a CDAP::StreamWriter
+    end
+  end
+
+  it { expect(CDAP::StreamWriter).to respond_to(:new) }
+
+  it { expect(stream_writer).to respond_to(:write) }
+
+  it do
+    VCR.use_cassette('stream_writer_write') do
+      result = stream_writer.write 'test_body'
+      expect(result).to be_a Thread::Future
+    end
+  end
+
+  it { expect(stream_writer).to respond_to(:close) }
 end

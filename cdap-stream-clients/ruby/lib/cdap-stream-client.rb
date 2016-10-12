@@ -14,12 +14,13 @@
 
 # encoding: utf-8
 
-require 'yaml'
+require 'httparty'
+require 'thread'
 
-config = YAML.load_file('spec/stream.yml')
+module CDAP
+end
 
-CDAP::RestClient.gateway     = config['gateway']
-CDAP::RestClient.port        = config['port']
-CDAP::RestClient.api_version = config['api_version']
-CDAP::RestClient.namespace   = config['namespace']
-CDAP::RestClient.ssl         = config['ssl']
+require 'cdap-stream-client/stream_client'
+require 'cdap-stream-client/stream_writer'
+require 'cdap-stream-client/rest'
+require 'cdap-stream-client/version'

@@ -14,12 +14,6 @@
 
 # encoding: utf-8
 
-require 'yaml'
-
-config = YAML.load_file('spec/stream.yml')
-
-CDAP::RestClient.gateway     = config['gateway']
-CDAP::RestClient.port        = config['port']
-CDAP::RestClient.api_version = config['api_version']
-CDAP::RestClient.namespace   = config['namespace']
-CDAP::RestClient.ssl         = config['ssl']
+module CDAP
+  VERSION = '1.3.0.a.1'.freeze
+end
