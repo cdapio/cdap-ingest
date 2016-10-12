@@ -22,8 +22,8 @@ Gem::Specification.new do |s|
   s.version     = CDAP::VERSION
   s.authors     = ['Cask Data, Inc.']
   s.email       = ['ops@cask.co']
-  s.summary     = 'A Ruby client for interacting with Cask CDAP streams'
-  s.description = 'Provide a more Ruby experience when using streams in Cask CDAP services.'
+  s.summary     = 'A Ruby client for interacting with CDAP streams'
+  s.description = 'Provide a more Ruby experience when using streams in CDAP services.'
 
   s.rubyforge_project = 'cdap-stream-client'
 
