@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2014-2016 Cask Data, Inc.
+    :copyright: Copyright © 2014-2017 Cask Data, Inc.
     :license: See LICENSE.txt file in this repository
 
 ===========================
@@ -160,18 +160,18 @@ To launch unit tests only, execute::
   rspec --tag ~it
 
 
-To launch integration tests against a Standalone CDAP instance, execute::
+To launch integration tests against a CDAP Local Sandbox instance, execute::
 
   rspec --tag type:it-local
 
 
-To launch integration tests against a Standalone CDAP instance with authentication enabled,
+To launch integration tests against a CDAP Local Sandbox instance with authentication enabled,
 execute::
 
   rspec --tag type:it-local-auth
 
 
-To launch integration tests against a Standalone CDAP instance with authentication enabled
+To launch integration tests against a CDAP Local Sandbox instance with authentication enabled
 and SSL turned on, execute::
 
   rspec --tag type:it-local-auth-ssl

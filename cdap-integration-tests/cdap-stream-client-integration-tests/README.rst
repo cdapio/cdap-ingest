@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :copyright: Copyright © 2014-2017 Cask Data, Inc.
     :license: See LICENSE file in this repository
 
 =====================================================================
@@ -19,12 +19,12 @@ configuration files.
 Configuration
 =============
 
-To configure integration tests against Standalone CDAP instance, edit::
+To configure integration tests against CDAP Local Sandbox instance, edit::
 
-  src/main/resources/local.conf 
+  src/main/resources/local.conf
 
 
-To configure integration tests against Standalone CDAP instance with authentication
+To configure integration tests against CDAP Local Sandbox instance with authentication
 enabled, edit::
 
   src/main/resources/local_auth.conf
@@ -38,7 +38,7 @@ To configure integration tests against Distributed CDAP instance, edit::
 To configure integration tests against Distributed CDAP instance with authentication
 enabled, edit::
 
-  src/main/resources/remote_auth.conf 
+  src/main/resources/remote_auth.conf
 
 
 Please refer to *CDAP Java Stream Client* in the `CDAP documentation

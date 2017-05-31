@@ -17,7 +17,7 @@ In command shell type this:
 ```> python stream_integration_test_ssl.py```
 
 ## To configure tests change these files:
-```cdap_config.json```             - for integration with Standalone CDAP
+```cdap_config.json```             - for integration with CDAP Local Sandbox
 ```cdap_ssl_config.json```         - for integration with SSL and Auth enabled CDAP
 
 ## More server instances to tests.
@@ -37,7 +37,7 @@ class TestStreamClient(unittest.TestCase, StreamTestBase):
 
 ## License and Trademarks
 
-Copyright © 2014-2015 Cask Data, Inc.
+Copyright © 2014-2017 Cask Data, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
