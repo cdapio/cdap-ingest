@@ -1,6 +1,6 @@
 .. meta::
     :author: Cask Data, Inc.
-    :copyright: Copyright © 2014-2015 Cask Data, Inc.
+    :copyright: Copyright © 2014-2017 Cask Data, Inc.
     :license: See LICENSE file in this repository
 
 ==============================================================
@@ -9,7 +9,7 @@ Cask Data Application Platform (CDAP) Ingest Integration Tests
 
 This project contains set of integration tests for various CDAP ingest project components.
 Tests are executed against running CDAP instance. Connection information is configured in
-properties files. These files are stored in the resource directory in each sub-module. 
+properties files. These files are stored in the resource directory in each sub-module.
 
 You can launch the same integration tests with different configuration files using maven
 profiles::
@@ -24,18 +24,18 @@ profiles::
 Usage
 =====
 
-To launch integration tests against Standalone CDAP instance, execute::
+To launch integration tests against CDAP Local Sandbox instance, execute::
 
   mvn clean install -P it-local
 
 
-To launch integration tests against Standalone CDAP instance with authentication enabled,
+To launch integration tests against CDAP Local Sandbox instance with authentication enabled,
 execute::
 
   mvn clean install -P it-local-auth
 
 
-To launch integration tests against Standalone CDAP instance with authentication enabled
+To launch integration tests against CDAP Local Sandbox instance with authentication enabled
 and ssl turned on, execute::
 
   mvn clean install -P it-local-auth-ssl

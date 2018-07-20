@@ -10,7 +10,7 @@ Unittest
 
 In command shell, enter::
 
-  $python runtests.py
+  $ python runtests.py
 
 
 Integration tests
@@ -28,9 +28,9 @@ In command shell, enter::
 
 To configure tests, alter these files:
 
-  ``cdap_config.json``             - for integration with Standalone CDAP
-  ``cdap_ssl_config.json``         - for integration with SSL and Auth enabled CDAP
-  
+  ``cdap_config.json``             - for integration with CDAP Local Sandbox
+  ``cdap_ssl_config.json``         - for integration with SSL and Auth-enabled CDAP
+
 
 Adding New Tests
 ================
@@ -50,14 +50,14 @@ Example::
 License
 =======
 
-Copyright © 2014-2015 Cask Data, Inc.
+Copyright © 2014-2017 Cask Data, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 in compliance with the License. You may obtain a copy of the License at
 
   http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the 
-License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
-either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
